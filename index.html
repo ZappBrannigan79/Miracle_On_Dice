@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miracle on Dice — Simulator</title>
+<style>
+:root {
+  --rink:#1A3A5C;--gold:#c8a84b;--gold-light:#f5e6c0;--radius:8px;
+  --fc-E:#c8a84b;--fc-S:#2255cc;--fc-B:#cc2222;--fc-W:#7722aa;
+  --fc-RR:#dd7722;--fc-SO:#cc2222;--fc-FT:#226622;--fc-PEN:#eee;--fc-BLANK:#333;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-height:100vh;overflow-x:hidden;}
+.screen{display:none;}.screen.active{display:flex;flex-direction:column;min-height:100vh;}
+
+/* SETUP */
+#setup{align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#0d1f33,#1a3a5c);}
+.setup-box{background:rgba(255,255,255,.05);border:1px solid var(--gold);border-radius:12px;padding:32px;max-width:880px;width:100%;}
+.setup-title{text-align:center;font-size:2.2em;font-weight:900;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;}
+.setup-sub{text-align:center;color:#aaa;margin-bottom:28px;font-size:.95em;}
+.setup-btns{display:flex;gap:16px;justify-content:center;margin-bottom:28px;}
+.btn-mode{padding:14px 32px;font-size:1em;font-weight:700;border-radius:8px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s;}
+.btn-qs{background:var(--gold);color:#111;border:2px solid var(--gold);}.btn-qs:hover{background:#e8c86b;}
+.btn-cb{background:transparent;color:var(--gold);border:2px solid var(--gold);}.btn-cb:hover{background:rgba(200,168,75,.15);}
+.team-builder{display:none;}.team-builder.show{display:block;}.pts-badge{font-size:.75em;}
+.builder-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
+.builder-player{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:16px;}
+.builder-player h3{color:var(--gold);font-size:1em;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;}
+.builder-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:.9em;color:#ccc;}
+.builder-row label{width:80px;flex-shrink:0;}
+.builder-row select{background:#1a2d45;border:1px solid rgba(255,255,255,.2);color:white;padding:4px 8px;border-radius:4px;font-size:.88em;flex:1;}
+.btn-start{display:block;width:100%;padding:14px;background:var(--gold);color:#111;font-weight:700;font-size:1em;border:none;border-radius:8px;cursor:pointer;text-transform:uppercase;letter-spacing:1px;}
+.btn-start:hover{background:#e8c86b;}
+.pts-badge{font-size:.75em;font-weight:700;color:var(--gold);background:rgba(200,168,75,.15);border:1px solid rgba(200,168,75,.3);border-radius:8px;padding:2px 8px;margin-left:6px;}
+.pts-badge.over{color:#ff6666;border-color:#ff6666;background:rgba(255,100,100,.1);}
+.preset-cards{display:flex;flex-direction:column;gap:8px;}
+.preset-card{background:rgba(255,255,255,.04);border:2px solid rgba(255,255,255,.15);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .2s;}
+.preset-card:hover{border-color:rgba(200,168,75,.5);background:rgba(200,168,75,.08);}
+.preset-card.selected{border-color:var(--gold);background:rgba(200,168,75,.15);}
+.preset-card-name{font-weight:900;font-size:.95em;color:var(--gold);margin-bottom:3px;}
+.preset-card-lineup{font-size:.75em;color:#ccc;margin-bottom:3px;}
+.preset-card-bag{font-size:.7em;color:#888;}
+/* Energy picker modal */
+.epicker-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:250;align-items:center;justify-content:center;}
+.epicker-overlay.show{display:flex;}
+.epicker-box{background:#0f2035;border:2px solid var(--gold);border-radius:12px;padding:20px;max-width:500px;width:100%;}
+.epicker-title{font-size:1em;font-weight:700;color:var(--gold);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
+.epicker-sub{font-size:.8em;color:#aaa;margin-bottom:14px;}
+.epicker-needed{font-size:1.1em;font-weight:900;color:white;margin-bottom:12px;}
+.epicker-needed span{color:var(--gold);}
+.epicker-sources{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+.epicker-die{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
+.epicker-die .die-body{cursor:pointer;}
+.epicker-die .die-body:hover{transform:scale(1.1);}
+.epicker-die .pip-count{font-size:.7em;color:#aaa;text-align:center;}
+.epicker-die .pip-count span{color:var(--gold);font-weight:700;}
+.epicker-progress{background:rgba(255,255,255,.06);border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:.82em;color:#ccc;}
+.epicker-progress .paid{color:#55cc55;font-weight:700;}
+.epicker-progress .owed{color:#ffaaaa;font-weight:700;}
+
+/* TOP BAR */
+.top-bar{background:var(--rink);border-bottom:2px solid var(--gold);padding:7px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;}
+.game-title{color:var(--gold);font-weight:900;font-size:1.1em;letter-spacing:2px;text-transform:uppercase;}
+.scoreboard{display:flex;align-items:center;gap:18px;background:rgba(0,0,0,.3);padding:6px 20px;border-radius:20px;border:1px solid rgba(200,168,75,.3);}
+.score-player{display:flex;flex-direction:column;align-items:center;}
+.score-name{font-size:.7em;color:#aaa;text-transform:uppercase;letter-spacing:1px;}
+.score-goals{font-size:1.8em;font-weight:900;color:#fff;line-height:1;}
+.score-sep{font-size:1.2em;color:var(--gold);font-weight:700;}
+.period-info{display:flex;flex-direction:column;align-items:center;}
+.period-label{font-size:.7em;color:#aaa;text-transform:uppercase;}
+.period-val{font-size:1.1em;font-weight:700;color:var(--gold);}
+.bar-right{display:flex;gap:8px;align-items:center;}
+.btn-sm{padding:5px 12px;font-size:.75em;font-weight:700;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:white;cursor:pointer;text-transform:uppercase;transition:all .15s;}
+.btn-sm:hover{background:rgba(255,255,255,.18);}
+.btn-sm.danger{border-color:#cc4444;color:#ff8888;}
+
+/* PHASE BAR */
+.phase-bar{background:#0f2238;border-bottom:1px solid rgba(255,255,255,.1);padding:5px 14px;display:flex;align-items:center;gap:3px;overflow-x:auto;flex-shrink:0;}
+.ph{white-space:nowrap;font-size:.7em;color:#666;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;border-radius:12px;}
+.ph.done{color:#558855;}.ph.active{color:#111;background:var(--gold);font-weight:700;}
+.ph-arr{color:#444;font-size:.8em;}
+
+/* LAYOUT */
+.game-layout{display:flex;flex-direction:column;flex:1;overflow:hidden;}
+.active-area{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:9px 11px 5px;gap:6px;}
+.active-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;}
+.active-label{font-size:1em;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;}
+.timer-box{display:flex;align-items:center;gap:5px;background:rgba(0,0,0,.4);padding:4px 12px;border-radius:16px;border:1px solid rgba(200,168,75,.4);}
+.timer-val{font-size:1.2em;font-weight:900;color:var(--gold);}
+.timer-val.hot{color:#ff6666;}
+.action-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.abtn{padding:6px 13px;font-size:.8em;font-weight:700;border-radius:7px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;}
+.abtn.prim{background:var(--gold);color:#111;}.abtn.prim:hover{background:#e8c86b;}
+.abtn.sec{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.3);}.abtn.sec:hover{background:rgba(255,255,255,.2);}
+.abtn.succ{background:#2a7a2a;color:white;}.abtn.succ:hover{background:#3a9a3a;}
+.abtn.warn{background:#aa5500;color:white;}.abtn.warn:hover{background:#cc6600;}
+.abtn:disabled{opacity:.35;cursor:not-allowed;}
+
+/* PLAYMAT */
+.playmat{display:grid;grid-template-columns:175px 1fr 180px 295px;gap:6px;flex:1;min-height:0;}
+.zone{border-radius:var(--radius);padding:6px;display:flex;flex-direction:column;gap:3px;min-height:0;position:relative;}
+.zone-lbl{font-size:.62em;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.8;flex-shrink:0;text-align:center;}
+.zone-dice{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;flex:1;min-height:0;overflow-y:auto;padding:4px;overflow:visible;}
+.zone-pip{font-size:.62em;color:rgba(255,255,255,.5);text-align:center;flex-shrink:0;}
+.z-block{background:rgba(139,26,26,.25);border:1px solid rgba(139,26,26,.5);color:#ffaaaa;}
+.z-defend{background:rgba(139,26,26,.12);border:1px solid rgba(139,26,26,.3);color:#ffdddd;}
+.z-rs{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);color:white;overflow:visible;}
+.z-cold{background:rgba(26,58,139,.2);border:1px solid rgba(26,58,139,.5);color:#aac4ff;}
+.z-hot{background:rgba(26,58,139,.35);border:1px solid rgba(100,140,255,.6);color:#ccddff;}
+.z-hot.shoot-ready{animation:hotpulse 1.4s ease-in-out infinite;border-width:2px;}
+@keyframes finalflash{0%,100%{background:rgba(255,100,50,.15);color:#ff8855;border-color:#ff6633;box-shadow:none;}50%{background:rgba(255,100,50,.45);color:#fff;border-color:#ff4400;box-shadow:0 0 18px rgba(255,80,0,.7);}}
+.final-turn-flashing{animation:finalflash 0.8s ease-in-out infinite!important;}
+@keyframes hotpulse{0%,100%{border-color:rgba(100,140,255,.5);box-shadow:none;}50%{border-color:#ffdd44;box-shadow:0 0 12px rgba(255,220,68,.5);}}
+/* RS Zone pulse for reroll phase */
+.z-rs.rr-pulse{animation:rrpulse 1.2s ease-in-out infinite;border-width:2px;}
+@keyframes rrpulse{0%,100%{border-color:rgba(255,255,255,.2);box-shadow:none;}50%{border-color:#dd7722;box-shadow:0 0 14px rgba(221,119,34,.5);}}
+/* Button pulse */
+.abtn.pulsing{animation:btnpulse 1.2s ease-in-out infinite;}
+@keyframes btnpulse{0%,100%{opacity:1;box-shadow:none;}50%{opacity:.75;box-shadow:0 0 10px rgba(200,168,75,.7);}}
+.abtn.pulsing-orange{animation:btnpulse-o 1.2s ease-in-out infinite;}
+@keyframes btnpulse-o{0%,100%{opacity:1;box-shadow:none;}50%{opacity:.75;box-shadow:0 0 10px rgba(221,119,34,.7);}}
+.z-shoot{background:rgba(26,58,139,.25);border:1px solid rgba(26,58,139,.5);color:#aac4ff;}
+.z-bench{background:rgba(42,74,42,.3);border:1px solid rgba(42,74,42,.6);color:#aaffaa;}
+.z-reserve{background:rgba(100,80,20,.3);border:1px solid rgba(200,168,75,.4);color:var(--gold-light);}
+.z-iced{background:rgba(20,50,80,.4);border:1px solid rgba(100,160,220,.3);color:#aaccee;}
+.left-col{display:flex;flex-direction:column;gap:6px;min-height:0;}
+.center-col{display:flex;flex-direction:column;gap:6px;min-height:0;overflow:visible;}
+.off-split{display:grid;grid-template-rows:1fr 1fr;gap:6px;flex:1;min-height:0;}
+.right-col{display:flex;flex-direction:column;gap:6px;min-height:0;}
+/* BIGGER bench/reserve */
+.bottom-strip{display:grid;grid-template-columns:160px 160px 1fr;gap:6px;flex-shrink:0;height:96px;}
+.qa-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 9px;display:flex;flex-direction:column;gap:4px;}
+.qa-lbl{font-size:.62em;color:#777;text-transform:uppercase;letter-spacing:1px;}
+.qa-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.hint{font-size:.7em;color:#777;font-style:italic;}
+.rr-btn{padding:4px 10px;font-size:.75em;font-weight:700;border-radius:6px;border:1px solid #aa7733;background:rgba(170,119,51,.15);color:#cc9944;cursor:pointer;}
+.rr-btn:hover{background:rgba(170,119,51,.35);}
+
+/* RS zone action bar */
+.rs-actions{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:3px;flex-shrink:0;}
+.rs-act-btn{padding:3px 9px;font-size:.68em;font-weight:700;border-radius:5px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.4px;transition:all .15s;}
+.rs-act-btn.auto-sb{background:#334488;color:#aac4ff;border:1px solid #4466cc;}
+.rs-act-btn.auto-sb:hover{background:#445599;}
+.rs-act-btn.auto-bl{background:rgba(170,119,51,.2);color:#cc9944;border:1px solid #aa7733;}
+.rs-act-btn.auto-bl:hover{background:rgba(170,119,51,.4);}
+
+/* DICE */
+.die-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;flex-shrink:0;cursor:default;}
+.die-body{width:54px;height:54px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.4);transition:all .15s;position:relative;flex-shrink:0;user-select:none;}
+.die-body:hover{transform:scale(1.07);}
+.die-body.sel{box-shadow:0 0 0 4px #ffff00,0 0 14px #ffff00!important;transform:scale(1.1);border-color:#ffff00!important;}
+.die-body.sel-rr{box-shadow:0 0 0 4px #dd7722,0 0 14px #dd7722!important;border-color:#dd7722!important;transform:scale(1.08);}
+/* Costed die selected — ensure ring still visible over gold border */
+.die-body.has-cost.sel{border-color:#ffff00!important;box-shadow:0 0 0 4px #ffff00,0 0 14px #ffff00!important;}
+.die-body.has-cost.sel-rr{border-color:#dd7722!important;box-shadow:0 0 0 4px #dd7722,0 0 14px #dd7722!important;}
+.pos-F .die-body{background:radial-gradient(circle at 35% 35%,#2a4aaa,#0d1f55);border-color:#4466cc;}
+.pos-D .die-body{background:radial-gradient(circle at 35% 35%,#aa2a2a,#550d0d);border-color:#cc4444;}
+.pos-G .die-body{background:radial-gradient(circle at 35% 35%,#666,#333);border-color:#888;}
+.pos-HC .die-body{background:radial-gradient(circle at 35% 35%,#c8a84b,#6b5422);border-color:#e8c86b;}
+.pos-R .die-body{background:radial-gradient(circle at 35% 35%,#ddd,#aaa);border-color:#ccc;}
+.pos-P .die-body{background:radial-gradient(circle at 35% 35%,#222,#111);border-color:#444;}
+.face-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;font-size:.67em;font-weight:900;line-height:1.1;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.5);pointer-events:none;}
+.fb-E{background:var(--fc-E);color:#111;}
+.fb-S{background:var(--fc-S);color:#fff;}
+.fb-B{background:var(--fc-B);color:#fff;}
+.fb-W{background:#7722aa;color:#fff;}
+.fb-RR{background:#dd7722;color:#fff;}
+.fb-SO{background:#cc2222;color:#fff;}
+.fb-FT{background:#226622;color:#fff;}
+.fb-PEN{background:#eee;color:#222;}
+.fb-BLANK{background:#333;color:#555;border:1px solid #444;}
+.fb-UNK{background:rgba(255,255,255,.15);color:#888;}
+/* Cost mechanic — yellow bottom stripe on die body */
+/* has-cost: subtle gold ring instead of overlay that covers pip value */
+.die-body.has-cost{border-color:#e8c030;box-shadow:0 0 0 2px rgba(232,192,48,.4);}
+/* Cost faces have a yellow tinted badge */
+.fb-SC{background:linear-gradient(135deg,var(--fc-S) 55%,#c8a84b 55%);color:#fff;}
+.fb-BC{background:linear-gradient(135deg,var(--fc-B) 55%,#c8a84b 55%);color:#fff;}
+.fb-WC{background:linear-gradient(135deg,#7722aa 55%,#c8a84b 55%);color:#fff;}
+.fb-SOC{background:linear-gradient(135deg,#cc2222 55%,#c8a84b 55%);color:#fff;}
+/* Cost label strip below badge */
+.cost-strip{position:absolute;bottom:0px;left:50%;transform:translateX(-50%);background:#c8a84b;color:#111;font-size:.42em;font-weight:900;border-radius:0 0 6px 6px;padding:0 3px;line-height:1.3;white-space:nowrap;pointer-events:none;letter-spacing:-.3px;}
+/* Energy "in use" overlay */
+.energy-inuse{position:absolute;top:-5px;right:-5px;background:var(--gold);color:#111;font-size:.58em;font-weight:900;border-radius:8px;padding:1px 4px;pointer-events:none;line-height:1.3;}
+/* Reserved badge */
+.reserved-badge{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#8B6914;color:#fff;font-size:.55em;font-weight:900;border-radius:4px;padding:1px 4px;pointer-events:none;white-space:nowrap;}
+.die-tier-lbl{font-size:.6em;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:.5px;text-align:center;line-height:1;}
+.pos-R .die-tier-lbl{color:#bbb;}.pos-P .die-tier-lbl{color:#555;}
+/* Spindown badge */
+.spindown-badge{position:absolute;top:-5px;left:-5px;background:#cc6600;color:#fff;font-size:.55em;font-weight:900;border-radius:6px;padding:1px 4px;pointer-events:none;}
+
+/* Die context menu — opens to right, flips left if needed */
+.die-menu{position:absolute;z-index:9999;background:#1a2d45;border:1px solid var(--gold);border-radius:8px;padding:5px;min-width:215px;box-shadow:0 4px 20px rgba(0,0,0,.8);top:0;left:calc(100% + 10px);}
+.die-menu.flip-left{left:auto;right:calc(100% + 10px);}
+.die-menu button{display:block;width:100%;text-align:left;background:none;border:none;color:white;padding:6px 10px;cursor:pointer;border-radius:4px;font-size:.8em;transition:background .1s;}
+.die-menu button:hover{background:rgba(200,168,75,.2);color:var(--gold);}
+
+/* RR mode banner */
+.rr-mode-banner{background:rgba(221,119,34,.15);border:1px solid #dd7722;border-radius:6px;padding:5px 10px;font-size:.78em;color:#dd9944;display:none;flex-shrink:0;align-items:center;gap:8px;}
+.rr-mode-banner.show{display:flex;}
+.rr-confirm-btn{padding:3px 9px;font-size:.85em;background:#dd7722;color:#111;border:none;border-radius:5px;cursor:pointer;font-weight:700;}
+
+/* OPPONENT */
+.opp-area{background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.1);padding:6px 12px;flex-shrink:0;}
+.opp-header{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+.opp-lbl{font-size:.75em;color:#888;text-transform:uppercase;letter-spacing:1px;}
+.opp-tmr{font-size:.75em;color:#aaa;}
+.opp-zones{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.opp-zone{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:3px 9px;font-size:.7em;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:56px;}
+.opp-zone-l{color:#777;font-size:.84em;text-transform:uppercase;letter-spacing:.5px;}
+.opp-zone-v{color:white;font-weight:700;font-size:1.1em;}
+.opp-zone-d{color:#aaa;font-size:.74em;}
+
+/* PANELS */
+.panel-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.panel-overlay.show{display:flex;}
+.panel-box{background:#0f2035;border:1px solid var(--gold);border-radius:12px;padding:20px;max-width:780px;width:100%;max-height:87vh;overflow-y:auto;}
+.panel-title{font-size:1.1em;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
+.panel-sub{font-size:.8em;color:#aaa;margin-bottom:14px;}
+.panel-close{float:right;background:none;border:none;color:#aaa;font-size:1.4em;cursor:pointer;}
+.panel-close:hover{color:white;}
+.energy-bar{background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.3);border-radius:6px;padding:7px 13px;margin-bottom:12px;font-size:.85em;color:var(--gold-light);}
+.energy-bar strong{color:var(--gold);font-size:1.1em;}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:9px;}
+.lcard{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:11px;}
+.lcard.buyable{border-color:rgba(200,168,75,.45);}
+.lcard.soldout{opacity:.45;}
+.card-pt{font-size:1em;font-weight:900;color:var(--gold);letter-spacing:1px;margin-bottom:2px;}
+.card-pt span{font-size:.73em;color:#aaa;font-weight:400;}
+.card-faces{font-size:.7em;color:#ccc;margin-bottom:7px;line-height:1.5;}
+.card-pips{display:flex;gap:4px;margin-bottom:7px;}
+.dpip{width:17px;height:17px;border-radius:50%;background:rgba(200,168,75,.3);border:1px solid var(--gold);}
+.dpip.used{background:rgba(100,100,100,.2);border-color:#555;}
+.card-cost{font-size:.78em;color:#aaa;margin-bottom:5px;}
+.card-cost strong{color:var(--gold);}
+.btn-buy{width:100%;padding:5px;font-size:.76em;font-weight:700;border-radius:6px;border:1px solid var(--gold);background:rgba(200,168,75,.13);color:var(--gold);cursor:pointer;text-transform:uppercase;transition:all .15s;margin-bottom:3px;}
+.btn-buy:hover:not(:disabled){background:rgba(200,168,75,.33);}
+.btn-buy:disabled{opacity:.28;cursor:not-allowed;}
+.btn-buy.trade{border-color:#aa7733;color:#cc9944;background:rgba(170,119,51,.09);}
+.btn-buy.trade:hover:not(:disabled){background:rgba(170,119,51,.25);}
+.token-row{display:flex;gap:9px;flex-wrap:wrap;margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,.1);}
+.tok-btn{padding:6px 13px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:white;cursor:pointer;font-size:.78em;font-weight:600;transition:all .15s;}
+.tok-btn:hover:not(:disabled){background:rgba(255,255,255,.15);}
+.tok-btn:disabled{opacity:.28;cursor:not-allowed;}
+
+/* TOKEN STRIP */
+.tok-strip{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.tok{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.08);border-radius:10px;padding:2px 7px;font-size:.7em;font-weight:700;border:1px solid rgba(255,255,255,.15);}
+.tok.st{color:#88aaff;border-color:#4466cc;}.tok.bt{color:#ffaaaa;border-color:#cc4444;}
+.epips{font-size:.78em;color:var(--gold);background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.3);padding:3px 9px;border-radius:10px;font-weight:700;}
+
+/* COMBAT */
+.combat-box{background:#0a1820;border:2px solid var(--gold);border-radius:12px;padding:18px;max-width:720px;width:100%;}
+.combat-title{font-size:1.2em;font-weight:900;color:var(--gold);text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:2px;}
+.combat-info{background:rgba(255,255,255,.05);border-radius:6px;padding:8px 12px;font-size:.8em;color:#ccc;margin-bottom:12px;line-height:1.6;}
+.combat-info strong{color:var(--gold);}
+.combat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.combat-side{background:rgba(255,255,255,.04);border-radius:8px;padding:10px;text-align:center;min-width:0;overflow:hidden;}
+.combat-side h3{font-size:.78em;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.cdice-row{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-bottom:7px;max-width:100%;overflow:visible;}
+.cdie{width:32px;height:32px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:.95em;font-weight:900;flex-shrink:0;}
+.cdie.sd{background:#1a3488;border:1px solid #4466cc;color:white;}
+.cdie.bd{background:#881a1a;border:1px solid #cc3333;color:white;}
+.ctotal{font-size:2em;font-weight:900;color:white;}
+.cbreak{font-size:.73em;color:#888;margin-top:3px;}
+.cresult{text-align:center;font-size:1.4em;font-weight:900;padding:11px;border-radius:8px;margin:9px 0;}
+.cresult.goal{background:rgba(26,58,139,.3);color:#88aaff;border:1px solid #4466cc;}
+.cresult.blocked{background:rgba(139,26,26,.3);color:#ffaaaa;border:1px solid #cc3333;}
+.block-sel-area h3{font-size:.8em;color:#ccc;margin-bottom:7px;}
+.block-sel-dice{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;min-height:30px;}
+.tok-ctrl{font-size:.76em;color:#aaa;margin-bottom:10px;}
+.tok-ctrl button{margin-left:5px;padding:2px 7px;font-size:.85em;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;border-radius:4px;cursor:pointer;}
+
+/* OVERLAYS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:none;align-items:center;justify-content:center;}
+.overlay.show{display:flex;}
+.ov-box{background:#0f2035;border:2px solid var(--gold);border-radius:16px;padding:32px 40px;text-align:center;max-width:500px;}
+.ov-box h2{color:var(--gold);font-size:1.5em;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px;}
+.ov-box p{color:#aaa;margin-bottom:18px;font-size:.9em;}
+.fo-rolls{display:flex;gap:38px;justify-content:center;margin-bottom:18px;}
+.fo-player{text-align:center;}
+.fo-player .nm{font-size:.8em;color:#aaa;margin-bottom:5px;text-transform:uppercase;}
+.fo-dice{display:flex;gap:5px;margin-bottom:5px;justify-content:center;}
+.fo-die{width:42px;height:42px;background:#1a3488;border:2px solid #4466cc;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:1.3em;font-weight:900;color:white;}
+.fo-total{font-size:1.4em;font-weight:900;color:white;}
+.fo-winner{color:var(--gold);font-size:1em;font-weight:700;margin-bottom:14px;}
+.ov-score{font-size:2em;font-weight:900;color:white;margin-bottom:14px;}
+.ov-winner{font-size:1.2em;font-weight:900;color:white;margin-bottom:7px;}
+.btn-ov{padding:11px 28px;background:var(--gold);color:#111;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:.95em;text-transform:uppercase;letter-spacing:1px;margin:4px;}
+.btn-ov:hover{background:#e8c86b;}
+
+/* LOG */
+.log-panel{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.08);padding:5px 12px;flex-shrink:0;max-height:64px;overflow-y:auto;}
+.log-e{font-size:.7em;color:#888;line-height:1.6;}
+.log-e.imp{color:var(--gold);}.log-e.goal{color:#88aaff;font-weight:700;}.log-e.blk{color:#ff8888;}
+.toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:#1a3a5c;border:1px solid var(--gold);color:white;padding:9px 18px;border-radius:18px;font-size:.83em;z-index:500;pointer-events:none;opacity:0;transition:opacity .3s;}
+.toast.show{opacity:1;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:rgba(0,0,0,.2);}
+::-webkit-scrollbar-thumb{background:rgba(200,168,75,.4);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- SETUP -->
+<div id="setup" class="screen active">
+  <div class="setup-box">
+    <div class="setup-title">Miracle on Dice</div>
+    <div class="setup-sub">Hockey Dice-Building Game — Playtesting Simulator</div>
+    <div class="setup-btns">
+      <button class="btn-mode btn-qs" onclick="showQS()">⚡ Quick Start</button>
+      <button class="btn-mode btn-cb" onclick="showCustom()">🏒 Build Teams (30pts)</button>
+    </div>
+
+    <!-- QUICK START: 3 presets per player -->
+    <div class="team-builder" id="qs-panel">
+      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:14px">Each player picks a preset roster. Starting bag: 10 Rookies + 5 Tier 1 dice (included in preset).</div>
+      <div class="builder-grid">
+        <div class="builder-player">
+          <h3>Player 1 — Choose Preset</h3>
+          <div class="preset-cards" id="qs-p1"></div>
+        </div>
+        <div class="builder-player">
+          <h3>Player 2 — Choose Preset</h3>
+          <div class="preset-cards" id="qs-p2"></div>
+        </div>
+      </div>
+      <button class="btn-start" onclick="startQS()">Start Quick Game →</button>
+    </div>
+
+    <!-- CUSTOM BUILDER: 30-point budget -->
+    <div class="team-builder" id="custom-panel">
+      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:10px">Build your team within 30 points (27pts for players + 3pt HC auto). Min: 1 Forward, 1 Defenseman, 1 Goalie. No duplicate tiers per position.</div>
+      <div class="builder-grid">
+        <div class="builder-player" id="cb-p1-panel">
+          <h3>Player 1 <span class="pts-badge" id="p1-pts">0/27 pts</span></h3>
+          <div class="builder-row"><label>Forward 1</label><select id="p1f1" onchange="updatePts(1)"></select></div>
+          <div class="builder-row"><label>Forward 2</label><select id="p1f2" onchange="updatePts(1)"><option value="">— (optional)</option></select></div>
+          <div class="builder-row"><label>Forward 3</label><select id="p1f3" onchange="updatePts(1)"><option value="">— (optional)</option></select></div>
+          <div class="builder-row"><label>Defense 1</label><select id="p1d1" onchange="updatePts(1)"></select></div>
+          <div class="builder-row"><label>Defense 2</label><select id="p1d2" onchange="updatePts(1)"><option value="">— (optional)</option></select></div>
+          <div class="builder-row"><label>Goalie</label><select id="p1g" onchange="updatePts(1)"></select></div>
+          <div class="builder-row"><label>Head Coach</label><select disabled><option>HC (3pts — auto)</option></select></div>
+          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 15 Rookie dice (same for all players)</div>
+        </div>
+        <div class="builder-player" id="cb-p2-panel">
+          <h3>Player 2 <span class="pts-badge" id="p2-pts">0/27 pts</span></h3>
+          <div class="builder-row"><label>Forward 1</label><select id="p2f1" onchange="updatePts(2)"></select></div>
+          <div class="builder-row"><label>Forward 2</label><select id="p2f2" onchange="updatePts(2)"><option value="">— (optional)</option></select></div>
+          <div class="builder-row"><label>Forward 3</label><select id="p2f3" onchange="updatePts(2)"><option value="">— (optional)</option></select></div>
+          <div class="builder-row"><label>Defense 1</label><select id="p2d1" onchange="updatePts(2)"></select></div>
+          <div class="builder-row"><label>Defense 2</label><select id="p2d2" onchange="updatePts(2)"><option value="">— (optional)</option></select></div>
+          <div class="builder-row"><label>Goalie</label><select id="p2g" onchange="updatePts(2)"></select></div>
+          <div class="builder-row"><label>Head Coach</label><select disabled><option>HC (3pts — auto)</option></select></div>
+          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 15 Rookie dice (same for all players)</div>
+        </div>
+      </div>
+      <button class="btn-start" onclick="startCustom()">Start Custom Game →</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div class="top-bar">
+    <div class="game-title">🏒 Miracle on Dice</div>
+    <div class="scoreboard">
+      <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
+      <div class="score-sep">–</div>
+      <div class="period-info"><div class="period-label">Period</div><div class="period-val" id="sp">1</div></div>
+      <div class="score-sep">–</div>
+      <div class="score-player"><div class="score-name" id="sn2">P2</div><div class="score-goals" id="sg2">0</div></div>
+    </div>
+    <div id="final-turn-banner" style="display:none;align-items:center;gap:8px;background:rgba(255,100,50,.15);border:2px solid #ff6633;border-radius:10px;padding:7px 20px;font-size:1.05em;font-weight:900;color:#ff8855;text-transform:uppercase;letter-spacing:2px;">
+      ⏰ FINAL TURN OF PERIOD ⏰
+    </div>
+    <div class="bar-right">
+      <button class="btn-sm" onclick="openShop()">🛒 Buy</button>
+      <button class="btn-sm" onclick="openLineup()">📋 Lineup</button>
+      <button class="btn-sm danger" onclick="if(confirm('New game?'))location.reload()">↩ Reset</button>
+    </div>
+  </div>
+  <div class="phase-bar" id="pbar"></div>
+  <div class="game-layout">
+    <div class="active-area">
+      <div class="active-header">
+        <div>
+          <div class="active-label" id="aplbl">Player 1's Turn</div>
+          <div class="tok-strip" id="tstrip"></div>
+        </div>
+        <div class="timer-box"><span style="font-size:.72em;color:#aaa">TIMER</span><span class="timer-val" id="tmr">06:00</span></div>
+        <div class="action-row" id="arow"></div>
+      </div>
+      <div class="rr-mode-banner" id="rr-banner" style="display:none">
+        <span id="rr-banner-text"></span>
+      </div>
+      <div class="playmat">
+        <div class="left-col">
+          <div class="zone z-defend" style="flex:1"><div class="zone-lbl">🛡 Defensive Zone</div><div class="zone-dice" id="z-defend"></div></div>
+        </div>
+        <div class="center-col">
+          <div class="zone z-rs" style="min-height:90px;overflow:visible">
+            <div class="zone-lbl">🎲 Roll &amp; Sort Zone</div>
+            <div class="rs-actions" id="rs-actions"></div>
+            <div class="zone-dice" id="z-rs" style="overflow:visible"></div>
+          </div>
+          <div class="off-split">
+            <div class="zone z-hot"><div class="zone-lbl">🔥 Hot Zone</div><div class="zone-dice" id="z-hot"></div></div>
+            <div class="zone z-cold"><div class="zone-lbl">❄️ Cold Zone</div><div class="zone-dice" id="z-cold"></div></div>
+          </div>
+        </div>
+        <div class="right-col">
+          <div class="zone z-shoot" style="flex:1"><div class="zone-lbl">🏒 Shoot Zone</div><div class="zone-dice" id="z-shoot"></div><div class="zone-pip" id="shoot-pip"></div></div>
+        </div>
+        <div class="zone z-iced"><div class="zone-lbl">🧊 Iced Zone</div><div class="zone-dice" id="z-iced"></div></div>
+      </div>
+      <div class="bottom-strip">
+        <div class="zone z-bench"><div class="zone-lbl">🪑 Bench (max 2)</div><div class="zone-dice" id="z-bench"></div></div>
+        <div class="zone z-reserve"><div class="zone-lbl">💾 Reserve (max 2)</div><div class="zone-dice" id="z-reserve"></div></div>
+        <div class="qa-box"><div class="qa-lbl">Quick Actions</div><div class="qa-row" id="qarow"></div></div>
+      </div>
+    </div>
+    <div class="opp-area">
+      <div class="opp-header">
+        <div class="opp-lbl" id="opplbl">Opponent</div>
+        <div class="opp-tmr" id="opptmr"></div>
+        <div style="font-size:.7em;color:#666;margin-left:auto">Tokens: <span id="opptok"></span></div>
+      </div>
+      <div class="opp-zones" id="oppzones"></div>
+    </div>
+  </div>
+  <div class="log-panel" id="logpanel"></div>
+  <div style="display:none"><div id="z-block"></div></div>
+</div>
+
+<!-- ENERGY PICKER -->
+<div class="epicker-overlay" id="epicker">
+  <div class="epicker-box">
+    <div class="epicker-title">⚡ Pay Energy Cost</div>
+    <div class="epicker-sub" id="epicker-sub">Click dice to spend their pips. Click multiple times to spin down.</div>
+    <div class="epicker-needed" id="epicker-needed">Need: <span id="epicker-need-val">0</span>⚡ &nbsp;|&nbsp; Paid: <span id="epicker-paid-val">0</span>⚡</div>
+    <div class="epicker-sources" id="epicker-sources"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="abtn prim" id="epicker-confirm" onclick="confirmEPick()" style="flex:1" disabled>Confirm Payment</button>
+      <button class="abtn sec" onclick="cancelEPick()" style="flex:0 0 auto">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHOP PANEL -->
+<div class="panel-overlay" id="shop-panel">
+  <div class="panel-box">
+    <button class="panel-close" onclick="closeShop()">✕</button>
+    <div class="panel-title" id="shop-title">Buy Phase</div>
+    <div class="panel-sub">Purchased dice go to Iced Zone. Spin-down change returned to RS Zone.</div>
+    <div class="energy-bar" id="ebar"></div>
+    <div class="card-grid" id="cgrid"></div>
+    <div class="token-row" id="trow"></div>
+  </div>
+</div>
+
+<!-- LINEUP PANEL -->
+<div class="panel-overlay" id="lineup-panel">
+  <div class="panel-box">
+    <button class="panel-close" onclick="document.getElementById('lineup-panel').classList.remove('show')">✕</button>
+    <div class="panel-title">Full Lineup — Both Players</div>
+    <div class="panel-sub">Card rosters and remaining purchasable dice.</div>
+    <div id="lp-content"></div>
+  </div>
+</div>
+
+<!-- COMBAT PANEL -->
+<div class="panel-overlay" id="combat-panel">
+  <div class="combat-box">
+    <div class="combat-title">⚔️ Shot on Goal</div>
+    <div class="combat-info" id="combat-info"></div>
+    <div id="block-sel-area">
+      <div class="block-sel-area">
+        <h3 style="color:#88aaff;margin-bottom:6px">🏒 Attacker — commit Shoot Tokens (optional)</h3>
+        <div class="tok-ctrl" id="shoot-tok-ctrl">Shoot Tokens to add: <span id="stok-count">0</span>
+          <button onclick="adjST(1)">+</button><button onclick="adjST(-1)">–</button>
+          (you have <span id="ap-stok">0</span>) — each token counts as an automatic +1 to your combat total
+        </div>
+        <div style="border-top:1px solid rgba(255,255,255,.1);margin:10px 0;"></div>
+        <h3>🥅 Defender — click your Defensive Zone dice to block with</h3>
+        <div class="block-sel-dice" id="bsel-dice"></div>
+        <div class="tok-ctrl">Block Tokens to use: <span id="btok-count">0</span>
+          <button onclick="adjBT(1)">+</button><button onclick="adjBT(-1)">–</button>
+          (you have <span id="opp-btok">0</span>)
+        </div>
+        <button class="abtn prim" style="width:100%;margin-top:6px" onclick="resolveCombat()">Roll Combat Dice!</button>
+      </div>
+    </div>
+    <div id="combat-result" style="display:none">
+      <div class="combat-grid">
+        <div class="combat-side"><h3>🏒 Attacker</h3><div class="cdice-row" id="scdice"></div><div class="ctotal" id="stotal">0</div><div class="cbreak" id="sbreak"></div></div>
+        <div class="combat-side"><h3>🥅 Defender</h3><div class="cdice-row" id="bcdice"></div><div class="ctotal" id="btotal">0</div><div class="cbreak" id="bbreak"></div></div>
+      </div>
+      <div class="cresult" id="crbanner"></div>
+      <button class="abtn prim" style="width:100%;margin-top:8px" onclick="closeCombat()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRASH PICKER -->
+<div class="panel-overlay" id="trash-panel">
+  <div class="panel-box" style="max-width:520px">
+    <button class="panel-close" onclick="document.getElementById('trash-panel').classList.remove('show')">✕</button>
+    <div class="panel-title">Trade Cost — Choose a Die to Trash</div>
+    <div class="panel-sub" id="trash-sub">Select one die to permanently remove from the game. This includes dice just spent as energy (already in Iced Zone).</div>
+    <div id="trash-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;min-height:60px;"></div>
+    <div style="margin-top:14px;font-size:.8em;color:#888">Click a die to trash it and complete the purchase.</div>
+  </div>
+</div>
+
+<!-- FACEOFF -->
+<div class="overlay" id="fo-overlay">
+  <div class="ov-box">
+    <h2>⚡ Faceoff</h2><p id="fo-plbl">Period 1 — roll to determine who goes first.</p>
+    <div class="fo-rolls">
+      <div class="fo-player"><div class="nm" id="fo-n1">P1</div><div class="fo-dice" id="fo-d1"></div><div class="fo-total" id="fo-t1">–</div></div>
+      <div class="fo-player"><div class="nm" id="fo-n2">P2</div><div class="fo-dice" id="fo-d2"></div><div class="fo-total" id="fo-t2">–</div></div>
+    </div>
+    <div class="fo-winner" id="fo-win"></div>
+    <button class="btn-ov" id="fo-btn" onclick="doFaceoff()">Roll Faceoff</button>
+  </div>
+</div>
+<!-- PERIOD END -->
+<div class="overlay" id="pe-overlay">
+  <div class="ov-box"><h2 id="pe-title">Period Over</h2><div class="ov-score" id="pe-score">0–0</div><p id="pe-msg"></p><button class="btn-ov" id="pe-btn">Next →</button></div>
+</div>
+<!-- GAME OVER -->
+<div class="overlay" id="go-overlay">
+  <div class="ov-box"><h2>Game Over</h2><div class="ov-winner" id="go-win"></div><div class="ov-score" id="go-score">0–0</div><button class="btn-ov" onclick="location.reload()">New Game</button></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════ DATA ═══════════════════
+const DEFS={
+  // c:true = costs 1 Energy to advance to its zone
+  Rookie:[{t:'E',v:1},{t:'E',v:2},{t:'S',v:1},{t:'B',v:1},{t:'RR',v:0},{t:'BLANK',v:0}],
+  F1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:1,c:true},{t:'W',v:1}],
+  F2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:2,c:true},{t:'W',v:1}],
+  F3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:2},{t:'S',v:2,c:true},{t:'W',v:1}],
+  F4:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:2},{t:'S',v:2,c:true},{t:'W',v:2}],
+  F5:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:2},{t:'S',v:3,c:true},{t:'W',v:2}],
+  F6:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:3},{t:'S',v:3,c:true},{t:'W',v:2}],
+  F7:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:3},{t:'S',v:3,c:true},{t:'W',v:3}],
+  F8:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:3},{t:'S',v:4,c:true},{t:'W',v:3}],
+  D1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:1},{t:'B',v:1,c:true},{t:'W',v:1}],
+  D2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:1},{t:'B',v:2,c:true},{t:'W',v:1}],
+  D3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:2},{t:'B',v:2,c:true},{t:'W',v:1}],
+  D4:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:2},{t:'B',v:2,c:true},{t:'W',v:2}],
+  D5:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:2},{t:'B',v:3,c:true},{t:'W',v:2}],
+  D6:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'W',v:2}],
+  D7:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'W',v:3}],
+  D8:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'W',v:3}],
+  G3:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
+  G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
+  G5:[{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'SO',v:3,c:true}],
+  G6:[{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4},{t:'B',v:4,c:true},{t:'SO',v:3,c:true}],
+  HC:[{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'PEN',v:0},{t:'FT',v:0},{t:'BLANK',v:0}],
+  Penalty:[{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0}],
+};
+const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,F7:7,F8:8,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,D7:7,D8:8,G3:3,G4:4,G5:5,G6:6,HC:3};
+const CF=[2,2,1,1,0,0];
+const FWD=['F1','F2','F3','F4','F5','F6','F7','F8'];
+const DEF=['D1','D2','D3','D4','D5','D6','D7','D8'];
+const GOA=['G3','G4','G5','G6'];
+const PHASES=['Advance Cold','Draw','Roll','Reroll','Roll & Buy','Shoot','End Turn'];
+function posOf(k){return k.startsWith('F')?'F':k.startsWith('D')?'D':k.startsWith('G')?'G':k==='HC'?'HC':k==='Penalty'?'P':'R';}
+function tierOf(k){const m=k.match(/\d+/);return m?+m[0]:0;}
+function posName(k){return{F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach',R:'Rookie',P:'Penalty'}[posOf(k)]||k;}
+
+// ═══════════════════ STATE ═══════════════════
+let G={},_id=0,_rrMode=false,_rrDieId=null;
+function mkDie(k){return{id:_id++,key:k,pos:posOf(k),tier:tierOf(k),face:null,sel:false,energyPending:false};}
+function mkBag(extra=[]){const b=[];for(let i=0;i<15;i++)b.push(mkDie('Rookie'));return b;} // extra param kept for API compat but ignored — all 15 start as Rookies
+function mkLineup(arr){return arr.map(k=>({key:k,left:3}));}
+function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,timer:8,bag:mkBag(bagExtra),
+  z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
+  tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
+function initG(l1,l2,bag1=[],bag2=[]){
+  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,
+     assignmentStarted:false, // true once any die has been assigned from RS this turn
+     periodFirstPlayer:0,
+     players:[mkPlayer('Player 1',l1,bag1),mkPlayer('Player 2',l2,bag2)]};
+  _rrMode=false;_rrDieId=null;
+}
+function AP(){return G.players[G.ap];}
+function OPP(){return G.players[1-G.ap];}
+
+// ═══════════════════ SETUP ═══════════════════
+// ── PRESET DEFINITIONS ──
+const PRESETS=[
+  {
+    name:'🎯 Sniper',
+    desc:'Elite forwards, mid defense, solid goalie',
+    lineup:['F8','F5','F3','D4','D3','G4','HC'],
+    bag:[],
+    pts:30
+  },
+  {
+    name:'⚖️ Two-Way',
+    desc:'Balanced offense and defense, strong goalie',
+    lineup:['F5','F4','F3','D6','D4','G5','HC'],
+    bag:[],
+    pts:30
+  },
+  {
+    name:'🧱 Brick Wall',
+    desc:'Weak forwards, elite defense, elite goalie',
+    lineup:['F4','F3','F2','D7','D6','G5','HC'],
+    bag:[],
+    pts:30
+  },
+];
+let _qsSel=[null,null]; // selected preset index per player
+
+function showQS(){
+  document.getElementById('custom-panel').classList.remove('show');
+  const qp=document.getElementById('qs-panel');
+  qp.classList.toggle('show');
+  if(qp.classList.contains('show'))renderPresetCards();
+}
+function showCustom(){
+  document.getElementById('qs-panel').classList.remove('show');
+  const cp=document.getElementById('custom-panel');
+  cp.classList.toggle('show');
+  if(cp.classList.contains('show'))populateSels();
+}
+function renderPresetCards(){
+  [0,1].forEach(pi=>{
+    const el=document.getElementById('qs-p'+(pi+1));
+    el.innerHTML=PRESETS.map((p,i)=>`
+      <div class="preset-card ${_qsSel[pi]===i?'selected':''}" onclick="selectPreset(${pi},${i})">
+        <div class="preset-card-name">${p.name}</div>
+        <div class="preset-card-lineup">Cards: ${p.lineup.slice(0,-1).join(' · ')} + HC (${p.pts}pts)</div>
+        <div class="preset-card-bag">Starter bag: 15 Rookies</div>
+      </div>`).join('');
+  });
+}
+function selectPreset(playerIdx,presetIdx){
+  _qsSel[playerIdx]=presetIdx;
+  renderPresetCards();
+}
+function startQS(){
+  if(_qsSel[0]===null||_qsSel[1]===null){toast('Each player must select a preset.');return;}
+  const p1=PRESETS[_qsSel[0]],p2=PRESETS[_qsSel[1]];
+  initG(p1.lineup,p2.lineup,p1.bag,p2.bag);
+  beginGame();
+}
+
+// ── CUSTOM BUILDER ──
+function populateSels(){
+  ['1','2'].forEach(p=>{
+    ['f1','f2','f3'].forEach((f,i)=>{
+      const s=document.getElementById('p'+p+f);
+      if(i>0)s.add(new Option('— (optional)',''));
+      FWD.forEach(o=>s.add(new Option(o,o)));
+    });
+    ['d1','d2'].forEach((d,i)=>{
+      const s=document.getElementById('p'+p+d);
+      if(i>0)s.add(new Option('— (optional)',''));
+      DEF.forEach(o=>s.add(new Option(o,o)));
+    });
+    const g=document.getElementById('p'+p+'g');
+    GOA.forEach(o=>g.add(new Option(o,o)));
+  });
+  // Defaults
+  document.getElementById('p1f1').value='F5';document.getElementById('p1f2').value='F4';document.getElementById('p1f3').value='F3';
+  document.getElementById('p1d1').value='D6';document.getElementById('p1d2').value='D4';document.getElementById('p1g').value='G5';
+  document.getElementById('p2f1').value='F4';document.getElementById('p2f2').value='F3';document.getElementById('p2f3').value='F2';
+  document.getElementById('p2d1').value='D5';document.getElementById('p2d2').value='D3';document.getElementById('p2g').value='G4';
+  updatePts(1);updatePts(2);
+}
+function updatePts(p){
+  const v=id=>{const el=document.getElementById(id);return el?el.value:'';};
+  const keys=['f1','f2','f3','d1','d2','g'].map(s=>v('p'+p+s)).filter(k=>k);
+  const total=keys.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0)+3; // +3 HC
+  const badge=document.getElementById('p'+p+'-pts');
+  badge.textContent=`${total}/30 pts`;
+  badge.className='pts-badge'+(total>30?' over':'');
+}
+// getBagExtras removed — starting bag is always 15 Rookies
+function startCustom(){
+  const v=id=>{const el=document.getElementById(id);return el?el.value:'';};
+  const getL=p=>['f1','f2','f3','d1','d2','g'].map(s=>v('p'+p+s)).filter(k=>k).concat(['HC']);
+  const l1=getL('1'),l2=getL('2');
+  // Validate minimums
+  if(!l1.some(k=>k.startsWith('F'))||!l1.some(k=>k.startsWith('D'))||!l1.some(k=>k.startsWith('G')))
+    {toast('Player 1: need at least 1 Forward, 1 Defenseman, 1 Goalie.');return;}
+  if(!l2.some(k=>k.startsWith('F'))||!l2.some(k=>k.startsWith('D'))||!l2.some(k=>k.startsWith('G')))
+    {toast('Player 2: need at least 1 Forward, 1 Defenseman, 1 Goalie.');return;}
+  // Validate no duplicate tiers per position
+  const chkDups=(lineup,pname)=>{
+    const seen={};
+    for(const k of lineup){
+      if(k==='HC')continue;
+      const pos=k[0];const tier=k.slice(1);
+      const key=pos+tier;
+      if(seen[key]){toast(`${pname}: Duplicate ${k} — no two cards of same position+tier.`);return false;}
+      seen[key]=true;
+    }return true;
+  };
+  if(!chkDups(l1,'Player 1')||!chkDups(l2,'Player 2'))return;
+  // Validate points
+  const pts=lineup=>lineup.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0);
+  if(pts(l1)>30){toast(`Player 1 lineup is ${pts(l1)}pts — exceeds 30pt limit.`);return;}
+  if(pts(l2)>30){toast(`Player 2 lineup is ${pts(l2)}pts — exceeds 30pt limit.`);return;}
+  // Get bag extras
+  initG(l1,l2,[],[]);beginGame();
+}
+function beginGame(){showScreen('game');showFaceoff();}
+
+// ═══════════════════ FACEOFF ═══════════════════
+function showFaceoff(){
+  document.getElementById('fo-plbl').textContent=`Period ${G.period} — roll for first turn.`;
+  ['fo-n1','fo-n2'].forEach((id,i)=>document.getElementById(id).textContent=G.players[i].name);
+  ['fo-d1','fo-d2','fo-win'].forEach(id=>document.getElementById(id).innerHTML='');
+  ['fo-t1','fo-t2'].forEach(id=>document.getElementById(id).textContent='–');
+  document.getElementById('fo-btn').textContent='Roll Faceoff';
+  document.getElementById('fo-btn').onclick=doFaceoff;
+  document.getElementById('fo-overlay').classList.add('show');
+}
+function rcf(){return CF[Math.floor(Math.random()*6)];}
+function doFaceoff(){
+  let r1,r2,t1,t2;
+  do{r1=[rcf(),rcf()];r2=[rcf(),rcf()];t1=r1[0]+r1[1];t2=r2[0]+r2[1];}while(t1===t2);
+  document.getElementById('fo-d1').innerHTML=r1.map(v=>`<div class="fo-die">${v}</div>`).join('');
+  document.getElementById('fo-d2').innerHTML=r2.map(v=>`<div class="fo-die">${v}</div>`).join('');
+  document.getElementById('fo-t1').textContent=t1;document.getElementById('fo-t2').textContent=t2;
+  const w=t1>t2?0:1;G.ap=w;G.periodFirstPlayer=w;
+  document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff!`;
+  document.getElementById('fo-btn').textContent='Begin Period';
+  document.getElementById('fo-btn').onclick=()=>{document.getElementById('fo-overlay').classList.remove('show');startTurn();};
+  addLog(`Faceoff: P1=${t1}, P2=${t2} — ${G.players[w].name} goes first.`,'imp');
+}
+
+// ═══════════════════ TURN ENGINE ═══════════════════
+function startTurn(){
+  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.assignmentStarted=false;G.blockSelIds=[];G.blockToksUsed=0;
+  _rrMode=false;_rrDieId=null;
+  document.getElementById('rr-banner').classList.remove('show');
+  renderAll();phase0();
+}
+function phase0(){
+  const ap=AP();const moved=ap.z.cold.splice(0);
+  ap.z.hot.push(...moved);
+  addLog(moved.length?`${ap.name}: ${moved.length} Cold→Hot.`:`${ap.name}: Cold Zone empty.`);
+  G.phase=1;renderAll();
+}
+function rollAll(){
+  const ap=AP();
+  const fromBench=ap.z.bench.splice(0);const drawn=[];
+  for(let i=0;i<5;i++){
+    if(!ap.bag.length)refillBag(ap);
+    if(!ap.bag.length)break;
+    const idx=Math.floor(Math.random()*ap.bag.length);
+    drawn.push(ap.bag.splice(idx,1)[0]);
+  }
+  ap.z.rs.push(...fromBench,...drawn);
+  ap.z.rs.forEach(d=>{const f=DEFS[d.key]||DEFS.Penalty;d.face=f[Math.floor(Math.random()*f.length)];d.sel=false;d.energyPending=false;});
+  addLog(`${ap.name}: Drew ${drawn.length}+${fromBench.length} bench. Rolled ${ap.z.rs.length}.`);
+  G.phase=3;
+  // Auto-enter reroll selection mode immediately
+  _rrMode=true;_rrDieId=null;
+  AP().z.rs.forEach(d=>d.sel=false);
+  renderAll();
+}
+function refillBag(p){
+  const ic=p.z.iced.splice(0);p.bag.push(...ic);
+  for(let i=p.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.bag[i],p.bag[j]]=[p.bag[j],p.bag[i]];}
+  addLog(`${p.name}: Bag refilled (${p.bag.length} dice).`);
+}
+
+// ── FREE REROLL ──
+// ── FREE REROLL (Phase 3 — one free reroll of any dice) ──
+function enterFreeRR(){
+  // Called at start of Phase 3 automatically — dice are immediately selectable
+  AP().z.rs.forEach(d=>d.sel=false);
+  _rrMode=true;_rrDieId=null;
+  renderAll();
+}
+function skipRR(){
+  G.phase=4;
+  addLog(`${AP().name}: Skipped free reroll.`);
+  _rrMode=false;
+  document.getElementById('rr-banner').classList.remove('show');
+  renderAll();
+}
+function enterRRFaceMode(dieId){
+  AP().z.rs.forEach(d=>d.sel=false);
+  _rrMode=true;_rrDieId=dieId; // face-spend mode
+  renderAll();
+}
+
+function confirmRRSel(){
+  const ap=AP();
+  const sel=ap.z.rs.filter(d=>d.sel);
+  if(!sel.length){
+    // No dice selected — offer skip or go back
+    if(confirm('No dice selected.\n\nOK = Skip Reroll (reroll none)\nCancel = Go back and select dice')){
+      skipRR();
+    }
+    // cancel just returns, player can select dice
+    return;
+  }
+  sel.forEach(d=>{
+    const f=DEFS[d.key]||DEFS.Penalty;
+    d.face=f[Math.floor(Math.random()*f.length)];
+    d.sel=false;
+    d.energyPending=false;
+  });
+  addLog(`${ap.name}: Rerolled ${sel.length} dice.`);
+  const wasFreeReroll=(_rrDieId===null);
+  _rrMode=false;_rrDieId=null;
+  if(wasFreeReroll){G.rrUsed=true;G.phase=4;}
+  renderAll();
+}
+
+function cancelRRSel(){
+  AP().z.rs.forEach(d=>{d.sel=false;});
+  _rrMode=false;_rrDieId=null;
+  renderAll();
+}
+
+// ═══════════════════ AUTO-ASSIGN ═══════════════════
+function autoAssignSB(){
+  const ap=AP();
+  // Separate free faces (advance immediately) from costed faces (need picker)
+  const toProcess=[...ap.z.rs];
+  const freeDice=[], costedDice=[];
+  toProcess.forEach(d=>{
+    if(!d.face)return;
+    const f=d.face;
+    if(f.t==='E'||d.energyPending||f.t==='RR'||f.t==='PEN'||f.t==='FT'||f.t==='BLANK'||f.t==='W')return;
+    if(f.t==='S'||f.t==='B'){
+      if(f.c) costedDice.push(d);
+      else freeDice.push(d);
+    }
+  });
+  // Advance free dice immediately
+  let moved=0;
+  freeDice.forEach(d=>{
+    const i=ap.z.rs.indexOf(d);if(i===-1)return;
+    ap.z.rs.splice(i,1);
+    if(d.face.t==='S'){if(ap.timer>=4)ap.z.cold.push(d);else ap.z.hot.push(d);}
+    else ap.z.defend.push(d);
+    moved++;
+  });
+  if(moved)addLog(`${ap.name}: Auto-assigned ${moved} free Shoot/Block dice.`);
+  // For costed dice, queue them through the energy picker one at a time
+  if(costedDice.length){
+    if(!hasEnergy1()){
+      toast(`${costedDice.length} costed face(s) need 1⚡ each — no energy available.`);
+      renderAll();return;
+    }
+    addLog(`${ap.name}: ${costedDice.length} costed face(s) need 1⚡ each — opening picker.`);
+    renderAll();
+    autoAdvanceCostQueue(costedDice,0);
+  }else{
+    if(!moved)toast('No free Shoot or Block faces to auto-assign.');
+    renderAll();
+  }
+}
+function autoAdvanceCostQueue(queue,idx){
+  if(idx>=queue.length){renderAll();return;}
+  const d=queue[idx];
+  const ap=AP();
+  // Die might have been moved already; check it's still in RS
+  if(!ap.z.rs.includes(d)){autoAdvanceCostQueue(queue,idx+1);return;}
+  if(!hasEnergy1()){toast('No more energy to pay costs — remaining costed faces skipped.');renderAll();return;}
+  const label=d.face.t==='S'?`advance ${d.key} Shoot to ${ap.timer>=4?'Cold':'Hot'} Zone`:`advance ${d.key} Block to Defensive Zone`;
+  openEPicker(1,label,()=>{
+    const i=ap.z.rs.indexOf(d);
+    if(i!==-1){
+      ap.z.rs.splice(i,1);
+      if(d.face.t==='S'){if(ap.timer>=4)ap.z.cold.push(d);else ap.z.hot.push(d);}
+      else ap.z.defend.push(d);
+      addLog(`${ap.name}: Costed ${d.key} advanced (1⚡ paid).`);
+    }
+    renderAll();
+    // Next in queue after a short delay so picker can close
+    setTimeout(()=>autoAdvanceCostQueue(queue,idx+1),100);
+  });
+}
+// Standalone payOneCost for use outside assignDie
+function payOneCostFrom(ap){
+  const rsE=ap.z.rs.filter(d=>d.face&&(d.face.t==='E'||d.energyPending)&&d.face.v>=1)
+                    .sort((a,b)=>a.face.v-b.face.v);
+  if(rsE.length){
+    const p=rsE[0];
+    if(p.face.v===1){ap.z.rs.splice(ap.z.rs.indexOf(p),1);ap.z.iced.push(p);}
+    else{p.face={t:p.face.t,v:p.face.v-1};}
+  }else{
+    const resE2=ap.z.reserve.filter(d=>d.face&&d.face.v>=1).sort((a,b)=>a.face.v-b.face.v);
+    if(resE2.length){
+      const rv=resE2[0];
+      if(rv.face.v===1){ap.z.reserve.splice(ap.z.reserve.indexOf(rv),1);ap.z.iced.push(rv);}
+      else{rv.face={t:rv.face.t,v:rv.face.v-1};}
+    }
+  }
+}
+function autoAssignBlanks(){
+  const ap=AP();
+  const bl=ap.z.rs.filter(d=>d.face&&(d.face.t==='BLANK'));
+  bl.forEach(d=>{ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);});
+  if(bl.length)addLog(`${ap.name}: Auto-sent ${bl.length} blank(s)→Iced.`);
+  renderAll();
+}
+
+// ═══════════════════ ASSIGNMENT MENU ═══════════════════
+function hasEnergy1(){
+  // Check if at least 1E is available in RS or reserve to pay a cost
+  const ap=AP();
+  const rsE=ap.z.rs.filter(d=>d.face&&(d.face.t==='E'||d.energyPending)&&d.face.v>=1);
+  const resE=ap.z.reserve.some(d=>d.face&&d.face.v>=1);
+  return rsE.length>0||resE;
+}
+function getOpts(die){
+  const f=die.face;const ap=AP();if(!f)return[];const o=[];
+  const canPay=hasEnergy1();
+  if(f.t==='E'){
+    if(ap.z.reserve.length<2)o.push({l:`Save ${f.v}E in Reserve`,a:'reserve'});
+  }else if(f.t==='S'){
+    const z=ap.timer>=4?'Cold':'Hot';
+    if(!f.c){
+      o.push({l:`Shoot → ${z} Zone (${f.v} pip)`,a:'shoot'});
+    }else{
+      if(canPay)o.push({l:`Shoot → ${z} (${f.v} pip) — costs 1⚡`,a:'shoot-cost'});
+      else o.push({l:`Shoot (${f.v} pip) — BLOCKED: need 1⚡ to advance`,a:'no-energy'});
+    }
+  }else if(f.t==='B'){
+    if(!f.c){
+      o.push({l:`Block → Defensive Zone (${f.v} pip)`,a:'block'});
+    }else{
+      if(canPay)o.push({l:`Block → Defensive (${f.v} pip) — costs 1⚡`,a:'block-cost'});
+      else o.push({l:`Block (${f.v} pip) — BLOCKED: need 1⚡ to advance`,a:'no-energy'});
+    }
+  }else if(f.t==='W'){
+    const z=ap.timer>=4?'Cold':'Hot';
+    o.push({l:`Wild as Shoot → ${z} (${f.v} pip)`,a:'shoot'});
+    o.push({l:`Wild as Block → Defensive (${f.v} pip)`,a:'block'});
+    if(!G.assignmentStarted)o.push({l:'Wild as Reroll → select dice to reroll',a:'rr'});
+    o.push({l:'Wild as Energy (stays in RS ⚡)',a:'wild-energy'});
+  }else if(f.t==='RR'){
+    if(!G.assignmentStarted)o.push({l:'Spend Reroll → select dice to reroll',a:'rr'});
+    else o.push({l:'Reroll face (cannot use after assigning — goes to Iced)',a:'iced'});
+  }else if(f.t==='SO'){
+    if(canPay)o.push({l:`Shutout → gain ${f.v} Block Token(s) — costs 1⚡`,a:'shutout-cost'});
+    else o.push({l:`Shutout — BLOCKED: need 1⚡ to cash in`,a:'no-energy'});
+  }else if(f.t==='PEN'){
+    o.push({l:'Give opponent a Penalty die',a:'pen-give'});
+    if(ap.z.iced.some(d=>d.key==='Penalty'))o.push({l:'Remove own Penalty from Iced',a:'pen-rem'});
+  }else if(f.t==='FT'){
+    o.push({l:'⚔️ Fight!',a:'fight'});
+  }
+  return o;
+}
+
+function assignDie(die,action){
+  closeMenus();
+  const ap=AP(),opp=OPP();
+  const idx=ap.z.rs.indexOf(die);if(idx===-1)return;
+  const payOneCost=()=>payOneCostFrom(ap);
+  // Mark that assignment has started — disables further free reroll use
+  G.assignmentStarted=true;
+  if(action==='shoot'){
+    ap.z.rs.splice(idx,1);
+    if(ap.timer>=4)ap.z.cold.push(die);else ap.z.hot.push(die);
+    addLog(`${ap.name}: ${dLbl(die)}→${ap.timer>=4?'Cold':'Hot'} Zone.`);
+  }else if(action==='shoot-cost'){
+    // Open energy picker — cost is 1E
+    closeMenus();
+    openEPicker(1, `advance ${dLbl(die)} to Offensive Zone`, ()=>{
+      const i2=AP().z.rs.indexOf(die);
+      if(i2!==-1)AP().z.rs.splice(i2,1);
+      if(AP().timer>=4)AP().z.cold.push(die);else AP().z.hot.push(die);
+      addLog(`${AP().name}: ${dLbl(die)}→${AP().timer>=3?'Cold':'Hot'} Zone (1⚡ paid).`);
+      renderAll();
+    });
+    return;
+  }else if(action==='block'){
+    ap.z.rs.splice(idx,1);ap.z.defend.push(die);
+    addLog(`${ap.name}: ${dLbl(die)}→Defensive Zone.`);
+  }else if(action==='block-cost'){
+    closeMenus();
+    openEPicker(1, `advance ${dLbl(die)} to Defensive Zone`, ()=>{
+      const i2=AP().z.rs.indexOf(die);
+      if(i2!==-1)AP().z.rs.splice(i2,1);
+      AP().z.defend.push(die);
+      addLog(`${AP().name}: ${dLbl(die)}→Defensive Zone (1⚡ paid).`);
+      renderAll();
+    });
+    return;
+  }else if(action==='no-energy'){
+    toast('Need 1⚡ Energy in RS or Reserve to advance this costed face.');
+    renderAll();return;
+  }else if(action==='reserve'){
+    if(die.face.t!=='E'&&!die.energyPending){toast('Reserve: Energy faces only.');return;}
+    if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
+    ap.z.rs.splice(idx,1);ap.z.reserve.push(die);die.energyPending=false;
+    addLog(`${ap.name}: ${dLbl(die)} saved in Reserve.`);
+  }else if(action==='wild-energy'){
+    die.energyPending=true;die.sel=false;
+    addLog(`${ap.name}: Wild assigned as Energy (⚡${die.face.v} stays in RS).`);
+  }else if(action==='rr'){
+    // Remove from RS and move to iced (it's spent), then enter select mode for remaining RS dice.
+    ap.z.rs.splice(idx,1);
+    ap.z.iced.push(die);
+    addLog(`${ap.name}: Reroll face spent → select dice to reroll.`);
+    enterRRFaceMode(die.id);return;
+  }else if(action==='shutout-cost'){
+    closeMenus();
+    const soV=die.face.v;
+    openEPicker(1, `activate Shutout for ${soV} Block Tokens`, ()=>{
+      const i2=AP().z.rs.indexOf(die);
+      if(i2!==-1)AP().z.rs.splice(i2,1);
+      AP().tok.block+=soV;AP().z.iced.push(die);
+      addLog(`${AP().name}: Shutout → +${soV} Block Tokens (1⚡ paid, ${AP().tok.block} total).`,'imp');
+      renderAll();
+    });
+    return;
+  }else if(action==='shutout'){
+    ap.z.rs.splice(idx,1);ap.tok.block+=die.face.v;ap.z.iced.push(die);
+    addLog(`${ap.name}: Shutout → +${die.face.v} Block Tokens (${ap.tok.block} total).`,'imp');
+  }else if(action==='pen-give'){
+    ap.z.rs.splice(idx,1);opp.bag.push(mkDie('Penalty'));ap.z.iced.push(die);
+    addLog(`${ap.name}: Penalty → added Penalty die to ${opp.name}'s bag!`,'imp');
+  }else if(action==='pen-rem'){
+    ap.z.rs.splice(idx,1);const pi=ap.z.iced.findIndex(d=>d.key==='Penalty');
+    if(pi!==-1)ap.z.iced.splice(pi,1);ap.z.iced.push(die);
+    addLog(`${ap.name}: Penalty → removed own Penalty die from Iced.`,'imp');
+  }else if(action==='fight'){
+    ap.z.rs.splice(idx,1);ap.z.iced.push(die);doFight();return;
+  }
+  renderAll();
+}
+function dLbl(d){if(!d.face)return d.key;return`${d.key}[${d.face.t}${d.face.v||''}]`;}
+
+// ═══════════════════ FIGHT ═══════════════════
+function doFight(){
+  const ap=AP(),opp=OPP();
+  const apF=ap.z.defend[0]||ap.z.bench[0];const opF=opp.z.defend[0]||opp.z.bench[0];
+  if(!apF||!opF){toast('No fighters available!');renderAll();return;}
+  const at=Array.from({length:Math.max(apF.tier,1)},()=>rcf()).reduce((a,b)=>a+b,0);
+  const ot=Array.from({length:Math.max(opF.tier,1)},()=>rcf()).reduce((a,b)=>a+b,0);
+  const apW=at>=ot;
+  const[win,los,wF,lF]=apW?[ap,opp,apF,opF]:[opp,ap,opF,apF];
+  ['defend','bench'].forEach(z=>{
+    const ri=ap.z[z].indexOf(apF);if(ri!==-1)ap.z[z].splice(ri,1);
+    const ro=opp.z[z].indexOf(opF);if(ro!==-1)opp.z[z].splice(ro,1);
+  });
+  win.tok.block++;sendBench(win,wF);los.z.iced.push(lF);
+  if(los.tok.block>0)los.tok.block--;else if(los.tok.shoot>0)los.tok.shoot--;
+  addLog(`Fight! ${ap.name}:${at} vs ${opp.name}:${ot}. ${win.name} wins → +1 Block Token.`,'imp');
+  renderAll();
+}
+function sendBench(p,d){if(p.z.bench.length>=2)p.z.iced.push(d);else p.z.bench.push(d);}
+
+// ═══════════════════ ECONOMY (spin-down) ═══════════════════
+// Returns available energy from RS (energy faces + wild-energy pending) + reserve
+function totalE(){
+  const ap=AP();let t=0;
+  ap.z.rs.forEach(d=>{if(d.face&&(d.face.t==='E'||d.energyPending))t+=d.face.v;});
+  ap.z.reserve.forEach(d=>{if(d.face)t+=d.face.v;});
+  return t;
+}
+// Spend exactly `amt` energy using spin-down change logic
+// Priority: RS energy dice smallest first, then reserve
+// Returns remainder after spending (should be 0 if enough available)
+function spendE(amt){
+  const ap=AP();let rem=amt;
+  // Collect spendable dice: RS energy/wildE + reserve
+  // Spend RS energy dice first (smallest pips first)
+  const rsE=ap.z.rs.filter(d=>d.face&&(d.face.t==='E'||d.energyPending)).sort((a,b)=>a.face.v-b.face.v);
+  for(const d of rsE){
+    if(rem<=0)break;
+    if(d.face.v<=rem){
+      rem-=d.face.v;
+      ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);d.energyPending=false;
+    }else{
+      // spin-down: reduce this die's value, leave remainder in RS
+      const change=d.face.v-rem;rem=0;
+      d.face={t:d.face.t==='E'?'E':'E',v:change};d.energyPending=false;
+      // if spun to 0 or negative, just send to iced
+      if(d.face.v<=0){ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);}
+      addLog(`${ap.name}: Spun down energy die to ${change}E change.`);
+    }
+  }
+  // If still need energy, drain reserve dice (smallest first)
+  const resArr=[...ap.z.reserve].sort((a,b)=>a.face.v-b.face.v);
+  for(const rv of resArr){
+    if(rem<=0)break;
+    if(!rv.face)continue;
+    if(rv.face.v<=rem){
+      rem-=rv.face.v;
+      const ri=ap.z.reserve.indexOf(rv);ap.z.reserve.splice(ri,1);ap.z.iced.push(rv);
+    }else{
+      const change=rv.face.v-rem;rem=0;
+      rv.face={t:'E',v:change};
+      addLog(`${ap.name}: Spun down reserve die to ${change}E change.`);
+    }
+  }
+  return rem;
+}
+// Pending trade state
+let _tradeCardIdx=-1;
+
+function buyCard(cardIdx,trade){
+  const ap=AP();const card=ap.lineup[cardIdx];
+  if(!card.left){toast('No dice left!');return;}
+  const cost=COSTS[card.key]+(trade?3:0);const avail=totalE();
+  if(trade&&card.key==='HC'){toast('Head Coach cannot be traded.');return;}
+  if(avail<cost){toast(`Need ${cost}E, have ${avail}E.`);return;}
+  closeShop();
+  if(trade){
+    // Pay full trade cost first, then choose die to trash
+    openEPicker(cost, `full trade cost for ${card.key} (includes +3 surcharge)`, ()=>{
+      // After full cost paid, open trash picker — iced now includes spent energy dice
+      if(!AP().z.iced.length){toast('No dice in Iced Zone to trash.');return;}
+      _tradeCardIdx=cardIdx;
+      openTrashPicker(card.key,cost);
+    });
+  }else{
+    openEPicker(cost, `purchase ${card.key}`, ()=>{
+      const ap2=AP();const card2=ap2.lineup[cardIdx];
+      card2.left--;
+      ap2.z.iced.push(mkDie(card2.key));
+      addLog(`${ap2.name}: Bought ${card2.key} for ${cost}E → Iced Zone.`,'imp');
+      if(!card2.left){OPP().bag.push(mkDie('Penalty'));addLog(`${card2.key} sold out! ${OPP().name} gets Penalty die.`,'imp');}
+      renderAll();
+    });
+  }
+}
+
+function openTrashPicker(cardKey, totalCost){
+  const ap=AP();
+  document.getElementById('trash-sub').innerHTML=
+    `Buying <strong>${cardKey}</strong> for <strong>${totalCost}E</strong> (Trade Cost). `+
+    `Select one die below to permanently trash. This includes energy dice just spent for this purchase.`;
+  const grid=document.getElementById('trash-grid');
+  grid.innerHTML='';
+  if(!ap.z.iced.length){
+    grid.innerHTML='<div style="color:#888;font-size:.85em">No dice in Iced Zone to trash.</div>';
+  }else{
+    ap.z.iced.forEach(die=>{
+      const btn=document.createElement('div');
+      btn.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;';
+      // Iced dice always show grey "?" — use dieWrapHTML with inIced=true
+      btn.innerHTML=dieWrapHTML(die,false,true,true);
+      const db=btn.querySelector('.die-body');
+      if(db){
+        db.style.cursor='pointer';
+        btn.addEventListener('click',()=>completeTrade(die.id));
+        btn.addEventListener('mouseenter',()=>db.classList.add('sel'));
+        btn.addEventListener('mouseleave',()=>db.classList.remove('sel'));
+      }
+      grid.appendChild(btn);
+    });
+  }
+  document.getElementById('trash-panel').classList.add('show');
+}
+
+function completeTrade(trashDieId){
+  const ap=AP();
+  const card=ap.lineup[_tradeCardIdx];
+  if(!card){document.getElementById('trash-panel').classList.remove('show');return;}
+  const ti=ap.z.iced.findIndex(d=>d.id===trashDieId);
+  if(ti!==-1){
+    const tr=ap.z.iced.splice(ti,1)[0];
+    addLog(`${ap.name}: Trashed ${tr.key} (Trade Cost).`);
+  }
+  document.getElementById('trash-panel').classList.remove('show');
+  const cardIdx=_tradeCardIdx;_tradeCardIdx=-1;
+  // Full cost already paid — just complete the purchase
+  const ap2=AP();const card2=ap2.lineup[cardIdx];
+  card2.left--;
+  ap2.z.iced.push(mkDie(card2.key));
+  addLog(`${ap2.name}: Bought ${card2.key} (Trade) → Iced Zone.`,'imp');
+  if(!card2.left){OPP().bag.push(mkDie('Penalty'));addLog(`${card2.key} sold out! ${OPP().name} gets Penalty die.`,'imp');}
+  renderAll();
+}
+function buyTok(type){
+  if(totalE()<3){toast('Need 3E.');return;}
+  closeShop();
+  openEPicker(3, `buy 1 ${type} Token`, ()=>{
+    AP().tok[type]++;
+    addLog(`${AP().name}: Bought 1 ${type} Token (3E).`);
+    renderAll();
+  });
+}
+
+// ═══════════════════ SHOOTING ═══════════════════
+function moveToShoot(id){
+  const ap=AP();const i=ap.z.hot.findIndex(d=>d.id===id);if(i===-1)return;
+  const d=ap.z.hot[i];
+  // Check tier uniqueness before moving
+  if(d.pos!=='R'&&d.pos!=='HC'&&d.pos!=='P'){
+    const key=`${d.pos}-${d.tier}`;
+    if(ap.z.shoot.some(s=>s.pos===d.pos&&s.tier===d.tier&&s.pos!=='R')){
+      toast(`Tier Uniqueness: ${key} already in Shoot Zone!`);return;
+    }
+  }
+  ap.z.hot.splice(i,1);ap.z.shoot.push(d);renderAll();
+}
+function retFromShoot(id){
+  const ap=AP();const i=ap.z.shoot.findIndex(d=>d.id===id);if(i===-1)return;
+  const d=ap.z.shoot.splice(i,1)[0];ap.z.hot.push(d);renderAll();
+}
+function checkUniq(dice,lbl){
+  const seen={};
+  for(const d of dice){
+    if(d.pos==='R'||d.pos==='HC'||d.pos==='P')continue;
+    const k=`${d.pos}-${d.tier}`;
+    if(seen[k]){toast(`Tier Uniqueness: two ${k} can't ${lbl}!`);return false;}
+    seen[k]=true;
+  }return true;
+}
+function declareShot(){
+  const ap=AP();
+  if(G.shotDeclared){toast('Only one shot per turn is allowed!');return;}
+  if(!ap.z.shoot.length){toast('Add dice to Shoot Zone first!');return;}
+  if(!checkUniq(ap.z.shoot,'attack'))return;
+  G.shotDeclared=true;
+  addLog(`${ap.name}: 🚨 SHOT — ${ap.z.shoot.length} die/dice + ${ap.tok.shoot} token(s).`,'imp');
+  openCombat();renderAll();
+}
+
+// ═══════════════════ COMBAT ═══════════════════
+// CORRECT: num dice to roll = num attacking dice + tokens
+// Result = sum of combat dice (2,2,1,1,0,0) + tokens count as automatic 1 each
+// Pips on player dice determine HOW MANY combat dice to roll — NOT added to total
+let _bTok=0,_sTok=0;
+function adjST(n){_sTok=Math.max(0,Math.min(AP().tok.shoot,_sTok+n));document.getElementById('stok-count').textContent=_sTok;}
+function adjBT(n){_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;}
+function renderBlockSelDupes(){
+  // After each selection change, grey out defend dice that would now be dupes
+  const bsel=document.getElementById('bsel-dice');
+  const alreadySel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
+  bsel.querySelectorAll('.die-wrap').forEach(wrap=>{
+    const id=parseInt(wrap.dataset.id);
+    if(isNaN(id))return;
+    const die=OPP().z.defend.find(d=>d.id===id);
+    if(!die)return;
+    const body=wrap.querySelector('.die-body');
+    if(G.blockSelIds.includes(id)){body.style.opacity='1';return;} // selected, keep bright
+    const isDupe=die.pos!=='R'&&die.pos!=='HC'&&die.pos!=='P'&&
+      alreadySel.some(s=>s.pos===die.pos&&s.tier===die.tier&&s.id!==id);
+    body.style.opacity=isDupe?'.35':'1';
+    body.style.cursor=isDupe?'not-allowed':'pointer';
+    body.title=isDupe?`${die.key} tier already selected — Tier Uniqueness`:'Click to select for blocking';
+  });
+}
+function openCombat(){
+  _bTok=0;_sTok=0;
+  document.getElementById('btok-count').textContent='0';
+  document.getElementById('stok-count').textContent='0';
+  document.getElementById('ap-stok').textContent=AP().tok.shoot;
+  document.getElementById('opp-btok').textContent=OPP().tok.block;
+  // Hide shoot token row if attacker has none
+  document.getElementById('shoot-tok-ctrl').style.display=AP().tok.shoot>0?'block':'none';
+  const ap=AP();
+  const bonus=ap.timer>=4?1:2;
+  const numAtk=ap.z.shoot.length;
+  // combat info
+  const totalShootCD=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
+  document.getElementById('combat-info').innerHTML=
+    `<strong>Attacker (${ap.name}):</strong> ${numAtk} die/dice → <strong>${totalShootCD} Shoot Combat Dice</strong> total (each die grants combat dice = its pip value).<br>`+
+    `<em style="color:#aaa">Combat dice: 2,2,1,1,0,0. Tokens = automatic +1 each. Example: S3 die → 3 combat dice.</em><br>`+
+    `<strong>Defender bonus:</strong> +${bonus} Block Combat Dice auto (timer ${ap.timer<4?'02:00–00:00':'06:00–04:00'}, at ${ap.timer<10?'0'+ap.timer:ap.timer}:00). Ties go to defense.`;
+  const bsel=document.getElementById('bsel-dice');bsel.innerHTML='';
+  OPP().z.defend.forEach(d=>{
+    const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
+    const db=w.querySelector('.die-body');
+    db.style.cursor='pointer';
+    db.addEventListener('click',()=>{
+      // Check tier uniqueness against already-selected block dice
+      const alreadySel=OPP().z.defend.filter(x=>G.blockSelIds.includes(x.id));
+      if(!G.blockSelIds.includes(d.id)&&d.pos!=='R'&&d.pos!=='HC'&&d.pos!=='P'){
+        if(alreadySel.some(s=>s.pos===d.pos&&s.tier===d.tier)){
+          toast(`Tier Uniqueness: ${d.key} tier already selected to block!`);return;
+        }
+      }
+      const i=G.blockSelIds.indexOf(d.id);
+      if(i===-1){G.blockSelIds.push(d.id);db.classList.add('sel');}
+      else{G.blockSelIds.splice(i,1);db.classList.remove('sel');}
+      // Re-render to grey out any remaining dupes
+      renderBlockSelDupes();
+    });
+    bsel.appendChild(w);
+  });
+  if(!OPP().z.defend.length)bsel.innerHTML='<div style="color:#888;font-size:.85em">No dice in Defensive Zone</div>';
+  document.getElementById('combat-result').style.display='none';
+  document.getElementById('block-sel-area').style.display='block';
+  document.getElementById('combat-panel').classList.add('show');
+}
+function adjBT(n){_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;}
+function renderBlockSelDupes(){
+  // After each selection change, grey out defend dice that would now be dupes
+  const bsel=document.getElementById('bsel-dice');
+  const alreadySel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
+  bsel.querySelectorAll('.die-wrap').forEach(wrap=>{
+    const id=parseInt(wrap.dataset.id);
+    if(isNaN(id))return;
+    const die=OPP().z.defend.find(d=>d.id===id);
+    if(!die)return;
+    const body=wrap.querySelector('.die-body');
+    if(G.blockSelIds.includes(id)){body.style.opacity='1';return;} // selected, keep bright
+    const isDupe=die.pos!=='R'&&die.pos!=='HC'&&die.pos!=='P'&&
+      alreadySel.some(s=>s.pos===die.pos&&s.tier===die.tier&&s.id!==id);
+    body.style.opacity=isDupe?'.35':'1';
+    body.style.cursor=isDupe?'not-allowed':'pointer';
+    body.title=isDupe?`${die.key} tier already selected — Tier Uniqueness`:'Click to select for blocking';
+  });
+}
+function resolveCombat(){
+  const ap=AP(),opp=OPP();
+  const bDice=opp.z.defend.filter(d=>G.blockSelIds.includes(d.id));
+  if(!checkUniq(bDice,'block'))return;
+  const bonus=ap.timer>=4?1:2;
+  // COMBAT DICE COUNT: each die grants combat dice equal to its pip value
+  // Tokens = automatic +1 each (not extra dice)
+  const numShootDice=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
+  const numBlockDice=bDice.reduce((s,d)=>s+(d.face?d.face.v:1),0)+bonus;
+  const shootTokensUsed=_sTok;
+  const blockTokensUsed=_bTok;
+  // Build breakdown labels for attacker
+  const shootBreakdown=ap.z.shoot.map(d=>`${d.key}(${d.face?d.face.v:1}cd)`).join('+');
+  const blockBreakdown=bDice.map(d=>`${d.key}(${d.face?d.face.v:1}cd)`).join('+');
+  const sr=Array.from({length:numShootDice},()=>rcf());
+  const br=Array.from({length:numBlockDice},()=>rcf());
+  const sTotal=sr.reduce((a,b)=>a+b,0)+shootTokensUsed;
+  const bTotal=br.reduce((a,b)=>a+b,0)+blockTokensUsed;
+  const isGoal=sTotal>bTotal;
+  document.getElementById('scdice').innerHTML=
+    sr.map(v=>`<div class="cdie sd">${v}</div>`).join('')+
+    Array.from({length:shootTokensUsed},()=>`<div class="cdie sd" style="border-style:dashed;opacity:.8">+1</div>`).join('');
+  document.getElementById('bcdice').innerHTML=
+    br.map(v=>`<div class="cdie bd">${v}</div>`).join('')+
+    Array.from({length:blockTokensUsed},()=>`<div class="cdie bd" style="border-style:dashed;opacity:.8">+1</div>`).join('');
+  document.getElementById('stotal').textContent=sTotal;
+  document.getElementById('btotal').textContent=bTotal;
+  document.getElementById('sbreak').textContent=`${shootBreakdown||'0 dice'} → ${numShootDice} combat dice [${sr.join(',')}] +${shootTokensUsed}tok`;
+  document.getElementById('bbreak').textContent=`${blockBreakdown||'0 dice'} → ${numBlockDice} combat dice [${br.join(',')}] +${bonus}bonus +${blockTokensUsed}tok`;
+  const banner=document.getElementById('crbanner');
+  if(isGoal){
+    banner.className='cresult goal';banner.textContent='🚨 GOAL! 🚨';
+    ap.goals++;addLog(`🚨 GOAL! ${ap.name} scores! (${sTotal} vs ${bTotal})`,'goal');
+    ap.z.shoot.forEach(d=>ap.z.iced.push(d));ap.z.shoot=[];
+    ap.tok.shoot=Math.max(0,ap.tok.shoot-shootTokensUsed);
+    bDice.forEach(d=>{const i=opp.z.defend.indexOf(d);if(i!==-1)opp.z.defend.splice(i,1);sendBench(opp,d);});
+    opp.tok.block=Math.max(0,opp.tok.block-blockTokensUsed);
+  }else{
+    banner.className='cresult blocked';banner.textContent='🛡 SHOT BLOCKED';
+    addLog(`🛡 Blocked. (${sTotal} vs ${bTotal})`,'blk');
+    ap.z.shoot.forEach(d=>sendBench(ap,d));ap.z.shoot=[];
+    ap.tok.shoot=Math.max(0,ap.tok.shoot-shootTokensUsed);
+    bDice.forEach(d=>{const i=opp.z.defend.indexOf(d);if(i!==-1)opp.z.defend.splice(i,1);opp.z.iced.push(d);});
+    opp.tok.block=Math.max(0,opp.tok.block-blockTokensUsed);
+  }
+  G.blockSelIds=[];
+  document.getElementById('block-sel-area').style.display='none';
+  document.getElementById('combat-result').style.display='block';
+}
+function closeCombat(){document.getElementById('combat-panel').classList.remove('show');renderAll();}
+
+// ═══════════════════ END TURN ═══════════════════
+function confirmSkipShot(){
+  const ap=AP();
+  // If shot already taken this turn, just end — no confirm needed
+  if(G.shotDeclared){endTurn();return;}
+  const hasShootable=ap.z.shoot.length>0||ap.z.hot.length>0;
+  if(hasShootable){
+    if(!confirm(`You have dice in the Hot/Shoot Zone. Skip your shot?`))return;
+  }
+  endTurn();
+}
+function endTurn(){
+  const ap=AP();
+  // Check reserve: if something there after buy phase, it stays (can be used next turn)
+  // Clean RS: send remaining to iced EXCEPT reserve-eligible energy that player wants to keep
+  // Leftover energy in RS after buy → try to put one in reserve if empty, rest to iced
+  const rsE=ap.z.rs.filter(d=>d.face&&(d.face.t==='E'||d.energyPending));
+  if(rsE.length&&!ap.z.reserve.length){
+    // auto-save one in reserve if empty
+    const best=rsE.sort((a,b)=>b.face.v-a.face.v)[0];
+    ap.z.rs.splice(ap.z.rs.indexOf(best),1);best.energyPending=false;ap.z.reserve.push(best);
+    addLog(`${ap.name}: Leftover ${best.face.v}E auto-saved to Reserve.`);
+  }
+  // Everything else in RS → iced
+  ap.z.rs.forEach(d=>{d.energyPending=false;ap.z.iced.push(d);});ap.z.rs=[];
+  ap.z.shoot.forEach(d=>ap.z.iced.push(d));ap.z.shoot=[];
+  ap.timer=Math.max(0,ap.timer-1);
+  const justFinishedTimer=ap.timer;
+  addLog(`${ap.name}: Turn ended. Timer→${ap.timer}:00.`);
+  const justPlayedIdx=G.ap;
+  G.ap=1-G.ap;
+  // Period ends when BOTH players have completed their 00:00 turn.
+  // The period-ending trigger is: both timers at 0 AND the player who just finished
+  // is the SECOND player of the period (i.e. not the faceoff winner).
+  // The faceoff winner goes first, so the period-second player = 1-periodFirstPlayer.
+  const periodSecond=1-G.periodFirstPlayer;
+  if(G.players[0].timer===0&&G.players[1].timer===0&&justPlayedIdx===periodSecond){
+    showPeriodEnd();return;
+  }
+  renderAll();startTurn();
+}
+
+// ═══════════════════ PERIOD END ═══════════════════
+function showPeriodEnd(){
+  document.getElementById('pe-title').textContent=`Period ${G.period} Complete`;
+  document.getElementById('pe-score').textContent=`${G.players[0].goals} – ${G.players[1].goals}`;
+  const next=G.period+1;
+  if(next>3){
+    document.getElementById('pe-msg').textContent='Final period complete!';
+    const b=document.getElementById('pe-btn');b.textContent='Final Score';b.onclick=showGameOver;
+  }else{
+    document.getElementById('pe-msg').textContent=`All dice return to bags incl. purchases. Period ${next} faceoff next.`;
+    const b=document.getElementById('pe-btn');b.textContent=`Period ${next} →`;b.onclick=startNextPeriod;
+  }
+  document.getElementById('pe-overlay').classList.add('show');
+}
+function startNextPeriod(){
+  document.getElementById('pe-overlay').classList.remove('show');
+  G.period++;
+  G.players.forEach(p=>{
+    const all=[...p.bag,...Object.values(p.z).flat()];
+    Object.keys(p.z).forEach(z=>p.z[z]=[]);
+    p.bag=all;p.timer=8;
+    for(let i=p.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.bag[i],p.bag[j]]=[p.bag[j],p.bag[i]];}
+  });
+  addLog(`=== PERIOD ${G.period} BEGINS ===`,'imp');
+  document.getElementById('sp').textContent=G.period;showFaceoff();
+}
+function showGameOver(){
+  document.getElementById('pe-overlay').classList.remove('show');
+  const[p0,p1]=G.players;
+  const win=p0.goals>p1.goals?p0.name:p1.goals>p0.goals?p1.name:'Tie — Shootout!';
+  document.getElementById('go-win').textContent=win;
+  document.getElementById('go-score').textContent=`${p0.goals} – ${p1.goals}`;
+  document.getElementById('go-overlay').classList.add('show');
+}
+
+// ═══════════════════ SHOP ═══════════════════
+function openShop(){
+  if(G.phase<3){toast('Roll your dice first!');return;}
+  const ap=AP();const avail=totalE();
+  document.getElementById('shop-title').textContent=`${ap.name} — Buy Phase`;
+  document.getElementById('ebar').innerHTML=`Available Energy: <strong>${avail}E</strong> (RS energy/wild-energy dice + Reserve) — spin-down change returned to RS`;
+  const grid=document.getElementById('cgrid');grid.innerHTML='';
+  ap.lineup.forEach((card,idx)=>{
+    const cost=COSTS[card.key]||0;
+    const isHC=card.key==='HC';
+    const tc=cost+3; // Trade = Draft + 3
+    const canD=avail>=cost&&card.left>0;
+    const canT=!isHC&&avail>=tc&&card.left>0;
+    const faces=(DEFS[card.key]||[]).map(f=>`${f.t}${f.v||''}${f.c?'(⚡)':''}`).join(' | ');
+    const pips=Array.from({length:3},(_,i)=>`<div class="dpip ${i>=card.left?'used':''}"></div>`).join('');
+    grid.innerHTML+=`<div class="lcard ${card.left?'buyable':'soldout'}">
+      <div class="card-pt">${card.key} <span>${posName(card.key)}</span></div>
+      <div class="card-faces">${faces}</div><div class="card-pips">${pips}</div>
+      <div class="card-cost">Draft: <strong>${cost}E</strong>${isHC?'':` | Trade: <strong>${tc}E</strong>`}</div>
+      ${!card.left?'<div style="color:#666;font-size:.8em;text-align:center">SOLD OUT</div>':`
+      <button class="btn-buy" onclick="buyCard(${idx},false)" ${canD?'':'disabled'}>Draft (${cost}E)</button>
+      ${isHC?'<div style="color:#666;font-size:.75em;text-align:center;margin-top:2px">HC cannot be traded</div>':`<button class="btn-buy trade" onclick="buyCard(${idx},true)" ${canT?'':'disabled'}>Trade (${tc}E) + trash</button>`}`}
+    </div>`;
+  });
+  document.getElementById('trow').innerHTML=`
+    <div style="font-size:.8em;color:#aaa;width:100%;margin-bottom:4px">Tokens (3E each):</div>
+    <button class="tok-btn" onclick="buyTok('shoot')" ${avail>=3?'':'disabled'}>🏒 Shoot Token (have:${ap.tok.shoot})</button>
+    <button class="tok-btn" onclick="buyTok('block')" ${avail>=3?'':'disabled'}>🥅 Block Token (have:${ap.tok.block})</button>`;
+  document.getElementById('shop-panel').classList.add('show');
+}
+function closeShop(){document.getElementById('shop-panel').classList.remove('show');}
+function openLineup(){
+  const lp=document.getElementById('lp-content');lp.innerHTML='';
+  G.players.forEach(p=>{
+    lp.innerHTML+=`<h3 style="color:var(--gold);margin:12px 0 8px;font-size:.95em;text-transform:uppercase">${p.name}</h3><div style="display:flex;gap:8px;flex-wrap:wrap">`;
+    lp.innerHTML+=p.lineup.map(c=>{
+      const f=(DEFS[c.key]||[]).map(f=>`${f.t}${f.v||''}${f.c?'(⚡)':''}`).join(' | ');
+      const pips=Array.from({length:3},(_,i)=>`<div class="dpip ${i>=c.left?'used':''}"></div>`).join('');
+      return`<div class="lcard" style="min-width:160px"><div class="card-pt">${c.key} <span>${posName(c.key)}</span></div>
+        <div class="card-faces" style="font-size:.68em">${f}</div><div class="card-pips">${pips}</div>
+        <div style="font-size:.72em;color:#aaa">${c.left}/3 remaining</div></div>`;
+    }).join('')+'</div>';
+  });
+  document.getElementById('lineup-panel').classList.add('show');
+}
+
+// ═══════════════════ RENDERING ═══════════════════
+// fbClass now defined above dieWrapHTML
+function posClass(p){return{F:'pos-F',D:'pos-D',G:'pos-G',HC:'pos-HC',R:'pos-R',P:'pos-P'}[p]||'pos-R';}
+
+function fbClass(t,cost=false){
+  if(cost){return{S:'fb-SC',B:'fb-BC',W:'fb-WC',SO:'fb-SOC'}[t]||('fb-'+t);}
+  return{E:'fb-E',S:'fb-S',B:'fb-B',W:'fb-W',RR:'fb-RR',SO:'fb-SO',FT:'fb-FT',PEN:'fb-PEN',BLANK:'fb-BLANK'}[t]||'fb-BLANK';
+}
+function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
+  const pc=posClass(die.pos);
+  let fbCls,faceHTML,isCost=false;
+  // Iced zone: always show grey "?" — face doesn't matter for gameplay
+  if(inIced){
+    fbCls='fb-UNK';faceHTML='?';
+  } else if(!die.face){
+    fbCls='fb-UNK';faceHTML='?';
+  } else {
+    const f=die.face;
+    isCost=!!f.c;
+    fbCls=fbClass(f.t,isCost);
+    if(f.t==='BLANK')faceHTML='—';
+    else if(f.t==='SO')faceHTML=`SO<br>${f.v}`;
+    else faceHTML=`${f.t}${f.v?'<br>'+f.v:''}`;
+  }
+  const selCls=die.sel?(inRS&&_rrMode?'sel-rr':'sel'):'';
+  const tierLbl=die.key==='Penalty'?'PEN':die.key==='Rookie'?'RK':die.key;
+  const energyBadge=(!inIced&&die.energyPending)?`<div class="energy-inuse">⚡${die.face?die.face.v:''}</div>`:'';
+  const costStrip=(!inIced&&isCost&&inRS)?`<div class="cost-strip">costs 1⚡</div>`:'';
+  return`<div class="die-wrap ${pc}" data-id="${die.id}">
+    <div class="die-body ${selCls}${isCost&&!inIced?' has-cost':''}">
+      <div class="face-badge ${fbCls}">${faceHTML}</div>
+      ${energyBadge}${costStrip}
+    </div>
+    <div class="die-tier-lbl">${tierLbl}</div>
+  </div>`;
+}
+
+function renderZone(zid,arr,opts={}){
+  const el=document.getElementById(zid);if(!el)return;el.innerHTML='';
+  const inIced=(zid==='z-iced');
+  arr.forEach(die=>{
+    const w=document.createElement('div');w.innerHTML=dieWrapHTML(die,opts.inRS,true,inIced);
+    const wrap=w.querySelector('.die-wrap');const body=w.querySelector('.die-body');
+    if(_rrMode&&opts.inRS){
+      if(die.id!==_rrDieId){
+        body.style.cursor='pointer';
+        body.addEventListener('click',()=>{die.sel=!die.sel;body.classList.toggle('sel-rr',die.sel);});
+      }else{body.style.cursor='not-allowed';body.style.opacity='.4';}
+    }else if(opts.inRS&&G.phase===3){
+      body.style.cursor='pointer';
+      body.addEventListener('click',()=>{die.sel=!die.sel;body.classList.toggle('sel',die.sel);});
+    }else if(opts.inRS&&G.phase>=4){
+      const menuOpts=getOpts(die);
+      if(menuOpts.length){
+        body.style.cursor='pointer';
+        body.addEventListener('click',e=>{e.stopPropagation();showMenu(die,wrap);});
+      }else if(die.face&&die.face.t==='BLANK'){
+        body.style.cursor='default';body.style.opacity='.5';
+      }else if(die.face&&die.face.t==='E'&&!die.energyPending){
+        // Energy in RS — click to see reserve option
+        body.style.cursor='pointer';
+        body.addEventListener('click',e=>{e.stopPropagation();showMenu(die,wrap);});
+      }
+    }else if(opts.fromHot&&G.phase===4){
+      // Disable if this die's tier is already in shoot zone
+      const dupeInShoot=die.pos!=='R'&&die.pos!=='HC'&&die.pos!=='P'&&
+        AP().z.shoot.some(s=>s.pos===die.pos&&s.tier===die.tier);
+      if(dupeInShoot){
+        body.style.cursor='not-allowed';body.style.opacity='.4';
+        body.title=`${die.key} tier already in Shoot Zone — Tier Uniqueness Rule`;
+      }else{
+        body.style.cursor='pointer';body.title='Click → Shoot Zone';
+        body.addEventListener('click',()=>moveToShoot(die.id));
+      }
+    }else if(opts.fromShoot){
+      body.style.cursor='pointer';body.title='Click → back to Hot Zone';
+      body.addEventListener('click',()=>retFromShoot(die.id));
+    }else{body.style.cursor='default';}
+    el.appendChild(w);
+  });
+}
+
+let _menu=null;
+function closeMenus(){document.querySelectorAll('.die-menu').forEach(m=>m.remove());_menu=null;}
+function showMenu(die,wrapEl){
+  closeMenus();
+  const opts=getOpts(die);if(!opts.length)return;
+  const m=document.createElement('div');m.className='die-menu';
+  opts.forEach(o=>{
+    const b=document.createElement('button');b.textContent=o.l;
+    b.addEventListener('click',e=>{e.stopPropagation();assignDie(die,o.a);});
+    m.appendChild(b);
+  });
+  wrapEl.style.position='relative';wrapEl.appendChild(m);
+  setTimeout(()=>{try{const mr=m.getBoundingClientRect();if(mr.right>window.innerWidth-10)m.classList.add('flip-left');}catch(e){}},0);
+  _menu=m;
+  setTimeout(()=>document.addEventListener('click',closeMenus,{once:true}),10);
+}
+
+function renderAll(){renderPbar();renderBoard();renderOpp();renderScore();renderActions();renderQA();renderRSActions();renderLog();}
+function renderPbar(){
+  document.getElementById('pbar').innerHTML=PHASES.map((n,i)=>{
+    const c=i<G.phase?'done':i===G.phase?'active':'';
+    return`<span class="ph ${c}">${i<G.phase?'✓':(i+1)+'. '}${n}</span>${i<PHASES.length-1?'<span class="ph-arr">›</span>':''}`
+  }).join('');
+}
+function renderBoard(){
+  const ap=AP();
+  document.getElementById('aplbl').textContent=`${ap.name}'s Turn`;
+  const tv=document.getElementById('tmr');
+  tv.textContent=`0${ap.timer}:00`.slice(-5);
+  tv.className='timer-val'+(ap.timer<=2?' hot':'');
+  // Final turn banner — show when player is ON their last turn (timer still at 1, about to tick to 0)
+  const ftBanner=document.getElementById('final-turn-banner');
+  if(ftBanner){
+    const showBanner=(ap.timer===1);
+    ftBanner.style.display=showBanner?'flex':'none';
+    if(showBanner)ftBanner.classList.add('final-turn-flashing');
+    else ftBanner.classList.remove('final-turn-flashing');
+  }
+  renderZone('z-rs',ap.z.rs,{inRS:true});
+  renderZone('z-hot',ap.z.hot,{fromHot:G.phase===4});
+  // Pulse hot zone when in shoot phase and there are dice to use
+  const hotZoneEl=document.getElementById('z-hot').closest('.zone');
+  if(hotZoneEl){
+    if(G.phase===4&&ap.z.hot.length>0&&!G.shotDeclared)hotZoneEl.classList.add('shoot-ready');
+    else hotZoneEl.classList.remove('shoot-ready');
+  }
+  // Pulse RS Zone during reroll phase
+  const rsZoneEl=document.getElementById('z-rs').closest('.zone');
+  if(rsZoneEl){
+    if(G.phase===3&&_rrMode)rsZoneEl.classList.add('rr-pulse');
+    else rsZoneEl.classList.remove('rr-pulse');
+  }
+  renderZone('z-cold',ap.z.cold);
+  renderZone('z-defend',ap.z.defend);
+  renderZone('z-shoot',ap.z.shoot,{fromShoot:G.phase===4});
+  renderZone('z-iced',ap.z.iced);
+  renderZone('z-bench',ap.z.bench);
+  renderZone('z-reserve',ap.z.reserve);
+  renderZone('z-block',ap.z.block);
+  const sp=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:0),0);
+  const totalSCD=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
+  document.getElementById('shoot-pip').textContent=ap.z.shoot.length
+    ?`${ap.z.shoot.length} die/dice → ${totalSCD} combat dice`:'';
+  const ts=document.getElementById('tstrip');ts.innerHTML='';
+  if(ap.tok.shoot)ts.innerHTML+=`<span class="tok st">🏒 ${ap.tok.shoot}</span>`;
+  if(ap.tok.block)ts.innerHTML+=`<span class="tok bt">🥅 ${ap.tok.block}</span>`;
+  const ep=totalE();
+  if(ep>0||G.phase>=4)ts.innerHTML+=`<span class="epips">⚡ ${ep}E available</span>`;
+}
+function renderRSActions(){
+  const ra=document.getElementById('rs-actions');ra.innerHTML='';
+  if(G.phase===4&&!_rrMode){
+    const b1=document.createElement('button');
+    b1.className='rs-act-btn auto-sb';b1.textContent='⚡ Auto-Assign Shoot & Block';
+    b1.addEventListener('click',autoAssignSB);ra.appendChild(b1);
+    const b2=document.createElement('button');
+    b2.className='rs-act-btn auto-bl';b2.textContent='Auto-send Blanks→Iced';
+    b2.addEventListener('click',autoAssignBlanks);ra.appendChild(b2);
+  }
+}
+function renderOpp(){
+  const o=OPP();
+  document.getElementById('opplbl').textContent=`${o.name} (Opponent)`;
+  document.getElementById('opptmr').textContent=`Timer: ${o.timer}:00`;
+  document.getElementById('opptok').textContent=`🏒${o.tok.shoot} 🥅${o.tok.block}`;
+  const hp=o.z.hot.length,cp=o.z.cold.length,dp=o.z.defend.length;
+  // Pip totals for hot/cold/defend
+  const hotPips=o.z.hot.reduce((s,d)=>s+(d.face?d.face.v:0),0);
+  const coldPips=o.z.cold.reduce((s,d)=>s+(d.face?d.face.v:0),0);
+  const defPips=o.z.defend.reduce((s,d)=>s+(d.face?d.face.v:0),0);
+  const oppZoneData=[
+    {l:'Hot',v:hotPips,d:`${hp} dice`,bg:'rgba(30,60,160,.35)',bc:'rgba(80,120,255,.5)'},
+    {l:'Cold',v:coldPips,d:`${cp} dice`,bg:'rgba(15,40,100,.3)',bc:'rgba(60,100,200,.4)'},
+    {l:'Def',v:defPips,d:`${dp} dice`,bg:'rgba(120,20,20,.3)',bc:'rgba(200,50,50,.5)'},
+    {l:'Bench',v:o.z.bench.length,d:'',bg:'',bc:''},
+    {l:'Reserve',v:o.z.reserve.length,d:'',bg:'',bc:''},
+    {l:'Iced',v:o.z.iced.length,d:'',bg:'',bc:''},
+    {l:'Bag',v:o.bag.length,d:'',bg:'',bc:''},
+  ];
+  document.getElementById('oppzones').innerHTML=oppZoneData.map(z=>`<div class="opp-zone" style="${z.bg?`background:${z.bg};border-color:${z.bc};`:''}"><div class="opp-zone-l">${z.l}</div><div class="opp-zone-v">${z.v}${z.bg?'<span style="font-size:.5em;opacity:.7">pip</span>':''}</div>${z.d?`<div class="opp-zone-d">${z.d}</div>`:''}</div>`).join('');
+}
+function renderScore(){
+  document.getElementById('sg1').textContent=G.players[0].goals;
+  document.getElementById('sg2').textContent=G.players[1].goals;
+  document.getElementById('sp').textContent=G.period;
+}
+function renderActions(){
+  const row=document.getElementById('arow');row.innerHTML='';
+  const mk=(lbl,fn,cls='prim',dis=false,pulse=false)=>{
+    const b=document.createElement('button');
+    b.className=`abtn ${cls}${pulse?' pulsing':''}`;
+    b.textContent=lbl;b.disabled=dis;
+    b.addEventListener('click',fn);row.appendChild(b);
+    return b;
+  };
+  const ap=AP();
+  const hasE=totalE()>0;
+
+  // ── RR face-spend mode (phase 4) — show reroll confirm buttons ──
+  if(_rrMode&&_rrDieId!==null){
+    const selCount=ap.z.rs.filter(d=>d.sel).length;
+    const rrBtn=mk('Reroll Selected Dice 🎲',confirmRRSel,'prim',false,false);
+    rrBtn.classList.add('pulsing-orange');
+    mk('Cancel Reroll',cancelRRSel,'sec');
+    return;
+  }
+
+  if(G.phase<=2){
+    mk('Roll Dice 🎲',rollAll,'prim');
+  } else if(G.phase===3){
+    if(!G.assignmentStarted){
+      const rrBtn=mk('Reroll Selected Dice 🎲',confirmRRSel,'prim',false,false);
+      rrBtn.classList.add('pulsing-orange');
+      mk('Reroll None →',skipRR,'sec');
+    } else {
+      // Assignment already started — reroll no longer available
+      mk('Reroll not available (dice already assigned)',()=>toast('Cannot reroll after assigning dice.'),'sec',true);
+      mk('Skip to Assign →',skipRR,'prim');
+    }
+  } else if(G.phase===4){
+    // Combined assign + buy phase — no "Done Assigning" needed
+    const shopBtn=mk('Open Shop 🛒',openShop,hasE?'prim':'sec',false,hasE);
+    if(!hasE)shopBtn.style.opacity='.4';
+    if(ap.z.hot.length||ap.z.shoot.length){
+      if(ap.z.shoot.length)mk('🚨 Declare Shot!',declareShot,'prim');
+      else mk('Move dice to Shoot Zone first',()=>{},'sec',true);
+    }
+    mk(G.shotDeclared?'End Turn':'End Turn / Skip Shot',G.shotDeclared?endTurn:confirmSkipShot,'sec');
+  }
+}
+function renderQA(){
+  const qa=document.getElementById('qarow');qa.innerHTML='';
+  const ap=AP();
+  const hasE=totalE()>0;
+  // Face-spend RR mode (phase 4) — show selection hint
+  if(_rrMode&&_rrDieId!==null){
+    const selCount=ap.z.rs.filter(d=>d.sel).length;
+    qa.innerHTML=selCount>0
+      ?`<span class="hint" style="color:#dd9944">${selCount} dice selected — click Reroll Selected Dice</span>`
+      :'<span class="hint" style="color:#dd9944">Reroll face spent — click RS dice to select which to reroll</span>';
+    return;
+  }
+  if(G.phase===3){
+    const selCount=ap.z.rs.filter(d=>d.sel).length;
+    qa.innerHTML=selCount>0
+      ?`<span class="hint" style="color:#dd9944">${selCount} dice selected — click Reroll Selected Dice to reroll them</span>`
+      :'<span class="hint" style="color:#dd9944">Click dice in the Roll &amp; Sort Zone to select them for rerolling</span>';
+    return;
+  }
+  if(G.phase===4){
+    if(hasE)qa.innerHTML='<span class="hint">Click RS dice to assign • <span style="color:#c8a84b">⚡ Energy available — Open Shop to buy</span> • Yellow-striped faces cost 1⚡</span>';
+    else qa.innerHTML='<span class="hint">Click RS dice to assign • Click Hot Zone dice → Shoot Zone to set up shot</span>';
+  }
+}
+function renderLog(){
+  document.getElementById('logpanel').innerHTML=G.log.slice(-8).reverse().map(e=>`<div class="log-e ${e.c||''}">${e.m}</div>`).join('');
+}
+
+// ═══════════════════ UTILS ═══════════════════
+function addLog(m,c=''){G.log.push({m,c});renderLog();}
+function toast(msg,ms=2600){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),ms);
+}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+document.addEventListener('click',e=>{if(_menu&&!_menu.contains(e.target))closeMenus();});
+
+// ═══════════════════ ENERGY PICKER ═══════════════════
+// State for the energy picker modal
+let _epick = {
+  needed: 0,       // total energy cost to pay
+  paid: 0,         // energy paid so far
+  sources: [],     // {die, fromReserve, originalV, currentV, spentPips}
+  onConfirm: null, // callback when fully paid
+  label: '',       // description of what's being paid for
+};
+
+function getEnergySources() {
+  const ap = AP();
+  const sources = [];
+  // RS energy dice
+  ap.z.rs.forEach(d => {
+    if (d.face && (d.face.t === 'E' || d.energyPending) && d.face.v > 0) {
+      sources.push({ die: d, fromReserve: false, originalV: d.face.v, currentV: d.face.v, spentPips: 0 });
+    }
+  });
+  // Reserve dice
+  ap.z.reserve.forEach(d => {
+    if (d.face && d.face.v > 0) {
+      sources.push({ die: d, fromReserve: true, originalV: d.face.v, currentV: d.face.v, spentPips: 0 });
+    }
+  });
+  return sources;
+}
+
+function openEPicker(neededAmt, label, onConfirm) {
+  _epick.needed = neededAmt;
+  _epick.paid = 0;
+  _epick.label = label;
+  _epick.onConfirm = onConfirm;
+  _epick.sources = getEnergySources();
+  // Check if enough energy exists at all
+  const totalAvail = _epick.sources.reduce((s, src) => s + src.currentV, 0);
+  if (totalAvail < neededAmt) {
+    toast(`Not enough energy! Need ${neededAmt}E, only ${totalAvail}E available.`);
+    return;
+  }
+  renderEPicker();
+  document.getElementById('epicker').classList.add('show');
+}
+
+function renderEPicker() {
+  document.getElementById('epicker-sub').textContent =
+    `Click a die to spend 1 pip from it. Click multiple times to spend more pips from the same die.`;
+  document.getElementById('epicker-need-val').textContent = _epick.needed;
+  document.getElementById('epicker-paid-val').textContent = _epick.paid;
+  const remaining = _epick.needed - _epick.paid;
+  const confirmBtn = document.getElementById('epicker-confirm');
+  confirmBtn.disabled = remaining !== 0;
+  confirmBtn.textContent = remaining > 0 ? `Still need ${remaining}⚡` : 'Confirm Payment ✓';
+
+  const cont = document.getElementById('epicker-sources');
+  cont.innerHTML = '';
+  _epick.sources.forEach((src, idx) => {
+    if (src.currentV <= 0) return;
+    const pc = { F: 'pos-F', D: 'pos-D', G: 'pos-G', HC: 'pos-HC', R: 'pos-R', P: 'pos-P' }[src.die.pos] || 'pos-R';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'epicker-die';
+    wrapper.innerHTML = `
+      <div class="die-wrap ${pc}">
+        <div class="die-body" style="cursor:pointer">
+          <div class="face-badge fb-E">E<br>${src.currentV}</div>
+        </div>
+        <div class="die-tier-lbl">${src.fromReserve ? '💾' : ''}${src.die.key === 'Rookie' ? 'RK' : src.die.key}</div>
+      </div>
+      <div class="pip-count">${src.fromReserve ? 'Reserve' : 'RS Zone'}<br>
+        <span>${src.spentPips}</span> pip${src.spentPips !== 1 ? 's' : ''} spent</div>`;
+    wrapper.querySelector('.die-body').addEventListener('click', () => spendEPickPip(idx));
+    cont.appendChild(wrapper);
+  });
+
+  // Show spent sources dimmed
+  _epick.sources.forEach((src, idx) => {
+    if (src.currentV > 0 || src.spentPips === 0) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'epicker-die';
+    wrapper.style.opacity = '.4';
+    wrapper.innerHTML = `
+      <div class="die-wrap ${({F:'pos-F',D:'pos-D',G:'pos-G',HC:'pos-HC',R:'pos-R',P:'pos-P'}[src.die.pos]||'pos-R')}">
+        <div class="die-body">
+          <div class="face-badge fb-BLANK">—</div>
+        </div>
+        <div class="die-tier-lbl">${src.fromReserve ? '💾' : ''}${src.die.key === 'Rookie' ? 'RK' : src.die.key}</div>
+      </div>
+      <div class="pip-count">Spent fully<br><span>${src.spentPips}</span> pips</div>`;
+    cont.appendChild(wrapper);
+  });
+}
+
+function spendEPickPip(srcIdx) {
+  const src = _epick.sources[srcIdx];
+  if (src.currentV <= 0) { toast('No pips left on this die.'); return; }
+  if (_epick.paid >= _epick.needed) { toast('Already paid the full amount!'); return; }
+  src.currentV--;
+  src.spentPips++;
+  _epick.paid++;
+  renderEPicker();
+}
+
+function confirmEPick() {
+  if (_epick.paid < _epick.needed) return;
+  const ap = AP();
+  // Apply the spending to actual dice
+  _epick.sources.forEach(src => {
+    if (src.spentPips === 0) return;
+    if (src.currentV <= 0) {
+      // Fully spent — remove from zone
+      if (src.fromReserve) {
+        const ri = ap.z.reserve.indexOf(src.die);
+        if (ri !== -1) ap.z.reserve.splice(ri, 1);
+        ap.z.iced.push(src.die);
+      } else {
+        const ri = ap.z.rs.indexOf(src.die);
+        if (ri !== -1) ap.z.rs.splice(ri, 1);
+        src.die.energyPending = false;
+        ap.z.iced.push(src.die);
+      }
+    } else {
+      // Spun down — update face value
+      src.die.face = { t: 'E', v: src.currentV };
+      src.die.energyPending = false;
+    }
+  });
+  addLog(`${ap.name}: Paid ${_epick.paid}⚡ for ${_epick.label}.`, 'imp');
+  document.getElementById('epicker').classList.remove('show');
+  if (_epick.onConfirm) _epick.onConfirm();
+  _epick = { needed: 0, paid: 0, sources: [], onConfirm: null, label: '' };
+  renderAll();
+}
+
+function cancelEPick() {
+  document.getElementById('epicker').classList.remove('show');
+  _epick = { needed: 0, paid: 0, sources: [], onConfirm: null, label: '' };
+  renderAll();
+}
+
+</script>
+</body>
+</html>
