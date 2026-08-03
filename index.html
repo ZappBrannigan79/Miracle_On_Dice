@@ -1041,14 +1041,13 @@ function getOpts(die){
       else o.push({l:`Block (${f.v} pip) — BLOCKED: need 1⚡ to advance`,a:'no-energy'});
     }
   }else if(f.t==='W'){
-    const z=G.clock>4?'Cold':'Hot';
-    o.push({l:`Wild as Shoot → ${z} (${f.v} pip)`,a:'shoot'});
-    o.push({l:`Wild as Block → Defensive (${f.v} pip)`,a:'block'});
-    if(!G.assignmentStarted)o.push({l:'Wild as Reroll → select dice to reroll',a:'rr'});
-    o.push({l:'Wild as Energy (stays in RS ⚡)',a:'wild-energy'});
+  const z=G.clock>4?'Cold':'Hot';
+  o.push({l:`Wild as Shoot → ${z} (${f.v} pip)`,a:'shoot'});
+  o.push({l:`Wild as Block → Defensive (${f.v} pip)`,a:'block'});
+  o.push({l:'Wild as Reroll → select dice to reroll',a:'rr'});
+  o.push({l:'Wild as Energy (stays in RS ⚡)',a:'wild-energy'});
   }else if(f.t==='RR'){
-    if(!G.assignmentStarted)o.push({l:'Spend Reroll → select dice to reroll',a:'rr'});
-    else o.push({l:'Reroll face (cannot use after assigning — goes to Iced)',a:'iced'});
+  o.push({l:'Spend Reroll → select dice to reroll',a:'rr'});
   }else if(f.t==='SO'){
     if(canPay)o.push({l:`Shutout → gain ${f.v} Block Token(s) — costs 1⚡`,a:'shutout-cost'});
     else o.push({l:`Shutout — BLOCKED: need 1⚡ to cash in`,a:'no-energy'});
