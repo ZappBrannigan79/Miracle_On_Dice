@@ -324,14 +324,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
         30 pre-built teams. Each player selects one. Starting bag: 15 Rookies.
       </div>
       <div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap">
-        <button class="qs-filter-btn active" onclick="filterPresets('all',this)">All (30)</button>
-        <button class="qs-filter-btn" onclick="filterPresets('27',this)">27pt — No bonus</button>
-        <button class="qs-filter-btn" onclick="filterPresets('26',this)">26pt — 1 Token</button>
-        <button class="qs-filter-btn" onclick="filterPresets('25',this)">25pt — 2 Tokens</button>
-        <button class="qs-filter-btn" onclick="filterPresets('Heavy Offense',this)">🎯 Offense</button>
-        <button class="qs-filter-btn" onclick="filterPresets('Heavy Defense',this)">🧱 Defense</button>
-        <button class="qs-filter-btn" onclick="filterPresets('Balanced',this)">⚖️ Balanced</button>
-      </div>
+        <button class="qs-filter-btn active" onclick="filterPresets('all',this)">All (5)</button>
+           </div>
       <div class="builder-grid">
         <div class="builder-player">
           <h3>Player 1 <span style="font-size:.75em;color:#888">— click a team to select</span></h3>
@@ -1212,13 +1206,13 @@ let _tradeCardIdx=-1;
 function buyCard(cardIdx,trade){
   const ap=AP();const card=ap.lineup[cardIdx];
   if(!card.left){toast('No dice left!');return;}
-  const cost=COSTS[card.key]+(trade?3:0);const avail=totalE();
+  const cost=COSTS[card.key]+(trade?2:0);const avail=totalE();
   if(trade&&card.key==='HC'){toast('Head Coach cannot be traded.');return;}
   if(avail<cost){toast(`Need ${cost}E, have ${avail}E.`);return;}
   closeShop();
   if(trade){
     // Pay full trade cost first, then choose die to trash
-    openEPicker(cost, `full trade cost for ${card.key} (includes +3 surcharge)`, ()=>{
+    openEPicker(cost, `full trade cost for ${card.key} (includes +2 surcharge)`, ()=>{
       // After full cost paid, open trash picker — iced now includes spent energy dice
       if(!AP().z.iced.length){toast('No dice in Iced Zone to trash.');return;}
       _tradeCardIdx=cardIdx;
@@ -1553,7 +1547,7 @@ function openShop(){
   ap.lineup.forEach((card,idx)=>{
     const cost=COSTS[card.key]||0;
     const isHC=card.key==='HC';
-    const tc=cost+3; // Trade = Draft + 3
+    const tc=cost+2; // Trade = Draft + 2
     const canD=avail>=cost&&card.left>0;
     const canT=!isHC&&avail>=tc&&card.left>0;
     const faces=(DEFS[card.key]||[]).map(f=>`${f.t}${f.v||''}${f.c?'(⚡)':''}`).join(' | ');
