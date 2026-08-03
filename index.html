@@ -318,10 +318,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
       <button class="btn-mode btn-cb" onclick="showCustom()">🏒 Build Teams (30pts)</button>
     </div>
 
-    <!-- QUICK START: 30 teams, filterable -->
+    <!-- QUICK START: 5 teams, filterable -->
     <div class="team-builder" id="qs-panel">
       <div style="font-size:.83em;color:#aaa;text-align:center;margin-bottom:10px">
-        30 pre-built teams. Each player selects one. Starting bag: 15 Rookies.
+        5 pre-built teams. Each player selects one. Starting bag: 15 Rookies.
       </div>
       <div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap">
         <button class="qs-filter-btn active" onclick="filterPresets('all',this)">All (5)</button>
@@ -428,24 +428,31 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
         </div>
         <div class="zone z-iced"><div class="zone-lbl">🧊 Iced Zone</div><div class="zone-dice" id="z-iced"></div></div>
       </div>
-      <div class="bottom-strip">
+   <div class="bottom-strip">
         <div class="zone z-bench"><div class="zone-lbl">🪑 Bench (max 2)</div><div class="zone-dice" id="z-bench"></div></div>
         <div class="zone z-reserve"><div class="zone-lbl">💾 Reserve (max 2)</div><div class="zone-dice" id="z-reserve"></div></div>
-        <div class="qa-box"><div class="qa-lbl">Quick Actions</div><div class="qa-row" id="qarow"></div></div>
+        <!-- SWAPPED: opp-area moved here where qa-box used to be -->
+        <div class="opp-area" style="border-top:none;background:rgba(0,0,0,.15);border-radius:8px;padding:6px;display:flex;flex-direction:column;justify-content:center;">
+          <div class="opp-header" style="margin-bottom:2px;">
+            <div class="opp-lbl" id="opplbl">Opponent</div>
+            <div class="opp-tmr" id="opptmr"></div>
+            <div style="font-size:.7em;color:#666;margin-left:auto">Tokens: <span id="opptok"></span></div>
+          </div>
+          <div class="opp-zones" id="oppzones"></div>
+        </div>
       </div>
     </div>
-    <div class="opp-area">
-      <div class="opp-header">
-        <div class="opp-lbl" id="opplbl">Opponent</div>
-        <div class="opp-tmr" id="opptmr"></div>
-        <div style="font-size:.7em;color:#666;margin-left:auto">Tokens: <span id="opptok"></span></div>
-      </div>
-      <div class="opp-zones" id="oppzones"></div>
+    <!-- SWAPPED: qa-box moved here where opp-area used to be -->
+    <div class="qa-box" style="margin: 0 12px 8px 12px;">
+      <div class="qa-lbl">Quick Actions</div>
+      <div class="qa-row" id="qarow"></div>
     </div>
   </div>
   <div class="log-panel" id="logpanel"></div>
   <div style="display:none"><div id="z-block"></div></div>
 </div>
+
+
 
 <!-- ENERGY PICKER -->
 <div class="epicker-overlay" id="epicker">
@@ -763,10 +770,10 @@ function populateSels(){
     GOA.forEach(o=>g.add(new Option(o,o)));
   });
   // Defaults
-  document.getElementById('p1f1').value='F5';document.getElementById('p1f2').value='F4';document.getElementById('p1f3').value='F3';
-  document.getElementById('p1d1').value='D6';document.getElementById('p1d2').value='D4';document.getElementById('p1g').value='G5';
-  document.getElementById('p2f1').value='F4';document.getElementById('p2f2').value='F3';document.getElementById('p2f3').value='F2';
-  document.getElementById('p2d1').value='D5';document.getElementById('p2d2').value='D3';document.getElementById('p2g').value='G4';
+  document.getElementById('p1f1').value='F7';document.getElementById('p1f2').value='F4';document.getElementById('p1f3').value='F2';
+  document.getElementById('p1d1').value='D6';document.getElementById('p1d2').value='D3';document.getElementById('p1g').value='G5';
+  document.getElementById('p2f1').value='F7';document.getElementById('p2f2').value='F4';document.getElementById('p2f3').value='F2';
+  document.getElementById('p2d1').value='D6';document.getElementById('p2d2').value='D3';document.getElementById('p2g').value='G5';
   updatePts(1);updatePts(2);
 }
 function updatePts(p){
