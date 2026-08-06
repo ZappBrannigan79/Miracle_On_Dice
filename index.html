@@ -315,7 +315,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
     <div class="setup-sub">Hockey Dice-Building Game — Playtesting Simulator</div>
     <div class="setup-btns">
       <button class="btn-mode btn-qs" onclick="showQS()">⚡ Quick Start</button>
-      <button class="btn-mode btn-cb" onclick="showCustom()">🏒 Build Teams (30pts)</button>
+      <button class="btn-mode btn-cb" onclick="showCustom()">🏒 Build Teams (25pts)</button>
     </div>
 
     <!-- QUICK START: 5 teams, filterable -->
@@ -344,28 +344,28 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 
     <!-- CUSTOM BUILDER: 30-point budget -->
     <div class="team-builder" id="custom-panel">
-      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:10px">Build your team within 30 points (27pts for players + 3pt HC auto). Min: 1 Forward, 1 Defenseman, 1 Goalie. No duplicate tiers per position.</div>
+      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:10px">Build your team within 30 points (25pts for players (HC is automatic, not counted)). Min: 1 Forward, 1 Defenseman, 1 Goalie. No duplicate tiers per position.</div>
       <div class="builder-grid">
         <div class="builder-player" id="cb-p1-panel">
-          <h3>Player 1 <span class="pts-badge" id="p1-pts">0/27 pts</span></h3>
+          <h3>Player 1 <span class="pts-badge" id="p1-pts">0/25 pts</span></h3>
           <div class="builder-row"><label>Forward 1</label><select id="p1f1" onchange="updatePts(1)"></select></div>
           <div class="builder-row"><label>Forward 2</label><select id="p1f2" onchange="updatePts(1)"><option value="">— (optional)</option></select></div>
           <div class="builder-row"><label>Forward 3</label><select id="p1f3" onchange="updatePts(1)"><option value="">— (optional)</option></select></div>
           <div class="builder-row"><label>Defense 1</label><select id="p1d1" onchange="updatePts(1)"></select></div>
           <div class="builder-row"><label>Defense 2</label><select id="p1d2" onchange="updatePts(1)"><option value="">— (optional)</option></select></div>
           <div class="builder-row"><label>Goalie</label><select id="p1g" onchange="updatePts(1)"></select></div>
-          <div class="builder-row"><label>Head Coach</label><select disabled><option>HC (3pts — auto)</option></select></div>
+          <div class="builder-row" style="opacity:.6"><label>Head Coach</label><select disabled><option>HC (automatic each turn)</option></select></div>
           <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 15 Rookie dice (same for all players)</div>
         </div>
         <div class="builder-player" id="cb-p2-panel">
-          <h3>Player 2 <span class="pts-badge" id="p2-pts">0/27 pts</span></h3>
+          <h3>Player 2 <span class="pts-badge" id="p2-pts">0/25 pts</span></h3>
           <div class="builder-row"><label>Forward 1</label><select id="p2f1" onchange="updatePts(2)"></select></div>
           <div class="builder-row"><label>Forward 2</label><select id="p2f2" onchange="updatePts(2)"><option value="">— (optional)</option></select></div>
           <div class="builder-row"><label>Forward 3</label><select id="p2f3" onchange="updatePts(2)"><option value="">— (optional)</option></select></div>
           <div class="builder-row"><label>Defense 1</label><select id="p2d1" onchange="updatePts(2)"></select></div>
           <div class="builder-row"><label>Defense 2</label><select id="p2d2" onchange="updatePts(2)"><option value="">— (optional)</option></select></div>
           <div class="builder-row"><label>Goalie</label><select id="p2g" onchange="updatePts(2)"></select></div>
-          <div class="builder-row"><label>Head Coach</label><select disabled><option>HC (3pts — auto)</option></select></div>
+          <div class="builder-row" style="opacity:.6"><label>Head Coach</label><select disabled><option>HC (automatic each turn)</option></select></div>
           <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 15 Rookie dice (same for all players)</div>
         </div>
       </div>
@@ -576,7 +576,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 // ═══════════════════ DATA ═══════════════════
 const DEFS={
   // c:true = costs 1 Energy to advance to its zone
-  Rookie:[{t:'E',v:1},{t:'E',v:2},{t:'S',v:1},{t:'B',v:1},{t:'RR',v:0},{t:'BLANK',v:0}],
+  Rookie:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'S',v:1},{t:'B',v:1},{t:'BLANK',v:0}],
   F1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:1,c:true},{t:'W',v:1}],
   F2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:2,c:true},{t:'W',v:1}],
   F3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:2},{t:'S',v:2,c:true},{t:'W',v:1}],
@@ -597,10 +597,10 @@ const DEFS={
   G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
   G5:[{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'SO',v:3,c:true}],
   G6:[{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4},{t:'B',v:4,c:true},{t:'SO',v:3,c:true}],
-  HC:[{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'PEN',v:0},{t:'FT',v:0},{t:'BLANK',v:0}],
+  HC:[{t:'E',v:1},{t:'E',v:1},{t:'RR',v:0},{t:'RR',v:0},{t:'FT',v:0},{t:'PEN',v:0}],
   Penalty:[{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0}],
 };
-const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,F7:7,F8:8,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,D7:7,D8:8,G3:3,G4:4,G5:5,G6:6,HC:3};
+const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,F7:7,F8:8,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,D7:7,D8:8,G3:3,G4:4,G5:5,G6:6};
 const CF=[2,2,1,1,0,0];
 const FWD=['F1','F2','F3','F4','F5','F6','F7','F8'];
 const DEF=['D1','D2','D3','D4','D5','D6','D7','D8'];
@@ -615,13 +615,14 @@ let G={},_id=0,_rrMode=false,_rrDieId=null;
 function mkDie(k){return{id:_id++,key:k,pos:posOf(k),tier:tierOf(k),face:null,sel:false,energyPending:false};}
 function mkBag(extra=[]){const b=[];for(let i=0;i<15;i++)b.push(mkDie('Rookie'));return b;} // extra param kept for API compat but ignored — all 15 start as Rookies
 function mkLineup(arr){return arr.map(k=>({key:k,left:3}));}
-function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,bag:mkBag(bagExtra),
+function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC'),bag:mkBag(bagExtra),
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
 function initG(l1,l2,bag1=[],bag2=[]){
   G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,
      assignmentStarted:false,
      periodFirstPlayer:0,
+     penaltyPool:3, // shared pool of 3 penalty dice
      clock:12, // shared 12-min period clock, ticks 1 per turn
      players:[mkPlayer('Player 1',l1,bag1),mkPlayer('Player 2',l2,bag2)]};
   _rrMode=false;_rrDieId=null;
@@ -638,7 +639,7 @@ const PRESETS=[
     archetype:'⚖️ Balanced ⚖️',
     bonusToks:0,
     bonusDesc:'No bonus tokens',
-    lineup:["F7", "F4", "F2", "D6", "D3", "G5", "HC"],
+    lineup:["F7", "F4", "F2", "D6", "D3", "G5"],
     desc:'Fwd: F7/F4/F2 | Def: D6/D3 | G5 | 30pts total',
   },
   {
@@ -647,7 +648,7 @@ const PRESETS=[
     archetype:'⚖️ Balanced ⚖️',
     bonusToks:0,
     bonusDesc:'No bonus tokens',
-    lineup:["F7", "F6", "F3", "D5", "D2", "G4", "HC"],
+    lineup:["F7", "F6", "F3", "D5", "D2", "G4"],
     desc:'Fwd: F7/F6/F3 | Def: D5/D2 | G4 | 30pts total',
   },
   {
@@ -656,7 +657,7 @@ const PRESETS=[
     archetype:'⚖️ Balanced ⚖️',
     bonusToks:0,
     bonusDesc:'No bonus tokens',
-    lineup:["F6", "F5", "F2", "D7", "D4", "G3", "HC"],
+    lineup:["F6", "F5", "F2", "D7", "D4", "G3"],
     desc:'Fwd: F6/F5/F2 | Def: D7/D4 | G3 | 30pts total',
   },
   {
@@ -665,7 +666,7 @@ const PRESETS=[
     archetype:'🎯 Offensive 🎯',
     bonusToks:0,
     bonusDesc:'No bonus tokens',
-    lineup:["F8", "F4", "F3", "D6", "D1", "G5", "HC"],
+    lineup:["F8", "F4", "F3", "D6", "D1", "G5"],
     desc:'Fwd: F8/F4/F3 | Def: D6/D1 | G5 | 30pts total',
   },
   {
@@ -674,7 +675,7 @@ const PRESETS=[
     archetype:'🧱 Defensive 🧱',
     bonusToks:0,
     bonusDesc:'No bonus tokens',
-    lineup:["F4", "F3", "F1", "D8", "D5", "G6", "HC"],
+    lineup:["F4", "F3", "F1", "D8", "D5", "G6"],
     desc:'Fwd: F4/F3/F1 | Def: D8/D5 | G6 | 30pts total',
   },
 ];
@@ -781,13 +782,13 @@ function updatePts(p){
   const keys=['f1','f2','f3','d1','d2','g'].map(s=>v('p'+p+s)).filter(k=>k);
   const total=keys.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0)+3; // +3 HC
   const badge=document.getElementById('p'+p+'-pts');
-  badge.textContent=`${total}/30 pts`;
-  badge.className='pts-badge'+(total>30?' over':'');
+  badge.textContent=`${total}/25 pts`;
+  badge.className='pts-badge'+(total>25?' over':'');
 }
 // getBagExtras removed — starting bag is always 15 Rookies
 function startCustom(){
   const v=id=>{const el=document.getElementById(id);return el?el.value:'';};
-  const getL=p=>['f1','f2','f3','d1','d2','g'].map(s=>v('p'+p+s)).filter(k=>k).concat(['HC']);
+  const getL=p=>['f1','f2','f3','d1','d2','g'].map(s=>v('p'+p+s)).filter(k=>k); // HC is automatic, not in lineup
   const l1=getL('1'),l2=getL('2');
   // Validate minimums
   if(!l1.some(k=>k.startsWith('F'))||!l1.some(k=>k.startsWith('D'))||!l1.some(k=>k.startsWith('G')))
@@ -807,9 +808,9 @@ function startCustom(){
   };
   if(!chkDups(l1,'Player 1')||!chkDups(l2,'Player 2'))return;
   // Validate points
-  const pts=lineup=>lineup.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0);
-  if(pts(l1)>30){toast(`Player 1 lineup is ${pts(l1)}pts — exceeds 30pt limit.`);return;}
-  if(pts(l2)>30){toast(`Player 2 lineup is ${pts(l2)}pts — exceeds 30pt limit.`);return;}
+  const pts=lineup=>lineup.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0); // HC not in lineup, so no +3 adjustment needed
+  if(pts(l1)>25){toast(`Player 1 lineup is ${pts(l1)}pts — exceeds 25pt limit.`);return;}
+  if(pts(l2)>25){toast(`Player 2 lineup is ${pts(l2)}pts — exceeds 25pt limit.`);return;}
   // Get bag extras
   initG(l1,l2,[],[]);beginGame();
 }
@@ -861,9 +862,21 @@ function rollAll(){
     const idx=Math.floor(Math.random()*ap.bag.length);
     drawn.push(ap.bag.splice(idx,1)[0]);
   }
+  // HC die auto-rolls each turn (unless in Reserve)
+  const hcInReserve=ap.z.reserve.some(d=>d.key==='HC');
+  if(!hcInReserve){
+    const hcDie=ap.hcDie; // persistent HC die, not in bag
+    const hcFaces=DEFS['HC'];
+    hcDie.face=hcFaces[Math.floor(Math.random()*hcFaces.length)];
+    hcDie.sel=false;hcDie.energyPending=false;
+    ap.z.rs.push(hcDie);
+  }
   ap.z.rs.push(...fromBench,...drawn);
-  ap.z.rs.forEach(d=>{const f=DEFS[d.key]||DEFS.Penalty;d.face=f[Math.floor(Math.random()*f.length)];d.sel=false;d.energyPending=false;});
-  addLog(`${ap.name}: Drew ${drawn.length}+${fromBench.length} bench. Rolled ${ap.z.rs.length}.`);
+  ap.z.rs.forEach(d=>{
+    if(d.key!=='HC'){const f=DEFS[d.key]||DEFS.Penalty;d.face=f[Math.floor(Math.random()*f.length)];}
+    d.sel=false;d.energyPending=false;
+  });
+  addLog(`${ap.name}: Drew ${drawn.length}+${fromBench.length} bench + HC die. Rolled ${ap.z.rs.length}.`);
   G.phase=3;
   // Auto-enter reroll selection mode immediately
   _rrMode=true;_rrDieId=null;
@@ -1104,12 +1117,12 @@ function assignDie(die,action){
     ap.z.rs.splice(idx,1);ap.z.reserve.push(die);die.energyPending=false;
     addLog(`${ap.name}: ${dLbl(die)} saved in Reserve.`);
   }else if(action==='wild-energy'){
-    die.energyPending=true;die.sel=false;
-    addLog(`${ap.name}: Wild assigned as Energy (⚡${die.face.v} stays in RS).`);
+    // Wild-as-energy removed from game — this action should not be reached
+    toast('Wild can only be assigned as Shoot or Block.');return;
   }else if(action==='rr'){
-    // Remove from RS and move to iced (it's spent), then enter select mode for remaining RS dice.
+    // Remove from RS — HC returns to set-aside, others go to iced
     ap.z.rs.splice(idx,1);
-    ap.z.iced.push(die);
+    if(die.key!=='HC'){ap.z.iced.push(die);}
     addLog(`${ap.name}: Reroll face spent → select dice to reroll.`);
     enterRRFaceMode(die.id);return;
   }else if(action==='shutout-cost'){
@@ -1124,17 +1137,27 @@ function assignDie(die,action){
     });
     return;
   }else if(action==='shutout'){
-    ap.z.rs.splice(idx,1);ap.tok.block+=die.face.v;ap.z.iced.push(die);
+    ap.z.rs.splice(idx,1);ap.tok.block+=die.face.v;
+    if(die.key==='HC'){/* HC returns to set-aside automatically */}else{ap.z.iced.push(die);}
     addLog(`${ap.name}: Shutout → +${die.face.v} Block Tokens (${ap.tok.block} total).`,'imp');
   }else if(action==='pen-give'){
-    ap.z.rs.splice(idx,1);opp.bag.push(mkDie('Penalty'));ap.z.iced.push(die);
-    addLog(`${ap.name}: Penalty → added Penalty die to ${opp.name}'s bag!`,'imp');
+    ap.z.rs.splice(idx,1);
+    if(G.penaltyPool>0){
+      opp.bag.push(mkDie('Penalty'));G.penaltyPool--;
+      addLog(`${ap.name}: Penalty → added Penalty die to ${opp.name}'s bag! (pool: ${G.penaltyPool} remaining)`,'imp');
+    }else{
+      addLog(`${ap.name}: Penalty face — pool empty, no penalty added.`);
+    }
+    if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
   }else if(action==='pen-rem'){
     ap.z.rs.splice(idx,1);const pi=ap.z.iced.findIndex(d=>d.key==='Penalty');
-    if(pi!==-1)ap.z.iced.splice(pi,1);ap.z.iced.push(die);
-    addLog(`${ap.name}: Penalty → removed own Penalty die from Iced.`,'imp');
+    if(pi!==-1){ap.z.iced.splice(pi,1);G.penaltyPool++;addLog(`${ap.name}: Penalty removed from Iced → returned to shared pool (${G.penaltyPool} available).`,'imp');}
+    else{addLog(`${ap.name}: No Penalty die in Iced Zone to remove.`);}
+    if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
   }else if(action==='fight'){
-    ap.z.rs.splice(idx,1);ap.z.iced.push(die);doFight();return;
+    ap.z.rs.splice(idx,1);
+    if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
+    doFight();return;
   }
   renderAll();
 }
@@ -1230,7 +1253,10 @@ function buyCard(cardIdx,trade){
       card2.left--;
       ap2.z.iced.push(mkDie(card2.key));
       addLog(`${ap2.name}: Bought ${card2.key} for ${cost}E → Iced Zone.`,'imp');
-      if(!card2.left){OPP().bag.push(mkDie('Penalty'));addLog(`${card2.key} sold out! ${OPP().name} gets Penalty die.`,'imp');}
+      if(!card2.left){
+    if(G.penaltyPool>0){OPP().bag.push(mkDie('Penalty'));G.penaltyPool--;addLog(`${card2.key} sold out! ${OPP().name} gets Penalty die (pool: ${G.penaltyPool}).`,'imp');}
+    else{addLog(`${card2.key} sold out! Penalty pool empty — no penalty added.`,'imp');}
+  }
       renderAll();
     });
   }
@@ -1280,7 +1306,10 @@ function completeTrade(trashDieId){
   card2.left--;
   ap2.z.iced.push(mkDie(card2.key));
   addLog(`${ap2.name}: Bought ${card2.key} (Trade) → Iced Zone.`,'imp');
-  if(!card2.left){OPP().bag.push(mkDie('Penalty'));addLog(`${card2.key} sold out! ${OPP().name} gets Penalty die.`,'imp');}
+  if(!card2.left){
+    if(G.penaltyPool>0){OPP().bag.push(mkDie('Penalty'));G.penaltyPool--;addLog(`${card2.key} sold out! ${OPP().name} gets Penalty die (pool: ${G.penaltyPool}).`,'imp');}
+    else{addLog(`${card2.key} sold out! Penalty pool empty — no penalty added.`,'imp');}
+  }
   renderAll();
 }
 function buyTok(type){
@@ -1490,8 +1519,8 @@ function endTurn(){
     ap.z.rs.splice(ap.z.rs.indexOf(best),1);best.energyPending=false;ap.z.reserve.push(best);
     addLog(`${ap.name}: Leftover ${best.face.v}E auto-saved to Reserve.`);
   }
-  // Everything else in RS → iced
-  ap.z.rs.forEach(d=>{d.energyPending=false;ap.z.iced.push(d);});ap.z.rs=[];
+  // HC die goes back to set-aside (not iced); everything else → iced
+  ap.z.rs.forEach(d=>{d.energyPending=false;if(d.key==='HC'){/* set-aside */}else{ap.z.iced.push(d);}});ap.z.rs=[];
   ap.z.shoot.forEach(d=>ap.z.iced.push(d));ap.z.shoot=[];
   G.clock=Math.max(0,G.clock-1);
   addLog(`${ap.name}: Turn ended. Clock→${G.clock<10?'0'+G.clock:''+G.clock}:00.`);
@@ -1756,7 +1785,7 @@ function renderRSActions(){
 function renderOpp(){
   const o=OPP();
   document.getElementById('opplbl').textContent=`${o.name} (Opponent)`;
-  document.getElementById('opptmr').textContent=`Clock: ${G.clock<10?'0'+G.clock:G.clock}:00`;
+  document.getElementById('opptmr').textContent=`Clock: ${G.clock<10?'0'+G.clock:G.clock}:00  |  Penalty Pool: ${G.penaltyPool??3}`;
   document.getElementById('opptok').textContent=`🏒${o.tok.shoot} 🥅${o.tok.block}`;
   const hp=o.z.hot.length,cp=o.z.cold.length,dp=o.z.defend.length;
   // Pip totals for hot/cold/defend
