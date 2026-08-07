@@ -212,7 +212,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .opp-lbl{font-size:.75em;color:#888;text-transform:uppercase;letter-spacing:1px;}
 .opp-tmr{font-size:.75em;color:#aaa;}
 .opp-zones{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-.opp-zone{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:3px 9px;font-size:.7em;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:56px;}
+.opp-zone{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:3px 9px;font-size:.7em;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:56px;position:relative;cursor:default;}
+.opp-zone.has-tip{cursor:pointer;}
+.opp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a2d45;border:1px solid var(--gold);border-radius:8px;padding:8px 10px;min-width:180px;max-width:260px;z-index:999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.8);}
+.opp-zone.has-tip:hover .opp-tip{display:block;}
+.opp-tip-title{font-size:.72em;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.opp-tip-die{display:flex;align-items:center;gap:6px;margin-bottom:3px;font-size:.7em;color:#ccc;}
 .opp-zone-l{color:#777;font-size:.84em;text-transform:uppercase;letter-spacing:.5px;}
 .opp-zone-v{color:white;font-weight:700;font-size:1.1em;}
 .opp-zone-d{color:#aaa;font-size:.74em;}
@@ -531,6 +536,31 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
     <div class="panel-sub" id="trash-sub">Select one die to permanently remove from the game. This includes dice just spent as energy (already in Iced Zone).</div>
     <div id="trash-grid" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;min-height:60px;"></div>
     <div style="margin-top:14px;font-size:.8em;color:#888">Click a die to trash it and complete the purchase.</div>
+  </div>
+</div>
+
+<!-- FIGHT MODAL -->
+<div class="panel-overlay" id="fight-panel">
+  <div class="panel-box" style="max-width:560px">
+    <div class="panel-title">⚔️ Fight!</div>
+    <div class="panel-sub" id="fight-sub">Choose your fighter.</div>
+    <div id="fight-step-1">
+      <h3 style="color:var(--gold);font-size:.9em;margin-bottom:8px" id="fight-attacker-label">Attacker — choose a die and zone:</h3>
+      <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap" id="fight-atk-dice"></div>
+      <div style="font-size:.78em;color:#888;margin-bottom:8px">Click a die to select it as your fighter. You choose the zone — opponent must respond from same zone.</div>
+      <button class="abtn prim" id="fight-commit-atk" onclick="fightCommitAttacker()" disabled>Commit Fighter →</button>
+      <button class="abtn sec" onclick="cancelFight()" style="margin-left:8px">Cancel</button>
+    </div>
+    <div id="fight-step-2" style="display:none">
+      <h3 style="color:#ff8888;font-size:.9em;margin-bottom:8px" id="fight-defender-label">Defender — choose your fighter from same zone:</h3>
+      <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap" id="fight-def-dice"></div>
+      <div style="font-size:.78em;color:#888;margin-bottom:8px">You must pick from the same zone the attacker chose.</div>
+      <button class="abtn prim" id="fight-commit-def" onclick="fightCommitDefender()" disabled>Commit Fighter →</button>
+    </div>
+    <div id="fight-result" style="display:none;margin-top:10px">
+      <div class="combat-info" id="fight-result-text" style="background:rgba(255,255,255,.05);border-radius:6px;padding:10px;font-size:.85em;line-height:1.7"></div>
+      <button class="abtn prim" style="width:100%;margin-top:10px" onclick="closeFight()">Continue</button>
+    </div>
   </div>
 </div>
 
@@ -884,7 +914,8 @@ function rollAll(){
   renderAll();
 }
 function refillBag(p){
-  const ic=p.z.iced.splice(0);p.bag.push(...ic);
+  // Never include HC die in bag refill
+  const ic=p.z.iced.splice(0).filter(d=>d.key!=='HC');p.bag.push(...ic);
   for(let i=p.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.bag[i],p.bag[j]]=[p.bag[j],p.bag[i]];}
   addLog(`${p.name}: Bag refilled (${p.bag.length} dice).`);
 }
@@ -1002,24 +1033,34 @@ function autoAdvanceCostQueue(queue,idx){
 }
 // Standalone payOneCost for use outside assignDie
 function payOneCostFrom(ap){
-  const rsE=ap.z.rs.filter(d=>d.face&&(d.face.t==='E'||d.energyPending)&&d.face.v>=1)
+  // Prefer non-HC energy dice first (smallest pip first)
+  const rsE=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='E'||d.energyPending)&&d.face.v>=1)
                     .sort((a,b)=>a.face.v-b.face.v);
   if(rsE.length){
     const p=rsE[0];
     if(p.face.v===1){ap.z.rs.splice(ap.z.rs.indexOf(p),1);ap.z.iced.push(p);}
     else{p.face={t:p.face.t,v:p.face.v-1};}
   }else{
-    const resE2=ap.z.reserve.filter(d=>d.face&&d.face.v>=1).sort((a,b)=>a.face.v-b.face.v);
-    if(resE2.length){
-      const rv=resE2[0];
-      if(rv.face.v===1){ap.z.reserve.splice(ap.z.reserve.indexOf(rv),1);ap.z.iced.push(rv);}
-      else{rv.face={t:rv.face.t,v:rv.face.v-1};}
+    // Try HC energy face — just spin it down, never send to iced
+    const hcE=ap.z.rs.filter(d=>d.key==='HC'&&d.face&&d.face.t==='E'&&d.face.v>=1);
+    if(hcE.length){
+      const h=hcE[0];
+      if(h.face.v===1){h.face.v=0;/* HC will be set aside at end of turn */}
+      else{h.face={t:'E',v:h.face.v-1};}
+    }else{
+      // Try reserve (non-HC only)
+      const resE2=ap.z.reserve.filter(d=>d.key!=='HC'&&d.face&&d.face.v>=1).sort((a,b)=>a.face.v-b.face.v);
+      if(resE2.length){
+        const rv=resE2[0];
+        if(rv.face.v===1){ap.z.reserve.splice(ap.z.reserve.indexOf(rv),1);ap.z.iced.push(rv);}
+        else{rv.face={t:rv.face.t,v:rv.face.v-1};}
+      }
     }
   }
 }
 function autoAssignBlanks(){
   const ap=AP();
-  const bl=ap.z.rs.filter(d=>d.face&&(d.face.t==='BLANK'));
+  const bl=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='BLANK'));
   bl.forEach(d=>{ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);});
   if(bl.length)addLog(`${ap.name}: Auto-sent ${bl.length} blank(s)→Iced.`);
   renderAll();
@@ -1037,7 +1078,13 @@ function getOpts(die){
   const f=die.face;const ap=AP();if(!f)return[];const o=[];
   const canPay=hasEnergy1();
   if(f.t==='E'){
-    if(ap.z.reserve.length<2)o.push({l:`Save ${f.v}E in Reserve`,a:'reserve'});
+    if(die.key==='HC'){
+      // HC E face: energy available for spending this turn only — HC set aside at end
+      // No reserve option for HC
+      o.push({l:`HC Energy (${f.v}E) — available for spending this turn`,a:'hc-energy-info'});
+    }else{
+      if(ap.z.reserve.length<2)o.push({l:`Save ${f.v}E in Reserve`,a:'reserve'});
+    }
   }else if(f.t==='S'){
     const z=G.clock>4?'Cold':'Hot';
     if(!f.c){
@@ -1054,19 +1101,20 @@ function getOpts(die){
       else o.push({l:`Block (${f.v} pip) — BLOCKED: need 1⚡ to advance`,a:'no-energy'});
     }
   }else if(f.t==='W'){
-  const z=G.clock>4?'Cold':'Hot';
-  o.push({l:`Wild as Shoot → ${z} (${f.v} pip)`,a:'shoot'});
-  o.push({l:`Wild as Block → Defensive (${f.v} pip)`,a:'block'});
-  o.push({l:'Wild as Reroll → select dice to reroll',a:'rr'});
-  o.push({l:'Wild as Energy (stays in RS ⚡)',a:'wild-energy'});
+    const z=G.clock>4?'Cold':'Hot';
+    o.push({l:`Wild as Shoot → ${z} Zone (${f.v} pip)`,a:'shoot'});
+    o.push({l:`Wild as Block → Defensive Zone (${f.v} pip)`,a:'block'});
   }else if(f.t==='RR'){
-  o.push({l:'Spend Reroll → select dice to reroll',a:'rr'});
+    if(!G.assignmentStarted)o.push({l:'Spend Reroll → reroll remaining RS dice',a:'rr'});
+    else o.push({l:'Reroll face (cannot use after assigning — goes to Iced)',a:'iced'});
   }else if(f.t==='SO'){
     if(canPay)o.push({l:`Shutout → gain ${f.v} Block Token(s) — costs 1⚡`,a:'shutout-cost'});
     else o.push({l:`Shutout — BLOCKED: need 1⚡ to cash in`,a:'no-energy'});
   }else if(f.t==='PEN'){
-    o.push({l:'Give opponent a Penalty die',a:'pen-give'});
-    if(ap.z.iced.some(d=>d.key==='Penalty'))o.push({l:'Remove own Penalty from Iced',a:'pen-rem'});
+    if(G.penaltyPool>0)o.push({l:`Give opponent a Penalty die (pool: ${G.penaltyPool} left)`,a:'pen-give'});
+    else o.push({l:'Penalty pool empty — cannot give (pool: 0)',a:'pen-pool-empty'});
+    if(ap.z.iced.some(d=>d.key==='Penalty'))o.push({l:'Remove own Penalty die from Iced Zone',a:'pen-rem'});
+    else o.push({l:'No Penalty in your Iced Zone to remove',a:'pen-none'});
   }else if(f.t==='FT'){
     o.push({l:'⚔️ Fight!',a:'fight'});
   }
@@ -1111,7 +1159,21 @@ function assignDie(die,action){
   }else if(action==='no-energy'){
     toast('Need 1⚡ Energy in RS or Reserve to advance this costed face.');
     renderAll();return;
+  }else if(action==='iced'){
+    ap.z.rs.splice(idx,1);ap.z.iced.push(die);
+    addLog(`${ap.name}: ${dLbl(die)}→Iced Zone.`);
+    renderAll();return;
+  }else if(action==='hc-energy-info'){
+    toast('HC Energy is available for purchasing this turn. It will be set aside automatically at end of turn.');
+    renderAll();return;
+  }else if(action==='pen-pool-empty'){
+    toast('Penalty pool is empty — all 3 penalty dice are in play.');
+    renderAll();return;
+  }else if(action==='pen-none'){
+    toast('No Penalty die in your Iced Zone to remove.');
+    renderAll();return;
   }else if(action==='reserve'){
+    if(die.key==='HC'){toast('Head Coach die cannot enter Reserve — it is set aside automatically.');return;}
     if(die.face.t!=='E'&&!die.energyPending){toast('Reserve: Energy faces only.');return;}
     if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
     ap.z.rs.splice(idx,1);ap.z.reserve.push(die);die.energyPending=false;
@@ -1164,23 +1226,98 @@ function assignDie(die,action){
 function dLbl(d){if(!d.face)return d.key;return`${d.key}[${d.face.t}${d.face.v||''}]`;}
 
 // ═══════════════════ FIGHT ═══════════════════
+// Fight state
+let _fight={zone:null,atkDie:null,defDie:null};
+
 function doFight(){
   const ap=AP(),opp=OPP();
-  const apF=ap.z.defend[0]||ap.z.bench[0];const opF=opp.z.defend[0]||opp.z.bench[0];
-  if(!apF||!opF){toast('No fighters available!');renderAll();return;}
-  const at=Array.from({length:Math.max(apF.tier,1)},()=>rcf()).reduce((a,b)=>a+b,0);
-  const ot=Array.from({length:Math.max(opF.tier,1)},()=>rcf()).reduce((a,b)=>a+b,0);
-  const apW=at>=ot;
-  const[win,los,wF,lF]=apW?[ap,opp,apF,opF]:[opp,ap,opF,apF];
-  ['defend','bench'].forEach(z=>{
-    const ri=ap.z[z].indexOf(apF);if(ri!==-1)ap.z[z].splice(ri,1);
-    const ro=opp.z[z].indexOf(opF);if(ro!==-1)opp.z[z].splice(ro,1);
+  // Check attacker has dice in hot or defend
+  const atkPool={hot:[...ap.z.hot],defend:[...ap.z.defend]};
+  const hasAtk=atkPool.hot.length>0||atkPool.defend.length>0;
+  if(!hasAtk){toast('No dice in your Hot or Defensive Zone to fight with!');renderAll();return;}
+  _fight={zone:null,atkDie:null,defDie:null};
+  // Show fight modal — step 1: attacker picks
+  document.getElementById('fight-attacker-label').textContent=`${ap.name} — choose your fighter (Hot or Defensive Zone):`;
+  document.getElementById('fight-result').style.display='none';
+  document.getElementById('fight-step-1').style.display='block';
+  document.getElementById('fight-step-2').style.display='none';
+  const atkEl=document.getElementById('fight-atk-dice');
+  atkEl.innerHTML='';
+  ['hot','defend'].forEach(zn=>{
+    ap.z[zn].forEach(d=>{
+      const w=document.createElement('div');
+      w.innerHTML=dieWrapHTML(d,false,true,false);
+      w.querySelector('.die-body').style.cursor='pointer';
+      const lbl=document.createElement('div');
+      lbl.style.cssText='font-size:.65em;color:#aaa;text-align:center;margin-top:2px';
+      lbl.textContent=zn==='hot'?'Hot Zone':'Def Zone';
+      w.appendChild(lbl);
+      w.addEventListener('click',()=>{
+        atkEl.querySelectorAll('.die-body').forEach(b=>b.classList.remove('sel'));
+        w.querySelector('.die-body').classList.add('sel');
+        _fight.zone=zn;_fight.atkDie=d;
+        document.getElementById('fight-commit-atk').disabled=false;
+      });
+      atkEl.appendChild(w);
+    });
   });
-  win.tok.block++;sendBench(win,wF);los.z.iced.push(lF);
+  document.getElementById('fight-panel').classList.add('show');
+}
+
+function fightCommitAttacker(){
+  if(!_fight.atkDie||!_fight.zone){toast('Select a fighter first.');return;}
+  const opp=OPP();
+  const defPool=opp.z[_fight.zone];
+  if(!defPool.length){
+    toast(`${opp.name} has no dice in the ${_fight.zone} zone — fight cancelled.`);
+    cancelFight();return;
+  }
+  document.getElementById('fight-step-1').style.display='none';
+  document.getElementById('fight-step-2').style.display='block';
+  document.getElementById('fight-defender-label').textContent=`${opp.name} — choose your fighter from ${_fight.zone==='hot'?'Hot':'Defensive'} Zone:`;
+  const defEl=document.getElementById('fight-def-dice');defEl.innerHTML='';
+  defPool.forEach(d=>{
+    const w=document.createElement('div');
+    w.innerHTML=dieWrapHTML(d,false,true,false);
+    w.querySelector('.die-body').style.cursor='pointer';
+    w.addEventListener('click',()=>{
+      defEl.querySelectorAll('.die-body').forEach(b=>b.classList.remove('sel'));
+      w.querySelector('.die-body').classList.add('sel');
+      _fight.defDie=d;
+      document.getElementById('fight-commit-def').disabled=false;
+    });
+    defEl.appendChild(w);
+  });
+}
+
+function fightCommitDefender(){
+  if(!_fight.defDie){toast('Select a defender first.');return;}
+  const ap=AP(),opp=OPP();
+  const atkF=_fight.atkDie,defF=_fight.defDie;
+  const at=Array.from({length:Math.max(atkF.tier,1)},()=>rcf()).reduce((a,b)=>a+b,0);
+  const dt=Array.from({length:Math.max(defF.tier,1)},()=>rcf()).reduce((a,b)=>a+b,0);
+  const apW=at>=dt; // ties go to attacker/initiator
+  const[win,los,wF,lF,wP,lP]=apW?[ap,opp,atkF,defF,ap.z[_fight.zone],opp.z[_fight.zone]]
+                                   :[opp,ap,defF,atkF,opp.z[_fight.zone],ap.z[_fight.zone]];
+  // Remove fighters from zones
+  const ri=ap.z[_fight.zone].indexOf(atkF);if(ri!==-1)ap.z[_fight.zone].splice(ri,1);
+  const di=opp.z[_fight.zone].indexOf(defF);if(di!==-1)opp.z[_fight.zone].splice(di,1);
+  // Winner: +1 token of choice (auto-give block), send fighter to Bench
+  win.tok.block++;sendBench(win,wF);
+  // Loser: fighter to Iced, lose 1 token if any
+  los.z.iced.push(lF);
   if(los.tok.block>0)los.tok.block--;else if(los.tok.shoot>0)los.tok.shoot--;
-  addLog(`Fight! ${ap.name}:${at} vs ${opp.name}:${ot}. ${win.name} wins → +1 Block Token.`,'imp');
+  const resultText=`⚔️ ${ap.name} [${atkF.key} T${atkF.tier}] rolled ${at} vs ${opp.name} [${defF.key} T${defF.tier}] rolled ${dt}.<br>`+
+    `<strong style="color:${apW?'#88aaff':'#ff8888'}">${win.name} wins!</strong> → +1 Block Token, fighter → Bench.<br>`+
+    `${los.name} loses fighter → Iced Zone${los.tok.block+los.tok.shoot>0?', loses 1 token':''}.`;
+  document.getElementById('fight-result-text').innerHTML=resultText;
+  document.getElementById('fight-step-2').style.display='none';
+  document.getElementById('fight-result').style.display='block';
+  addLog(`Fight! ${ap.name}(${at}) vs ${opp.name}(${dt}). ${win.name} wins → +1 Block Token.`,'imp');
   renderAll();
 }
+function cancelFight(){document.getElementById('fight-panel').classList.remove('show');renderAll();}
+function closeFight(){document.getElementById('fight-panel').classList.remove('show');renderAll();}
 function sendBench(p,d){if(p.z.bench.length>=2)p.z.iced.push(d);else p.z.bench.push(d);}
 
 // ═══════════════════ ECONOMY (spin-down) ═══════════════════
@@ -1198,19 +1335,26 @@ function spendE(amt){
   const ap=AP();let rem=amt;
   // Collect spendable dice: RS energy/wildE + reserve
   // Spend RS energy dice first (smallest pips first)
-  const rsE=ap.z.rs.filter(d=>d.face&&(d.face.t==='E'||d.energyPending)).sort((a,b)=>a.face.v-b.face.v);
-  for(const d of rsE){
+  // Non-HC energy dice first (smallest pip first), then HC last
+  const rsAll=ap.z.rs.filter(d=>d.face&&(d.face.t==='E'||d.energyPending)).sort((a,b)=>{
+    if(a.key==='HC'&&b.key!=='HC')return 1; // HC goes last
+    if(a.key!=='HC'&&b.key==='HC')return -1;
+    return a.face.v-b.face.v;
+  });
+  for(const d of rsAll){
     if(rem<=0)break;
+    const isHC=d.key==='HC';
     if(d.face.v<=rem){
       rem-=d.face.v;
-      ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);d.energyPending=false;
+      if(!isHC){ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);}
+      else{d.face.v=0;} // HC: zero out, stays in RS, set aside at end of turn
+      d.energyPending=false;
     }else{
-      // spin-down: reduce this die's value, leave remainder in RS
       const change=d.face.v-rem;rem=0;
-      d.face={t:d.face.t==='E'?'E':'E',v:change};d.energyPending=false;
-      // if spun to 0 or negative, just send to iced
-      if(d.face.v<=0){ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);}
-      addLog(`${ap.name}: Spun down energy die to ${change}E change.`);
+      d.face={t:'E',v:change};d.energyPending=false;
+      // Only send to iced if fully spent AND not HC
+      if(d.face.v<=0&&!isHC){ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);}
+      else if(d.face.v>0)addLog(`${ap.name}: Spun down energy die to ${change}E change.`);
     }
   }
   // If still need energy, drain reserve dice (smallest first)
@@ -1512,9 +1656,8 @@ function endTurn(){
   // Check reserve: if something there after buy phase, it stays (can be used next turn)
   // Clean RS: send remaining to iced EXCEPT reserve-eligible energy that player wants to keep
   // Leftover energy in RS after buy → try to put one in reserve if empty, rest to iced
-  const rsE=ap.z.rs.filter(d=>d.face&&(d.face.t==='E'||d.energyPending));
-  if(rsE.length&&!ap.z.reserve.length){
-    // auto-save one in reserve if empty
+  const rsE=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='E'||d.energyPending));
+  if(rsE.length&&ap.z.reserve.length<2){
     const best=rsE.sort((a,b)=>b.face.v-a.face.v)[0];
     ap.z.rs.splice(ap.z.rs.indexOf(best),1);best.energyPending=false;ap.z.reserve.push(best);
     addLog(`${ap.name}: Leftover ${best.face.v}E auto-saved to Reserve.`);
@@ -1554,8 +1697,16 @@ function startNextPeriod(){
   document.getElementById('pe-overlay').classList.remove('show');
   G.period++;
   G.players.forEach(p=>{
-    const all=[...p.bag,...Object.values(p.z).flat()];
+    // Reserve dice persist between periods — save them first
+    const savedReserve=[...p.z.reserve];
+    // Collect all other zone dice except reserve and HC die
+    const allZoneDice=Object.entries(p.z)
+      .filter(([zn])=>zn!=='reserve')
+      .flatMap(([,dice])=>dice)
+      .filter(d=>d.key!=='HC'); // HC never enters bag
+    const all=[...p.bag,...allZoneDice];
     Object.keys(p.z).forEach(z=>p.z[z]=[]);
+    p.z.reserve=savedReserve; // restore reserve
     p.bag=all;
     for(let i=p.bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[p.bag[i],p.bag[j]]=[p.bag[j],p.bag[i]];}
   });
@@ -1793,15 +1944,32 @@ function renderOpp(){
   const coldPips=o.z.cold.reduce((s,d)=>s+(d.face?d.face.v:0),0);
   const defPips=o.z.defend.reduce((s,d)=>s+(d.face?d.face.v:0),0);
   const oppZoneData=[
-    {l:'Hot',v:hotPips,d:`${hp} dice`,bg:'rgba(30,60,160,.35)',bc:'rgba(80,120,255,.5)'},
-    {l:'Cold',v:coldPips,d:`${cp} dice`,bg:'rgba(15,40,100,.3)',bc:'rgba(60,100,200,.4)'},
-    {l:'Def',v:defPips,d:`${dp} dice`,bg:'rgba(120,20,20,.3)',bc:'rgba(200,50,50,.5)'},
-    {l:'Bench',v:o.z.bench.length,d:'',bg:'',bc:''},
-    {l:'Reserve',v:o.z.reserve.length,d:'',bg:'',bc:''},
-    {l:'Iced',v:o.z.iced.length,d:'',bg:'',bc:''},
-    {l:'Bag',v:o.bag.length,d:'',bg:'',bc:''},
+    {l:'Hot',v:hotPips,d:`${hp} dice`,bg:'rgba(30,60,160,.35)',bc:'rgba(80,120,255,.5)',tipDice:o.z.hot},
+    {l:'Cold',v:coldPips,d:`${cp} dice`,bg:'rgba(15,40,100,.3)',bc:'rgba(60,100,200,.4)',tipDice:o.z.cold},
+    {l:'Def',v:defPips,d:`${dp} dice`,bg:'rgba(120,20,20,.3)',bc:'rgba(200,50,50,.5)',tipDice:o.z.defend},
+    {l:'Bench',v:o.z.bench.length,d:'',bg:'',bc:'',tipDice:null},
+    {l:'Reserve',v:o.z.reserve.length,d:'',bg:'',bc:'',tipDice:null},
+    {l:'Iced',v:o.z.iced.length,d:'',bg:'',bc:'',tipDice:null},
+    {l:'Bag',v:o.bag.length,d:'',bg:'',bc:'',tipDice:null},
   ];
-  document.getElementById('oppzones').innerHTML=oppZoneData.map(z=>`<div class="opp-zone" style="${z.bg?`background:${z.bg};border-color:${z.bc};`:''}"><div class="opp-zone-l">${z.l}</div><div class="opp-zone-v">${z.v}${z.bg?'<span style="font-size:.5em;opacity:.7">pip</span>':''}</div>${z.d?`<div class="opp-zone-d">${z.d}</div>`:''}</div>`).join('');
+  // Build zone HTML with tooltips for Hot, Cold, Def
+  const zoneHtml=oppZoneData.map(z=>{
+    const hasTip=!!(z.tipDice&&z.tipDice.length);
+    const tipContent=hasTip?`<div class="opp-tip"><div class="opp-tip-title">${z.l} Zone</div>${
+      z.tipDice.map(d=>{
+        const pc={F:'#4466cc',D:'#cc4444',G:'#888',HC:'#c8a84b',R:'#ccc',P:'#555'}[d.pos]||'#ccc';
+        const face=d.face?`${d.face.t}${d.face.v||''}${d.face.c?'⚡':''}`:'?';
+        return`<div class="opp-tip-die"><span style="color:${pc};font-weight:700">${d.key}</span><span style="color:#888">${face}</span><span style="color:var(--gold)">${d.face?d.face.v:0}pip</span></div>`;
+      }).join('')
+    }</div>`:'';
+    return`<div class="opp-zone${hasTip?' has-tip':''}" style="${z.bg?`background:${z.bg};border-color:${z.bc};`:''}">
+      <div class="opp-zone-l">${z.l}</div>
+      <div class="opp-zone-v">${z.v}${z.bg?'<span style="font-size:.5em;opacity:.7">pip</span>':''}</div>
+      ${z.d?`<div class="opp-zone-d">${z.d}</div>`:''}
+      ${tipContent}
+    </div>`;
+  }).join('');
+  document.getElementById('oppzones').innerHTML=zoneHtml;
 }
 function renderScore(){
   document.getElementById('sg1').textContent=G.players[0].goals;
@@ -1911,9 +2079,9 @@ function getEnergySources() {
       sources.push({ die: d, fromReserve: false, originalV: d.face.v, currentV: d.face.v, spentPips: 0 });
     }
   });
-  // Reserve dice
+  // Reserve dice (HC cannot be in reserve, but guard anyway)
   ap.z.reserve.forEach(d => {
-    if (d.face && d.face.v > 0) {
+    if (d.key !== 'HC' && d.face && d.face.v > 0) {
       sources.push({ die: d, fromReserve: true, originalV: d.face.v, currentV: d.face.v, spentPips: 0 });
     }
   });
@@ -2001,16 +2169,18 @@ function confirmEPick() {
   _epick.sources.forEach(src => {
     if (src.spentPips === 0) return;
     if (src.currentV <= 0) {
-      // Fully spent — remove from zone
+      // Fully spent — remove from zone (HC never goes to iced)
       if (src.fromReserve) {
         const ri = ap.z.reserve.indexOf(src.die);
         if (ri !== -1) ap.z.reserve.splice(ri, 1);
-        ap.z.iced.push(src.die);
+        if (src.die.key !== 'HC') ap.z.iced.push(src.die);
+        // HC from reserve: just removed, set aside automatically
       } else {
         const ri = ap.z.rs.indexOf(src.die);
         if (ri !== -1) ap.z.rs.splice(ri, 1);
         src.die.energyPending = false;
-        ap.z.iced.push(src.die);
+        if (src.die.key !== 'HC') ap.z.iced.push(src.die);
+        // HC: removed from RS, set aside automatically at end of turn
       }
     } else {
       // Spun down — update face value
