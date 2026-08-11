@@ -322,6 +322,26 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
       <button class="btn-mode btn-qs" onclick="showQS()">⚡ Quick Start</button>
       <button class="btn-mode btn-cb" onclick="showCustom()">🏒 Build Teams (25pts)</button>
     </div>
+    <div style="text-align:center;margin-bottom:16px">
+      <button class="btn-mode" style="background:transparent;color:#c85500;border:2px solid #c85500;padding:10px 24px;font-size:.85em" onclick="showShootoutSetup()">🥅 Shootout Practice</button>
+    </div>
+    <!-- SHOOTOUT SETUP -->
+    <div class="team-builder" id="so-panel">
+      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:12px">
+        Pick a preset for each player. Each Forward in their lineup gets one shot. Their Goalie defends all shots.
+      </div>
+      <div class="builder-grid">
+        <div class="builder-player">
+          <h3>Player 1 — Choose Roster</h3>
+          <div class="preset-cards" id="so-p1" style="max-height:300px;overflow-y:auto"></div>
+        </div>
+        <div class="builder-player">
+          <h3>Player 2 — Choose Roster</h3>
+          <div class="preset-cards" id="so-p2" style="max-height:300px;overflow-y:auto"></div>
+        </div>
+      </div>
+      <button class="btn-start" style="margin-top:10px" onclick="launchShootoutPractice()">Start Shootout Practice →</button>
+    </div>
 
     <!-- QUICK START: 5 teams, filterable -->
     <div class="team-builder" id="qs-panel">
@@ -588,6 +608,49 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
     <div class="ov-score" id="go-score">0–0</div>
     <button class="btn-ov" onclick="showBagViewer()">🎒 View Final Bags</button>
     <button class="btn-ov" onclick="location.reload()">New Game</button>
+  </div>
+</div>
+
+<!-- SHOOTOUT OVERLAY -->
+<div class="overlay" id="so-overlay">
+  <div class="ov-box" style="max-width:680px;width:100%">
+    <h2 id="so-title">🥅 Shootout</h2>
+    <div id="so-score-display" style="font-size:1.4em;font-weight:900;color:white;margin:8px 0"></div>
+    <div id="so-round-info" style="font-size:.85em;color:#aaa;margin-bottom:14px"></div>
+
+    <!-- Shooter selection -->
+    <div id="so-shooter-area">
+      <div style="font-size:.9em;color:var(--gold);font-weight:700;margin-bottom:8px" id="so-shooter-label">Shooter</div>
+      <div id="so-shooter-dice" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:10px;min-height:80px"></div>
+      <button class="abtn prim" id="so-shoot-btn" onclick="soTakeShot()" disabled>Take Shot 🏒</button>
+    </div>
+
+    <!-- Shot result -->
+    <div id="so-result-area" style="display:none;margin-top:12px">
+      <div class="combat-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="combat-side" style="text-align:center;background:rgba(255,255,255,.04);border-radius:8px;padding:10px">
+          <div style="font-size:.75em;color:#aaa;margin-bottom:5px">🏒 SHOOTER</div>
+          <div id="so-shot-face" style="font-size:1.1em;font-weight:900;color:white;margin-bottom:4px"></div>
+          <div id="so-shot-roll" style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-bottom:4px"></div>
+          <div id="so-shot-total" style="font-size:1.6em;font-weight:900;color:#88aaff"></div>
+        </div>
+        <div class="combat-side" style="text-align:center;background:rgba(255,255,255,.04);border-radius:8px;padding:10px">
+          <div style="font-size:.75em;color:#aaa;margin-bottom:5px">🥅 GOALIE</div>
+          <div id="so-save-face" style="font-size:1.1em;font-weight:900;color:white;margin-bottom:4px"></div>
+          <div id="so-save-roll" style="display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-bottom:4px"></div>
+          <div id="so-save-total" style="font-size:1.6em;font-weight:900;color:#ffaaaa"></div>
+        </div>
+      </div>
+      <div id="so-shot-result" style="text-align:center;font-size:1.3em;font-weight:900;padding:10px;border-radius:8px;margin-bottom:10px"></div>
+      <button class="abtn prim" style="width:100%" id="so-next-btn" onclick="soNextShot()">Next →</button>
+    </div>
+
+    <!-- Final result -->
+    <div id="so-final-area" style="display:none;margin-top:12px;text-align:center">
+      <div id="so-final-result" style="font-size:1.4em;font-weight:900;color:var(--gold);margin-bottom:12px"></div>
+      <button class="btn-ov" onclick="document.getElementById('so-overlay').classList.remove('show');location.reload()">New Game</button>
+      <button class="btn-ov" onclick="restartShootout()">Shootout Again</button>
+    </div>
   </div>
 </div>
 
@@ -1717,8 +1780,13 @@ function startNextPeriod(){
 function showGameOver(){
   document.getElementById('pe-overlay').classList.remove('show');
   const[p0,p1]=G.players;
-  const win=p0.goals>p1.goals?p0.name:p1.goals>p0.goals?p1.name:'Tie — Shootout!';
-  document.getElementById('go-win').textContent=win;
+  if(p0.goals===p1.goals){
+    // Tied — go straight to shootout
+    startShootout(false);
+    return;
+  }
+  const win=p0.goals>p1.goals?p0.name:p1.name;
+  document.getElementById('go-win').textContent=`🏆 ${win} wins!`;
   document.getElementById('go-score').textContent=`${p0.goals} – ${p1.goals}`;
   document.getElementById('go-overlay').classList.add('show');
 }
@@ -2257,6 +2325,297 @@ function showBagViewer(){
     if(pi===0)content.innerHTML+='<hr style="border-color:rgba(255,255,255,.1);margin:4px 0 16px;">';
   });
   document.getElementById('bag-overlay').classList.add('show');
+}
+
+
+// ═══════════════════ SHOOTOUT ═══════════════════
+let _so = {}; // shootout state
+
+function showShootoutSetup(){
+  document.getElementById('qs-panel').classList.remove('show');
+  document.getElementById('custom-panel').classList.remove('show');
+  const panel = document.getElementById('so-panel');
+  panel.classList.toggle('show');
+  if(panel.classList.contains('show')) renderSOPresets();
+}
+
+function renderSOPresets(){
+  [0,1].forEach(pi=>{
+    const el = document.getElementById('so-p'+(pi+1));
+    el.innerHTML = '';
+    PRESETS.forEach((p,i)=>{
+      const card = document.createElement('div');
+      card.className = 'preset-card' + (_so['sel'+(pi+1)] === i ? ' selected' : '');
+      card.innerHTML = `<div class="preset-card-name">${p.name}</div>
+        <div class="preset-card-lineup" style="font-size:.72em">${p.desc}</div>`;
+      card.addEventListener('click', ()=>{ _so['sel'+(pi+1)] = i; renderSOPresets(); });
+      el.appendChild(card);
+    });
+  });
+}
+
+function launchShootoutPractice(){
+  if(_so.sel1 == null || _so.sel2 == null){ toast('Each player must select a roster.'); return; }
+  const p1 = PRESETS[_so.sel1], p2 = PRESETS[_so.sel2];
+  // Build shootout players from preset lineups
+  // Forwards are all lineup entries starting with F, Goalie starts with G
+  const getFwds = lineup => lineup.filter(k=>k.startsWith('F'));
+  const getGoa  = lineup => lineup.find(k=>k.startsWith('G'));
+  _so.players = [
+    { name: G?.players?.[0]?.name || 'Player 1', forwards: getFwds(p1.lineup), goalie: getGoa(p1.lineup), goals: 0 },
+    { name: G?.players?.[1]?.name || 'Player 2', forwards: getFwds(p2.lineup), goalie: getGoa(p2.lineup), goals: 0 },
+  ];
+  document.getElementById('so-panel').classList.remove('show');
+  startShootout(true);
+}
+
+function startShootout(fromGame){
+  _so.fromGame = fromGame;
+  _so.round = 1;
+  _so.shooterIdx = 0; // which player is shooting
+  _so.fwdIdx = [0, 0]; // which forward each player is on
+  _so.scores = [0, 0];
+  _so.maxRounds = 3;
+  _so.suddenDeath = false;
+  _so.log = [];
+
+  // If from game, build shootout players from G
+  if(fromGame && !_so.players){
+    _so.players = G.players.map(p=>({
+      name: p.name,
+      forwards: p.lineup.filter(c=>c.key.startsWith('F')).map(c=>c.key),
+      goalie: (p.lineup.find(c=>c.key.startsWith('G'))||{key:'G3'}).key,
+      goals: 0,
+    }));
+  }
+
+  _so.roundResults = []; // [{shooter, goalie, shotVal, saveVal, goal}]
+  renderSOState();
+  document.getElementById('so-overlay').classList.add('show');
+  soNextShooter();
+}
+
+function restartShootout(){
+  _so.scores = [0,0]; _so.round = 1; _so.shooterIdx = 0;
+  _so.fwdIdx = [0,0]; _so.suddenDeath = false; _so.roundResults = [];
+  _so.players.forEach(p=>p.goals=0);
+  renderSOState();
+  soNextShooter();
+}
+
+function renderSOState(){
+  const p = _so.players;
+  document.getElementById('so-score-display').textContent =
+    `${p[0].name}  ${_so.scores[0]} – ${_so.scores[1]}  ${p[1].name}`;
+  const maxR = _so.maxRounds;
+  const roundStr = _so.suddenDeath
+    ? `Sudden Death — Round ${_so.round}`
+    : `Round ${_so.round} of ${maxR}`;
+  document.getElementById('so-round-info').textContent = roundStr;
+}
+
+function soNextShooter(){
+  document.getElementById('so-result-area').style.display='none';
+  document.getElementById('so-final-area').style.display='none';
+  document.getElementById('so-shooter-area').style.display='block';
+
+  // Check if shootout over
+  if(soCheckEnd()) return;
+
+  const si = _so.shooterIdx;
+  const sp = _so.players[si];
+  const fi = _so.fwdIdx[si];
+
+  // If all forwards used, wrap around (sudden death)
+  const fwdKey = sp.forwards[fi % sp.forwards.length];
+  _so.currentShooter = fwdKey;
+  _so.currentGoalie = _so.players[1-si].goalie;
+
+  document.getElementById('so-shooter-label').textContent =
+    `${sp.name} — Shooting with ${fwdKey} (vs ${_so.players[1-si].name}'s ${_so.currentGoalie})`;
+  document.getElementById('so-title').textContent =
+    `🥅 Shootout — ${sp.name} shoots`;
+
+  // Show shooter die face options
+  const faces = DEFS[fwdKey] || DEFS['Rookie'];
+  const diceEl = document.getElementById('so-shooter-dice');
+  diceEl.innerHTML = '';
+  _so.selectedFace = null;
+  document.getElementById('so-shoot-btn').disabled = true;
+
+  faces.forEach((face, idx) => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;';
+    const fbMap = {E:'fb-E',S:'fb-S',B:'fb-B',W:'fb-W',RR:'fb-RR',SO:'fb-SO',FT:'fb-FT',PEN:'fb-PEN',BLANK:'fb-BLANK'};
+    const fbCls = (face.c ? {S:'fb-SC',B:'fb-BC',W:'fb-WC',SO:'fb-SOC'}[face.t] : fbMap[face.t]) || 'fb-BLANK';
+    const faceHTML = face.t==='BLANK'?'—':`${face.t}${face.v?'<br>'+face.v:''}`;
+    wrap.innerHTML = `<div class="die-wrap pos-F">
+      <div class="die-body" style="cursor:pointer">
+        <div class="face-badge ${fbCls}">${faceHTML}</div>
+      </div>
+      <div class="die-tier-lbl">${fwdKey}</div>
+    </div>
+    <div style="font-size:.65em;color:#888">Face ${idx+1}</div>`;
+    wrap.querySelector('.die-body').addEventListener('click', ()=>{
+      diceEl.querySelectorAll('.die-body').forEach(b=>b.classList.remove('sel'));
+      wrap.querySelector('.die-body').classList.add('sel');
+      _so.selectedFace = face;
+      document.getElementById('so-shoot-btn').disabled = false;
+    });
+    diceEl.appendChild(wrap);
+  });
+  renderSOState();
+}
+
+function soTakeShot(){
+  if(!_so.selectedFace){ toast('Select a face first.'); return; }
+  const face = _so.selectedFace;
+  const goalieKey = _so.currentGoalie;
+  const goalieFaces = DEFS[goalieKey] || [];
+
+  // Shot value: S or W face = pip value; everything else = 0 (no shot attempt)
+  let shotVal = 0;
+  let shotLabel = 'No shot';
+  if(face.t==='S' || face.t==='W'){
+    shotVal = face.v || 1;
+    shotLabel = `${face.t}${face.v} → ${shotVal} pip shot`;
+  } else {
+    shotLabel = `${face.t} — no shot attempt`;
+  }
+
+  // Goalie: roll random face
+  const goalieFace = goalieFaces[Math.floor(Math.random()*goalieFaces.length)];
+  let saveVal = 0;
+  let saveLabel = '';
+  if(goalieFace.t==='B'||goalieFace.t==='SO'){
+    saveVal = goalieFace.v || 0;
+    saveLabel = `${goalieFace.t}${goalieFace.v} → ${saveVal} pip save`;
+  } else {
+    saveLabel = `${goalieFace.t} — 0 block pips`;
+  }
+
+  // Result: shot > save = goal; shot <= save = saved; shotVal=0 = no shot
+  const isGoal = shotVal > 0 && shotVal > saveVal;
+  const noShot = shotVal === 0;
+
+  // Render result
+  document.getElementById('so-shooter-area').style.display='none';
+  document.getElementById('so-result-area').style.display='block';
+  document.getElementById('so-shot-face').textContent = shotLabel;
+  document.getElementById('so-save-face').textContent = saveLabel;
+
+  // Combat dice for shot (pip value dice)
+  const shotDice = document.getElementById('so-shot-roll');
+  const saveDice = document.getElementById('so-save-roll');
+  shotDice.innerHTML = ''; saveDice.innerHTML = '';
+
+  if(shotVal>0){
+    const rolls = Array.from({length:shotVal},()=>rcf());
+    const shotTotal = rolls.reduce((a,b)=>a+b,0);
+    rolls.forEach(v=>{
+      const d=document.createElement('div');d.className='cdie sd';d.textContent=v;shotDice.appendChild(d);
+    });
+    document.getElementById('so-shot-total').textContent=shotTotal;
+
+    const saveRolls = Array.from({length:saveVal},()=>rcf());
+    const saveTotal = saveRolls.reduce((a,b)=>a+b,0);
+    saveRolls.forEach(v=>{
+      const d=document.createElement('div');d.className='cdie bd';d.textContent=v;saveDice.appendChild(d);
+    });
+    document.getElementById('so-save-total').textContent=saveTotal;
+
+    // Override with actual combat totals
+    const actualGoal = shotTotal > saveTotal;
+    if(actualGoal){
+      _so.scores[_so.shooterIdx]++;
+      const r = document.getElementById('so-shot-result');
+      r.style.background='rgba(26,58,139,.3)'; r.style.color='#88aaff';
+      r.textContent='🚨 GOAL!';
+    } else {
+      const r = document.getElementById('so-shot-result');
+      r.style.background='rgba(139,26,26,.3)'; r.style.color='#ffaaaa';
+      r.textContent='🥅 SAVED!';
+    }
+    _so.log.push({shooter:_so.currentShooter, shooterPlayer:_so.players[_so.shooterIdx].name,
+      goalie:_so.currentGoalie, shotVal, saveVal, shotTotal, saveTotal, goal:actualGoal});
+  } else {
+    document.getElementById('so-shot-total').textContent='0';
+    document.getElementById('so-save-total').textContent='—';
+    const r = document.getElementById('so-shot-result');
+    r.style.background='rgba(100,100,100,.2)'; r.style.color='#aaa';
+    r.textContent='No shot attempt';
+    _so.log.push({shooter:_so.currentShooter, shooterPlayer:_so.players[_so.shooterIdx].name,
+      goalie:_so.currentGoalie, shotVal:0, saveVal, goal:false});
+  }
+
+  renderSOState();
+
+  // Update next btn label
+  const nextLabel = soCheckEndPreview() ? 'See Result' : 'Next Shooter →';
+  document.getElementById('so-next-btn').textContent = nextLabel;
+}
+
+function soCheckEndPreview(){
+  // Would the shootout end after advancing?
+  const si = _so.shooterIdx;
+  const nextSi = 1-si;
+  // Advance counters
+  const nextFwdIdx = [..._so.fwdIdx];
+  nextFwdIdx[si]++;
+  // If both players done this round
+  if(nextSi===0 || (si===1)){
+    // End of a full round
+    const nextRound = si===1 ? _so.round+1 : _so.round;
+    if(nextRound > _so.maxRounds && !_so.suddenDeath) return true;
+    if(_so.suddenDeath && si===1) return true;
+  }
+  return false;
+}
+
+function soNextShot(){
+  // Advance shooter
+  _so.fwdIdx[_so.shooterIdx]++;
+  _so.shooterIdx = 1 - _so.shooterIdx;
+  if(_so.shooterIdx === 0){
+    _so.round++;
+    if(_so.round > _so.maxRounds && !_so.suddenDeath){
+      soCheckEnd();
+      return;
+    }
+  }
+  soNextShooter();
+}
+
+function soCheckEnd(){
+  const done3Rounds = _so.round > _so.maxRounds && !_so.suddenDeath;
+  const doneSudden = _so.suddenDeath && _so.shooterIdx===0 && _so.round>_so.maxRounds;
+
+  if(done3Rounds || doneSudden){
+    const [s0,s1] = _so.scores;
+    if(s0!==s1){
+      soShowFinal();
+      return true;
+    } else {
+      // Still tied — sudden death
+      _so.suddenDeath = true;
+      _so.maxRounds = _so.round;
+    }
+  }
+  return false;
+}
+
+function soShowFinal(){
+  document.getElementById('so-shooter-area').style.display='none';
+  document.getElementById('so-result-area').style.display='none';
+  document.getElementById('so-final-area').style.display='block';
+  const [s0,s1]=_so.scores;
+  const p = _so.players;
+  const winner = s0>s1?p[0].name:p[1].name;
+  document.getElementById('so-final-result').innerHTML =
+    `🏆 ${winner} wins the Shootout!<br>
+    <span style="font-size:.7em;color:#aaa">${p[0].name} ${s0} – ${s1} ${p[1].name}</span>`;
+  document.getElementById('so-title').textContent = '🥅 Shootout Complete';
+  renderSOState();
 }
 
 </script>
