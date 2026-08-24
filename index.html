@@ -891,8 +891,9 @@ function updateQSSummary(){
 function startQS(){
   if(_qsSel[0]===null||_qsSel[1]===null){toast('Each player must select a preset.');return;}
   const p1=PRESETS[_qsSel[0]],p2=PRESETS[_qsSel[1]];
+  initG(p1.lineup,p2.lineup,[],[]);
   // All teams start with no bonus tokens
-    beginGame();
+  beginGame();
 }
 
 // ── CUSTOM BUILDER ──
