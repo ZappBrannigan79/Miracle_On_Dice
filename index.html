@@ -349,8 +349,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
         5 pre-built teams. Each player selects one. Starting bag: 15 Rookies.
       </div>
       <div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap">
-        <button class="qs-filter-btn active" onclick="filterPresets('all',this)">All (5)</button>
-           </div>
+        <button class="qs-filter-btn active" onclick="filterPresets('all',this)">All (24)</button>
+        <button class="qs-filter-btn" onclick="filterPresets('North',this)">🏔️ North</button>
+        <button class="qs-filter-btn" onclick="filterPresets('East',this)">🌅 East</button>
+        <button class="qs-filter-btn" onclick="filterPresets('South',this)">🏝️ South</button>
+        <button class="qs-filter-btn" onclick="filterPresets('West',this)">🌄 West</button>
+      </div>
       <div class="builder-grid">
         <div class="builder-player">
           <h3>Player 1 <span style="font-size:.75em;color:#888">— click a team to select</span></h3>
@@ -771,53 +775,60 @@ function AP(){return G.players[G.ap];}
 function OPP(){return G.players[1-G.ap];}
 
 // ═══════════════════ SETUP ═══════════════════
-// ── ALL 30 PRE-BUILT TEAMS ──
+// ── 24 PRE-BUILT TEAMS — 4 DIVISIONS, 6 TEAMS EACH ──
 const PRESETS=[
-  {
-    name:'😈 Demons',
-    pts:27,
-    archetype:'⚖️ Balanced ⚖️',
-    bonusToks:0,
-    bonusDesc:'No bonus tokens',
-    lineup:["F7", "F4", "F2", "D6", "D3", "G5"],
-    desc:'Fwd: F7/F4/F2 | Def: D6/D3 | G5 | 30pts total',
-  },
-  {
-    name:'🐍 Cobras',
-    pts:27,
-    archetype:'⚖️ Balanced ⚖️',
-    bonusToks:0,
-    bonusDesc:'No bonus tokens',
-    lineup:["F7", "F6", "F3", "D5", "D2", "G4"],
-    desc:'Fwd: F7/F6/F3 | Def: D5/D2 | G4 | 30pts total',
-  },
-  {
-    name:'🧙🏻‍♂️ Wizards',
-    pts:27,
-    archetype:'⚖️ Balanced ⚖️',
-    bonusToks:0,
-    bonusDesc:'No bonus tokens',
-    lineup:["F6", "F5", "F2", "D7", "D4", "G3"],
-    desc:'Fwd: F6/F5/F2 | Def: D7/D4 | G3 | 30pts total',
-  },
-  {
-    name:'⚔️ Gladiators',
-    pts:27,
-    archetype:'🎯 Offensive 🎯',
-    bonusToks:0,
-    bonusDesc:'No bonus tokens',
-    lineup:["F8", "F4", "F3", "D6", "D1", "G5"],
-    desc:'Fwd: F8/F4/F3 | Def: D6/D1 | G5 | 30pts total',
-  },
-  {
-    name:'☠️ Outlaws',
-    pts:27,
-    archetype:'🧱 Defensive 🧱',
-    bonusToks:0,
-    bonusDesc:'No bonus tokens',
-    lineup:["F4", "F3", "F1", "D8", "D5", "G6"],
-    desc:'Fwd: F4/F3/F1 | Def: D8/D5 | G6 | 30pts total',
-  },
+  // ── NORTH DIVISION (Offense Heavy) ──
+  {name:'⚔️ Cobras', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F8','F4','F3','D5','D2','G3','HC'], desc:'F8+F4+F3 | D5+D2 | G3 — Sniper offense, light defense'},
+  {name:'🦍 Gorillas', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F7','F5','F3','D4','D1','G5','HC'], desc:'F7+F5+F3 | D4+D1 | G5 — Balanced offense, strong goalie'},
+  {name:'🪖 Spartans', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F7','F6','F2','D3','D1','G6','HC'], desc:'F7+F6+F2 | D3+D1 | G6 — Elite forwards, elite goalie'},
+  {name:'🪶 Ravens', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F8','F4','F2','D5','D3','G3','HC'], desc:'F8+F4+F2 | D5+D3 | G3 — Sniper with solid defense'},
+  {name:'🦣 Mammoth', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F6','F5','F3','D4','D3','G4','HC'], desc:'F6+F5+F3 | D4+D3 | G4 — Consistent grinder offense'},
+  {name:'🐉 Dragons', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F7','F6','F1','D4','D1','G6','HC'], desc:'F7+F6+F1 | D4+D1 | G6 — High variance, elite goalie'},
+  // ── EAST DIVISION (Offense Leaning) ──
+  {name:'🐊 Crocs', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F7','F4','F2','D6','D3','G3','HC'], desc:'F7+F4+F2 | D6+D3 | G3 — Star forward, heavy D'},
+  {name:'❄️ Frost', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F6','F5','F3','D5','D2','G4','HC'], desc:'F6+F5+F3 | D5+D2 | G4 — Balanced attack, solid D'},
+  {name:'😈 Demons', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F8','F5','F1','D4','D1','G6','HC'], desc:'F8+F5+F1 | D4+D1 | G6 — Elite sniper, strong goalie'},
+  {name:'🐺 Werewolves', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F6','F4','F2','D7','D3','G3','HC'], desc:'F6+F4+F2 | D7+D3 | G3 — Mid offense, elite defender'},
+  {name:'🦅 Griffins', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F7','F5','F1','D5','D2','G5','HC'], desc:'F7+F5+F1 | D5+D2 | G5 — Star forward, strong goalie'},
+  {name:'☄️ Comets', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F8','F3','F2','D5','D1','G6','HC'], desc:'F8+F3+F2 | D5+D1 | G6 — Elite sniper, elite goalie'},
+  // ── SOUTH DIVISION (Defense Leaning) ──
+  {name:'🦂 Scorpions', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F4','F2','D7','D3','G4','HC'], desc:'F5+F4+F2 | D7+D3 | G4 — Balanced F, elite defender'},
+  {name:'👁️ Cyclops', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F6','F3','F2','D5','D4','G5','HC'], desc:'F6+F3+F2 | D5+D4 | G5 — Solid defense, one strong F'},
+  {name:'🧙 Wizards', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F7','F3','F1','D6','D5','G3','HC'], desc:'F7+F3+F1 | D6+D5 | G3 — Star forward, heavy D'},
+  {name:'🐴 Stallions', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F4','F2','D7','D3','G4','HC'], desc:'F5+F4+F2 | D7+D3 | G4 — Physical defense, steady offense'},
+  {name:'🗿 Gargoyles', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F6','F3','F2','D8','D1','G5','HC'], desc:'F6+F3+F2 | D8+D1 | G5 — Elite defender, solid goalie'},
+  {name:'🚀 Rockets', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F7','F3','F1','D6','D2','G6','HC'], desc:'F7+F3+F1 | D6+D2 | G6 — Star forward, elite goalie'},
+  // ── WEST DIVISION (Defense Heavy) ──
+  {name:'🦬 Bison', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F3','F2','D7','D6','G3','HC'], desc:'F4+F3+F2 | D7+D6 | G3 — Elite D pair, light offense'},
+  {name:'🐝 Hornets', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F3','F1','D8','D4','G4','HC'], desc:'F5+F3+F1 | D8+D4 | G4 — Max defense, one strong F'},
+  {name:'🥊 Brawlers', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F6','F2','F1','D7','D3','G6','HC'], desc:'F6+F2+F1 | D7+D3 | G6 — One elite F, elite goalie'},
+  {name:'🦏 Rhinos', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F3','F2','D8','D5','G3','HC'], desc:'F4+F3+F2 | D8+D5 | G3 — Fortress defense, cheap G'},
+  {name:'🐻 Grizzlies', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F2','F1','D7','D6','G4','HC'], desc:'F5+F2+F1 | D7+D6 | G4 — Elite D pair, sacrificed offense'},
+  {name:'☠️ Bandits', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F6','F2','F1','D8','D3','G5','HC'], desc:'F6+F2+F1 | D8+D3 | G5 — Elite D, one scoring threat'},
 ];
 let _qsSel=[null,null]; // selected preset index per player
 
@@ -845,16 +856,17 @@ function renderPresetCards(){
     const el=document.getElementById('qs-p'+(pi+1));
     el.innerHTML='';
     PRESETS.forEach((p,i)=>{
-      const show=_qsFilter==='all'||String(p.pts)===_qsFilter||p.archetype===_qsFilter;
+      const show=_qsFilter==='all'||p.division===_qsFilter;
       const selCls=_qsSel[pi]===i?'selected':'';
       const pts_badge_col=p.pts===27?'#55aa55':p.pts===26?'#c8a84b':'#aa7733';
       const card=document.createElement('div');
       card.className=`preset-card ${selCls}${show?'':' hidden'}`;
       card.dataset.pts=p.pts;
       card.dataset.arch=p.archetype;
+      const divColor={'North':'#c82020','East':'#c8880a','South':'#1a6dd4','West':'#226622'}[p.division]||'#888';
       card.innerHTML=`
         <div class="preset-card-name">${p.name}</div>
-        <div class="preset-card-pts" style="color:${pts_badge_col}">${p.pts}pt build (+3 HC = ${p.pts+3}pt) · ${p.archetype} · ${p.bonusDesc}</div>
+        <div class="preset-card-pts" style="color:${divColor}">${p.divEmoji} ${p.division} Division</div>
         <div class="preset-card-lineup">${p.desc}</div>`;
       card.addEventListener('click',()=>selectPreset(pi,i));
       el.appendChild(card);
@@ -879,19 +891,8 @@ function updateQSSummary(){
 function startQS(){
   if(_qsSel[0]===null||_qsSel[1]===null){toast('Each player must select a preset.');return;}
   const p1=PRESETS[_qsSel[0]],p2=PRESETS[_qsSel[1]];
-  // Apply starting bonus tokens
-  initG(p1.lineup,p2.lineup,[],[]);
-  // Grant starting bonus tokens based on build pts
-  const applyBonus=(playerIdx,preset)=>{
-    if(preset.bonusToks>0){
-      // Show token choice picker
-      const choice=prompt(`${G.players[playerIdx].name} (${preset.name}): Choose your starting token bonus.\n\nType S for Shoot Token(s) or B for Block Token(s)\n(You get ${preset.bonusToks} token${preset.bonusToks>1?'s':''})`,'S');
-      const tok=(choice&&choice.toUpperCase()==='B')?'block':'shoot';
-      G.players[playerIdx].tok[tok]+=preset.bonusToks;
-    }
-  };
-  applyBonus(0,p1);applyBonus(1,p2);
-  beginGame();
+  // All teams start with no bonus tokens
+    beginGame();
 }
 
 // ── CUSTOM BUILDER ──
@@ -2591,24 +2592,16 @@ function soRollShot(){
   const fwdFaces = DEFS[fwdKey]||[];
   const fwdFace = fwdFaces[Math.floor(Math.random()*fwdFaces.length)];
 
-  // Determine shoot pips per rules:
-  // Costed faces treated as free. S = pip value. W = pip value + 1. E = 1 pip. All others = 0.
-  let shotPips = 0;
-  let shotLabel = '';
-  if(fwdFace.t==='S'){shotPips=fwdFace.v||1;shotLabel=`S${fwdFace.v}${fwdFace.c?'(cost→free)':''} → ${shotPips} shoot pip${shotPips!==1?'s':''}`;} 
-  else if(fwdFace.t==='W'){shotPips=(fwdFace.v||1)+1;shotLabel=`W${fwdFace.v} → ${shotPips} shoot pips (Wild = pip+1)`;}
-  else if(fwdFace.t==='E'){shotPips=1;shotLabel=`E${fwdFace.v} → 1 shoot pip (Energy = 1 pip)`;}
-  else {shotPips=0;shotLabel=`${fwdFace.t} — 0 shoot pips (no shot)`;}
+  // Shoot pips = face pip value only — face type ignored, all faces count
+  const shotPips = fwdFace.v || 0;
+  const shotLabel = `${fwdFace.t}${fwdFace.v||''} → ${shotPips} shoot combat die${shotPips!==1?'s':''}`;
 
   // Roll goalie die — random face
   const goalieFaces = DEFS[goalieKey]||[];
   const goalieFace = goalieFaces[Math.floor(Math.random()*goalieFaces.length)];
-  // B or SO both count as block pips (costed treated as free); others = 0
-  let savePips = 0;
-  let saveLabel = '';
-  if(goalieFace.t==='B'){savePips=goalieFace.v||0;saveLabel=`B${goalieFace.v}${goalieFace.c?'(cost→free)':''} → ${savePips} block pip${savePips!==1?'s':''}`;}
-  else if(goalieFace.t==='SO'){savePips=goalieFace.v||0;saveLabel=`SO${goalieFace.v}(cost→free) → ${savePips} block pips (Shutout = block pips in shootout)`;}
-  else {savePips=0;saveLabel=`${goalieFace.t} — 0 block pips`;}
+  // Block pips = face pip value only — face type ignored, all faces count
+  const savePips = goalieFace.v || 0;
+  const saveLabel = `${goalieFace.t}${goalieFace.v||''} → ${savePips} block combat die${savePips!==1?'s':''}`
 
   // Roll combat dice equal to pip values (same as main game)
   const shotRolls  = shotPips  > 0 ? Array.from({length:shotPips}, ()=>rcf()) : [];
