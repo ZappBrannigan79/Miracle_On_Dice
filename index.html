@@ -741,7 +741,7 @@ const DEFS={
   G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
   G5:[{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'SO',v:3,c:true}],
   G6:[{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4},{t:'B',v:4,c:true},{t:'SO',v:3,c:true}],
-  HC:[{t:'E',v:1},{t:'E',v:1},{t:'RR',v:0},{t:'RR',v:0},{t:'FT',v:0},{t:'PEN',v:0}],
+  HC:[{t:'E',v:1},{t:'E',v:1},{t:'RR',v:0},{t:'RR',v:0},{t:'ADV',v:0},{t:'PEN',v:0}],
   Penalty:[{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0}],
 };
 const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,F7:7,F8:8,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,D7:7,D8:8,G3:3,G4:4,G5:5,G6:6};
@@ -765,8 +765,9 @@ function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC')
 function initG(l1,l2,bag1=[],bag2=[]){
   G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,
      assignmentStarted:false,
+     advPending:false,
      periodFirstPlayer:0,
-     penaltyPool:3, // shared pool of 3 penalty dice
+     penaltyPool:2, // shared pool of 3 penalty dice
      clock:12, // shared 12-min period clock, ticks 1 per turn
      players:[mkPlayer('Player 1',l1,bag1),mkPlayer('Player 2',l2,bag2)]};
   _rrMode=false;_rrDieId=null;
@@ -892,7 +893,15 @@ function startQS(){
   if(_qsSel[0]===null||_qsSel[1]===null){toast('Each player must select a preset.');return;}
   const p1=PRESETS[_qsSel[0]],p2=PRESETS[_qsSel[1]];
   initG(p1.lineup,p2.lineup,[],[]);
-  // All teams start with no bonus tokens
+  // Sub-25pt builds earn the difference as starting tokens
+  [p1,p2].forEach((p,i)=>{
+    const diff=25-p.pts;
+    if(diff>0){
+      const ch=confirm(`${G.players[i].name} (${p.name}): ${p.pts}pt build earns ${diff} starting token${diff>1?'s':''}!\nOK = Shoot | Cancel = Block`);
+      if(ch)G.players[i].tok.shoot+=diff;else G.players[i].tok.block+=diff;
+      addLog(`${G.players[i].name}: Sub-25pt build — gained ${diff} ${ch?'Shoot':'Block'} token${diff>1?'s':''}.`,'imp');
+    }
+  });
   beginGame();
 }
 
@@ -954,7 +963,17 @@ function startCustom(){
   if(pts(l1)>25){toast(`Player 1 lineup is ${pts(l1)}pts — exceeds 25pt limit.`);return;}
   if(pts(l2)>25){toast(`Player 2 lineup is ${pts(l2)}pts — exceeds 25pt limit.`);return;}
   // Get bag extras
-  initG(l1,l2,[],[]);beginGame();
+  initG(l1,l2,[],[]);
+  // Sub-25pt bonus tokens for custom builds
+  [[l1,0],[l2,1]].forEach(([lineup,i])=>{
+    const total=lineup.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0);
+    const diff=25-total;
+    if(diff>0){
+      const ch=confirm(`${G.players[i].name}: ${total}pt build earns ${diff} starting token${diff>1?'s':''}!\nOK = Shoot Token | Cancel = Block Token`);
+      if(ch)G.players[i].tok.shoot+=diff;else G.players[i].tok.block+=diff;
+    }
+  });
+  beginGame();
 }
 function beginGame(){showScreen('game');showFaceoff();}
 
@@ -984,7 +1003,7 @@ function doFaceoff(){
 
 // ═══════════════════ TURN ENGINE ═══════════════════
 function startTurn(){
-  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.assignmentStarted=false;G.blockSelIds=[];G.blockToksUsed=0;
+  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;
   _rrMode=false;_rrDieId=null;
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();phase0();
@@ -1018,6 +1037,12 @@ function rollAll(){
     if(d.key!=='HC'){const f=DEFS[d.key]||DEFS.Penalty;d.face=f[Math.floor(Math.random()*f.length)];}
     d.sel=false;d.energyPending=false;
   });
+  // Penalty dice return to shared pool immediately after being rolled — they don't stay
+  const penDrawn=ap.z.rs.filter(d=>d.key==='Penalty');
+  if(penDrawn.length){
+    penDrawn.forEach(d=>{ap.z.rs.splice(ap.z.rs.indexOf(d),1);G.penaltyPool+=1;});
+    addLog(`${ap.name}: Drew ${penDrawn.length} Penalty die — returned to shared pool (pool: ${G.penaltyPool}).`);
+  }
   addLog(`${ap.name}: Drew ${drawn.length}+${fromBench.length} bench + HC die. Rolled ${ap.z.rs.length}.`);
   G.phase=3;
   // Auto-enter reroll selection mode immediately
@@ -1092,7 +1117,7 @@ function autoAssignSB(){
   toProcess.forEach(d=>{
     if(!d.face)return;
     const f=d.face;
-    if(f.t==='E'||d.energyPending||f.t==='RR'||f.t==='PEN'||f.t==='FT'||f.t==='BLANK'||f.t==='W')return;
+    if(f.t==='E'||d.energyPending||f.t==='RR'||f.t==='PEN'||f.t==='ADV'||f.t==='BLANK'||f.t==='W')return;
     if(f.t==='S'||f.t==='B'){
       if(f.c) costedDice.push(d);
       else freeDice.push(d);
@@ -1227,8 +1252,10 @@ function getOpts(die){
     else o.push({l:'Penalty pool empty — cannot give (pool: 0)',a:'pen-pool-empty'});
     if(ap.z.iced.some(d=>d.key==='Penalty'))o.push({l:'Remove own Penalty die from Iced Zone',a:'pen-rem'});
     else o.push({l:'No Penalty in your Iced Zone to remove',a:'pen-none'});
-  }else if(f.t==='FT'){
-    o.push({l:'⚔️ Fight!',a:'fight'});
+  }else if(f.t==='ADV'){
+    const hasCold=ap.z.cold.length>0;
+    if(hasCold)o.push({l:`ADV — advance Cold Zone die to Hot (${ap.z.cold.length} available)`,a:'adv'});
+    else o.push({l:'ADV — no dice in Cold Zone',a:'adv-empty'});
   }
   return o;
 }
@@ -1328,10 +1355,22 @@ function assignDie(die,action){
     if(pi!==-1){ap.z.iced.splice(pi,1);G.penaltyPool++;addLog(`${ap.name}: Penalty removed from Iced → returned to shared pool (${G.penaltyPool} available).`,'imp');}
     else{addLog(`${ap.name}: No Penalty die in Iced Zone to remove.`);}
     if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
-  }else if(action==='fight'){
-    ap.z.rs.splice(idx,1);
-    if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
-    doFight();return;
+  }else if(action==='adv'){
+    // ADV: advance one Cold Zone die to Hot Zone
+    ap.z.rs.splice(idx,1); // HC die returns to set-aside at end of turn
+    if(ap.z.cold.length===0){toast('No dice in Cold Zone to advance.');renderAll();return;}
+    if(ap.z.cold.length===1){
+      const advanced=ap.z.cold.splice(0,1)[0];
+      ap.z.hot.push(advanced);
+      addLog(`${ap.name}: ADV — ${dLbl(advanced)} advanced from Cold→Hot Zone immediately.`,'imp');
+    }else{
+      // Multiple cold dice — let player choose which to advance
+      _advPending=true;
+      addLog(`${ap.name}: ADV — click a die in the Cold Zone to advance it to Hot.`);
+    }
+    renderAll();return;
+  }else if(action==='adv-empty'){
+    toast('No dice in Cold Zone to advance.');renderAll();return;
   }
   renderAll();
 }
@@ -1510,8 +1549,10 @@ function buyCard(cardIdx,trade){
       ap2.z.iced.push(mkDie(card2.key));
       addLog(`${ap2.name}: Bought ${card2.key} for ${cost}E → Iced Zone.`,'imp');
       if(!card2.left){
-    if(G.penaltyPool>0){OPP().bag.push(mkDie('Penalty'));G.penaltyPool--;addLog(`${card2.key} sold out! ${OPP().name} gets Penalty die (pool: ${G.penaltyPool}).`,'imp');}
-    else{addLog(`${card2.key} sold out! Penalty pool empty — no penalty added.`,'imp');}
+    // Sell-out: buyer gains 1 token of choice
+    const tokChoice=confirm(`${ap2.name}: ${card2.key} sold out — all 3 dice purchased!\nChoose token reward:\nOK = Shoot Token | Cancel = Block Token`);
+    if(tokChoice)ap2.tok.shoot++;else ap2.tok.block++;
+    addLog(`${ap2.name}: ${card2.key} sold out! Gained 1 ${tokChoice?'Shoot':'Block'} Token.`,'imp');
   }
       renderAll();
     });
@@ -1563,8 +1604,10 @@ function completeTrade(trashDieId){
   ap2.z.iced.push(mkDie(card2.key));
   addLog(`${ap2.name}: Bought ${card2.key} (Trade) → Iced Zone.`,'imp');
   if(!card2.left){
-    if(G.penaltyPool>0){OPP().bag.push(mkDie('Penalty'));G.penaltyPool--;addLog(`${card2.key} sold out! ${OPP().name} gets Penalty die (pool: ${G.penaltyPool}).`,'imp');}
-    else{addLog(`${card2.key} sold out! Penalty pool empty — no penalty added.`,'imp');}
+    // Sell-out: buyer gains 1 token of choice
+    const tokChoice=confirm(`${ap2.name}: ${card2.key} sold out — all 3 dice purchased!\nChoose token reward:\nOK = Shoot Token | Cancel = Block Token`);
+    if(tokChoice)ap2.tok.shoot++;else ap2.tok.block++;
+    addLog(`${ap2.name}: ${card2.key} sold out! Gained 1 ${tokChoice?'Shoot':'Block'} Token.`,'imp');
   }
   renderAll();
 }
@@ -1949,6 +1992,22 @@ function renderZone(zid,arr,opts={}){
         body.style.cursor='pointer';
         body.addEventListener('click',e=>{e.stopPropagation();showMenu(die,wrap);});
       }
+    }else if(opts.advPending){
+      // ADV pending — clicking a cold zone die advances it to Hot
+      body.style.cursor='pointer';
+      body.style.outline='2px solid #c8a84b';
+      body.title='Click to advance this die to Hot Zone (ADV)';
+      body.addEventListener('click',()=>{
+        const ap2=AP();
+        const di=ap2.z.cold.findIndex(d=>d.id===die.id);
+        if(di!==-1){
+          const adv=ap2.z.cold.splice(di,1)[0];
+          ap2.z.hot.push(adv);
+          G.advPending=false;
+          addLog(`${ap2.name}: ADV — ${dLbl(adv)} advanced Cold→Hot Zone.`,'imp');
+          renderAll();
+        }
+      });
     }else if(opts.fromHot&&G.phase===4){
       // Disable if this die's tier is already in shoot zone
       const dupeInShoot=die.pos!=='R'&&die.pos!=='HC'&&die.pos!=='P'&&
@@ -2022,7 +2081,7 @@ function renderBoard(){
     if(G.phase===3&&_rrMode)rsZoneEl.classList.add('rr-pulse');
     else rsZoneEl.classList.remove('rr-pulse');
   }
-  renderZone('z-cold',ap.z.cold);
+  renderZone('z-cold',ap.z.cold,{advPending:G.advPending});
   renderZone('z-defend',ap.z.defend);
   renderZone('z-shoot',ap.z.shoot,{fromShoot:G.phase===4});
   renderZone('z-iced',ap.z.iced);
