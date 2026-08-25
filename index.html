@@ -922,16 +922,16 @@ function populateSels(){
     GOA.forEach(o=>g.add(new Option(o,o)));
   });
   // Defaults
-  document.getElementById('p1f1').value='F7';document.getElementById('p1f2').value='F4';document.getElementById('p1f3').value='F2';
-  document.getElementById('p1d1').value='D6';document.getElementById('p1d2').value='D3';document.getElementById('p1g').value='G5';
-  document.getElementById('p2f1').value='F7';document.getElementById('p2f2').value='F4';document.getElementById('p2f3').value='F2';
-  document.getElementById('p2d1').value='D6';document.getElementById('p2d2').value='D3';document.getElementById('p2g').value='G5';
+  document.getElementById('p1f1').value='F7';document.getElementById('p1f2').value='F5';document.getElementById('p1f3').value='F1';
+  document.getElementById('p1d1').value='D4';document.getElementById('p1d2').value='D3';document.getElementById('p1g').value='G5';
+  document.getElementById('p2f1').value='F6';document.getElementById('p2f2').value='F4';document.getElementById('p2f3').value='F3';
+  document.getElementById('p2d1').value='D5';document.getElementById('p2d2').value='D3';document.getElementById('p2g').value='G4';
   updatePts(1);updatePts(2);
 }
 function updatePts(p){
   const v=id=>{const el=document.getElementById(id);return el?el.value:'';};
   const keys=['f1','f2','f3','d1','d2','g'].map(s=>v('p'+p+s)).filter(k=>k);
-  const total=keys.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0)+3; // +3 HC
+  const total=keys.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0);
   const badge=document.getElementById('p'+p+'-pts');
   badge.textContent=`${total}/25 pts`;
   badge.className='pts-badge'+(total>25?' over':'');
@@ -1357,18 +1357,23 @@ function assignDie(die,action){
     if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
   }else if(action==='adv'){
     // ADV: advance one Cold Zone die to Hot Zone
-    ap.z.rs.splice(idx,1); // HC die returns to set-aside at end of turn
-    if(ap.z.cold.length===0){toast('No dice in Cold Zone to advance.');renderAll();return;}
+    ap.z.rs.splice(idx,1); // HC die leaves RS, returns to set-aside at end of turn
+    if(ap.z.cold.length===0){
+      toast('No dice in Cold Zone to advance.');renderAll();return;
+    }
     if(ap.z.cold.length===1){
+      // Only one cold die — advance it immediately
       const advanced=ap.z.cold.splice(0,1)[0];
       ap.z.hot.push(advanced);
-      addLog(`${ap.name}: ADV — ${dLbl(advanced)} advanced from Cold→Hot Zone immediately.`,'imp');
+      G.advPending=false;
+      addLog(`${ap.name}: ADV — ${dLbl(advanced)} advanced Cold→Hot Zone immediately.`,'imp');
+      renderAll();return;
     }else{
-      // Multiple cold dice — let player choose which to advance
-      _advPending=true;
-      addLog(`${ap.name}: ADV — click a die in the Cold Zone to advance it to Hot.`);
+      // Multiple cold dice — highlight them for player to click
+      G.advPending=true;
+      addLog(`${ap.name}: ADV — click a die in the Cold Zone to advance it to Hot Zone.`,'imp');
+      renderAll();return;
     }
-    renderAll();return;
   }else if(action==='adv-empty'){
     toast('No dice in Cold Zone to advance.');renderAll();return;
   }
@@ -2062,7 +2067,7 @@ function renderBoard(){
   // Final turn banner: clock===1 (faceoff loser's last turn)
   const ftBanner=document.getElementById('final-turn-banner');
   if(ftBanner){
-    const showBanner=(G.clock===1);
+    const showBanner=(G.clock<=2);
     ftBanner.style.display=showBanner?'flex':'none';
     if(showBanner)ftBanner.classList.add('final-turn-flashing');
     else ftBanner.classList.remove('final-turn-flashing');
