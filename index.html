@@ -1893,29 +1893,37 @@ function openShop(){
   if(G.phase<3){toast('Roll your dice first!');return;}
   const ap=AP();const avail=totalE();
   document.getElementById('shop-title').textContent=`${ap.name} — Buy Phase`;
-  document.getElementById('ebar').innerHTML=`Available Energy: <strong>${avail}E</strong> (RS energy/wild-energy dice + Reserve) — spin-down change returned to RS`;
+  document.getElementById('ebar').innerHTML=`Available Energy: <strong>${avail}E</strong> (RS energy dice + Reserve) — spin-down change returned to RS`;
   const grid=document.getElementById('cgrid');grid.innerHTML='';
   ap.lineup.forEach((card,idx)=>{
-    const cost=COSTS[card.key]||0;
     const isHC=card.key==='HC';
-    const tc=cost+2; // Trade = Draft + 2
+    if(isHC)return; // HC is automatic — not purchasable
+    const cost=COSTS[card.key]||0;
+    const tc=cost+2;
     const canD=avail>=cost&&card.left>0;
-    const canT=!isHC&&avail>=tc&&card.left>0;
+    const canT=avail>=tc&&card.left>0;
     const faces=(DEFS[card.key]||[]).map(f=>`${f.t}${f.v||''}${f.c?'(⚡)':''}`).join(' | ');
     const pips=Array.from({length:3},(_,i)=>`<div class="dpip ${i>=card.left?'used':''}"></div>`).join('');
     grid.innerHTML+=`<div class="lcard ${card.left?'buyable':'soldout'}">
       <div class="card-pt">${card.key} <span>${posName(card.key)}</span></div>
       <div class="card-faces">${faces}</div><div class="card-pips">${pips}</div>
-      <div class="card-cost">Draft: <strong>${cost}E</strong>${isHC?'':` | Trade: <strong>${tc}E</strong>`}</div>
+      <div class="card-cost">Draft: <strong>${cost}E</strong> | Trade: <strong>${tc}E</strong></div>
       ${!card.left?'<div style="color:#666;font-size:.8em;text-align:center">SOLD OUT</div>':`
       <button class="btn-buy" onclick="buyCard(${idx},false)" ${canD?'':'disabled'}>Draft (${cost}E)</button>
-      ${isHC?'<div style="color:#666;font-size:.75em;text-align:center;margin-top:2px">HC cannot be traded</div>':`<button class="btn-buy trade" onclick="buyCard(${idx},true)" ${canT?'':'disabled'}>Trade (${tc}E) + trash</button>`}`}
+      <button class="btn-buy trade" onclick="buyCard(${idx},true)" ${canT?'':'disabled'}>Trade (${tc}E) + trash</button>`}
     </div>`;
   });
   document.getElementById('trow').innerHTML=`
-    <div style="font-size:.8em;color:#aaa;width:100%;margin-bottom:4px">Tokens (3E each):</div>
-    <button class="tok-btn" onclick="buyTok('shoot')" ${avail>=3?'':'disabled'}>🏒 Shoot Token (have:${ap.tok.shoot})</button>
-    <button class="tok-btn" onclick="buyTok('block')" ${avail>=3?'':'disabled'}>🥅 Block Token (have:${ap.tok.block})</button>`;
+    <div style="display:flex;gap:8px;width:100%;margin-top:6px">
+      <button class="btn-buy" style="flex:1;background:rgba(26,109,212,.25);border-color:#4488dd;font-size:.82em;padding:8px 6px"
+        onclick="buyTok('shoot')" ${avail>=3?'':'disabled'}>
+        🏒 Buy Shoot Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.shoot}</span>
+      </button>
+      <button class="btn-buy" style="flex:1;background:rgba(180,30,30,.25);border-color:#cc4444;font-size:.82em;padding:8px 6px"
+        onclick="buyTok('block')" ${avail>=3?'':'disabled'}>
+        🥅 Buy Block Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.block}</span>
+      </button>
+    </div>`;
   document.getElementById('shop-panel').classList.add('show');
 }
 function closeShop(){document.getElementById('shop-panel').classList.remove('show');}
