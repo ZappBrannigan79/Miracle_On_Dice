@@ -2494,9 +2494,11 @@ function renderSOPresets(){
 function launchShootoutPractice(){
   if(_so.sel1==null||_so.sel2==null){toast('Each player must select a roster.');return;}
   const p1=PRESETS[_so.sel1], p2=PRESETS[_so.sel2];
+  // Shooter pool = all 3 Forwards + all 2 Defensemen (5 total); draw 3 randomly
+  const buildPool = lineup => lineup.filter(k=>k.startsWith('F')||k.startsWith('D'));
   _so.players = [
-    {name:'Player 1', teamName:p1.name, forwards:p1.lineup.filter(k=>k.startsWith('F')), goalie:p1.lineup.find(k=>k.startsWith('G'))||'G3'},
-    {name:'Player 2', teamName:p2.name, forwards:p2.lineup.filter(k=>k.startsWith('F')), goalie:p2.lineup.find(k=>k.startsWith('G'))||'G3'},
+    {name:'Player 1', teamName:p1.name, shooterPool:buildPool(p1.lineup), goalie:p1.lineup.find(k=>k.startsWith('G'))||'G3'},
+    {name:'Player 2', teamName:p2.name, shooterPool:buildPool(p2.lineup), goalie:p2.lineup.find(k=>k.startsWith('G'))||'G3'},
   ];
   document.getElementById('so-panel').classList.remove('show');
   startShootout(true);
@@ -2518,12 +2520,20 @@ function startShootout(practice){
     _so.players = G.players.map((p,i)=>({
       name: p.name,
       teamName: p.name,
-      forwards: p.lineup.filter(c=>c.key&&c.key.startsWith('F')).map(c=>c.key),
+      // Shooter pool = all Forwards + all Defensemen
+      shooterPool: p.lineup.filter(c=>c.key&&(c.key.startsWith('F')||c.key.startsWith('D'))).map(c=>c.key),
       goalie: (p.lineup.find(c=>c.key&&c.key.startsWith('G'))||{key:'G3'}).key,
     }));
   }
 
-  // Init round forward pools (all 3 forwards available)
+  // Draw 3 shooters randomly from the 5-player pool (3F + 2D) for each player
+  const drawShooters = pool => {
+    const shuffled = [...pool].sort(()=>Math.random()-.5);
+    return shuffled.slice(0,3);
+  };
+  _so.players.forEach(p=>{ p.forwards = drawShooters(p.shooterPool); });
+
+  // Init shooter pools for this shootout (the drawn 3)
   _so.fwdPool = _so.players.map(p=>[...p.forwards]);
   _so.usedFwds = [[],[]];
 
@@ -2541,6 +2551,9 @@ function startShootout(practice){
 function restartShootout(){
   _so.scores=[0,0]; _so.round=1; _so.maxRounds=3;
   _so.shooterIdx=0; _so.results=[]; _so.suddenDeath=false; _so.selectedFwd=null;
+  // Re-draw 3 shooters from the full 5-player pool
+  const drawShooters2 = pool => [...pool].sort(()=>Math.random()-.5).slice(0,3);
+  _so.players.forEach(p=>{ p.forwards = drawShooters2(p.shooterPool); });
   _so.fwdPool=_so.players.map(p=>[...p.forwards]);
   _so.usedFwds=[[],[]];
   document.getElementById('so-final-area').style.display='none';
@@ -2608,8 +2621,8 @@ function soStartShooterTurn(){
   const goalieName = _so.players[1-si].goalie;
 
   document.getElementById('so-turn-info').textContent =
-    `${sp.teamName||sp.name} shooting vs ${_so.players[1-si].teamName||_so.players[1-si].name}'s ${goalieName}`;
-  document.getElementById('so-shooter-label').textContent = 'Choose a Forward to shoot with:';
+    `${sp.teamName||sp.name} shooting (3 of 5 drawn) vs ${_so.players[1-si].teamName||_so.players[1-si].name}'s ${goalieName}`;
+  document.getElementById('so-shooter-label').textContent = 'Choose a shooter (F or D):';
 
   const choices = document.getElementById('so-forward-choices');
   choices.innerHTML = '';
@@ -2623,9 +2636,11 @@ function soStartShooterTurn(){
     const wrap = document.createElement('div');
     wrap.style.cssText = `display:flex;flex-direction:column;align-items:center;gap:4px;
       cursor:${isUsed?'not-allowed':'pointer'};opacity:${isUsed?'.35':'1'};`;
-    wrap.innerHTML = `<div class="die-wrap pos-F">
+    const posClass = fwdKey.startsWith('D') ? 'pos-D' : 'pos-F';
+    const faceBadge = fwdKey.startsWith('D') ? 'fb-B' : 'fb-S';
+    wrap.innerHTML = `<div class="die-wrap ${posClass}">
       <div class="die-body" style="cursor:${isUsed?'not-allowed':'pointer'}">
-        <div class="face-badge fb-S" style="font-size:.8em;padding:2px">${fwdKey}</div>
+        <div class="face-badge ${faceBadge}" style="font-size:.8em;padding:2px">${fwdKey}</div>
       </div>
       <div class="die-tier-lbl">${fwdKey}</div>
     </div>
