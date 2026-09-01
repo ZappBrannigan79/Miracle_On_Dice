@@ -1252,9 +1252,7 @@ function getOpts(die){
     else o.push({l:`Shutout — BLOCKED: need 1⚡ to cash in`,a:'no-energy'});
   }else if(f.t==='PEN'){
     if(G.penaltyPool>0)o.push({l:`Give opponent a Penalty die (pool: ${G.penaltyPool} left)`,a:'pen-give'});
-    else o.push({l:'Penalty pool empty — cannot give (pool: 0)',a:'pen-pool-empty'});
-    if(ap.z.iced.some(d=>d.key==='Penalty'))o.push({l:'Remove own Penalty die from Iced Zone',a:'pen-rem'});
-    else o.push({l:'No Penalty in your Iced Zone to remove',a:'pen-none'});
+    else o.push({l:'Penalty pool empty — no penalty dice available',a:'pen-pool-empty'});
   }else if(f.t==='ADV'){
     const hasCold=ap.z.cold.length>0;
     if(hasCold)o.push({l:`ADV — advance Cold Zone die to Hot (${ap.z.cold.length} available)`,a:'adv'});
