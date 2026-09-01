@@ -69,7 +69,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .game-title{color:var(--gold);font-weight:900;font-size:1.1em;letter-spacing:2px;text-transform:uppercase;}
 .scoreboard{display:flex;align-items:center;gap:18px;background:rgba(0,0,0,.3);padding:6px 20px;border-radius:20px;border:1px solid rgba(200,168,75,.3);}
 .score-player{display:flex;flex-direction:column;align-items:center;}
-.score-name{font-size:.7em;color:#aaa;text-transform:uppercase;letter-spacing:1px;}
+.score-name{font-size:.68em;color:#aaa;letter-spacing:.3px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
 .score-goals{font-size:1.8em;font-weight:900;color:#fff;line-height:1;}
 .score-sep{font-size:1.2em;color:var(--gold);font-weight:700;}
 .period-info{display:flex;flex-direction:column;align-items:center;}
@@ -893,6 +893,9 @@ function startQS(){
   if(_qsSel[0]===null||_qsSel[1]===null){toast('Each player must select a preset.');return;}
   const p1=PRESETS[_qsSel[0]],p2=PRESETS[_qsSel[1]];
   initG(p1.lineup,p2.lineup,[],[]);
+  // Store team name and emoji on player objects for display
+  G.players[0].teamName=p1.name; // includes emoji e.g. "🐍 Cobras"
+  G.players[1].teamName=p2.name;
   // Sub-25pt builds earn the difference as starting tokens
   [p1,p2].forEach((p,i)=>{
     const diff=25-p.pts;
@@ -2066,7 +2069,13 @@ function renderPbar(){
 }
 function renderBoard(){
   const ap=AP();
-  document.getElementById('aplbl').textContent=`${ap.name}'s Turn`;
+  const teamLabel = ap.teamName || ap.name;
+  document.getElementById('aplbl').textContent=`${teamLabel}'s Turn`;
+  // Update scoreboard names with team names if available
+  const sn1=document.getElementById('sn1');
+  const sn2=document.getElementById('sn2');
+  if(sn1&&G.players[0].teamName) sn1.textContent=G.players[0].teamName;
+  if(sn2&&G.players[1].teamName) sn2.textContent=G.players[1].teamName;
   const tv=document.getElementById('tmr');
   const clkStr=(G.clock<10?'0':'')+G.clock+':00';
   tv.textContent=clkStr;
@@ -2124,7 +2133,7 @@ function renderRSActions(){
 }
 function renderOpp(){
   const o=OPP();
-  document.getElementById('opplbl').textContent=`${o.name} (Opponent)`;
+  document.getElementById('opplbl').textContent=`${o.teamName||o.name} (Opponent)`;
   document.getElementById('opptmr').textContent=`Clock: ${G.clock<10?'0'+G.clock:G.clock}:00  |  Penalty Pool: ${G.penaltyPool??3}`;
   document.getElementById('opptok').textContent=`🏒${o.tok.shoot} 🥅${o.tok.block}`;
   const hp=o.z.hot.length,cp=o.z.cold.length,dp=o.z.defend.length;
