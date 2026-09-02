@@ -317,7 +317,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 <div id="setup" class="screen active">
   <div class="setup-box">
     <div class="setup-title">Miracle on Dice</div>
-    <div class="setup-sub">Playtesting Simulator — © 2026 Tim Wherry —  For personal use only</div>
+    <div class="setup-sub">Hockey Dice-Building Game — Playtesting Simulator</div>
     <div class="setup-btns">
       <button class="btn-mode btn-qs" onclick="showQS()">⚡ Quick Start</button>
       <button class="btn-mode btn-cb" onclick="showCustom()">🏒 Build Teams (25pts)</button>
@@ -1347,7 +1347,8 @@ function assignDie(die,action){
     }else{
       addLog(`${ap.name}: Penalty face — pool empty, no penalty added.`);
     }
-    if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
+    // HC returns to set-aside automatically at end of turn — don't send to iced
+    renderAll();return;
   }else if(action==='pen-pool-empty'){
     toast('Penalty pool is empty — all 3 penalty dice are in play.');
     renderAll();return;
@@ -1389,7 +1390,8 @@ function assignDie(die,action){
     }else{
       addLog(`${ap.name}: Penalty face — pool empty, no penalty added.`);
     }
-    if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside: Penalty removed from Iced → returned to shared pool (${G.penaltyPool} available).`,'imp');}
+    // HC returns to set-aside automatically at end of turn — don't send to iced
+    renderAll();return;: Penalty removed from Iced → returned to shared pool (${G.penaltyPool} available).`,'imp');}
     else{addLog(`${ap.name}: No Penalty die in Iced Zone to remove.`);}
     if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
   }else if(action==='adv'){
@@ -1415,7 +1417,7 @@ function assignDie(die,action){
     toast('No dice in Cold Zone to advance.');renderAll();return;
   }
   renderAll();
-}
+
 function dLbl(d){if(!d.face)return d.key;return`${d.key}[${d.face.t}${d.face.v||''}]`;}
 
 // ═══════════════════ FIGHT ═══════════════════
