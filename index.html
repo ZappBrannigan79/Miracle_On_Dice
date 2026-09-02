@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Miracle on Dice — Simulator</title>
-<style>
+<style>f
 :root {
   --rink:#1A3A5C;--gold:#c8a84b;--gold-light:#f5e6c0;--radius:8px;
   --fc-E:#c8a84b;--fc-S:#2255cc;--fc-B:#cc2222;--fc-W:#7722aa;
@@ -1131,11 +1131,15 @@ function autoAssignSB(){
   freeDice.forEach(d=>{
     const i=ap.z.rs.indexOf(d);if(i===-1)return;
     ap.z.rs.splice(i,1);
-    if(d.face.t==='S'){if(G.clock>4)ap.z.cold.push(d);else ap.z.hot.push(d);}
-    else ap.z.defend.push(d);
+    if(d.face.t==='S'){
+      if(G.clock>4) ap.z.cold.push(d);
+      else ap.z.hot.push(d);
+    } else if(d.face.t==='B') {
+      ap.z.defend.push(d);
+    }
     moved++;
   });
-  if(moved)addLog(`${ap.name}: Auto-assigned ${moved} free Shoot/Block dice.`);
+  if(moved) addLog(`${ap.name}: Auto-assigned ${moved} free S/B dice.`);
   renderAll();
 }
   // For costed dice, queue them through the energy picker one at a time
