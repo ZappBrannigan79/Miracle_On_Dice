@@ -1136,6 +1136,8 @@ function autoAssignSB(){
     moved++;
   });
   if(moved)addLog(`${ap.name}: Auto-assigned ${moved} free Shoot/Block dice.`);
+  renderAll();
+}
   // For costed dice, queue them through the energy picker one at a time
   if(costedDice.length){
     if(!hasEnergy1()){
