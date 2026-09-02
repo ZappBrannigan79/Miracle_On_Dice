@@ -1308,7 +1308,8 @@ function assignDie(die,action){
     renderAll();return;
   }else if(action==='pen-pool-empty'){
     toast('Penalty pool is empty — all 3 penalty dice are in play.');
-    renderAll();return;else if(action==='reserve'){
+    renderAll();return;
+  }else if(action==='reserve'){
     if(die.key==='HC'){toast('Head Coach die cannot enter Reserve — it is set aside automatically.');return;}
     if(die.face.t!=='E'&&!die.energyPending){toast('Reserve: Energy faces only.');return;}
     if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
@@ -1349,7 +1350,8 @@ function assignDie(die,action){
     if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
   }else if(action==='pen-pool-empty'){
     toast('Penalty pool is empty — all 3 penalty dice are in play.');
-    renderAll();return;else if(action==='reserve'){
+    renderAll();return;
+  }else if(action==='reserve'){
     if(die.key==='HC'){toast('Head Coach die cannot enter Reserve — it is set aside automatically.');return;}
     if(die.face.t!=='E'&&!die.energyPending){toast('Reserve: Energy faces only.');return;}
     if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
