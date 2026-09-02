@@ -317,7 +317,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 <div id="setup" class="screen active">
   <div class="setup-box">
     <div class="setup-title">Miracle on Dice</div>
-    <div class="setup-sub">Playtesting Simulator — © 2026 Tim Wherry. For personal use only</div>
+    <div class="setup-sub">Playtesting Simulator — © 2026 Tim Wherry —  For personal use only</div>
     <div class="setup-btns">
       <button class="btn-mode btn-qs" onclick="showQS()">⚡ Quick Start</button>
       <button class="btn-mode btn-cb" onclick="showCustom()">🏒 Build Teams (25pts)</button>
@@ -1308,11 +1308,7 @@ function assignDie(die,action){
     renderAll();return;
   }else if(action==='pen-pool-empty'){
     toast('Penalty pool is empty — all 3 penalty dice are in play.');
-    renderAll();return;
-  }else if(action==='pen-none'){
-    toast('No Penalty die in your Iced Zone to remove.');
-    renderAll();return;
-  }else if(action==='reserve'){
+    renderAll();return;else if(action==='reserve'){
     if(die.key==='HC'){toast('Head Coach die cannot enter Reserve — it is set aside automatically.');return;}
     if(die.face.t!=='E'&&!die.energyPending){toast('Reserve: Energy faces only.');return;}
     if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
@@ -1351,9 +1347,47 @@ function assignDie(die,action){
       addLog(`${ap.name}: Penalty face — pool empty, no penalty added.`);
     }
     if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
-  }else if(action==='pen-rem'){
-    ap.z.rs.splice(idx,1);const pi=ap.z.iced.findIndex(d=>d.key==='Penalty');
-    if(pi!==-1){ap.z.iced.splice(pi,1);G.penaltyPool++;addLog(`${ap.name}: Penalty removed from Iced → returned to shared pool (${G.penaltyPool} available).`,'imp');}
+  }else if(action==='pen-pool-empty'){
+    toast('Penalty pool is empty — all 3 penalty dice are in play.');
+    renderAll();return;else if(action==='reserve'){
+    if(die.key==='HC'){toast('Head Coach die cannot enter Reserve — it is set aside automatically.');return;}
+    if(die.face.t!=='E'&&!die.energyPending){toast('Reserve: Energy faces only.');return;}
+    if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
+    ap.z.rs.splice(idx,1);ap.z.reserve.push(die);die.energyPending=false;
+    addLog(`${ap.name}: ${dLbl(die)} saved in Reserve.`);
+  }else if(action==='wild-energy'){
+    // Wild-as-energy removed from game — this action should not be reached
+    toast('Wild can only be assigned as Shoot or Block.');return;
+  }else if(action==='rr'){
+    // Remove from RS — HC returns to set-aside, others go to iced
+    ap.z.rs.splice(idx,1);
+    if(die.key!=='HC'){ap.z.iced.push(die);}
+    addLog(`${ap.name}: Reroll face spent → select dice to reroll.`);
+    enterRRFaceMode(die.id);return;
+  }else if(action==='shutout-cost'){
+    closeMenus();
+    const soV=die.face.v;
+    openEPicker(1, `activate Shutout for ${soV} Block Tokens`, ()=>{
+      const i2=AP().z.rs.indexOf(die);
+      if(i2!==-1)AP().z.rs.splice(i2,1);
+      AP().tok.block+=soV;AP().z.iced.push(die);
+      addLog(`${AP().name}: Shutout → +${soV} Block Tokens (1⚡ paid, ${AP().tok.block} total).`,'imp');
+      renderAll();
+    });
+    return;
+  }else if(action==='shutout'){
+    ap.z.rs.splice(idx,1);ap.tok.block+=die.face.v;
+    if(die.key==='HC'){/* HC returns to set-aside automatically */}else{ap.z.iced.push(die);}
+    addLog(`${ap.name}: Shutout → +${die.face.v} Block Tokens (${ap.tok.block} total).`,'imp');
+  }else if(action==='pen-give'){
+    ap.z.rs.splice(idx,1);
+    if(G.penaltyPool>0){
+      opp.bag.push(mkDie('Penalty'));G.penaltyPool--;
+      addLog(`${ap.name}: Penalty → added Penalty die to ${opp.name}'s bag! (pool: ${G.penaltyPool} remaining)`,'imp');
+    }else{
+      addLog(`${ap.name}: Penalty face — pool empty, no penalty added.`);
+    }
+    if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside: Penalty removed from Iced → returned to shared pool (${G.penaltyPool} available).`,'imp');}
     else{addLog(`${ap.name}: No Penalty die in Iced Zone to remove.`);}
     if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
   }else if(action==='adv'){
@@ -2067,13 +2101,13 @@ function renderPbar(){
 }
 function renderBoard(){
   const ap=AP();
-  const teamLabel = ap.teamName || ap.name;
+  const teamLabel = (ap.teamName||ap.name) + (G.ap===0?' (P1)':' (P2)');
   document.getElementById('aplbl').textContent=`${teamLabel}'s Turn`;
   // Update scoreboard names with team names if available
   const sn1=document.getElementById('sn1');
   const sn2=document.getElementById('sn2');
-  if(sn1&&G.players[0].teamName) sn1.textContent=G.players[0].teamName;
-  if(sn2&&G.players[1].teamName) sn2.textContent=G.players[1].teamName;
+  if(sn1) sn1.textContent=(G.players[0].teamName||'Player 1')+' (P1)';
+  if(sn2) sn2.textContent=(G.players[1].teamName||'Player 2')+' (P2)';
   const tv=document.getElementById('tmr');
   const clkStr=(G.clock<10?'0':'')+G.clock+':00';
   tv.textContent=clkStr;
@@ -2131,7 +2165,7 @@ function renderRSActions(){
 }
 function renderOpp(){
   const o=OPP();
-  document.getElementById('opplbl').textContent=`${o.teamName||o.name} (Opponent)`;
+  document.getElementById('opplbl').textContent=`${o.teamName||o.name} (${G.ap===0?'P2':'P1'}) — Opponent`;
   document.getElementById('opptmr').textContent=`Clock: ${G.clock<10?'0'+G.clock:G.clock}:00  |  Penalty Pool: ${G.penaltyPool??3}`;
   document.getElementById('opptok').textContent=`🏒${o.tok.shoot} 🥅${o.tok.block}`;
   const hp=o.z.hot.length,cp=o.z.cold.length,dp=o.z.defend.length;
