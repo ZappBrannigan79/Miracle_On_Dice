@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Miracle on Dice — Simulator</title>
-<style>f
+<style>
 :root {
   --rink:#1A3A5C;--gold:#c8a84b;--gold-light:#f5e6c0;--radius:8px;
   --fc-E:#c8a84b;--fc-S:#2255cc;--fc-B:#cc2222;--fc-W:#7722aa;
@@ -1131,17 +1131,11 @@ function autoAssignSB(){
   freeDice.forEach(d=>{
     const i=ap.z.rs.indexOf(d);if(i===-1)return;
     ap.z.rs.splice(i,1);
-    if(d.face.t==='S'){
-      if(G.clock>4) ap.z.cold.push(d);
-      else ap.z.hot.push(d);
-    } else if(d.face.t==='B') {
-      ap.z.defend.push(d);
-    }
+    if(d.face.t==='S'){if(G.clock>4)ap.z.cold.push(d);else ap.z.hot.push(d);}
+    else ap.z.defend.push(d);
     moved++;
   });
-  if(moved) addLog(`${ap.name}: Auto-assigned ${moved} free S/B dice.`);
-  renderAll();
-}
+  if(moved)addLog(`${ap.name}: Auto-assigned ${moved} free Shoot/Block dice.`);
   // For costed dice, queue them through the energy picker one at a time
   if(costedDice.length){
     if(!hasEnergy1()){
@@ -1397,9 +1391,7 @@ function assignDie(die,action){
       addLog(`${ap.name}: Penalty face — pool empty, no penalty added.`);
     }
     // HC returns to set-aside automatically at end of turn — don't send to iced
-    renderAll();return;: Penalty removed from Iced → returned to shared pool (${G.penaltyPool} available).`,'imp');}
-    else{addLog(`${ap.name}: No Penalty die in Iced Zone to remove.`);}
-    if(die.key!=='HC')ap.z.iced.push(die); // HC returns to set-aside
+    renderAll();return;
   }else if(action==='adv'){
     // ADV: advance one Cold Zone die to Hot Zone
     ap.z.rs.splice(idx,1); // HC die leaves RS, returns to set-aside at end of turn
@@ -1423,7 +1415,7 @@ function assignDie(die,action){
     toast('No dice in Cold Zone to advance.');renderAll();return;
   }
   renderAll();
-
+}
 function dLbl(d){if(!d.face)return d.key;return`${d.key}[${d.face.t}${d.face.v||''}]`;}
 
 // ═══════════════════ FIGHT ═══════════════════
