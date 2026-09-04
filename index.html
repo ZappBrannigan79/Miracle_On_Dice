@@ -325,6 +325,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
     <div style="text-align:center;margin-bottom:16px">
       <button class="btn-mode" style="background:transparent;color:#c85500;border:2px solid #c85500;padding:10px 24px;font-size:.85em" onclick="showShootoutSetup()">🥅 Shootout Practice</button>
     </div>
+    <div style="text-align:center;margin-top:8px;margin-bottom:4px;font-size:.72em;color:#555;letter-spacing:.5px">
+      © 2026 Tim Wherry — Miracle on Dice
+    </div>
     <!-- SHOOTOUT SETUP -->
     <div class="team-builder" id="so-panel">
       <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:12px">
@@ -340,7 +343,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
           <div class="preset-cards" id="so-p2" style="max-height:300px;overflow-y:auto"></div>
         </div>
       </div>
-      <button class="btn-start" style="margin-top:10px" onclick="launchShootoutPractice()">Start Shootout Practice →</button>
+      <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+        <button class="abtn sec" style="font-size:.78em;padding:6px 10px" onclick="randomSOTeam(0)">🎲 Random P1</button>
+        <button class="abtn sec" style="font-size:.78em;padding:6px 10px" onclick="randomSOTeam(1)">🎲 Random P2</button>
+        <button class="abtn sec" style="font-size:.78em;padding:6px 10px" onclick="randomSOTeam(0);randomSOTeam(1)">🎲 Both</button>
+        <button class="btn-start" style="flex:1;padding:10px" onclick="launchShootoutPractice()">Start Shootout →</button>
+      </div>
     </div>
 
     <!-- QUICK START: 5 teams, filterable -->
@@ -365,9 +373,15 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
           <div class="preset-cards" id="qs-p2" style="max-height:340px;overflow-y:auto"></div>
         </div>
       </div>
-      <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:10px">
-        <div id="qs-sel-summary" style="font-size:.82em;color:#aaa">No teams selected yet.</div>
-        <button class="btn-start" style="width:auto;padding:12px 28px" onclick="startQS()">Start Game →</button>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
+        <button class="abtn sec" style="font-size:.78em;padding:6px 12px" onclick="randomTeam(0)">🎲 Random P1</button>
+        <button class="abtn sec" style="font-size:.78em;padding:6px 12px" onclick="randomTeam(1)">🎲 Random P2</button>
+        <button class="abtn sec" style="font-size:.78em;padding:6px 12px" onclick="randomTeam(0);randomTeam(1)">🎲 Random Both</button>
+        <div style="flex:1"></div>
+        <div id="qs-sel-summary" style="font-size:.78em;color:#aaa">No teams selected yet.</div>
+      </div>
+      <div style="margin-top:8px">
+        <button class="btn-start" style="width:100%;padding:12px" onclick="startQS()">Start Game →</button>
       </div>
     </div>
 
@@ -406,7 +420,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice</div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2842,6 +2856,27 @@ function soShowFinal(){
     <span style="font-size:.7em;color:#aaa">${_so.players[0].teamName||_so.players[0].name} ${s0} – ${s1} ${_so.players[1].teamName||_so.players[1].name}</span>`;
   document.getElementById('so-title').textContent='🥅 Shootout Complete';
   renderSOScoreboard();
+}
+
+function randomTeam(playerIdx){
+  // Pick a random preset different from what the other player picked
+  const other = _qsSel[1-playerIdx];
+  let pick;
+  do { pick = Math.floor(Math.random()*PRESETS.length); }
+  while(pick === other && PRESETS.length > 1);
+  _qsSel[playerIdx] = pick;
+  renderPresetCards();
+  toast(`P${playerIdx+1}: ${PRESETS[pick].name} selected!`);
+}
+
+function randomSOTeam(playerIdx){
+  const other = _so['sel'+(2-playerIdx)];
+  let pick;
+  do { pick = Math.floor(Math.random()*PRESETS.length); }
+  while(pick === other && PRESETS.length > 1);
+  _so['sel'+(playerIdx+1)] = pick;
+  renderSOPresets();
+  toast(`P${playerIdx+1}: ${PRESETS[pick].name} selected!`);
 }
 
 </script>
