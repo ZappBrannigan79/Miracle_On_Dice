@@ -1268,9 +1268,13 @@ function getOpts(die){
     if(G.penaltyPool>0)o.push({l:`Give opponent a Penalty die (pool: ${G.penaltyPool} left)`,a:'pen-give'});
     else o.push({l:'Penalty pool empty — no penalty dice available',a:'pen-pool-empty'});
   }else if(f.t==='ADV'){
-    const hasCold=ap.z.cold.length>0;
-    if(hasCold)o.push({l:`ADV — advance Cold Zone die to Hot (${ap.z.cold.length} available)`,a:'adv'});
-    else o.push({l:'ADV — no dice in Cold Zone',a:'adv-empty'});
+    if(G.clock===12){
+      o.push({l:'ADV — unavailable on 12:00 turn (opponent has no defenders yet)',a:'adv-blocked'});
+    }else{
+      const hasCold=ap.z.cold.length>0;
+      if(hasCold)o.push({l:`ADV — advance Cold Zone die to Hot (${ap.z.cold.length} available)`,a:'adv'});
+      else o.push({l:'ADV — no dice in Cold Zone',a:'adv-empty'});
+    }
   }
   return o;
 }
@@ -1427,6 +1431,8 @@ function assignDie(die,action){
     }
   }else if(action==='adv-empty'){
     toast('No dice in Cold Zone to advance.');renderAll();return;
+  }else if(action==='adv-blocked'){
+    toast('ADV is unavailable on the 12:00 turn — opponent has not had a chance to field defenders.');renderAll();return;
   }
   renderAll();
 }
@@ -1747,14 +1753,14 @@ function openCombat(){
   // Hide shoot token row if attacker has none
   document.getElementById('shoot-tok-ctrl').style.display=AP().tok.shoot>0?'block':'none';
   const ap=AP();
-  const bonus=G.clock>4?1:2;
+  const bonus=G.clock===1?3:G.clock>4?1:2;
   const numAtk=ap.z.shoot.length;
   // combat info
   const totalShootCD=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
   document.getElementById('combat-info').innerHTML=
     `<strong>Attacker (${ap.name}):</strong> ${numAtk} die/dice → <strong>${totalShootCD} Shoot Combat Dice</strong> total (each die grants combat dice = its pip value).<br>`+
     `<em style="color:#aaa">Combat dice: 2,2,1,1,0,0. Tokens = automatic +1 each. Example: S3 die → 3 combat dice.</em><br>`+
-    `<strong>Defender bonus:</strong> +${bonus} Block Combat Dice auto (clock ${G.clock<=4?'04:00–01:00 (HOT)':'12:00–05:00 (COLD)'}, currently ${G.clock<10?'0'+G.clock:G.clock}:00). Ties go to defense.`;
+    `<strong>Defender bonus:</strong> +${bonus} Block Combat Die${bonus!==1?'s':''} auto (${G.clock===1?'1:00 FINAL TURN (+3)':G.clock<=4?'04:00–02:00 (+2)':'12:00–05:00 (+1)'}). Ties go to defense.`;
   const bsel=document.getElementById('bsel-dice');bsel.innerHTML='';
   OPP().z.defend.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
@@ -1804,7 +1810,7 @@ function resolveCombat(){
   const ap=AP(),opp=OPP();
   const bDice=opp.z.defend.filter(d=>G.blockSelIds.includes(d.id));
   if(!checkUniq(bDice,'block'))return;
-  const bonus=G.clock>4?1:2;
+  const bonus=G.clock===1?3:G.clock>4?1:2;
   // COMBAT DICE COUNT: each die grants combat dice equal to its pip value
   // Tokens = automatic +1 each (not extra dice)
   const numShootDice=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
@@ -2127,7 +2133,7 @@ function renderBoard(){
   const tv=document.getElementById('tmr');
   const clkStr=(G.clock<10?'0':'')+G.clock+':00';
   tv.textContent=clkStr;
-  tv.className='timer-val'+(G.clock<=4?' hot':'');
+  tv.className='timer-val'+(G.clock===1?' final-turn':G.clock<=4?' hot':'');
   // Show which player's turn it is on the clock (even=initiative winner, odd=loser)
   // Final turn banner: clock===1 (faceoff loser's last turn)
   const ftBanner=document.getElementById('final-turn-banner');
