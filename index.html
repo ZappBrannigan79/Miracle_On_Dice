@@ -480,6 +480,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
             <div class="opp-lbl" id="opplbl">Opponent</div>
             <div class="opp-tmr" id="opptmr"></div>
             <div style="font-size:.7em;color:#666;margin-left:auto">Tokens: <span id="opptok"></span></div>
+            <button onclick="openOppBoard()" style="margin-left:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#aaa;font-size:.72em;padding:3px 8px;cursor:pointer;">👁 View Board</button>
           </div>
           <div class="opp-zones" id="oppzones"></div>
         </div>
@@ -719,6 +720,16 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
     </div>
   </div>
 </div>
+<!-- OPPONENT BOARD OVERLAY -->
+<div class="panel-overlay" id="opp-board-panel">
+  <div class="panel-box" style="max-width:760px;max-height:92vh;overflow-y:auto">
+    <button class="panel-close" onclick="document.getElementById('opp-board-panel').classList.remove('show')">✕</button>
+    <div class="panel-title" id="opp-board-title">Opponent Board</div>
+    <div class="panel-sub" id="opp-board-sub"></div>
+    <div id="opp-board-content"></div>
+  </div>
+</div>
+
 <!-- BAG VIEWER -->
 <div class="overlay" id="bag-overlay">
   <div class="panel-box" style="max-width:780px;max-height:88vh;overflow-y:auto;">
@@ -2883,6 +2894,94 @@ function randomSOTeam(playerIdx){
   _so['sel'+(playerIdx+1)] = pick;
   renderSOPresets();
   toast(`P${playerIdx+1}: ${PRESETS[pick].name} selected!`);
+}
+
+// ═══════════════════ OPPONENT BOARD VIEWER ═══════════════════
+function openOppBoard(){
+  const o=OPP();
+  const panel=document.getElementById('opp-board-panel');
+  document.getElementById('opp-board-title').textContent=
+    `${o.teamName||o.name} — Full Board`;
+  document.getElementById('opp-board-sub').textContent=
+    `Tokens: 🏒${o.tok.shoot} Shoot  🥅${o.tok.block} Block  |  Bag: ${o.bag.length} dice  |  Clock: ${G.clock<10?'0'+G.clock:G.clock}:00`;
+
+  const content=document.getElementById('opp-board-content');
+  content.innerHTML='';
+
+  // Zone definitions for display
+  const zones=[
+    {key:'hot',    label:'🔥 Hot Zone',       bg:'rgba(30,60,160,.2)', bc:'rgba(80,120,255,.4)'},
+    {key:'cold',   label:'❄️ Cold Zone',      bg:'rgba(15,40,100,.15)',bc:'rgba(60,100,200,.3)'},
+    {key:'defend', label:'🛡️ Defensive Zone', bg:'rgba(120,20,20,.2)', bc:'rgba(200,50,50,.4)'},
+    {key:'bench',  label:'🪑 Bench',          bg:'rgba(60,60,60,.15)', bc:'rgba(120,120,120,.3)'},
+    {key:'reserve',label:'💰 Reserve',        bg:'rgba(180,140,20,.15)',bc:'rgba(200,168,75,.4)'},
+    {key:'iced',   label:'🧊 Iced Zone',      bg:'rgba(30,30,80,.15)', bc:'rgba(60,60,160,.3)'},
+  ];
+
+  zones.forEach(z=>{
+    const dice=o.z[z.key];
+    const section=document.createElement('div');
+    section.style.cssText=`margin-bottom:14px;border-radius:8px;border:1px solid ${z.bc};background:${z.bg};padding:10px 12px;`;
+
+    const header=document.createElement('div');
+    header.style.cssText='font-size:.78em;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:8px;';
+    header.innerHTML=`${z.label} <span style="font-size:.85em;color:#666">(${dice.length} dice)</span>`;
+    section.appendChild(header);
+
+    if(!dice.length){
+      const empty=document.createElement('div');
+      empty.style.cssText='font-size:.75em;color:#444;font-style:italic;';
+      empty.textContent='Empty';
+      section.appendChild(empty);
+    }else{
+      const diceRow=document.createElement('div');
+      diceRow.style.cssText='display:flex;flex-wrap:wrap;gap:8px;';
+      dice.forEach(d=>{
+        const posColors={F:'#1a6dd4',D:'#c82020',G:'#888',HC:'#c8a84b',Rookie:'#aaa',Penalty:'#555'};
+        const posKey=d.key==='Rookie'?'Rookie':d.key==='Penalty'?'Penalty':d.key==='HC'?'HC':d.key[0];
+        const col=posColors[posKey]||'#aaa';
+        const face=d.face?`${d.face.t}${d.face.v||''}${d.face.c?'⚡':''}`:z.key==='iced'?'?':'—';
+        const pip=d.face?d.face.v:0;
+        const dieEl=document.createElement('div');
+        dieEl.style.cssText=`background:rgba(255,255,255,.06);border:2px solid ${col}66;border-radius:8px;padding:6px 10px;text-align:center;min-width:56px;`;
+        dieEl.innerHTML=`<div style="font-size:.8em;font-weight:900;color:${col}">${d.key}</div>
+          <div style="font-size:1em;font-weight:700;color:white;margin:2px 0">${face}</div>
+          <div style="font-size:.65em;color:#666">${pip}pip</div>`;
+        diceRow.appendChild(dieEl);
+      });
+      section.appendChild(diceRow);
+    }
+    content.appendChild(section);
+  });
+
+  // Lineup cards section — show purchased dice remaining
+  const cardSection=document.createElement('div');
+  cardSection.style.cssText='margin-bottom:14px;border-radius:8px;border:1px solid rgba(200,168,75,.3);background:rgba(200,168,75,.06);padding:10px 12px;';
+  const cardHeader=document.createElement('div');
+  cardHeader.style.cssText='font-size:.78em;font-weight:700;color:#c8a84b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;';
+  cardHeader.textContent='📋 Lineup Cards';
+  cardSection.appendChild(cardHeader);
+  const cardRow=document.createElement('div');
+  cardRow.style.cssText='display:flex;flex-wrap:wrap;gap:8px;';
+  o.lineup.forEach(card=>{
+    if(card.key==='HC')return;
+    const posColors={F:'#1a6dd4',D:'#c82020',G:'#888'};
+    const col=posColors[card.key[0]]||'#aaa';
+    const used=3-card.left;
+    const dots=Array.from({length:3},(_,i)=>
+      `<span style="color:${i<used?col:'#333'};font-size:.9em">●</span>`
+    ).join('');
+    const cEl=document.createElement('div');
+    cEl.style.cssText=`background:rgba(255,255,255,.05);border:1px solid ${col}44;border-radius:6px;padding:5px 8px;text-align:center;min-width:52px;`;
+    cEl.innerHTML=`<div style="font-size:.8em;font-weight:900;color:${col}">${card.key}</div>
+      <div style="margin:2px 0">${dots}</div>
+      <div style="font-size:.62em;color:#666">${card.left} left</div>`;
+    cardRow.appendChild(cEl);
+  });
+  cardSection.appendChild(cardRow);
+  content.appendChild(cardSection);
+
+  panel.classList.add('show');
 }
 
 </script>
