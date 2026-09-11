@@ -2875,7 +2875,7 @@ function openOppBoard(){
     return sec;
   };
 
-  // Row 1: Hot | Cold | Defensive (full width each)
+  // Row 1: Hot | Cold | Defensive (combat zones — can grow vertically)
   const row1=document.createElement('div');
   row1.style.cssText='display:flex;gap:8px;margin-bottom:8px;';
   row1.appendChild(makeZone('hot',   '🔥 Hot',      'rgba(30,60,160,.2)', 'rgba(80,120,255,.4)'));
@@ -2883,39 +2883,45 @@ function openOppBoard(){
   row1.appendChild(makeZone('defend','🛡️ Defensive','rgba(120,20,20,.2)', 'rgba(200,50,50,.4)'));
   content.appendChild(row1);
 
-  // Row 2: Bench | Reserve (side by side, compact)
+  // Row 2: Bench | Reserve | Lineup Cards — all compact, fixed height
   const row2=document.createElement('div');
-  row2.style.cssText='display:flex;gap:8px;margin-bottom:8px;';
-  row2.appendChild(makeZone('bench',  '🪑 Bench',  'rgba(60,60,60,.15)',   'rgba(120,120,120,.3)'));
-  row2.appendChild(makeZone('reserve','💰 Reserve','rgba(180,140,20,.15)', 'rgba(200,168,75,.4)'));
-  content.appendChild(row2);
+  row2.style.cssText='display:flex;gap:8px;margin-bottom:0;align-items:stretch;';
 
-  // Lineup cards section — show purchased dice remaining
-  const cardSection=document.createElement('div');
-  cardSection.style.cssText='margin-bottom:0;border-radius:8px;border:1px solid rgba(200,168,75,.3);background:rgba(200,168,75,.06);padding:8px 10px;';
-  const cardHeader=document.createElement('div');
-  cardHeader.style.cssText='font-size:.78em;font-weight:700;color:#c8a84b;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;';
-  cardHeader.textContent='📋 Lineup Cards';
-  cardSection.appendChild(cardHeader);
+  // Bench (small, max 2 dice)
+  row2.appendChild(makeZone('bench','🪑 Bench','rgba(60,60,60,.15)','rgba(120,120,120,.3)'));
+
+  // Reserve (small, max 2 dice)
+  row2.appendChild(makeZone('reserve','💰 Reserve','rgba(180,140,20,.15)','rgba(200,168,75,.4)'));
+
+  // Lineup cards inline
+  const cardSec=document.createElement('div');
+  cardSec.style.cssText='flex:2;border-radius:8px;border:1px solid rgba(200,168,75,.3);background:rgba(200,168,75,.06);padding:8px 10px;min-width:0;';
+  const cardHdr=document.createElement('div');
+  cardHdr.style.cssText='font-size:.72em;font-weight:700;color:#c8a84b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;';
+  cardHdr.textContent='📋 Lineup';
+  cardSec.appendChild(cardHdr);
   const cardRow=document.createElement('div');
-  cardRow.style.cssText='display:flex;flex-wrap:wrap;gap:8px;';
+  cardRow.style.cssText='display:flex;flex-wrap:wrap;gap:5px;';
   o.lineup.forEach(card=>{
     if(card.key==='HC')return;
     const posColors={F:'#1a6dd4',D:'#c82020',G:'#888'};
     const col=posColors[card.key[0]]||'#aaa';
     const used=3-card.left;
     const dots=Array.from({length:3},(_,i)=>
-      `<span style="color:${i<used?col:'#333'};font-size:.9em">●</span>`
+      `<span style="color:${i<used?col:'#333'};font-size:.85em;">●</span>`
     ).join('');
     const cEl=document.createElement('div');
-    cEl.style.cssText=`background:rgba(255,255,255,.05);border:1px solid ${col}44;border-radius:6px;padding:5px 8px;text-align:center;min-width:52px;`;
-    cEl.innerHTML=`<div style="font-size:.8em;font-weight:900;color:${col}">${card.key}</div>
-      <div style="margin:2px 0">${dots}</div>
-      <div style="font-size:.62em;color:#666">${card.left} left</div>`;
+    cEl.style.cssText=`background:rgba(255,255,255,.05);border:1px solid ${col}44;border-radius:6px;padding:4px 7px;text-align:center;min-width:46px;`;
+    cEl.innerHTML=`<div style="font-size:.75em;font-weight:900;color:${col}">${card.key}</div>
+      <div style="margin:1px 0">${dots}</div>
+      <div style="font-size:.6em;color:#666">${card.left} left</div>`;
     cardRow.appendChild(cEl);
   });
-  cardSection.appendChild(cardRow);
-  content.appendChild(cardSection);
+  cardSec.appendChild(cardRow);
+  row2.appendChild(cardSec);
+  content.appendChild(row2);
+
+
 
   panel.classList.add('show');
 }
