@@ -1698,13 +1698,6 @@ function buyTok(type){
 function moveToShoot(id){
   const ap=AP();const i=ap.z.hot.findIndex(d=>d.id===id);if(i===-1)return;
   const d=ap.z.hot[i];
-  // Check tier uniqueness before moving
-  if(d.pos!=='R'&&d.pos!=='HC'&&d.pos!=='P'){
-    const key=`${d.pos}-${d.tier}`;
-    if(ap.z.shoot.some(s=>s.pos===d.pos&&s.tier===d.tier&&s.pos!=='R')){
-      toast(`Tier Uniqueness: ${key} already in Shoot Zone!`);return;
-    }
-  }
   ap.z.hot.splice(i,1);ap.z.shoot.push(d);renderAll();
 }
 function retFromShoot(id){
@@ -1728,24 +1721,7 @@ function declareShot(){
 let _bTok=0,_sTok=0;
 function adjST(n){_sTok=Math.max(0,Math.min(AP().tok.shoot,_sTok+n));document.getElementById('stok-count').textContent=_sTok;}
 function adjBT(n){_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;}
-function renderBlockSelDupes(){
-  // After each selection change, grey out defend dice that would now be dupes
-  const bsel=document.getElementById('bsel-dice');
-  const alreadySel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
-  bsel.querySelectorAll('.die-wrap').forEach(wrap=>{
-    const id=parseInt(wrap.dataset.id);
-    if(isNaN(id))return;
-    const die=OPP().z.defend.find(d=>d.id===id);
-    if(!die)return;
-    const body=wrap.querySelector('.die-body');
-    if(G.blockSelIds.includes(id)){body.style.opacity='1';return;} // selected, keep bright
-    const isDupe=die.pos!=='R'&&die.pos!=='HC'&&die.pos!=='P'&&
-      alreadySel.some(s=>s.pos===die.pos&&s.tier===die.tier&&s.id!==id);
-    body.style.opacity=isDupe?'.35':'1';
-    body.style.cursor=isDupe?'not-allowed':'pointer';
-    body.title=isDupe?`${die.key} tier already selected — Tier Uniqueness`:'Click to select for blocking';
-  });
-}
+
 function openCombat(){
   _bTok=0;_sTok=0;
   document.getElementById('btok-count').textContent='0';
@@ -1771,16 +1747,11 @@ function openCombat(){
     db.addEventListener('click',()=>{
       // Check tier uniqueness against already-selected block dice
       const alreadySel=OPP().z.defend.filter(x=>G.blockSelIds.includes(x.id));
-      if(!G.blockSelIds.includes(d.id)&&d.pos!=='R'&&d.pos!=='HC'&&d.pos!=='P'){
-        if(alreadySel.some(s=>s.pos===d.pos&&s.tier===d.tier)){
-          toast(`Tier Uniqueness: ${d.key} tier already selected to block!`);return;
-        }
-      }
+
       const i=G.blockSelIds.indexOf(d.id);
       if(i===-1){G.blockSelIds.push(d.id);db.classList.add('sel');}
       else{G.blockSelIds.splice(i,1);db.classList.remove('sel');}
-      // Re-render to grey out any remaining dupes
-      renderBlockSelDupes();
+
     });
     bsel.appendChild(w);
   });
@@ -1790,24 +1761,7 @@ function openCombat(){
   document.getElementById('combat-panel').classList.add('show');
 }
 function adjBT(n){_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;}
-function renderBlockSelDupes(){
-  // After each selection change, grey out defend dice that would now be dupes
-  const bsel=document.getElementById('bsel-dice');
-  const alreadySel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
-  bsel.querySelectorAll('.die-wrap').forEach(wrap=>{
-    const id=parseInt(wrap.dataset.id);
-    if(isNaN(id))return;
-    const die=OPP().z.defend.find(d=>d.id===id);
-    if(!die)return;
-    const body=wrap.querySelector('.die-body');
-    if(G.blockSelIds.includes(id)){body.style.opacity='1';return;} // selected, keep bright
-    const isDupe=die.pos!=='R'&&die.pos!=='HC'&&die.pos!=='P'&&
-      alreadySel.some(s=>s.pos===die.pos&&s.tier===die.tier&&s.id!==id);
-    body.style.opacity=isDupe?'.35':'1';
-    body.style.cursor=isDupe?'not-allowed':'pointer';
-    body.title=isDupe?`${die.key} tier already selected — Tier Uniqueness`:'Click to select for blocking';
-  });
-}
+
 function resolveCombat(){
   const ap=AP(),opp=OPP();
   const bDice=opp.z.defend.filter(d=>G.blockSelIds.includes(d.id));
@@ -2080,16 +2034,8 @@ function renderZone(zid,arr,opts={}){
         }
       });
     }else if(opts.fromHot&&G.phase===4){
-      // Disable if this die's tier is already in shoot zone
-      const dupeInShoot=die.pos!=='R'&&die.pos!=='HC'&&die.pos!=='P'&&
-        AP().z.shoot.some(s=>s.pos===die.pos&&s.tier===die.tier);
-      if(dupeInShoot){
-        body.style.cursor='not-allowed';body.style.opacity='.4';
-        body.title=`${die.key} tier already in Shoot Zone — Tier Uniqueness Rule`;
-      }else{
-        body.style.cursor='pointer';body.title='Click → Shoot Zone';
-        body.addEventListener('click',()=>moveToShoot(die.id));
-      }
+      body.style.cursor='pointer';body.title='Click → Shoot Zone';
+      body.addEventListener('click',()=>moveToShoot(die.id));
     }else if(opts.fromShoot){
       body.style.cursor='pointer';body.title='Click → back to Hot Zone';
       body.addEventListener('click',()=>retFromShoot(die.id));
