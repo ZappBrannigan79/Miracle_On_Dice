@@ -1740,6 +1740,28 @@ function openCombat(){
     `<em style="color:#aaa">Combat dice: 2,2,1,1,0,0. Tokens = automatic +1 each. Example: S3 die → 3 combat dice.</em><br>`+
     `<strong>Defender bonus:</strong> +${bonus} Block Combat Die${bonus!==1?'s':''} auto (${G.clock===1?'1:00 FINAL TURN (+3)':G.clock<=4?'04:00–02:00 (+2)':'10:00–05:00 (+1)'}). Ties go to defense.`;
   const bsel=document.getElementById('bsel-dice');bsel.innerHTML='';
+  // Add Commit All Defenders button if any defend dice available
+  const defendDice=OPP().z.defend;
+  if(defendDice.length>0){
+    const commitAllBtn=document.createElement('button');
+    commitAllBtn.className='abtn sec';
+    commitAllBtn.style.cssText='font-size:.75em;padding:5px 10px;margin-bottom:8px;display:block;';
+    commitAllBtn.textContent='⚡ Commit All Defenders';
+    commitAllBtn.addEventListener('click',()=>{
+      // Select all defend dice
+      G.blockSelIds=OPP().z.defend.map(d=>d.id);
+      // Highlight all die bodies in bsel-dice
+      document.querySelectorAll('#bsel-dice .die-body').forEach(b=>{
+        b.classList.add('sel');
+      });
+      // Update the block count display
+      const alreadySel=OPP().z.defend.filter(x=>G.blockSelIds.includes(x.id));
+      const totalPips=alreadySel.reduce((s,d)=>s+(d.face?d.face.v:0),0);
+      const binfo=document.getElementById('bsel-info');
+      if(binfo)binfo.textContent=`${alreadySel.length} dice committed (${totalPips} block pips → ${totalPips} combat dice)`;
+    });
+    bsel.appendChild(commitAllBtn);
+  }
   OPP().z.defend.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
@@ -2213,8 +2235,9 @@ function renderActions(){
     const shopBtn=mk('Open Shop 🛒',openShop,hasE?'prim':'sec',false,hasE);
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
+      if(ap.z.hot.length)mk('⚡ Commit All Hot',()=>{[...ap.z.hot].forEach(d=>moveToShoot(d.id));renderAll();},'sec');
       if(ap.z.shoot.length)mk('🚨 Declare Shot!',declareShot,'prim');
-      else mk('Move dice to Shoot Zone first',()=>{},'sec',true);
+      else if(!ap.z.hot.length)mk('Move dice to Shoot Zone first',()=>{},'sec',true);
     }
     mk(G.shotDeclared?'End Turn':'End Turn / Skip Shot',G.shotDeclared?endTurn:confirmSkipShot,'sec');
   }
