@@ -3032,24 +3032,15 @@ function openOppBoard(){
 // ═══════════════════ ONLINE MULTIPLAYER ═══════════════════
 // Firebase config — replace with your own from Firebase Console
 // https://console.firebase.google.com → New Project → Realtime Database
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyCLXPKhAZ_VXo3VBe7sQ2pklVDjEwYaUbs",
-  authDomain: "miracle-on-dice-e6a77.firebaseapp.com",
-  databaseURL: "https://miracle-on-dice-e6a77-default-rtdb.firebaseio.com",
-  projectId: "miracle-on-dice-e6a77",
-  storageBucket: "miracle-on-dice-e6a77.firebasestorage.app",
-  messagingSenderId: "202843232460",
-  appId: "1:202843232460:web:0a6a63b77027d017e50a69"
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
 
 let _fb = null;      // Firebase app
 let _db = null;      // Firebase database
