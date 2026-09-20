@@ -3032,8 +3032,6 @@ function openOppBoard(){
 }
 
 // ═══════════════════ ONLINE MULTIPLAYER ═══════════════════
-// Firebase config — replace with your own from Firebase Console
-// https://console.firebase.google.com → New Project → Realtime Database
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyCMhQLCDjl8zji_BSUmaoR9LMDX3StRKaQ",
   authDomain: "miracleondice.firebaseapp.com",
@@ -3044,79 +3042,72 @@ const FIREBASE_CONFIG = {
   appId: "1:1058255424308:web:a495cc3c7be448753a3361"
 };
 
-let _fb = null;      // Firebase app
-let _db = null;      // Firebase database
-let _roomRef = null; // Current room reference
-let _roomCode = null;
-let _mySlot = null;  // 'p0' or 'p1'
-let _onlineActive = false;
-let _suppressSync = false; // prevent feedback loop when we write state
+let _fb=null, _db=null, _roomRef=null, _roomCode=null;
+let _mySlot=null;      // 0 or 1 — which G.players index am I?
+let _onlineActive=false;
+let _isWriting=false;  // prevent echo when we write
 
-// ── FIREBASE INIT ──
 function initFirebase(){
   if(_fb) return true;
-  try {
-    _fb = firebase.initializeApp(FIREBASE_CONFIG);
-    _db = firebase.database();
+  try{
+    if(!firebase.apps.length) _fb=firebase.initializeApp(FIREBASE_CONFIG);
+    else _fb=firebase.apps[0];
+    _db=firebase.database();
     return true;
-  } catch(e) {
-    toast('Firebase not configured — see setup instructions.');
-    console.error('Firebase init error:', e);
-    return false;
-  }
+  }catch(e){ toast('Firebase error: '+e.message); return false; }
 }
+
+function isMyTurn(){ return !_onlineActive || G.ap===_mySlot; }
 
 // ── SETUP SCREEN ──
 function showOnlineSetup(){
   ['qs-panel','custom-panel','so-panel'].forEach(id=>
     document.getElementById(id)?.classList.remove('show'));
-  const panel = document.getElementById('online-panel');
+  const panel=document.getElementById('online-panel');
   panel.classList.toggle('show');
-  if(panel.classList.contains('show')){
-    // Populate team selects
-    ['online-host-team','online-join-team'].forEach(id=>{
-      const sel = document.getElementById(id);
-      sel.innerHTML = PRESETS.map((p,i)=>`<option value="${i}">${p.name}</option>`).join('');
-    });
-  }
+  if(panel.classList.contains('show')) populateOnlineTeamSelects();
 }
 
-// ── GENERATE ROOM CODE ──
+function populateOnlineTeamSelects(){
+  const html=PRESETS.map((p,i)=>
+    `<option value="${i}" style="background:#1a2d45;color:white;">${p.name} — ${p.division||''}</option>`
+  ).join('');
+  ['online-host-team','online-join-team'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.innerHTML=html;
+  });
+}
+
 function genCode(){
-  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
+  const ch='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:6},()=>ch[Math.floor(Math.random()*ch.length)]).join('');
+}
+
+function showLobby(msg,code,status){
+  document.getElementById('online-lobby').style.display='block';
+  document.getElementById('online-lobby-msg').textContent=msg;
+  document.getElementById('online-room-display').textContent=code;
+  document.getElementById('online-lobby-status').textContent=status;
 }
 
 // ── HOST ──
 async function hostOnlineGame(){
   if(!initFirebase()) return;
-  const name = document.getElementById('online-host-name').value.trim() || 'Player 1';
-  const teamIdx = parseInt(document.getElementById('online-host-team').value);
-  const team = PRESETS[teamIdx];
-
-  _roomCode = genCode();
-  _mySlot = 'p0';
-  _roomRef = _db.ref(`rooms/${_roomCode}`);
-
-  const roomData = {
-    created: Date.now(),
-    p0: { name, teamIdx, teamName: team.name, ready: true },
-    p1: null,
-    state: null,
-    action: null,
-  };
-
-  await _roomRef.set(roomData);
-
-  // Show lobby
-  showLobby(`Room created! Share this code:`, _roomCode, 'Waiting for opponent to join...');
-
+  const name=document.getElementById('online-host-name').value.trim()||'Player 1';
+  const teamIdx=parseInt(document.getElementById('online-host-team').value);
+  const team=PRESETS[teamIdx];
+  _roomCode=genCode(); _mySlot=0;
+  _roomRef=_db.ref('rooms/'+_roomCode);
+  await _roomRef.set({
+    p0:{name,teamIdx,teamName:team.name,ready:true},
+    p1:null, state:null, created:Date.now()
+  });
+  showLobby('Share this code with your opponent:',_roomCode,'Waiting for opponent...');
   // Watch for opponent joining
-  _roomRef.child('p1').on('value', snap=>{
+  _roomRef.child('p1').on('value',snap=>{
     if(snap.val()?.ready){
-      document.getElementById('online-lobby-status').textContent =
-        `${snap.val().name} (${snap.val().teamName}) joined! Starting game...`;
-      setTimeout(()=>startOnlineGame(teamIdx, snap.val().teamIdx, true), 1500);
+      document.getElementById('online-lobby-status').textContent=
+        snap.val().name+' ('+snap.val().teamName+') joined! Starting...';
+      setTimeout(()=>launchOnlineGame(teamIdx,snap.val().teamIdx,true),1200);
     }
   });
 }
@@ -3124,152 +3115,121 @@ async function hostOnlineGame(){
 // ── JOIN ──
 async function joinOnlineGame(){
   if(!initFirebase()) return;
-  const name = document.getElementById('online-join-name').value.trim() || 'Player 2';
-  const teamIdx = parseInt(document.getElementById('online-join-team').value);
-  const team = PRESETS[teamIdx];
-  const code = document.getElementById('online-room-code').value.trim().toUpperCase();
-
-  if(code.length !== 6){ toast('Enter the 6-character room code.'); return; }
-
-  _roomCode = code;
-  _mySlot = 'p1';
-  _roomRef = _db.ref(`rooms/${_roomCode}`);
-
-  const snap = await _roomRef.once('value');
-  const room = snap.val();
-  if(!room){ toast('Room not found. Check the code and try again.'); return; }
-  if(room.p1?.ready){ toast('Room is full — game already started.'); return; }
-
-  const p0 = room.p0;
-  await _roomRef.child('p1').set({ name, teamIdx, teamName: team.name, ready: true });
-
-  showLobby(`Joined ${p0.name}'s game!`, code, 'Starting game...');
-  setTimeout(()=>startOnlineGame(teamIdx, p0.teamIdx, false), 1500);
+  const name=document.getElementById('online-join-name').value.trim()||'Player 2';
+  const teamIdx=parseInt(document.getElementById('online-join-team').value);
+  const team=PRESETS[teamIdx];
+  const code=document.getElementById('online-room-code').value.trim().toUpperCase();
+  if(code.length!==6){toast('Enter the 6-character room code.');return;}
+  _roomCode=code; _mySlot=1;
+  _roomRef=_db.ref('rooms/'+_roomCode);
+  const snap=await _roomRef.once('value');
+  const room=snap.val();
+  if(!room){toast('Room not found. Check the code.');return;}
+  if(room.p1?.ready){toast('Room is full.');return;}
+  const p0=room.p0;
+  await _roomRef.child('p1').set({name,teamIdx,teamName:team.name,ready:true});
+  showLobby('Joined '+p0.name+"'s game!",code,'Starting game...');
+  setTimeout(()=>launchOnlineGame(teamIdx,p0.teamIdx,false),1200);
 }
 
-function showLobby(msg, code, status){
-  document.getElementById('online-lobby').style.display='block';
-  document.getElementById('online-lobby-msg').textContent=msg;
-  document.getElementById('online-room-display').textContent=code;
-  document.getElementById('online-lobby-status').textContent=status;
-}
-
-// ── START ONLINE GAME ──
-function startOnlineGame(myTeamIdx, oppTeamIdx, iAmP0){
-  _onlineActive = true;
-  const myTeam  = PRESETS[myTeamIdx];
-  const oppTeam = PRESETS[oppTeamIdx];
-
-  // p0 is always player index 0 in G
-  const l0 = iAmP0 ? myTeam.lineup  : oppTeam.lineup;
-  const l1 = iAmP0 ? oppTeam.lineup : myTeam.lineup;
-  initG(l0, l1, [], []);
-  G.players[0].teamName = (iAmP0 ? myTeam : oppTeam).name;
-  G.players[1].teamName = (iAmP0 ? oppTeam : myTeam).name;
-  G.onlineSlot = iAmP0 ? 0 : 1; // which G.players index am I?
-
+// ── LAUNCH ──
+function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost){
+  const myTeam=PRESETS[myTeamIdx], oppTeam=PRESETS[oppTeamIdx];
+  const l0=iAmHost?myTeam.lineup:oppTeam.lineup;
+  const l1=iAmHost?oppTeam.lineup:myTeam.lineup;
+  initG(l0,l1,[],[]);
+  G.players[0].teamName=(iAmHost?myTeam:oppTeam).name;
+  G.players[1].teamName=(iAmHost?oppTeam:myTeam).name;
+  _onlineActive=true;
   document.getElementById('online-panel').classList.remove('show');
   document.getElementById('online-lobby').style.display='none';
-
   beginGame();
 
-  // If I'm p0 (host), write initial state
-  if(iAmP0){
-    pushOnlineState();
+  if(iAmHost){
+    // Host writes initial state
+    pushState();
   }
 
-  // Subscribe to state changes from opponent
-  _roomRef.child('state').on('value', snap=>{
-    if(!snap.val() || _suppressSync) return;
-    const remote = snap.val();
-    // Only accept state when it's the other player's turn
-    if(remote.ap !== G.ap){
-      _suppressSync = true;
-      mergeOnlineState(remote);
-      _suppressSync = false;
-      renderAll();
-    }
+  // Both players subscribe to state
+  _roomRef.child('state').on('value',snap=>{
+    if(!snap.val()||_isWriting) return;
+    pullState(snap.val());
   });
 }
 
-// ── PUSH STATE TO FIREBASE ──
-function pushOnlineState(){
-  if(!_onlineActive || !_roomRef || _suppressSync) return;
-  // Serialize G — strip non-serializable bits
-  const state = serializeG();
-  _suppressSync = true;
-  _roomRef.child('state').set(state).then(()=>{ _suppressSync = false; });
+// ── SERIALIZE G ──
+function serDie(d){ return {id:d.id,key:d.key,pos:d.pos||'',tier:d.tier||0,face:d.face||null,sel:!!d.sel}; }
+function serZone(z){ 
+  const out={};
+  Object.keys(z).forEach(k=>{ out[k]=Array.isArray(z[k])?z[k].map(serDie):z[k]; });
+  return out;
 }
-
-// ── SERIALIZE G (strip circular refs, functions) ──
-function serializeG(){
-  const serDie = d => ({
-    id:d.id, key:d.key, pos:d.pos, tier:d.tier,
-    face:d.face||null, sel:d.sel||false
-  });
-  const serZone = z => Object.fromEntries(
-    Object.entries(z).map(([k,v])=>[k, Array.isArray(v)?v.map(serDie):v])
-  );
-  const serPlayer = p => ({
-    name:p.name, teamName:p.teamName||p.name, goals:p.goals,
-    tok:p.tok, bag:p.bag.map(serDie),
-    z:serZone(p.z),
-    lineup:p.lineup.map(c=>({key:c.key,left:c.left})),
-    hcDie:serDie(p.hcDie),
-  });
+function serPlayer(p){
   return {
-    period:G.period, ap:G.ap, phase:G.phase,
-    clock:G.clock, penaltyPool:G.penaltyPool,
-    shotDeclared:G.shotDeclared,
-    blockSelIds:G.blockSelIds||[],
-    players:[serPlayer(G.players[0]), serPlayer(G.players[1])],
-    log:G.log.slice(-20), // last 20 log entries
-    ts: Date.now(),
+    name:p.name, teamName:p.teamName||p.name, goals:p.goals,
+    tok:{shoot:p.tok.shoot,block:p.tok.block},
+    bag:p.bag.map(serDie), z:serZone(p.z),
+    lineup:p.lineup.map(c=>({key:c.key,left:c.left,pos:c.pos,tier:c.tier})),
+    hcDie:serDie(p.hcDie),
   };
 }
-
-// ── MERGE REMOTE STATE INTO G ──
-function mergeOnlineState(remote){
-  G.period = remote.period;
-  G.ap = remote.ap;
-  G.phase = remote.phase;
-  G.clock = remote.clock;
-  G.penaltyPool = remote.penaltyPool;
-  G.shotDeclared = remote.shotDeclared;
-  G.blockSelIds = remote.blockSelIds||[];
-
-  const remapDie = d => {
-    const live = mkDie(d.key);
-    live.id = d.id; live.face = d.face; live.sel = d.sel||false;
-    return live;
+function pushState(){
+  if(!_onlineActive||!_roomRef) return;
+  _isWriting=true;
+  const state={
+    period:G.period, ap:G.ap, phase:G.phase, clock:G.clock,
+    penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared,
+    assignmentStarted:G.assignmentStarted, advPending:G.advPending,
+    blockSelIds:G.blockSelIds||[], blockToksUsed:G.blockToksUsed||0,
+    rrUsed:G.rrUsed, periodFirstPlayer:G.periodFirstPlayer,
+    players:[serPlayer(G.players[0]),serPlayer(G.players[1])],
+    log:G.log.slice(-30), ts:Date.now(),
   };
-  const remapZone = z => Object.fromEntries(
-    Object.entries(z).map(([k,v])=>[k, Array.isArray(v)?v.map(remapDie):v])
-  );
+  _roomRef.child('state').set(state,()=>{ _isWriting=false; });
+}
 
-  remote.players.forEach((rp, i)=>{
-    const lp = G.players[i];
-    lp.name = rp.name; lp.teamName = rp.teamName;
-    lp.goals = rp.goals; lp.tok = rp.tok;
-    lp.bag = rp.bag.map(remapDie);
-    lp.z = remapZone(rp.z);
-    lp.hcDie = remapDie(rp.hcDie);
-    lp.lineup = rp.lineup.map((c,j)=>{
-      const orig = lp.lineup[j]||{key:c.key,left:c.left};
-      orig.left = c.left; return orig;
+// ── DESERIALIZE ──
+function remapDie(d){
+  const live=mkDie(d.key||'Rookie');
+  live.id=d.id; live.face=d.face||null; live.sel=!!d.sel;
+  if(d.pos) live.pos=d.pos; if(d.tier) live.tier=d.tier;
+  return live;
+}
+function remapZone(z){
+  const out={};
+  Object.keys(z).forEach(k=>{ out[k]=Array.isArray(z[k])?z[k].map(remapDie):z[k]; });
+  return out;
+}
+
+function pullState(remote){
+  if(!remote) return;
+  // Apply full remote state to local G
+  G.period=remote.period; G.ap=remote.ap; G.phase=remote.phase;
+  G.clock=remote.clock; G.penaltyPool=remote.penaltyPool;
+  G.shotDeclared=remote.shotDeclared; G.assignmentStarted=remote.assignmentStarted;
+  G.advPending=remote.advPending; G.blockSelIds=remote.blockSelIds||[];
+  G.blockToksUsed=remote.blockToksUsed||0; G.rrUsed=remote.rrUsed;
+  G.periodFirstPlayer=remote.periodFirstPlayer;
+  remote.players.forEach((rp,i)=>{
+    const lp=G.players[i];
+    lp.name=rp.name; lp.teamName=rp.teamName; lp.goals=rp.goals;
+    lp.tok=rp.tok; lp.bag=rp.bag.map(remapDie); lp.z=remapZone(rp.z);
+    lp.hcDie=remapDie(rp.hcDie);
+    lp.lineup=rp.lineup.map((rc,j)=>{
+      const orig=lp.lineup[j]||mkLineup([rc.key])[0];
+      orig.left=rc.left; return orig;
     });
   });
-
-  if(remote.log) G.log = remote.log;
+  if(remote.log) G.log=remote.log;
+  renderAll();
+  // If shot was declared and it's NOT my turn, open combat panel as defender
+  if(G.shotDeclared && G.ap!==_mySlot){
+    if(!document.getElementById('combat-panel').classList.contains('show')){
+      setTimeout(()=>openCombat(),300);
+    }
+  }
 }
 
-// ── LOCK CONTROLS when it's opponent's turn ──
-function isMyTurn(){
-  if(!_onlineActive) return true;
-  return G.ap === G.onlineSlot;
-}
-
-// ── CANCEL ──
 function cancelOnlineGame(){
   if(_roomRef) _roomRef.off();
   _roomRef=null; _roomCode=null; _mySlot=null; _onlineActive=false;
@@ -3277,121 +3237,15 @@ function cancelOnlineGame(){
   toast('Game cancelled.');
 }
 
-// ── PUSH STATE AFTER EVERY endTurn ──
-// Hook into endTurn — push after turn completes
-const _origEndTurn = typeof endTurn === 'function' ? endTurn : null;
+// ── AUTO-PUSH after every renderAll in online mode ──
+// We hook renderAll to push state after any local action
+const _origRenderAll=renderAll;
+renderAll=function(){
+  _origRenderAll();
+  if(_onlineActive && isMyTurn() && !_isWriting) pushState();
+};
 
 window.addEventListener('DOMContentLoaded',()=>{ populateOnlineTeamSelects(); });
 
-// ═══════════════════ ONLINE COMBAT FLOW ═══════════════════
-// When attacker declares shot → push 'shot-declared' action to Firebase
-// Defender's browser picks it up → auto-opens block popup
-// When defender confirms block → push 'block-confirmed' action
-// Attacker's browser picks it up → resolves combat
-
-function pushOnlineAction(action, data={}){
-  if(!_onlineActive || !_roomRef) return;
-  _roomRef.child('action').set({ type: action, by: G.onlineSlot, ts: Date.now(), ...data });
-}
-
-function subscribeOnlineActions(){
-  if(!_roomRef) return;
-  _roomRef.child('action').on('value', snap=>{
-    const act = snap.val();
-    if(!act || !_onlineActive) return;
-    // Only process actions FROM the opponent
-    if(act.by === G.onlineSlot) return;
-
-    if(act.type === 'shot-declared'){
-      // Defender sees attacker declared a shot — open block popup
-      addLog(`${AP().name}: 🚨 SHOT DECLARED — opening block selection...`,'imp');
-      G.shotDeclared = true;
-      // Sync shoot zone from action data
-      if(act.shootZone){
-        act.shootZone.forEach(sd=>{
-          const d = AP().z.hot.find(h=>h.id===sd.id) || mkDie(sd.key);
-          d.face = sd.face; d.id = sd.id;
-          if(!AP().z.shoot.find(s=>s.id===sd.id)) AP().z.shoot.push(d);
-        });
-      }
-      renderAll();
-      setTimeout(()=>openCombat(), 400);
-
-    }else if(act.type === 'block-confirmed'){
-      // Attacker sees defender confirmed block — resolve combat
-      G.blockSelIds = act.blockSelIds || [];
-      _bTok = act.bTok || 0;
-      _sTok = act.sTok || 0;
-      // Update defend zone on our side
-      if(act.defendZone){
-        act.defendZone.forEach(dd=>{
-          const found = OPP().z.defend.find(d=>d.id===dd.id);
-          if(found){ found.face=dd.face; }
-        });
-      }
-      addLog(`${OPP().name}: Block confirmed — resolving combat.`,'imp');
-      document.getElementById('combat-panel').classList.remove('show');
-      resolveCombat();
-    }
-  });
-}
-
-// ── PATCH declareShot for online ──
-const _origDeclareShot = declareShot;
-declareShot = function(){
-  const ap=AP();
-  if(G.shotDeclared){toast('Only one shot per turn!');return;}
-  if(!ap.z.shoot.length){toast('Add dice to Shoot Zone first!');return;}
-  G.shotDeclared=true;
-  addLog(`${ap.name}: 🚨 SHOT — ${ap.z.shoot.length} die/dice.`,'imp');
-  if(_onlineActive){
-    // Push shot-declared to Firebase so defender gets the popup
-    pushOnlineAction('shot-declared',{
-      shootZone: ap.z.shoot.map(d=>({id:d.id,key:d.key,face:d.face})),
-      sTok: _sTok||0,
-    });
-    // Push full state too
-    pushOnlineState();
-    openCombat();
-  }else{
-    openCombat();
-  }
-  renderAll();
-};
-
-// ── PATCH confirmBlock for online ──
-const _origConfirmBlock = typeof confirmBlock==='function' ? confirmBlock : null;
-
-function confirmBlockOnline(){
-  if(_onlineActive){
-    // Push block selection to Firebase so attacker can resolve
-    pushOnlineAction('block-confirmed',{
-      blockSelIds: G.blockSelIds,
-      bTok: _bTok||0,
-      sTok: _sTok||0,
-      defendZone: OPP().z.defend.map(d=>({id:d.id,key:d.key,face:d.face})),
-    });
-    // Close panel on defender's side — attacker will resolve
-    document.getElementById('combat-panel').classList.remove('show');
-    addLog('Block committed — waiting for attacker to resolve...','imp');
-    renderAll();
-  }else{
-    resolveCombat();
-  }
-}
-
-// ── SHOW/HIDE block confirm button appropriately in online mode ──
-// If I am the DEFENDER in online mode, show "Commit Block" button
-// If I am the ATTACKER, the resolve button fires resolveCombat normally
-// This is handled by checking G.onlineSlot vs G.ap in openCombat
-
-// Subscribe to actions when startOnlineGame is called
-const _origStartOnlineGame = startOnlineGame;
-startOnlineGame = function(myTeamIdx, oppTeamIdx, iAmP0){
-  _origStartOnlineGame(myTeamIdx, oppTeamIdx, iAmP0);
-  subscribeOnlineActions();
-};
-
 </script>
 </body>
-</html>
