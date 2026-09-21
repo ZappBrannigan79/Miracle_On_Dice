@@ -3135,26 +3135,45 @@ async function joinOnlineGame(){
 // ── LAUNCH ──
 function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost){
   const myTeam=PRESETS[myTeamIdx], oppTeam=PRESETS[oppTeamIdx];
-  const l0=iAmHost?myTeam.lineup:oppTeam.lineup;
-  const l1=iAmHost?oppTeam.lineup:myTeam.lineup;
-  initG(l0,l1,[],[]);
-  G.players[0].teamName=(iAmHost?myTeam:oppTeam).name;
-  G.players[1].teamName=(iAmHost?oppTeam:myTeam).name;
   _onlineActive=true;
+  _mySlot=iAmHost?0:1;
   document.getElementById('online-panel').classList.remove('show');
   document.getElementById('online-lobby').style.display='none';
-  beginGame();
 
   if(iAmHost){
-    // Host writes initial state
+    // HOST: initialize the game, write state to Firebase, then begin
+    const l0=myTeam.lineup, l1=oppTeam.lineup;
+    initG(l0,l1,[],[]);
+    G.players[0].teamName=myTeam.name;
+    G.players[1].teamName=oppTeam.name;
+    // Write initial state BEFORE beginGame so joiner gets it first
     pushState();
+    beginGame();
+    // Subscribe to read back (for opponent's actions)
+    _roomRef.child('state').on('value',snap=>{
+      if(!snap.val()||_isWriting) return;
+      // Only pull when it's NOT our turn (opponent just acted)
+      if(snap.val().ap !== _mySlot || snap.val().phase !== G.phase){
+        pullState(snap.val());
+      }
+    });
+  } else {
+    // JOINER: do NOT call initG or beginGame — wait for host's state
+    showScreen('game');
+    document.getElementById('aplbl').textContent='Connecting...';
+    // Subscribe and wait for first state push from host
+    _roomRef.child('state').on('value',snap=>{
+      if(!snap.val()) return;
+      if(!G){ 
+        // First time — need to init G structure so pullState can populate it
+        // Use placeholder lineups that will be overwritten by pullState
+        initG(myTeam.lineup, oppTeam.lineup, [], []);
+        G.players[0].teamName=oppTeam.name; // will be corrected by pullState
+        G.players[1].teamName=myTeam.name;
+      }
+      if(!_isWriting) pullState(snap.val());
+    });
   }
-
-  // Both players subscribe to state
-  _roomRef.child('state').on('value',snap=>{
-    if(!snap.val()||_isWriting) return;
-    pullState(snap.val());
-  });
 }
 
 // ── SERIALIZE G ──
@@ -3221,12 +3240,22 @@ function pullState(remote){
     });
   });
   if(remote.log) G.log=remote.log;
-  renderAll();
-  // If shot was declared and it's NOT my turn, open combat panel as defender
+  // Don't trigger another push from this render
+  _isWriting=true;
+  _origRenderAll();
+  _isWriting=false;
+  // If a shot was declared and it's NOT my turn, open combat as defender
   if(G.shotDeclared && G.ap!==_mySlot){
     if(!document.getElementById('combat-panel').classList.contains('show')){
-      setTimeout(()=>openCombat(),300);
+      setTimeout(()=>openCombat(),400);
     }
+  }
+  // Show waiting message when it's opponent's turn
+  if(G.ap!==_mySlot){
+    const opp=G.players[G.ap];
+    const aplblEl=document.getElementById('aplbl');
+    if(aplblEl) aplblEl.textContent=
+      `⏳ ${opp.teamName||opp.name}'s Turn — watching live`;
   }
 }
 
@@ -3238,11 +3267,15 @@ function cancelOnlineGame(){
 }
 
 // ── AUTO-PUSH after every renderAll in online mode ──
-// We hook renderAll to push state after any local action
+// Only push state when it's my turn and I'm the one who just acted
 const _origRenderAll=renderAll;
 renderAll=function(){
   _origRenderAll();
-  if(_onlineActive && isMyTurn() && !_isWriting) pushState();
+  if(_onlineActive && isMyTurn() && !_isWriting){
+    // Debounce slightly to batch rapid re-renders
+    clearTimeout(renderAll._pushTimer);
+    renderAll._pushTimer=setTimeout(pushState, 150);
+  }
 };
 
 window.addEventListener('DOMContentLoaded',()=>{ populateOnlineTeamSelects(); });
