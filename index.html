@@ -281,8 +281,15 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .cresult.blocked{background:rgba(139,26,26,.3);color:#ffaaaa;border:1px solid #cc3333;}
 .block-sel-area h3{font-size:.8em;color:#ccc;margin-bottom:7px;}
 .block-sel-dice{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;min-height:30px;}
-.tok-ctrl{font-size:.76em;color:#aaa;margin-bottom:10px;}
-.tok-ctrl button{margin-left:5px;padding:2px 7px;font-size:.85em;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;border-radius:4px;cursor:pointer;}
+.tok-ctrl{background:rgba(255,200,60,.09);border:1px solid rgba(255,200,60,.5);border-radius:8px;padding:10px 12px;font-size:.85em;color:#ffe9b0;margin-bottom:10px;line-height:2;}
+.tok-ctrl strong{color:#ffd75e;}
+.tok-ctrl .tok-note{color:#cdb87a;font-size:.85em;}
+.tok-ctrl button{margin:0 3px;padding:6px 15px;font-size:1.15em;font-weight:800;background:rgba(255,200,60,.18);border:1px solid rgba(255,200,60,.65);color:#ffd75e;border-radius:6px;cursor:pointer;}
+.tok-ctrl button:not(:disabled):hover{background:rgba(255,200,60,.34);}
+.tok-ctrl button:disabled{opacity:.35;cursor:default;}
+.tok-count{font-size:1.5em;font-weight:800;color:#ffd75e;min-width:1.5em;display:inline-block;text-align:center;}
+@keyframes tokPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,200,60,.0);}50%{box-shadow:0 0 14px 2px rgba(255,200,60,.55);}}
+.tok-ctrl.attn{animation:tokPulse 1.6s ease-in-out infinite;border-color:#ffd75e;}
 
 /* OVERLAYS */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:none;align-items:center;justify-content:center;}
@@ -597,16 +604,16 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
     <div id="block-sel-area">
       <div class="block-sel-area">
         <h3 style="color:#88aaff;margin-bottom:6px">🏒 Attacker — commit Shoot Tokens (optional)</h3>
-        <div class="tok-ctrl" id="shoot-tok-ctrl">Shoot Tokens to add: <span id="stok-count">0</span>
+        <div class="tok-ctrl" id="shoot-tok-ctrl">🎯 <strong>Shoot Tokens</strong> to add: <span id="stok-count" class="tok-count">0</span>
           <button onclick="adjST(1)">+</button><button onclick="adjST(-1)">–</button>
-          (you have <span id="ap-stok">0</span>) — each token counts as an automatic +1 to your combat total
+          <span class="tok-note">(you have <span id="ap-stok">0</span>) — each token = automatic +1 to your combat total</span>
         </div>
         <div style="border-top:1px solid rgba(255,255,255,.1);margin:10px 0;"></div>
         <h3>🥅 Defender — click your Defensive Zone dice to block with</h3>
         <div class="block-sel-dice" id="bsel-dice"></div>
-        <div class="tok-ctrl">Block Tokens to use: <span id="btok-count">0</span>
+        <div class="tok-ctrl" id="block-tok-ctrl">🛡️ <strong>Block Tokens</strong> to use: <span id="btok-count" class="tok-count">0</span>
           <button onclick="adjBT(1)">+</button><button onclick="adjBT(-1)">–</button>
-          (you have <span id="opp-btok">0</span>)
+          <span class="tok-note">(you have <span id="opp-btok">0</span>) — each token = automatic +1 to your block total</span>
         </div>
         <button class="abtn prim" style="width:100%;margin-top:6px" onclick="resolveCombat()">Roll Combat Dice!</button>
       </div>
@@ -855,7 +862,7 @@ function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC')
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
 function initG(l1,l2,bag1=[],bag2=[]){
-  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,combatResult:null,combatDone:false,
+  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,shotLocked:false,combatResult:null,combatDone:false,
      assignmentStarted:false,
      advPending:false,
      periodFirstPlayer:0,
@@ -1104,7 +1111,7 @@ function doFaceoff(){
 
 // ═══════════════════ TURN ENGINE ═══════════════════
 function startTurn(){
-  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;
+  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;
   _rrMode=false;_rrDieId=null;
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();phase0();
@@ -1746,8 +1753,28 @@ function declareShot(){
   G.shotDeclared=true;
   G.combatResult=null; // clear any stale result from an earlier combat
   G.combatDone=false;
-  addLog(`${ap.name}: 🚨 SHOT — ${ap.z.shoot.length} die/dice + ${ap.tok.shoot} token(s).`,'imp');
+  _sTok=0; // fresh token commitment for this shot
+  // The shooter confirms shoot tokens BEFORE the defender is asked to block.
+  // No tokens to decide on (or solo play) → nothing to confirm, lock at once.
+  G.shotLocked=!_onlineActive||ap.tok.shoot===0;
+  if(G.shotLocked){
+    addLog(`${ap.name}: 🚨 SHOT — ${ap.z.shoot.length} die/dice + 0 token(s).`,'imp');
+  }else{
+    addLog(`${ap.name}: 🚨 SHOT declared — committing shoot tokens…`,'imp');
+  }
   openCombat();renderAll();
+}
+// Shooter locks in their token choice. THIS is what prompts the defender:
+// their panel only opens once the shot is locked, so they always see the
+// committed tokens before assigning blockers — no more resolving early.
+function lockShot(){
+  if(_onlineActive&&!isMyTurn())return;
+  if(G.shotLocked||!G.shotDeclared)return;
+  G.shotLocked=true;
+  addLog(`${AP().name}: ✅ Shot confirmed — ${AP().z.shoot.length} die/dice + ${_sTok} shoot token(s).`,'imp');
+  openCombat(); // rebuild: token steppers lock, button flips to "Waiting for defender…"
+  renderAll();
+  if(_onlineActive)pushState();
 }
 
 // ═══════════════════ COMBAT ═══════════════════
@@ -1758,7 +1785,7 @@ let _bTok=0,_sTok=0,_combatNonce=0,_lastCombatNonce=0;
 function adjST(n){_sTok=Math.max(0,Math.min(AP().tok.shoot,_sTok+n));document.getElementById('stok-count').textContent=_sTok;if(_onlineActive&&isMyTurn())pushState();}
 
 function openCombat(){
-  _bTok=0;if(!_onlineActive||isMyTurn())_sTok=0; // defender keeps the attacker's synced token count
+  _bTok=0; // _sTok is reset per-shot in declareShot; the defender keeps the attacker's synced value
   document.getElementById('btok-count').textContent='0';
   document.getElementById('stok-count').textContent=_sTok;
   document.getElementById('ap-stok').textContent=AP().tok.shoot;
@@ -1774,6 +1801,7 @@ function openCombat(){
   document.getElementById('combat-info').innerHTML=
     `<strong>Attacker (${ap.name}):</strong> ${numAtk} die/dice → <strong>${totalShootCD} Shoot Combat Dice</strong> total (each die grants combat dice = its pip value).<br>`+
     `<em style="color:#aaa">Combat dice: 2,2,1,1,0,0. Tokens = automatic +1 each. Example: S3 die → 3 combat dice.</em><br>`+
+    (_sTok>0?`🎯 <strong style="color:#ffd75e">Shoot tokens committed: ${_sTok} (+${_sTok} automatic)</strong><br>`:'')+
     `<strong>Defender bonus:</strong> +${bonus} Block Combat Die${bonus!==1?'s':''} auto (${G.clock===1?'1:00 FINAL TURN (+3)':G.clock<=4?'04:00–02:00 (+2)':'10:00–05:00 (+1)'}). Ties go to defense.`;
   const bsel=document.getElementById('bsel-dice');bsel.innerHTML='';
   // Add Commit All Defenders button if any defend dice available
@@ -1821,17 +1849,30 @@ function openCombat(){
   // attacker leaves it disabled ("Waiting for defender…"), which would deadlock
   // a later combat where this client defends.
   const rb=document.querySelector('#block-sel-area .abtn.prim');
-  if(rb){rb.disabled=false;rb.textContent='Roll Combat Dice!';}
-  // Online: the attacker can't resolve — the defender resolves on their screen
-  if(_onlineActive&&isMyTurn()){
-    if(rb){rb.disabled=true;rb.textContent='Waiting for defender to resolve…';}
+  if(rb){
+    rb.disabled=false;rb.textContent='Roll Combat Dice!';rb.onclick=resolveCombat;
+    // Online: the shooter doesn't resolve — but first they CONFIRM the shot,
+    // which locks their tokens and is what prompts the defender to block.
+    if(_onlineActive&&isMyTurn()){
+      if(G.shotLocked){rb.disabled=true;rb.textContent='Waiting for defender to resolve…';}
+      else{rb.textContent='Confirm Shot →';rb.onclick=lockShot;}
+    }
   }
+  // Token steppers lock once the shot is confirmed (online shooter only —
+  // solo keeps them live until the roll, and the defender never touches them).
+  const tokLocked=_onlineActive&&isMyTurn()&&G.shotLocked;
+  document.querySelectorAll('#shoot-tok-ctrl button').forEach(b=>{b.disabled=tokLocked;});
+  // Gentle pulse so the token rows aren't missed at decision time.
+  document.getElementById('shoot-tok-ctrl').classList.toggle('attn',_onlineActive&&isMyTurn()&&!G.shotLocked&&AP().tok.shoot>0);
+  document.getElementById('block-tok-ctrl').classList.toggle('attn',_onlineActive&&!isMyTurn());
 }
 function adjBT(n){_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;}
 
 function resolveCombat(){
-  // Online: only the defender resolves (the attacker waits for the result)
+  // Online: only the defender resolves (the attacker waits for the result) —
+  // and only after the shooter has confirmed the shot (tokens locked in).
   if(_onlineActive&&isMyTurn()){toast('Waiting for the defender to resolve…');return;}
+  if(_onlineActive&&!G.shotLocked){toast('Waiting for the shooter to confirm their shot…');return;}
   const ap=AP(),opp=OPP();
   const bDice=opp.z.defend.filter(d=>G.blockSelIds.includes(d.id));
   const bonus=G.clock===1?3:G.clock>4?1:2;
@@ -3329,7 +3370,7 @@ function pushState(){
     seq:_pushSeq, sTok:_sTok, combatNonce:_combatNonce, combatResult:G.combatResult||null,
     combatDone:!!G.combatDone,
     period:G.period, ap:G.ap, phase:G.phase, clock:G.clock,
-    penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared,
+    penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared, shotLocked:!!G.shotLocked,
     assignmentStarted:G.assignmentStarted, advPending:G.advPending,
     blockSelIds:G.blockSelIds||[], blockToksUsed:G.blockToksUsed||0,
     rrUsed:G.rrUsed, periodFirstPlayer:G.periodFirstPlayer,
@@ -3374,7 +3415,7 @@ function pullState(remote){
   // Apply full remote state to local G
   G.period=remote.period; G.ap=remote.ap; G.phase=remote.phase;
   G.clock=remote.clock; G.penaltyPool=remote.penaltyPool;
-  G.shotDeclared=remote.shotDeclared; G.assignmentStarted=remote.assignmentStarted;
+  G.shotDeclared=remote.shotDeclared; G.shotLocked=!!remote.shotLocked; G.assignmentStarted=remote.assignmentStarted;
   G.advPending=remote.advPending; G.blockSelIds=remote.blockSelIds||[];
   G.blockToksUsed=remote.blockToksUsed||0; G.rrUsed=remote.rrUsed;
   G.combatResult=remote.combatResult||null;
@@ -3414,11 +3455,20 @@ function pullState(remote){
       closeCombat();
     }
   }
-  // If a shot was declared and it's NOT my turn, open combat as defender.
+  // If a shot was confirmed and it's NOT my turn, open combat as defender.
+  // The defender is only prompted once the shooter locks the shot — that's
+  // what guarantees they see the committed tokens before assigning blockers.
   // combatDone blocks re-opening after the shooter has continued past the result.
-  if(G.shotDeclared && !G.combatDone && G.ap!==_mySlot){
+  if(G.shotDeclared && G.shotLocked && !G.combatDone && G.ap!==_mySlot){
     if(!document.getElementById('combat-panel').classList.contains('show')){
       setTimeout(()=>openCombat(),400);
+    }
+  }
+  // Shooter coming back mid-shot (e.g. after a refresh): reopen my panel so
+  // I'm not stranded with a declared shot and no way to confirm it.
+  if(G.shotDeclared && !G.combatDone && !G.combatResult && G.ap===_mySlot){
+    if(!document.getElementById('combat-panel').classList.contains('show')){
+      openCombat();
     }
   }
   // Show waiting message when it's opponent's turn
