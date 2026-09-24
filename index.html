@@ -2184,6 +2184,9 @@ function renderPbar(){
     return`<span class="ph ${c}">${i<G.phase?'✓':(i+1)+'. '}${n}</span>${i<PHASES.length-1?'<span class="ph-arr">›</span>':''}`
   }).join('');
 }
+// Display label for a player slot: the entered lobby name, or P1/P2 when no
+// name was entered (local games keep the short default labels).
+function slotLabel(i){const n=G.players[i]&&G.players[i].name;return (n&&!/^Player [12]$/.test(n))?n:('P'+(i+1));}
 function renderBoard(){
   const ap=AP();
   const teamLabel = (ap.teamName||ap.name) + ' (' + slotLabel(G.ap) + ')';
@@ -3073,6 +3076,24 @@ let _onlineActive=false;
 let _isWriting=false;  // prevent echo when we write
 let _lastRemoteSeq=-1; // last Firebase state seq pulled — turn-passing is seq-gated (clock-skew safe)
 let _pushSeq=0;        // increments on every pushState so receivers can pull each new state
+let _onlineGen=0;      // bumps on every host/join/cancel — stale scheduled launches check this and abort
+let _hosting=false, _joining=false; // in-flight guards so double-clicks can't stack rooms/listeners
+
+// Drop every listener on the previous room and reset sync state, so a
+// re-host / re-join / cancel starts clean instead of stacking listeners
+// across rooms (which used to reset the host's game and strand the joiner).
+function teardownOnline(){
+  if(_roomRef){
+    try{ _roomRef.child('p1').off(); }catch(e){}
+    try{ _roomRef.child('state').off(); }catch(e){}
+    try{ _roomRef.off(); }catch(e){}
+  }
+  _roomRef=null; _roomCode=null; _mySlot=null;
+  _onlineActive=false; _isWriting=false;
+  _lastRemoteSeq=-1; _pushSeq=0;
+  _sTok=0; _combatNonce=0; _lastCombatNonce=0;
+  _onlineGen++;
+}
 
 function initFirebase(){
   if(_fb) return true;
@@ -3123,48 +3144,67 @@ function showLobby(msg,code,status){
 // ── HOST ──
 async function hostOnlineGame(){
   if(!initFirebase()) return;
-  const name=document.getElementById('online-host-name').value.trim()||'Player 1';
-  const teamIdx=parseInt(document.getElementById('online-host-team').value);
-  const team=PRESETS[teamIdx];
-  _roomCode=genCode(); _mySlot=0;
-  _roomRef=_db.ref('rooms/'+_roomCode);
-  await _roomRef.set({
-    p0:{name,teamIdx,teamName:team.name,ready:true},
-    p1:null, state:null, created:Date.now()
-  });
-  showLobby('Share this code with your opponent:',_roomCode,'Waiting for opponent...');
-  // Watch for opponent joining
-  _roomRef.child('p1').on('value',snap=>{
-    if(snap.val()?.ready){
-      document.getElementById('online-lobby-status').textContent=
-        snap.val().name+' ('+snap.val().teamName+') joined! Starting...';
-      setTimeout(()=>launchOnlineGame(teamIdx,snap.val().teamIdx,true,name,snap.val().name),1200);
-    }
-  });
+  if(_hosting) return; // ignore double-clicks while the room is being created
+  _hosting=true;
+  try{
+    teardownOnline(); // clean up any previous session/listeners first
+    const name=document.getElementById('online-host-name').value.trim()||'Player 1';
+    const teamIdx=parseInt(document.getElementById('online-host-team').value);
+    const team=PRESETS[teamIdx];
+    _roomCode=genCode(); _mySlot=0;
+    _roomRef=_db.ref('rooms/'+_roomCode);
+    await _roomRef.set({
+      p0:{name,teamIdx,teamName:team.name,ready:true},
+      p1:null, state:null, created:Date.now()
+    });
+    showLobby('Share this code with your opponent:',_roomCode,'Waiting for opponent...');
+    // Watch for opponent joining. Pin the ref + generation: detach after the
+    // first ready so a second p1 write can never re-run launch (initG would
+    // reset the host's in-progress game), and abort if a newer session started.
+    const ref=_roomRef, gen=_onlineGen;
+    ref.child('p1').on('value',snap=>{
+      if(snap.val()?.ready){
+        ref.child('p1').off();
+        const jn=snap.val().name, jt=snap.val().teamIdx, jtn=snap.val().teamName;
+        document.getElementById('online-lobby-status').textContent=
+          jn+' ('+jtn+') joined! Starting...';
+        setTimeout(()=>{ if(gen!==_onlineGen) return; launchOnlineGame(teamIdx,jt,true,name,jn,ref); },1200);
+      }
+    });
+  }finally{ _hosting=false; }
 }
 
 // ── JOIN ──
 async function joinOnlineGame(){
   if(!initFirebase()) return;
-  const name=document.getElementById('online-join-name').value.trim()||'Player 2';
-  const teamIdx=parseInt(document.getElementById('online-join-team').value);
-  const team=PRESETS[teamIdx];
-  const code=document.getElementById('online-room-code').value.trim().toUpperCase();
-  if(code.length!==6){toast('Enter the 6-character room code.');return;}
-  _roomCode=code; _mySlot=1;
-  _roomRef=_db.ref('rooms/'+_roomCode);
-  const snap=await _roomRef.once('value');
-  const room=snap.val();
-  if(!room){toast('Room not found. Check the code.');return;}
-  if(room.p1?.ready){toast('Room is full.');return;}
-  const p0=room.p0;
-  await _roomRef.child('p1').set({name,teamIdx,teamName:team.name,ready:true});
-  showLobby('Joined '+p0.name+"'s game!",code,'Starting game...');
-  setTimeout(()=>launchOnlineGame(teamIdx,p0.teamIdx,false),1200);
+  if(_joining) return; // ignore double-clicks while a join is in flight
+  _joining=true;
+  try{
+    teardownOnline(); // clean up any previous session/listeners first
+    const name=document.getElementById('online-join-name').value.trim()||'Player 2';
+    const teamIdx=parseInt(document.getElementById('online-join-team').value);
+    const team=PRESETS[teamIdx];
+    const code=document.getElementById('online-room-code').value.trim().toUpperCase();
+    if(code.length!==6){toast('Enter the 6-character room code.');return;}
+    _roomCode=code; _mySlot=1;
+    _roomRef=_db.ref('rooms/'+_roomCode);
+    const snap=await _roomRef.once('value');
+    const room=snap.val();
+    if(!room){toast('Room not found. Check the code.');return;}
+    if(room.p1?.ready){toast('Room is full.');return;}
+    const p0=room.p0;
+    await _roomRef.child('p1').set({name,teamIdx,teamName:team.name,ready:true});
+    showLobby('Joined '+p0.name+"'s game!",code,'Starting game...');
+    // Pin the ref + generation so a stale scheduled launch (from an earlier
+    // join that was superseded) can never hijack this session's room.
+    const ref=_roomRef, gen=_onlineGen, p0team=p0.teamIdx;
+    setTimeout(()=>{ if(gen!==_onlineGen) return; launchOnlineGame(teamIdx,p0team,false,null,null,ref); },1200);
+  }finally{ _joining=false; }
 }
 
 // ── LAUNCH ──
-function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName){
+function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName,ref){
+  _roomRef=ref||_roomRef; // pin to the room this launch was scheduled for
   const myTeam=PRESETS[myTeamIdx], oppTeam=PRESETS[oppTeamIdx];
   _onlineActive=true;
   _mySlot=iAmHost?0:1;
@@ -3329,13 +3369,12 @@ function pullState(remote){
     const opp=G.players[G.ap];
     const aplblEl=document.getElementById('aplbl');
     if(aplblEl) aplblEl.textContent=
-      `⏳ ${opp.teamName||opp.name}'s Turn — watching live`;
+      `⏳ ${(opp.teamName||opp.name)} (${slotLabel(G.ap)})'s Turn — watching live`;
   }
 }
 
 function cancelOnlineGame(){
-  if(_roomRef) _roomRef.off();
-  _roomRef=null; _roomCode=null; _mySlot=null; _onlineActive=false;
+  teardownOnline(); // also bumps the generation, aborting any pending launch
   document.getElementById('online-lobby').style.display='none';
   document.getElementById('online-connecting-overlay')?.classList.remove('show');
   toast('Game cancelled.');
