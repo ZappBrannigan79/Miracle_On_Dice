@@ -857,7 +857,7 @@ function initG(l1,l2,bag1=[],bag2=[]){
      assignmentStarted:false,
      advPending:false,
      periodFirstPlayer:0,
-     penaltyPool:2, // shared pool of 3 penalty dice
+     penaltyPool:3, // shared pool of 3 penalty dice
      clock:10, // shared 10-min period clock, ticks 1 per turn
      players:[mkPlayer('Player 1',l1,bag1),mkPlayer('Player 2',l2,bag2)]};
   _rrMode=false;_rrDieId=null;
@@ -1069,15 +1069,6 @@ function startCustom(){
   beginGame();
 }
 function beginGame(){showScreen('game');showFaceoff();}
-
-function populateOnlineTeamSelects(){
-  const html=PRESETS.map((p,i)=>
-    `<option value="${i}" style="background:#1a2d45;color:white;">${p.name} — ${p.division||''}</option>`
-  ).join('');
-  ['online-host-team','online-join-team'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.innerHTML=html;
-  });
-}
 
 // ═══════════════════ FACEOFF ═══════════════════
 function showFaceoff(){
@@ -1386,7 +1377,7 @@ function assignDie(die,action){
       const i2=AP().z.rs.indexOf(die);
       if(i2!==-1)AP().z.rs.splice(i2,1);
       if(G.clock>4)AP().z.cold.push(die);else AP().z.hot.push(die);
-      addLog(`${AP().name}: ${dLbl(die)}→${AP().timer>=3?'Cold':'Hot'} Zone (1⚡ paid).`);
+      addLog(`${AP().name}: ${dLbl(die)}→${G.clock>4?'Cold':'Hot'} Zone (1⚡ paid).`);
       renderAll();
     });
     return;
@@ -1412,49 +1403,6 @@ function assignDie(die,action){
     renderAll();return;
   }else if(action==='hc-energy-info'){
     toast('HC Energy is available for purchasing this turn. It will be set aside automatically at end of turn.');
-    renderAll();return;
-  }else if(action==='pen-pool-empty'){
-    toast('Penalty pool is empty — all 3 penalty dice are in play.');
-    renderAll();return;
-  }else if(action==='reserve'){
-    if(die.key==='HC'){toast('Head Coach die cannot enter Reserve — it is set aside automatically.');return;}
-    if(die.face.t!=='E'&&!die.energyPending){toast('Reserve: Energy faces only.');return;}
-    if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
-    ap.z.rs.splice(idx,1);ap.z.reserve.push(die);die.energyPending=false;
-    addLog(`${ap.name}: ${dLbl(die)} saved in Reserve.`);
-  }else if(action==='wild-energy'){
-    // Wild-as-energy removed from game — this action should not be reached
-    toast('Wild can only be assigned as Shoot or Block.');return;
-  }else if(action==='rr'){
-    // Remove from RS — HC returns to set-aside, others go to iced
-    ap.z.rs.splice(idx,1);
-    if(die.key!=='HC'){ap.z.iced.push(die);}
-    addLog(`${ap.name}: Reroll face spent → select dice to reroll.`);
-    enterRRFaceMode(die.id);return;
-  }else if(action==='shutout-cost'){
-    closeMenus();
-    const soV=die.face.v;
-    openEPicker(1, `activate Shutout for ${soV} Block Tokens`, ()=>{
-      const i2=AP().z.rs.indexOf(die);
-      if(i2!==-1)AP().z.rs.splice(i2,1);
-      AP().tok.block+=soV;AP().z.iced.push(die);
-      addLog(`${AP().name}: Shutout → +${soV} Block Tokens (1⚡ paid, ${AP().tok.block} total).`,'imp');
-      renderAll();
-    });
-    return;
-  }else if(action==='shutout'){
-    ap.z.rs.splice(idx,1);ap.tok.block+=die.face.v;
-    if(die.key==='HC'){/* HC returns to set-aside automatically */}else{ap.z.iced.push(die);}
-    addLog(`${ap.name}: Shutout → +${die.face.v} Block Tokens (${ap.tok.block} total).`,'imp');
-  }else if(action==='pen-give'){
-    ap.z.rs.splice(idx,1);
-    if(G.penaltyPool>0){
-      opp.bag.push(mkDie('Penalty'));G.penaltyPool--;
-      addLog(`${ap.name}: Penalty → added Penalty die to ${opp.name}'s bag! (pool: ${G.penaltyPool} remaining)`,'imp');
-    }else{
-      addLog(`${ap.name}: Penalty face — pool empty, no penalty added.`);
-    }
-    // HC returns to set-aside automatically at end of turn — don't send to iced
     renderAll();return;
   }else if(action==='pen-pool-empty'){
     toast('Penalty pool is empty — all 3 penalty dice are in play.');
@@ -1800,18 +1748,18 @@ function declareShot(){
 // CORRECT: num dice to roll = num attacking dice + tokens
 // Result = sum of combat dice (2,2,1,1,0,0) + tokens count as automatic 1 each
 // Pips on player dice determine HOW MANY combat dice to roll — NOT added to total
-let _bTok=0,_sTok=0;
-function adjST(n){_sTok=Math.max(0,Math.min(AP().tok.shoot,_sTok+n));document.getElementById('stok-count').textContent=_sTok;}
-function adjBT(n){_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;}
+let _bTok=0,_sTok=0,_combatNonce=0,_lastCombatNonce=0;
+function adjST(n){_sTok=Math.max(0,Math.min(AP().tok.shoot,_sTok+n));document.getElementById('stok-count').textContent=_sTok;if(_onlineActive&&isMyTurn())pushState();}
 
 function openCombat(){
-  _bTok=0;_sTok=0;
+  _bTok=0;if(!_onlineActive||isMyTurn())_sTok=0; // defender keeps the attacker's synced token count
   document.getElementById('btok-count').textContent='0';
-  document.getElementById('stok-count').textContent='0';
+  document.getElementById('stok-count').textContent=_sTok;
   document.getElementById('ap-stok').textContent=AP().tok.shoot;
   document.getElementById('opp-btok').textContent=OPP().tok.block;
-  // Hide shoot token row if attacker has none
-  document.getElementById('shoot-tok-ctrl').style.display=AP().tok.shoot>0?'block':'none';
+  // Hide shoot token row if attacker has none (or if I'm the defender — tokens are the attacker's call)
+  const _iAmAttacker=!_onlineActive||isMyTurn();
+  document.getElementById('shoot-tok-ctrl').style.display=(AP().tok.shoot>0&&_iAmAttacker)?'block':'none';
   const ap=AP();
   const bonus=G.clock===1?3:G.clock>4?1:2;
   const numAtk=ap.z.shoot.length;
@@ -1863,23 +1811,18 @@ function openCombat(){
   document.getElementById('combat-result').style.display='none';
   document.getElementById('block-sel-area').style.display='block';
   document.getElementById('combat-panel').classList.add('show');
-  // Update resolve button label based on online role
-  const lbl = document.getElementById('resolve-btn-lbl');
-  if(lbl){
-    if(_onlineActive && G.ap !== G.onlineSlot){
-      lbl.textContent = 'Commit Block →';
-    }else if(_onlineActive){
-      lbl.textContent = 'Waiting for Defender...';
-      // Disable resolve for attacker until defender commits
-      document.querySelector('[onclick*="resolve-btn"]');
-    }else{
-      lbl.textContent = 'Resolve Combat';
-    }
+  // Online: the attacker can't resolve — the defender resolves on their screen
+  if(_onlineActive&&isMyTurn()){
+    const rb=document.querySelector('#block-sel-area .abtn.prim');
+    if(rb){rb.disabled=true;rb.textContent='Waiting for defender to resolve…';}
   }
 }
 function adjBT(n){_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;}
 
 function resolveCombat(){
+  // Online: only the defender resolves (the attacker waits for the result)
+  if(_onlineActive&&isMyTurn()){toast('Waiting for the defender to resolve…');return;}
+  if(_onlineActive)_combatNonce++;
   const ap=AP(),opp=OPP();
   const bDice=opp.z.defend.filter(d=>G.blockSelIds.includes(d.id));
   const bonus=G.clock===1?3:G.clock>4?1:2;
@@ -1926,6 +1869,8 @@ function resolveCombat(){
   G.blockSelIds=[];
   document.getElementById('block-sel-area').style.display='none';
   document.getElementById('combat-result').style.display='block';
+  // Online: the defender's resolution must reach the attacker
+  if(_onlineActive)pushState();
 }
 function closeCombat(){document.getElementById('combat-panel').classList.remove('show');renderAll();}
 
@@ -1956,17 +1901,18 @@ function endTurn(){
   ap.z.shoot.forEach(d=>ap.z.iced.push(d));ap.z.shoot=[];
   G.clock=Math.max(0,G.clock-1);
   addLog(`${ap.name}: Turn ended. Clock→${G.clock<10?'0'+G.clock:''+G.clock}:00.`);
-  // Push state to Firebase after turn ends (online mode)
-  if(_onlineActive) pushOnlineState();
   const justPlayedIdx=G.ap;
   G.ap=1-G.ap;
+  // Online: push AFTER the turn flips, so the other side learns it's their turn
+  if(_onlineActive)pushState();
   // Period ends after the faceoff loser completes the 1:00 turn (clock ticks to 0)
   const periodSecond=1-G.periodFirstPlayer;
   if(G.clock===0&&justPlayedIdx===periodSecond){
+    if(_onlineActive)pushState(); // sync the period-end state too
     showPeriodEnd();return;
   }
   // Safety: if clock at 0 but not the right player, still end (shouldn't happen)
-  if(G.clock===0){showPeriodEnd();return;}
+  if(G.clock===0){if(_onlineActive)pushState();showPeriodEnd();return;}
   renderAll();startTurn();
 }
 
@@ -2021,7 +1967,7 @@ function showGameOver(){
 
 // ═══════════════════ SHOP ═══════════════════
 function openShop(){
-  if(G.phase<3){toast('Roll your dice first!');return;}
+  if(G.phase<4||_rrMode){toast('Finish rerolling first!');return;}
   const ap=AP();const avail=totalE();
   document.getElementById('shop-title').textContent=`${ap.name} — Buy Phase`;
   document.getElementById('ebar').innerHTML=`Available Energy: <strong>${avail}E</strong> (RS energy dice + Reserve) — spin-down change returned to RS`;
@@ -3062,6 +3008,8 @@ let _fb=null, _db=null, _roomRef=null, _roomCode=null;
 let _mySlot=null;      // 0 or 1 — which G.players index am I?
 let _onlineActive=false;
 let _isWriting=false;  // prevent echo when we write
+let _lastRemoteSeq=-1; // last Firebase state seq pulled — turn-passing is seq-gated (clock-skew safe)
+let _pushSeq=0;        // increments on every pushState so receivers can pull each new state
 
 function initFirebase(){
   if(_fb) return true;
@@ -3165,13 +3113,11 @@ function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost){
     // Write initial state BEFORE beginGame so joiner gets it first
     pushState();
     beginGame();
-    // Subscribe to read back (for opponent's actions)
+    // Subscribe to read back (for opponent's actions) — pull every new push, seq-gated
     _roomRef.child('state').on('value',snap=>{
-      if(!snap.val()||_isWriting) return;
-      // Only pull when it's NOT our turn (opponent just acted)
-      if(snap.val().ap !== _mySlot || snap.val().phase !== G.phase){
-        pullState(snap.val());
-      }
+      const remote=snap.val();
+      if(!remote||_isWriting) return;
+      if(remote.seq>_lastRemoteSeq){_lastRemoteSeq=remote.seq;pullState(remote);}
     });
   } else {
     // JOINER: show connecting screen, do NOT touch G or game screen yet
@@ -3181,8 +3127,10 @@ function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost){
       'Connected to room '+_roomCode+' — waiting for host to start...';
     let _joinerReady=false;
     _roomRef.child('state').on('value',snap=>{
-      if(!snap.val()||_isWriting) return;
       const remote=snap.val();
+      if(!remote||_isWriting) return;
+      if(remote.seq<=_lastRemoteSeq) return; // already pulled this push
+      _lastRemoteSeq=remote.seq;
       if(!_joinerReady){
         // First state received — now initialize G from host's state
         _joinerReady=true;
@@ -3218,6 +3166,7 @@ function pushState(){
   if(!_onlineActive||!_roomRef) return;
   _isWriting=true;
   const state={
+    seq:(++_pushSeq), sTok:_sTok, combatNonce:_combatNonce,
     period:G.period, ap:G.ap, phase:G.phase, clock:G.clock,
     penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared,
     assignmentStarted:G.assignmentStarted, advPending:G.advPending,
@@ -3262,9 +3211,16 @@ function pullState(remote){
     });
   });
   if(remote.log) G.log=remote.log;
+  // Adopt the attacker's committed shoot tokens (I'm the defender, not the active player)
+  if(typeof remote.sTok==='number'&&G.ap!==_mySlot)_sTok=remote.sTok;
   // Render without triggering another Firebase push
   _isWriting=true;
   try{ _origRenderAll(); }finally{ _isWriting=false; }
+  // If the other side just resolved combat, close my stale combat panel (the log shows the result)
+  if(typeof remote.combatNonce==='number'&&remote.combatNonce!==_lastCombatNonce){
+    _lastCombatNonce=remote.combatNonce;
+    if(document.getElementById('combat-panel').classList.contains('show'))closeCombat();
+  }
   // If a shot was declared and it's NOT my turn, open combat as defender
   if(G.shotDeclared && G.ap!==_mySlot){
     if(!document.getElementById('combat-panel').classList.contains('show')){
