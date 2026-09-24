@@ -3158,8 +3158,8 @@ function serPlayer(p){
     name:p.name, teamName:p.teamName||p.name, goals:p.goals,
     tok:{shoot:p.tok.shoot,block:p.tok.block},
     bag:p.bag.map(serDie), z:serZone(p.z),
-    lineup:p.lineup.map(c=>({key:c.key,left:c.left,pos:c.pos,tier:c.tier})),
-    hcDie:serDie(p.hcDie),
+    lineup:p.lineup.map(c=>({key:c.key,left:c.left})), // pos/tier omitted: undefined values make Firebase .set() throw
+    hcDie:p.hcDie?serDie(p.hcDie):null,
   };
 }
 function pushState(){
@@ -3180,6 +3180,7 @@ function pushState(){
 
 // ── DESERIALIZE ──
 function remapDie(d){
+  if(!d) return null;
   const live=mkDie(d.key||'Rookie');
   live.id=d.id; live.face=d.face||null; live.sel=!!d.sel;
   if(d.pos) live.pos=d.pos; if(d.tier) live.tier=d.tier;
