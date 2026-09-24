@@ -1092,8 +1092,10 @@ function doFaceoff(){
   document.getElementById('fo-btn').textContent='Begin Period';
   document.getElementById('fo-btn').onclick=()=>{
     document.getElementById('fo-overlay').classList.remove('show');
-    if(_onlineActive && _mySlot===0) pushState();
     startTurn();
+    // Online: host pushes AFTER startTurn so the joiner gets the new turn's
+    // starting state (phase reset, cold->hot), not the pre-turn snapshot.
+    if(_onlineActive && _mySlot===0) pushState();
   };
   addLog(`Faceoff: P1=${t1}, P2=${t2} — ${G.players[w].name} goes first.`,'imp');
 }
@@ -1903,8 +1905,6 @@ function endTurn(){
   addLog(`${ap.name}: Turn ended. Clock→${G.clock<10?'0'+G.clock:''+G.clock}:00.`);
   const justPlayedIdx=G.ap;
   G.ap=1-G.ap;
-  // Online: push AFTER the turn flips, so the other side learns it's their turn
-  if(_onlineActive)pushState();
   // Period ends after the faceoff loser completes the 1:00 turn (clock ticks to 0)
   const periodSecond=1-G.periodFirstPlayer;
   if(G.clock===0&&justPlayedIdx===periodSecond){
@@ -1914,6 +1914,11 @@ function endTurn(){
   // Safety: if clock at 0 but not the right player, still end (shouldn't happen)
   if(G.clock===0){if(_onlineActive)pushState();showPeriodEnd();return;}
   renderAll();startTurn();
+  // Online: push AFTER the new turn starts, so the other side gets the turn
+  // flip AND the new turn's starting state (phase reset, cold->hot) together.
+  // (Pushing before startTurn used to leave the joiner stranded on the old
+  // phase with no way to play their turn.)
+  if(_onlineActive)pushState();
 }
 
 // ═══════════════════ PERIOD END ═══════════════════
@@ -3165,8 +3170,13 @@ function serPlayer(p){
 function pushState(){
   if(!_onlineActive||!_roomRef) return;
   _isWriting=true;
+  // Both clients share one seq space: always exceed the highest seq seen from
+  // EITHER side, so the other client's seq gate accepts our push. (Per-client
+  // counters restart at 0, which used to make the host ignore the joiner's
+  // pushes entirely — the joiner could never move the shared game.)
+  _pushSeq=Math.max(_pushSeq,_lastRemoteSeq)+1;
   const state={
-    seq:(++_pushSeq), sTok:_sTok, combatNonce:_combatNonce,
+    seq:_pushSeq, sTok:_sTok, combatNonce:_combatNonce,
     period:G.period, ap:G.ap, phase:G.phase, clock:G.clock,
     penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared,
     assignmentStarted:G.assignmentStarted, advPending:G.advPending,
