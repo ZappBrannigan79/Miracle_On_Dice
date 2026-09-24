@@ -308,6 +308,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .ov-winner{font-size:1.2em;font-weight:900;color:white;margin-bottom:7px;}
 .btn-ov{padding:11px 28px;background:var(--gold);color:#111;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:.95em;text-transform:uppercase;letter-spacing:1px;margin:4px;}
 .btn-ov:hover{background:#e8c86b;}
+.btn-ov:disabled{opacity:.45;cursor:default;}
+.atk-dice-row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px;}
+.atk-dice-row .die-body{cursor:default;}
+#atk-dice-sum{font-size:.85em;color:#cfe0ff;margin-bottom:6px;}
 
 /* LOG */
 .log-panel{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.08);padding:5px 12px;flex-shrink:0;max-height:64px;overflow-y:auto;}
@@ -603,6 +607,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
     <div class="combat-info" id="combat-info"></div>
     <div id="block-sel-area">
       <div class="block-sel-area">
+        <h3 style="color:#88aaff;margin-bottom:6px">🏒 Attacker's shot</h3>
+        <div class="atk-dice-row" id="atk-dice"></div>
+        <div id="atk-dice-sum"></div>
+        <div style="border-top:1px solid rgba(255,255,255,.1);margin:10px 0;"></div>
         <h3 style="color:#88aaff;margin-bottom:6px">🏒 Attacker — commit Shoot Tokens (optional)</h3>
         <div class="tok-ctrl" id="shoot-tok-ctrl">🎯 <strong>Shoot Tokens</strong> to add: <span id="stok-count" class="tok-count">0</span>
           <button onclick="adjST(1)">+</button><button onclick="adjST(-1)">–</button>
@@ -862,7 +870,7 @@ function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC')
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
 function initG(l1,l2,bag1=[],bag2=[]){
-  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,shotLocked:false,combatResult:null,combatDone:false,
+  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,shotLocked:false,combatResult:null,combatDone:false,fo:null,
      assignmentStarted:false,
      advPending:false,
      periodFirstPlayer:0,
@@ -1077,10 +1085,18 @@ function startCustom(){
   });
   beginGame();
 }
-function beginGame(){renderAll();showScreen('game');showFaceoff();}
+function beginGame(){
+  renderAll();showScreen('game');showFaceoff();
+  // Online: the joiner mirrors the faceoff read-only — without an explicit
+  // signal their screen sits empty until the host rolls.
+  if(_onlineActive&&_mySlot===0){G.fo={stage:'open'};pushState();}
+}
 
 // ═══════════════════ FACEOFF ═══════════════════
+// The side that isn't rolling watches read-only (greyed-out button).
+let _foReadonly=false;
 function showFaceoff(){
+  _foReadonly=false;
   document.getElementById('fo-plbl').textContent=`Period ${G.period} — roll for first turn.`;
   ['fo-n1','fo-n2'].forEach((id,i)=>document.getElementById(id).textContent=G.players[i].name);
   ['fo-d1','fo-d2','fo-win'].forEach(id=>document.getElementById(id).innerHTML='');
@@ -1090,6 +1106,30 @@ function showFaceoff(){
   document.getElementById('fo-overlay').classList.add('show');
 }
 function rcf(){return CF[Math.floor(Math.random()*6)];}
+// Joiner-side (or non-rolling side) mirror of the host's faceoff: same overlay,
+// button greyed out — rolling/beginning stays with the game creator.
+function showFaceoffReadonly(){
+  showFaceoff(); // opens + resets the overlay DOM (also clears _foReadonly)
+  _foReadonly=true;
+  const b=document.getElementById('fo-btn');
+  b.disabled=true;b.onclick=null;
+  document.getElementById('fo-plbl').textContent=`Period ${G.period} — faceoff roll, watching live.`;
+  renderFoReadonly();
+}
+function renderFoReadonly(){
+  const fo=G.fo;if(!fo||!_foReadonly)return;
+  const b=document.getElementById('fo-btn');
+  if(fo.stage==='rolled'&&fo.r1){
+    document.getElementById('fo-d1').innerHTML=fo.r1.map(v=>`<div class="fo-die">${v}</div>`).join('');
+    document.getElementById('fo-d2').innerHTML=fo.r2.map(v=>`<div class="fo-die">${v}</div>`).join('');
+    document.getElementById('fo-t1').textContent=fo.t1;
+    document.getElementById('fo-t2').textContent=fo.t2;
+    document.getElementById('fo-win').textContent=`${G.players[fo.w].name} wins the faceoff!`;
+    b.textContent='Waiting for host to begin…';
+  }else{
+    b.textContent='Waiting for host to roll…';
+  }
+}
 function doFaceoff(){
   let r1,r2,t1,t2;
   do{r1=[rcf(),rcf()];r2=[rcf(),rcf()];t1=r1[0]+r1[1];t2=r2[0]+r2[1];}while(t1===t2);
@@ -1097,9 +1137,12 @@ function doFaceoff(){
   document.getElementById('fo-d2').innerHTML=r2.map(v=>`<div class="fo-die">${v}</div>`).join('');
   document.getElementById('fo-t1').textContent=t1;document.getElementById('fo-t2').textContent=t2;
   const w=t1>t2?0:1;G.ap=w;G.periodFirstPlayer=w;
+  // Online: whoever rolls syncs it — the other side mirrors the faceoff read-only.
+  if(_onlineActive){G.fo={stage:'rolled',r1:r1,t1:t1,r2:r2,t2:t2,w:w};pushState();}
   document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff!`;
   document.getElementById('fo-btn').textContent='Begin Period';
   document.getElementById('fo-btn').onclick=()=>{
+    G.fo=null; // faceoff over — the mirror closes on the other side
     document.getElementById('fo-overlay').classList.remove('show');
     startTurn();
     // Online: host pushes AFTER startTurn so the joiner gets the new turn's
@@ -1111,7 +1154,7 @@ function doFaceoff(){
 
 // ═══════════════════ TURN ENGINE ═══════════════════
 function startTurn(){
-  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;
+  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;
   _rrMode=false;_rrDieId=null;
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();phase0();
@@ -1782,7 +1825,29 @@ function lockShot(){
 // Result = sum of combat dice (2,2,1,1,0,0) + tokens count as automatic 1 each
 // Pips on player dice determine HOW MANY combat dice to roll — NOT added to total
 let _bTok=0,_sTok=0,_combatNonce=0,_lastCombatNonce=0;
-function adjST(n){_sTok=Math.max(0,Math.min(AP().tok.shoot,_sTok+n));document.getElementById('stok-count').textContent=_sTok;if(_onlineActive&&isMyTurn())pushState();}
+function adjST(n){
+  _sTok=Math.max(0,Math.min(AP().tok.shoot,_sTok+n));
+  document.getElementById('stok-count').textContent=_sTok;
+  const atl=document.getElementById('atk-tok-line');
+  if(atl)atl.innerHTML=_sTok>0?` • 🎯 <strong style="color:#ffd75e">+${_sTok} token${_sTok!==1?'s':''}</strong>`:'';
+  if(_onlineActive&&isMyTurn())pushState();
+}
+// At-a-glance view of what the shooter is putting up: the actual dice, total
+// pips (= combat dice), and committed tokens. Read-only for both sides.
+function renderAtkDice(){
+  const ap=AP();
+  const row=document.getElementById('atk-dice');row.innerHTML='';
+  ap.z.shoot.forEach(d=>{
+    const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
+    const db=w.querySelector('.die-body');if(db)db.style.cursor='default';
+    row.appendChild(w);
+  });
+  const pips=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
+  const n=ap.z.shoot.length;
+  document.getElementById('atk-dice-sum').innerHTML=
+    `<strong>${n}</strong> shooter${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} → <strong>${pips} combat dice</strong>`+
+    `<span id="atk-tok-line">${_sTok>0?` • 🎯 <strong style="color:#ffd75e">+${_sTok} token${_sTok!==1?'s':''}</strong>`:''}</span>`;
+}
 
 function openCombat(){
   _bTok=0; // _sTok is reset per-shot in declareShot; the defender keeps the attacker's synced value
@@ -1801,8 +1866,8 @@ function openCombat(){
   document.getElementById('combat-info').innerHTML=
     `<strong>Attacker (${ap.name}):</strong> ${numAtk} die/dice → <strong>${totalShootCD} Shoot Combat Dice</strong> total (each die grants combat dice = its pip value).<br>`+
     `<em style="color:#aaa">Combat dice: 2,2,1,1,0,0. Tokens = automatic +1 each. Example: S3 die → 3 combat dice.</em><br>`+
-    (_sTok>0?`🎯 <strong style="color:#ffd75e">Shoot tokens committed: ${_sTok} (+${_sTok} automatic)</strong><br>`:'')+
     `<strong>Defender bonus:</strong> +${bonus} Block Combat Die${bonus!==1?'s':''} auto (${G.clock===1?'1:00 FINAL TURN (+3)':G.clock<=4?'04:00–02:00 (+2)':'10:00–05:00 (+1)'}). Ties go to defense.`;
+  renderAtkDice();
   const bsel=document.getElementById('bsel-dice');bsel.innerHTML='';
   // Add Commit All Defenders button if any defend dice available
   const defendDice=OPP().z.defend;
@@ -3370,7 +3435,7 @@ function pushState(){
     seq:_pushSeq, sTok:_sTok, combatNonce:_combatNonce, combatResult:G.combatResult||null,
     combatDone:!!G.combatDone,
     period:G.period, ap:G.ap, phase:G.phase, clock:G.clock,
-    penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared, shotLocked:!!G.shotLocked,
+    penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared, shotLocked:!!G.shotLocked, fo:G.fo||null,
     assignmentStarted:G.assignmentStarted, advPending:G.advPending,
     blockSelIds:G.blockSelIds||[], blockToksUsed:G.blockToksUsed||0,
     rrUsed:G.rrUsed, periodFirstPlayer:G.periodFirstPlayer,
@@ -3415,7 +3480,7 @@ function pullState(remote){
   // Apply full remote state to local G
   G.period=remote.period; G.ap=remote.ap; G.phase=remote.phase;
   G.clock=remote.clock; G.penaltyPool=remote.penaltyPool;
-  G.shotDeclared=remote.shotDeclared; G.shotLocked=!!remote.shotLocked; G.assignmentStarted=remote.assignmentStarted;
+  G.shotDeclared=remote.shotDeclared; G.shotLocked=!!remote.shotLocked; G.fo=remote.fo||null; G.assignmentStarted=remote.assignmentStarted;
   G.advPending=remote.advPending; G.blockSelIds=remote.blockSelIds||[];
   G.blockToksUsed=remote.blockToksUsed||0; G.rrUsed=remote.rrUsed;
   G.combatResult=remote.combatResult||null;
@@ -3470,6 +3535,16 @@ function pullState(remote){
     if(!document.getElementById('combat-panel').classList.contains('show')){
       openCombat();
     }
+  }
+  // Faceoff mirror: the side that isn't rolling watches read-only (greyed out).
+  // The driver keeps the interactive overlay. G.fo is set at game start, on
+  // every roll, and cleared on Begin Period.
+  if(_onlineActive){
+    const foEl=document.getElementById('fo-overlay');
+    const foOpen=foEl.classList.contains('show');
+    if(G.fo&&!foOpen&&!_foReadonly){showFaceoffReadonly();}
+    else if(G.fo&&_foReadonly){renderFoReadonly();}
+    else if(!G.fo&&_foReadonly){foEl.classList.remove('show');_foReadonly=false;}
   }
   // Show waiting message when it's opponent's turn
   if(G.ap!==_mySlot){
