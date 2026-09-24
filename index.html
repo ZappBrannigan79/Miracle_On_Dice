@@ -1929,6 +1929,9 @@ function confirmSkipShot(){
 }
 function endTurn(){
   const ap=AP();
+  // Cancel any debounced auto-push scheduled before this flip — it must not
+  // fire after the turn changes hands (widens the write window / double-push).
+  if(typeof renderAll==='function') clearTimeout(renderAll._pushTimer);
   // Check reserve: if something there after buy phase, it stays (can be used next turn)
   // Clean RS: send remaining to iced EXCEPT reserve-eligible energy that player wants to keep
   // Leftover energy in RS after buy → try to put one in reserve if empty, rest to iced
@@ -3074,6 +3077,8 @@ let _fb=null, _db=null, _roomRef=null, _roomCode=null;
 let _mySlot=null;      // 0 or 1 — which G.players index am I?
 let _onlineActive=false;
 let _isWriting=false;  // prevent echo when we write
+let _pendingRemote=null; // latest remote snapshot that arrived mid-write — drained after the write acks, so a turn flip can never be silently lost
+let _joinerReady=false;  // joiner's first-state init flag (hoisted so the shared deliver path can use it)
 let _lastRemoteSeq=-1; // last Firebase state seq pulled — turn-passing is seq-gated (clock-skew safe)
 let _pushSeq=0;        // increments on every pushState so receivers can pull each new state
 let _onlineGen=0;      // bumps on every host/join/cancel — stale scheduled launches check this and abort
@@ -3089,7 +3094,7 @@ function teardownOnline(){
     try{ _roomRef.off(); }catch(e){}
   }
   _roomRef=null; _roomCode=null; _mySlot=null;
-  _onlineActive=false; _isWriting=false;
+  _onlineActive=false; _isWriting=false; _pendingRemote=null; _joinerReady=false;
   _lastRemoteSeq=-1; _pushSeq=0;
   _sTok=0; _combatNonce=0; _lastCombatNonce=0;
   _onlineGen++;
@@ -3223,11 +3228,15 @@ function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName,ref){
     // Write initial state BEFORE beginGame so joiner gets it first
     pushState();
     beginGame();
-    // Subscribe to read back (for opponent's actions) — pull every new push, seq-gated
+    // Subscribe to read back (for opponent's actions) — pull every new push, seq-gated.
+    // A push that arrives mid-write is stashed (never dropped) and delivered
+    // from the write's ack — Firebase won't redeliver it, and losing a turn
+    // flip used to strand both players waiting on each other forever.
     _roomRef.child('state').on('value',snap=>{
       const remote=snap.val();
-      if(!remote||_isWriting) return;
-      if(remote.seq>_lastRemoteSeq){_lastRemoteSeq=remote.seq;pullState(remote);}
+      if(!remote) return;
+      if(_isWriting){ _pendingRemote=remote; return; }
+      _deliverRemote(remote);
     });
   } else {
     // JOINER: show connecting screen, do NOT touch G or game screen yet
@@ -3235,23 +3244,12 @@ function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName,ref){
     document.getElementById('online-connecting-overlay').classList.add('show');
     document.getElementById('online-connecting-msg').textContent=
       'Connected to room '+_roomCode+' — waiting for host to start...';
-    let _joinerReady=false;
+    _joinerReady=false;
     _roomRef.child('state').on('value',snap=>{
       const remote=snap.val();
-      if(!remote||_isWriting) return;
-      if(remote.seq<=_lastRemoteSeq) return; // already pulled this push
-      _lastRemoteSeq=remote.seq;
-      if(!_joinerReady){
-        // First state received — now initialize G from host's state
-        _joinerReady=true;
-        // Build lineup arrays from remote player data
-        const l0=remote.players[0].lineup.map(c=>c.key);
-        const l1=remote.players[1].lineup.map(c=>c.key);
-        initG(l0,l1,[],[]);
-        document.getElementById('online-connecting-overlay').classList.remove('show');
-        showScreen('game');
-      }
-      pullState(remote);
+      if(!remote) return;
+      if(_isWriting){ _pendingRemote=remote; return; } // stashed, not lost — drained after the write acks
+      _deliverRemote(remote);
     });
   }
 }
@@ -3272,9 +3270,40 @@ function serPlayer(p){
     hcDie:p.hcDie?serDie(p.hcDie):null,
   };
 }
+// ── SHARED REMOTE-STATE DELIVERY ──
+// Single choke point for applying a remote push (host + joiner watchers and
+// the post-write drain all funnel through here).
+function _deliverRemote(remote){
+  if(!remote) return;
+  if(remote.seq<=_lastRemoteSeq) return; // already pulled this push
+  _lastRemoteSeq=remote.seq;
+  if(_mySlot===1&&!_joinerReady){
+    // First state received — now initialize G from host's state
+    _joinerReady=true;
+    // Build lineup arrays from remote player data
+    const l0=remote.players[0].lineup.map(c=>c.key);
+    const l1=remote.players[1].lineup.map(c=>c.key);
+    initG(l0,l1,[],[]);
+    document.getElementById('online-connecting-overlay').classList.remove('show');
+    showScreen('game');
+  }
+  pullState(remote);
+}
+// Apply the latest stashed remote snapshot (if any) now that no write is in
+// flight. Pushes carry full state, so only the latest stashed one matters.
+function _drainPending(){
+  if(_isWriting||!_pendingRemote) return;
+  const r=_pendingRemote; _pendingRemote=null;
+  _deliverRemote(r);
+}
 function pushState(){
   if(!_onlineActive||!_roomRef) return;
+  // A debounced auto-push scheduled before a turn flip must not fire after it:
+  // it would widen the write window (risking a stashed-then-delayed flip) and
+  // push a duplicate post-flip state.
+  if(typeof renderAll==='function') clearTimeout(renderAll._pushTimer);
   _isWriting=true;
+  try{
   // Both clients share one seq space: always exceed the highest seq seen from
   // EITHER side, so the other client's seq gate accepts our push. (Per-client
   // counters restart at 0, which used to make the host ignore the joiner's
@@ -3291,7 +3320,14 @@ function pushState(){
     players:[serPlayer(G.players[0]),serPlayer(G.players[1])],
     log:G.log.slice(-30), ts:Date.now(),
   };
-  _roomRef.child('state').set(state,()=>{ _isWriting=false; });
+  _roomRef.child('state').set(state,()=>{ _isWriting=false; _drainPending(); });
+  }catch(err){
+    // State serialization threw — never leave _isWriting stuck true (that
+    // used to make the watcher drop every future push forever: both players
+    // waiting on each other with no recovery short of a refresh).
+    _isWriting=false; _drainPending();
+    throw err;
+  }
 }
 
 // ── DESERIALIZE ──
