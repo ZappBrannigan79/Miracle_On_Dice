@@ -1870,8 +1870,16 @@ function resolveCombat(){
   }
   G.blockSelIds=[];
   showCombatResult(result);
-  // Online: the defender's resolution must reach the attacker
-  if(_onlineActive){_combatNonce++;_lastCombatNonce=_combatNonce;G.combatResult=result;pushState();}
+  // Online: the defender's resolution must reach the attacker.
+  // The nonce must be SHARED-monotonic (not per-client): both clients take
+  // turns resolving as defender, so a plain _combatNonce++ collides with the
+  // other client's _lastCombatNonce from an earlier combat — the result-reveal
+  // gate then misfires and the shooter waits for a result that already arrived
+  // (both sides stuck: "waiting for defender…" / "waiting for shooter…").
+  if(_onlineActive){
+    _combatNonce=Math.max(_combatNonce,_lastCombatNonce)+1;
+    _lastCombatNonce=_combatNonce;G.combatResult=result;pushState();
+  }
 }
 // Display-only combat reveal — used locally by the resolver AND remotely by
 // the other client from the synced result (never re-rolls, never mutates G).
@@ -3196,7 +3204,15 @@ async function joinOnlineGame(){
     const snap=await _roomRef.once('value');
     const room=snap.val();
     if(!room){toast('Room not found. Check the code.');return;}
-    if(room.p1?.ready){toast('Room is full.');return;}
+    // Reconnect: the same player (matching name) may rejoin after a refresh —
+    // their fresh client rebuilds from the room's live state via the normal
+    // join path, so a stuck tab doesn't have to cost the whole game.
+    // A different name is still turned away as a third player.
+    if(room.p1?.ready){
+      const existing=(room.p1.name||'').trim().toLowerCase();
+      if(existing!==name.trim().toLowerCase()){toast('Room is full.');return;}
+      toast('Reconnected — resuming your game…');
+    }
     const p0=room.p0;
     await _roomRef.child('p1').set({name,teamIdx,teamName:team.name,ready:true});
     showLobby('Joined '+p0.name+"'s game!",code,'Starting game...');
