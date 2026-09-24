@@ -1068,7 +1068,7 @@ function startCustom(){
   });
   beginGame();
 }
-function beginGame(){showScreen('game');showFaceoff();}
+function beginGame(){renderAll();showScreen('game');showFaceoff();}
 
 // ═══════════════════ FACEOFF ═══════════════════
 function showFaceoff(){
@@ -3186,9 +3186,12 @@ function remapDie(d){
   if(d.pos) live.pos=d.pos; if(d.tier) live.tier=d.tier;
   return live;
 }
+const ZONE_KEYS=['rs','hot','cold','defend','bench','reserve','iced','shoot','block'];
 function remapZone(z){
+  // Firebase drops empty arrays/nulls, so a remote zone set can be missing
+  // entirely or partially — rebuild the full set defensively.
   const out={};
-  Object.keys(z).forEach(k=>{ out[k]=Array.isArray(z[k])?z[k].map(remapDie):z[k]; });
+  ZONE_KEYS.forEach(k=>{ out[k]=(z&&Array.isArray(z[k]))?z[k].map(remapDie):[]; });
   return out;
 }
 
