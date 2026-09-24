@@ -783,6 +783,18 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
   </div>
 </div>
 
+<!-- ONLINE CONNECTING OVERLAY -->
+<div class="overlay" id="online-connecting-overlay">
+  <div class="ov-box" style="text-align:center">
+    <h2 style="color:var(--gold)">🌐 Connecting...</h2>
+    <div id="online-connecting-msg" style="font-size:.9em;color:#aaa;margin:12px 0">
+      Waiting for game state from host...
+    </div>
+    <div style="font-size:2em;margin:16px 0">⏳</div>
+    <button class="abtn sec" onclick="cancelOnlineGame();showScreen('setup')" style="font-size:.8em">Cancel</button>
+  </div>
+</div>
+
 <!-- BAG VIEWER -->
 <div class="overlay" id="bag-overlay">
   <div class="panel-box" style="max-width:780px;max-height:88vh;overflow-y:auto;">
@@ -1087,7 +1099,11 @@ function doFaceoff(){
   const w=t1>t2?0:1;G.ap=w;G.periodFirstPlayer=w;
   document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff!`;
   document.getElementById('fo-btn').textContent='Begin Period';
-  document.getElementById('fo-btn').onclick=()=>{document.getElementById('fo-overlay').classList.remove('show');startTurn();};
+  document.getElementById('fo-btn').onclick=()=>{
+    document.getElementById('fo-overlay').classList.remove('show');
+    if(_onlineActive && _mySlot===0) pushState();
+    startTurn();
+  };
   addLog(`Faceoff: P1=${t1}, P2=${t2} — ${G.players[w].name} goes first.`,'imp');
 }
 
@@ -3158,20 +3174,26 @@ function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost){
       }
     });
   } else {
-    // JOINER: do NOT call initG or beginGame — wait for host's state
-    showScreen('game');
-    document.getElementById('aplbl').textContent='Connecting...';
-    // Subscribe and wait for first state push from host
+    // JOINER: show connecting screen, do NOT touch G or game screen yet
+    // Show connecting overlay while waiting for host's state
+    document.getElementById('online-connecting-overlay').classList.add('show');
+    document.getElementById('online-connecting-msg').textContent=
+      'Connected to room '+_roomCode+' — waiting for host to start...';
+    let _joinerReady=false;
     _roomRef.child('state').on('value',snap=>{
-      if(!snap.val()) return;
-      if(!G){ 
-        // First time — need to init G structure so pullState can populate it
-        // Use placeholder lineups that will be overwritten by pullState
-        initG(myTeam.lineup, oppTeam.lineup, [], []);
-        G.players[0].teamName=oppTeam.name; // will be corrected by pullState
-        G.players[1].teamName=myTeam.name;
+      if(!snap.val()||_isWriting) return;
+      const remote=snap.val();
+      if(!_joinerReady){
+        // First state received — now initialize G from host's state
+        _joinerReady=true;
+        // Build lineup arrays from remote player data
+        const l0=remote.players[0].lineup.map(c=>c.key);
+        const l1=remote.players[1].lineup.map(c=>c.key);
+        initG(l0,l1,[],[]);
+        document.getElementById('online-connecting-overlay').classList.remove('show');
+        showScreen('game');
       }
-      if(!_isWriting) pullState(snap.val());
+      pullState(remote);
     });
   }
 }
@@ -3240,10 +3262,9 @@ function pullState(remote){
     });
   });
   if(remote.log) G.log=remote.log;
-  // Don't trigger another push from this render
+  // Render without triggering another Firebase push
   _isWriting=true;
-  _origRenderAll();
-  _isWriting=false;
+  try{ _origRenderAll(); }finally{ _isWriting=false; }
   // If a shot was declared and it's NOT my turn, open combat as defender
   if(G.shotDeclared && G.ap!==_mySlot){
     if(!document.getElementById('combat-panel').classList.contains('show')){
@@ -3263,6 +3284,7 @@ function cancelOnlineGame(){
   if(_roomRef) _roomRef.off();
   _roomRef=null; _roomCode=null; _mySlot=null; _onlineActive=false;
   document.getElementById('online-lobby').style.display='none';
+  document.getElementById('online-connecting-overlay')?.classList.remove('show');
   toast('Game cancelled.');
 }
 
@@ -3282,3 +3304,4 @@ window.addEventListener('DOMContentLoaded',()=>{ populateOnlineTeamSelects(); })
 
 </script>
 </body>
+</html>
