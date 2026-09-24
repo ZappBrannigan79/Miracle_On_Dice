@@ -100,6 +100,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .abtn.sec{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.3);}.abtn.sec:hover{background:rgba(255,255,255,.2);}
 .abtn.succ{background:#2a7a2a;color:white;}.abtn.succ:hover{background:#3a9a3a;}
 .abtn.warn{background:#aa5500;color:white;}.abtn.warn:hover{background:#cc6600;}
+.abtn:disabled{opacity:.45;cursor:not-allowed;}
 .watch-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(200,168,75,.12);border:1px solid rgba(200,168,75,.55);color:var(--gold);border-radius:8px;padding:7px 14px;font-size:.85em;margin-right:8px;}
 .abtn:disabled{opacity:.35;cursor:not-allowed;}
 
@@ -616,7 +617,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
         <div class="combat-side"><h3>🥅 Defender</h3><div class="cdice-row" id="bcdice"></div><div class="ctotal" id="btotal">0</div><div class="cbreak" id="bbreak"></div></div>
       </div>
       <div class="cresult" id="crbanner"></div>
-      <button class="abtn prim" style="width:100%;margin-top:8px" onclick="closeCombat()">Continue</button>
+      <button class="abtn prim" id="combat-continue-btn" style="width:100%;margin-top:8px" onclick="combatContinue()">Continue</button>
     </div>
   </div>
 </div>
@@ -854,7 +855,7 @@ function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC')
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
 function initG(l1,l2,bag1=[],bag2=[]){
-  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,combatResult:null,
+  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,combatResult:null,combatDone:false,
      assignmentStarted:false,
      advPending:false,
      periodFirstPlayer:0,
@@ -1744,6 +1745,7 @@ function declareShot(){
   if(!ap.z.shoot.length){toast('Add dice to Shoot Zone first!');return;}
   G.shotDeclared=true;
   G.combatResult=null; // clear any stale result from an earlier combat
+  G.combatDone=false;
   addLog(`${ap.name}: 🚨 SHOT — ${ap.z.shoot.length} die/dice + ${ap.tok.shoot} token(s).`,'imp');
   openCombat();renderAll();
 }
@@ -1889,6 +1891,28 @@ function showCombatResult(r){
   else{banner.className='cresult blocked';banner.textContent='🛡 SHOT BLOCKED';}
   document.getElementById('block-sel-area').style.display='none';
   document.getElementById('combat-result').style.display='block';
+  // Continue duty: only the shooter advances past the result. The defender's
+  // button is greyed out; the shooter's appears after a short beat so the
+  // result registers before it can be clicked away.
+  const cbtn=document.getElementById('combat-continue-btn');
+  const iAmShooter=!_onlineActive||isMyTurn();
+  if(cbtn){
+    if(_onlineActive&&!iAmShooter){
+      cbtn.style.display='block';cbtn.disabled=true;cbtn.textContent='Waiting for shooter…';
+    }else{
+      cbtn.disabled=false;cbtn.textContent='Continue';
+      if(_onlineActive){cbtn.style.display='none';setTimeout(()=>{cbtn.style.display='block';},2500);}
+      else{cbtn.style.display='block';}
+    }
+  }
+}
+// Only the shooter advances past the combat result — this also closes the
+// defender's panel via the synced combatDone flag.
+function combatContinue(){
+  if(_onlineActive&&!isMyTurn())return; // defender's Continue is greyed out
+  G.combatDone=true;
+  if(_onlineActive)pushState();
+  closeCombat();
 }
 function closeCombat(){document.getElementById('combat-panel').classList.remove('show');renderAll();}
 
@@ -3215,6 +3239,7 @@ function pushState(){
   _pushSeq=Math.max(_pushSeq,_lastRemoteSeq)+1;
   const state={
     seq:_pushSeq, sTok:_sTok, combatNonce:_combatNonce, combatResult:G.combatResult||null,
+    combatDone:!!G.combatDone,
     period:G.period, ap:G.ap, phase:G.phase, clock:G.clock,
     penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared,
     assignmentStarted:G.assignmentStarted, advPending:G.advPending,
@@ -3245,6 +3270,12 @@ function remapZone(z){
 
 function pullState(remote){
   if(!remote) return;
+  // The shooter clicked Continue on the combat result — mirror it: my Continue
+  // is greyed (only the shooter advances), so close my panel for me.
+  // (Checked before the field adoption below flips G.combatDone.)
+  if(remote.combatDone && !G.combatDone){
+    document.getElementById('combat-panel').classList.remove('show');
+  }
   // Apply full remote state to local G
   G.period=remote.period; G.ap=remote.ap; G.phase=remote.phase;
   G.clock=remote.clock; G.penaltyPool=remote.penaltyPool;
@@ -3252,6 +3283,7 @@ function pullState(remote){
   G.advPending=remote.advPending; G.blockSelIds=remote.blockSelIds||[];
   G.blockToksUsed=remote.blockToksUsed||0; G.rrUsed=remote.rrUsed;
   G.combatResult=remote.combatResult||null;
+  G.combatDone=!!remote.combatDone;
   G.periodFirstPlayer=remote.periodFirstPlayer;
   remote.players.forEach((rp,i)=>{
     const lp=G.players[i];
@@ -3273,15 +3305,18 @@ function pullState(remote){
   // too — the shooter must see GOAL!/BLOCKED, not just a closing panel.
   if(typeof remote.combatNonce==='number'&&remote.combatNonce!==_lastCombatNonce){
     _lastCombatNonce=remote.combatNonce;
-    if(remote.combatResult){
+    // combatDone means the shooter already continued past this result — don't
+    // treat the (diverged) nonce as a fresh resolution.
+    if(remote.combatResult && !remote.combatDone){
       showCombatResult(remote.combatResult);
       document.getElementById('combat-panel').classList.add('show');
     }else if(document.getElementById('combat-panel').classList.contains('show')){
       closeCombat();
     }
   }
-  // If a shot was declared and it's NOT my turn, open combat as defender
-  if(G.shotDeclared && G.ap!==_mySlot){
+  // If a shot was declared and it's NOT my turn, open combat as defender.
+  // combatDone blocks re-opening after the shooter has continued past the result.
+  if(G.shotDeclared && !G.combatDone && G.ap!==_mySlot){
     if(!document.getElementById('combat-panel').classList.contains('show')){
       setTimeout(()=>openCombat(),400);
     }
