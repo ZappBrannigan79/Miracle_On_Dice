@@ -100,6 +100,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .abtn.sec{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.3);}.abtn.sec:hover{background:rgba(255,255,255,.2);}
 .abtn.succ{background:#2a7a2a;color:white;}.abtn.succ:hover{background:#3a9a3a;}
 .abtn.warn{background:#aa5500;color:white;}.abtn.warn:hover{background:#cc6600;}
+.watch-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(200,168,75,.12);border:1px solid rgba(200,168,75,.55);color:var(--gold);border-radius:8px;padding:7px 14px;font-size:.85em;margin-right:8px;}
 .abtn:disabled{opacity:.35;cursor:not-allowed;}
 
 /* PLAYMAT */
@@ -1972,6 +1973,7 @@ function showGameOver(){
 
 // ═══════════════════ SHOP ═══════════════════
 function openShop(){
+  if(spectating()){toast('⏳ Wait for your turn to shop.');return;}
   if(G.phase<4||_rrMode){toast('Finish rerolling first!');return;}
   const ap=AP();const avail=totalE();
   document.getElementById('shop-title').textContent=`${ap.name} — Buy Phase`;
@@ -2067,15 +2069,16 @@ function renderZone(zid,arr,opts={}){
   arr.forEach(die=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(die,opts.inRS,true,inIced);
     const wrap=w.querySelector('.die-wrap');const body=w.querySelector('.die-body');
-    if(_rrMode&&opts.inRS){
+    const locked=spectating(); // spectators can look, not touch
+    if(!locked&&_rrMode&&opts.inRS){
       if(die.id!==_rrDieId){
         body.style.cursor='pointer';
         body.addEventListener('click',()=>{die.sel=!die.sel;body.classList.toggle('sel-rr',die.sel);});
       }else{body.style.cursor='not-allowed';body.style.opacity='.4';}
-    }else if(opts.inRS&&G.phase===3){
+    }else if(!locked&&opts.inRS&&G.phase===3){
       body.style.cursor='pointer';
       body.addEventListener('click',()=>{die.sel=!die.sel;body.classList.toggle('sel',die.sel);});
-    }else if(opts.inRS&&G.phase>=4){
+    }else if(!locked&&opts.inRS&&G.phase>=4){
       const menuOpts=getOpts(die);
       if(menuOpts.length){
         body.style.cursor='pointer';
@@ -2087,7 +2090,7 @@ function renderZone(zid,arr,opts={}){
         body.style.cursor='pointer';
         body.addEventListener('click',e=>{e.stopPropagation();showMenu(die,wrap);});
       }
-    }else if(opts.advPending){
+    }else if(!locked&&opts.advPending){
       // ADV pending — clicking a cold zone die advances it to Hot
       body.style.cursor='pointer';
       body.style.outline='2px solid #c8a84b';
@@ -2103,10 +2106,10 @@ function renderZone(zid,arr,opts={}){
           renderAll();
         }
       });
-    }else if(opts.fromHot&&G.phase===4){
+    }else if(!locked&&opts.fromHot&&G.phase===4){
       body.style.cursor='pointer';body.title='Click → Shoot Zone';
       body.addEventListener('click',()=>moveToShoot(die.id));
-    }else if(opts.fromShoot){
+    }else if(!locked&&opts.fromShoot){
       body.style.cursor='pointer';body.title='Click → back to Hot Zone';
       body.addEventListener('click',()=>retFromShoot(die.id));
     }else{body.style.cursor='default';}
@@ -2131,7 +2134,11 @@ function showMenu(die,wrapEl){
   setTimeout(()=>document.addEventListener('click',closeMenus,{once:true}),10);
 }
 
-function renderAll(){renderPbar();renderBoard();renderOpp();renderScore();renderActions();renderQA();renderRSActions();renderLog();}
+function renderAll(){
+  // If the turn just passed to the opponent, a shop left open on this client
+  // would let the new spectator keep buying — shut it.
+  if(spectating())closeShop();
+  renderPbar();renderBoard();renderOpp();renderScore();renderActions();renderQA();renderRSActions();renderLog();}
 function renderPbar(){
   document.getElementById('pbar').innerHTML=PHASES.map((n,i)=>{
     const c=i<G.phase?'done':i===G.phase?'active':'';
@@ -2194,6 +2201,7 @@ function renderBoard(){
 }
 function renderRSActions(){
   const ra=document.getElementById('rs-actions');ra.innerHTML='';
+  if(spectating())return; // spectators get no auto-assign buttons
   if(G.phase===4&&!_rrMode){
     const b1=document.createElement('button');
     b1.className='rs-act-btn auto-sb';b1.textContent='⚡ Auto-Assign Shoot & Block';
@@ -2248,6 +2256,16 @@ function renderScore(){
 }
 function renderActions(){
   const row=document.getElementById('arow');row.innerHTML='';
+  // Spectators get no action buttons — just a watching pill plus a one-tap
+  // peek at their own board (openOppBoard shows OPP(), which is YOU while spectating).
+  if(spectating()){
+    const ap=AP();
+    row.innerHTML=`<div class="watch-pill">⏳ <b>Watching ${ap.name}'s turn live</b></div>`;
+    const vb=document.createElement('button');
+    vb.className='abtn sec';vb.textContent='👁 View My Board';
+    vb.addEventListener('click',openOppBoard);row.appendChild(vb);
+    return;
+  }
   const mk=(lbl,fn,cls='prim',dis=false,pulse=false)=>{
     const b=document.createElement('button');
     b.className=`abtn ${cls}${pulse?' pulsing':''}`;
@@ -2293,6 +2311,7 @@ function renderActions(){
 }
 function renderQA(){
   const qa=document.getElementById('qarow');qa.innerHTML='';
+  if(spectating()){qa.innerHTML='<span class="hint">⏳ Watching live — sit tight, your turn is next.</span>';return;}
   const ap=AP();
   const hasE=totalE()>0;
   // Face-spend RR mode (phase 4) — show selection hint
@@ -3027,6 +3046,10 @@ function initFirebase(){
 }
 
 function isMyTurn(){ return !_onlineActive || G.ap===_mySlot; }
+// Spectator = online and it's the opponent's turn. Spectators watch live but
+// get no action buttons, no clickable dice, and no shop — except the combat
+// panel, which must stay live when they're defending.
+function spectating(){ return _onlineActive && !isMyTurn(); }
 
 // ── SETUP SCREEN ──
 function showOnlineSetup(){
