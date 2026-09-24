@@ -3383,7 +3383,12 @@ function pullState(remote){
   remote.players.forEach((rp,i)=>{
     const lp=G.players[i];
     lp.name=rp.name; lp.teamName=rp.teamName; lp.goals=rp.goals;
-    lp.tok=rp.tok; lp.bag=rp.bag.map(remapDie); lp.z=remapZone(rp.z);
+    lp.tok=rp.tok;
+    // Firebase drops empty arrays on .set() — a player whose bag is empty
+    // arrives with NO bag key at all. Guard it: an unguarded .map here throws,
+    // which aborts the whole pullState (frozen board, no defender panel) while
+    // the seq gate still advances — permanently bricking that client.
+    lp.bag=(rp.bag||[]).map(remapDie); lp.z=remapZone(rp.z);
     lp.hcDie=remapDie(rp.hcDie);
     lp.lineup=rp.lineup.map((rc,j)=>{
       const orig=lp.lineup[j]||mkLineup([rc.key])[0];
