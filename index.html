@@ -854,7 +854,7 @@ function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC')
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
 function initG(l1,l2,bag1=[],bag2=[]){
-  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,
+  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,combatResult:null,
      assignmentStarted:false,
      advPending:false,
      periodFirstPlayer:0,
@@ -1743,6 +1743,7 @@ function declareShot(){
   if(G.shotDeclared){toast('Only one shot per turn is allowed!');return;}
   if(!ap.z.shoot.length){toast('Add dice to Shoot Zone first!');return;}
   G.shotDeclared=true;
+  G.combatResult=null; // clear any stale result from an earlier combat
   addLog(`${ap.name}: 🚨 SHOT — ${ap.z.shoot.length} die/dice + ${ap.tok.shoot} token(s).`,'imp');
   openCombat();renderAll();
 }
@@ -1814,9 +1815,13 @@ function openCombat(){
   document.getElementById('combat-result').style.display='none';
   document.getElementById('block-sel-area').style.display='block';
   document.getElementById('combat-panel').classList.add('show');
+  // Reset the resolve button on EVERY open: a previous open on this client as the
+  // attacker leaves it disabled ("Waiting for defender…"), which would deadlock
+  // a later combat where this client defends.
+  const rb=document.querySelector('#block-sel-area .abtn.prim');
+  if(rb){rb.disabled=false;rb.textContent='Roll Combat Dice!';}
   // Online: the attacker can't resolve — the defender resolves on their screen
   if(_onlineActive&&isMyTurn()){
-    const rb=document.querySelector('#block-sel-area .abtn.prim');
     if(rb){rb.disabled=true;rb.textContent='Waiting for defender to resolve…';}
   }
 }
@@ -1825,7 +1830,6 @@ function adjBT(n){_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.g
 function resolveCombat(){
   // Online: only the defender resolves (the attacker waits for the result)
   if(_onlineActive&&isMyTurn()){toast('Waiting for the defender to resolve…');return;}
-  if(_onlineActive)_combatNonce++;
   const ap=AP(),opp=OPP();
   const bDice=opp.z.defend.filter(d=>G.blockSelIds.includes(d.id));
   const bonus=G.clock===1?3:G.clock>4?1:2;
@@ -1843,26 +1847,19 @@ function resolveCombat(){
   const sTotal=sr.reduce((a,b)=>a+b,0)+shootTokensUsed;
   const bTotal=br.reduce((a,b)=>a+b,0)+blockTokensUsed;
   const isGoal=sTotal>bTotal;
-  document.getElementById('scdice').innerHTML=
-    sr.map(v=>`<div class="cdie sd">${v}</div>`).join('')+
-    Array.from({length:shootTokensUsed},()=>`<div class="cdie sd" style="border-style:dashed;opacity:.8">+1</div>`).join('');
-  document.getElementById('bcdice').innerHTML=
-    br.map(v=>`<div class="cdie bd">${v}</div>`).join('')+
-    Array.from({length:blockTokensUsed},()=>`<div class="cdie bd" style="border-style:dashed;opacity:.8">+1</div>`).join('');
-  document.getElementById('stotal').textContent=sTotal;
-  document.getElementById('btotal').textContent=bTotal;
-  document.getElementById('sbreak').textContent=`${shootBreakdown||'0 dice'} → ${numShootDice} combat dice [${sr.join(',')}] +${shootTokensUsed}tok`;
-  document.getElementById('bbreak').textContent=`${blockBreakdown||'0 dice'} → ${numBlockDice} combat dice [${br.join(',')}] +${bonus}bonus +${blockTokensUsed}tok`;
-  const banner=document.getElementById('crbanner');
-  if(isGoal){
-    banner.className='cresult goal';banner.textContent='🚨 GOAL! 🚨';
-    ap.goals++;addLog(`🚨 GOAL! ${ap.name} scores! (${sTotal} vs ${bTotal})`,'goal');
+  // The full result travels to the other client so the shooter sees the same
+  // GOAL!/BLOCKED reveal (combat dice are rolled once, by the defender).
+  const result={sr,br,sTotal,bTotal,isGoal,sTok:shootTokensUsed,bTok:blockTokensUsed,
+    sBreak:`${shootBreakdown||'0 dice'} → ${numShootDice} combat dice [${sr.join(',')}] +${shootTokensUsed}tok`,
+    bBreak:`${blockBreakdown||'0 dice'} → ${numBlockDice} combat dice [${br.join(',')}] +${bonus}bonus +${blockTokensUsed}tok`};
+  if(result.isGoal){
+    addLog(`🚨 GOAL! ${ap.name} scores! (${sTotal} vs ${bTotal})`,'goal');
+    ap.goals++;
     ap.z.shoot.forEach(d=>ap.z.iced.push(d));ap.z.shoot=[];
     ap.tok.shoot=Math.max(0,ap.tok.shoot-shootTokensUsed);
     bDice.forEach(d=>{const i=opp.z.defend.indexOf(d);if(i!==-1)opp.z.defend.splice(i,1);sendBench(opp,d);});
     opp.tok.block=Math.max(0,opp.tok.block-blockTokensUsed);
   }else{
-    banner.className='cresult blocked';banner.textContent='🛡 SHOT BLOCKED';
     addLog(`🛡 Blocked. (${sTotal} vs ${bTotal})`,'blk');
     ap.z.shoot.forEach(d=>sendBench(ap,d));ap.z.shoot=[];
     ap.tok.shoot=Math.max(0,ap.tok.shoot-shootTokensUsed);
@@ -1870,10 +1867,28 @@ function resolveCombat(){
     opp.tok.block=Math.max(0,opp.tok.block-blockTokensUsed);
   }
   G.blockSelIds=[];
+  showCombatResult(result);
+  // Online: the defender's resolution must reach the attacker
+  if(_onlineActive){_combatNonce++;_lastCombatNonce=_combatNonce;G.combatResult=result;pushState();}
+}
+// Display-only combat reveal — used locally by the resolver AND remotely by
+// the other client from the synced result (never re-rolls, never mutates G).
+function showCombatResult(r){
+  document.getElementById('scdice').innerHTML=
+    r.sr.map(v=>`<div class="cdie sd">${v}</div>`).join('')+
+    Array.from({length:r.sTok||0},()=>`<div class="cdie sd" style="border-style:dashed;opacity:.8">+1</div>`).join('');
+  document.getElementById('bcdice').innerHTML=
+    r.br.map(v=>`<div class="cdie bd">${v}</div>`).join('')+
+    Array.from({length:r.bTok||0},()=>`<div class="cdie bd" style="border-style:dashed;opacity:.8">+1</div>`).join('');
+  document.getElementById('stotal').textContent=r.sTotal;
+  document.getElementById('btotal').textContent=r.bTotal;
+  document.getElementById('sbreak').textContent=r.sBreak;
+  document.getElementById('bbreak').textContent=r.bBreak;
+  const banner=document.getElementById('crbanner');
+  if(r.isGoal){banner.className='cresult goal';banner.textContent='🚨 GOAL! 🚨';}
+  else{banner.className='cresult blocked';banner.textContent='🛡 SHOT BLOCKED';}
   document.getElementById('block-sel-area').style.display='none';
   document.getElementById('combat-result').style.display='block';
-  // Online: the defender's resolution must reach the attacker
-  if(_onlineActive)pushState();
 }
 function closeCombat(){document.getElementById('combat-panel').classList.remove('show');renderAll();}
 
@@ -3199,7 +3214,7 @@ function pushState(){
   // pushes entirely — the joiner could never move the shared game.)
   _pushSeq=Math.max(_pushSeq,_lastRemoteSeq)+1;
   const state={
-    seq:_pushSeq, sTok:_sTok, combatNonce:_combatNonce,
+    seq:_pushSeq, sTok:_sTok, combatNonce:_combatNonce, combatResult:G.combatResult||null,
     period:G.period, ap:G.ap, phase:G.phase, clock:G.clock,
     penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared,
     assignmentStarted:G.assignmentStarted, advPending:G.advPending,
@@ -3236,6 +3251,7 @@ function pullState(remote){
   G.shotDeclared=remote.shotDeclared; G.assignmentStarted=remote.assignmentStarted;
   G.advPending=remote.advPending; G.blockSelIds=remote.blockSelIds||[];
   G.blockToksUsed=remote.blockToksUsed||0; G.rrUsed=remote.rrUsed;
+  G.combatResult=remote.combatResult||null;
   G.periodFirstPlayer=remote.periodFirstPlayer;
   remote.players.forEach((rp,i)=>{
     const lp=G.players[i];
@@ -3253,10 +3269,16 @@ function pullState(remote){
   // Render without triggering another Firebase push
   _isWriting=true;
   try{ _origRenderAll(); }finally{ _isWriting=false; }
-  // If the other side just resolved combat, close my stale combat panel (the log shows the result)
+  // If the other side just resolved combat, reveal the synced result on my panel
+  // too — the shooter must see GOAL!/BLOCKED, not just a closing panel.
   if(typeof remote.combatNonce==='number'&&remote.combatNonce!==_lastCombatNonce){
     _lastCombatNonce=remote.combatNonce;
-    if(document.getElementById('combat-panel').classList.contains('show'))closeCombat();
+    if(remote.combatResult){
+      showCombatResult(remote.combatResult);
+      document.getElementById('combat-panel').classList.add('show');
+    }else if(document.getElementById('combat-panel').classList.contains('show')){
+      closeCombat();
+    }
   }
   // If a shot was declared and it's NOT my turn, open combat as defender
   if(G.shotDeclared && G.ap!==_mySlot){
