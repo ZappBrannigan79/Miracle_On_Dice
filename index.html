@@ -2186,14 +2186,14 @@ function renderPbar(){
 }
 function renderBoard(){
   const ap=AP();
-  const teamLabel = (ap.teamName||ap.name) + (G.ap===0?' (P1)':' (P2)');
+  const teamLabel = (ap.teamName||ap.name) + ' (' + slotLabel(G.ap) + ')';
   const myTurnIndicator = _onlineActive && !isMyTurn() ? ' ⏳' : _onlineActive ? ' ✅' : '';
   document.getElementById('aplbl').textContent=`${teamLabel}'s Turn${myTurnIndicator}`;
   // Update scoreboard names with team names if available
   const sn1=document.getElementById('sn1');
   const sn2=document.getElementById('sn2');
-  if(sn1) sn1.textContent=(G.players[0].teamName||'Player 1')+' (P1)';
-  if(sn2) sn2.textContent=(G.players[1].teamName||'Player 2')+' (P2)';
+  if(sn1) sn1.textContent=(G.players[0].teamName||'Player 1')+' ('+slotLabel(0)+')';
+  if(sn2) sn2.textContent=(G.players[1].teamName||'Player 2')+' ('+slotLabel(1)+')';
   const tv=document.getElementById('tmr');
   const clkStr=(G.clock<10?'0':'')+G.clock+':00';
   tv.textContent=clkStr;
@@ -2252,7 +2252,7 @@ function renderRSActions(){
 }
 function renderOpp(){
   const o=OPP();
-  document.getElementById('opplbl').textContent=`${o.teamName||o.name} (${G.ap===0?'P2':'P1'}) — Opponent`;
+  document.getElementById('opplbl').textContent=`${o.teamName||o.name} (${slotLabel(1-G.ap)}) — Opponent`;
   document.getElementById('opptmr').textContent=`Clock: ${G.clock<10?'0'+G.clock:G.clock}:00  |  Penalty Pool: ${G.penaltyPool??3}`;
   document.getElementById('opptok').textContent=`🏒${o.tok.shoot} 🥅${o.tok.block}`;
   const hp=o.z.hot.length,cp=o.z.cold.length,dp=o.z.defend.length;
@@ -3138,7 +3138,7 @@ async function hostOnlineGame(){
     if(snap.val()?.ready){
       document.getElementById('online-lobby-status').textContent=
         snap.val().name+' ('+snap.val().teamName+') joined! Starting...';
-      setTimeout(()=>launchOnlineGame(teamIdx,snap.val().teamIdx,true),1200);
+      setTimeout(()=>launchOnlineGame(teamIdx,snap.val().teamIdx,true,name,snap.val().name),1200);
     }
   });
 }
@@ -3164,7 +3164,7 @@ async function joinOnlineGame(){
 }
 
 // ── LAUNCH ──
-function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost){
+function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName){
   const myTeam=PRESETS[myTeamIdx], oppTeam=PRESETS[oppTeamIdx];
   _onlineActive=true;
   _mySlot=iAmHost?0:1;
@@ -3177,6 +3177,9 @@ function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost){
     initG(l0,l1,[],[]);
     G.players[0].teamName=myTeam.name;
     G.players[1].teamName=oppTeam.name;
+    // Entered lobby names (fall back to Player 1/2); synced to joiner via pushState
+    G.players[0].name=myName||'Player 1';
+    G.players[1].name=oppName||'Player 2';
     // Write initial state BEFORE beginGame so joiner gets it first
     pushState();
     beginGame();
