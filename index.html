@@ -290,6 +290,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .tok-count{font-size:1.5em;font-weight:800;color:#ffd75e;min-width:1.5em;display:inline-block;text-align:center;}
 @keyframes tokPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,200,60,.0);}50%{box-shadow:0 0 14px 2px rgba(255,200,60,.55);}}
 .tok-ctrl.attn{animation:tokPulse 1.6s ease-in-out infinite;border-color:#ffd75e;}
+/* Blocker-assignment nudge: pulse the Commit All button + available dice while
+   any defender die is still unassigned (a reminder, not a gate — rolling with
+   zero blockers stays legal). */
+@keyframes blkPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,0);}50%{box-shadow:0 0 16px 3px rgba(255,215,0,.65);}}
+#bsel-dice .die-body.avail-pulse{animation:blkPulse 1.6s ease-in-out infinite;border-color:#ffd75e;}
 
 /* OVERLAYS */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:none;align-items:center;justify-content:center;}
@@ -632,6 +637,13 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
         <div class="combat-side"><h3>🥅 Defender</h3><div class="cdice-row" id="bcdice"></div><div class="ctotal" id="btotal">0</div><div class="cbreak" id="bbreak"></div></div>
       </div>
       <div class="cresult" id="crbanner"></div>
+      <div id="bench-pick-area" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,.12);padding-top:10px;">
+        <div id="bench-pick-title" style="color:#ffd75e;font-weight:800;margin-bottom:6px;">📦 Choose bench dice</div>
+        <div id="bench-pick-dice" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;"></div>
+        <div id="bench-pick-note" style="color:#aaa;font-size:.85em;margin-bottom:8px;"></div>
+        <button class="abtn prim" id="bench-pick-confirm" style="width:100%" onclick="confirmBenchPick()">Send to Bench</button>
+      </div>
+      <div id="bench-wait-line" style="display:none;color:#cdb87a;font-size:.9em;margin-top:10px;">⏳ <span id="bench-wait-name"></span> is choosing bench dice…</div>
       <button class="abtn prim" id="combat-continue-btn" style="width:100%;margin-top:8px" onclick="combatContinue()">Continue</button>
     </div>
   </div>
@@ -870,7 +882,7 @@ function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC')
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
 function initG(l1,l2,bag1=[],bag2=[]){
-  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,shotLocked:false,combatResult:null,combatDone:false,fo:null,so:null,gameOver:null,
+  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,shotLocked:false,combatResult:null,combatDone:false,fo:null,so:null,gameOver:null,benchPick:null,
      assignmentStarted:false,
      advPending:false,
      periodFirstPlayer:0,
@@ -1154,7 +1166,7 @@ function doFaceoff(){
 
 // ═══════════════════ TURN ENGINE ═══════════════════
 function startTurn(){
-  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;
+  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;
   _rrMode=false;_rrDieId=null;
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();phase0();
@@ -1888,6 +1900,7 @@ function openCombat(){
       const totalPips=alreadySel.reduce((s,d)=>s+(d.face?d.face.v:0),0);
       const binfo=document.getElementById('bsel-info');
       if(binfo)binfo.textContent=`${alreadySel.length} dice committed (${totalPips} block pips → ${totalPips} combat dice)`;
+      refreshBlockerNudge();
     });
     bsel.appendChild(commitAllBtn);
   }
@@ -1902,11 +1915,12 @@ function openCombat(){
       const i=G.blockSelIds.indexOf(d.id);
       if(i===-1){G.blockSelIds.push(d.id);db.classList.add('sel');}
       else{G.blockSelIds.splice(i,1);db.classList.remove('sel');}
-
+      refreshBlockerNudge();
     });
     bsel.appendChild(w);
   });
   if(!OPP().z.defend.length)bsel.innerHTML='<div style="color:#888;font-size:.85em">No dice in Defensive Zone</div>';
+  refreshBlockerNudge();
   document.getElementById('combat-result').style.display='none';
   document.getElementById('block-sel-area').style.display='block';
   document.getElementById('combat-panel').classList.add('show');
@@ -1927,11 +1941,24 @@ function openCombat(){
   // solo keeps them live until the roll, and the defender never touches them).
   const tokLocked=_onlineActive&&isMyTurn()&&G.shotLocked;
   document.querySelectorAll('#shoot-tok-ctrl button').forEach(b=>{b.disabled=tokLocked;});
-  // Gentle pulse so the token rows aren't missed at decision time.
+  // Gentle pulse so the shooter's token row isn't missed at decision time.
+  // (The defender's token row stays static and prominent — the pulse now lives
+  // on the blocker-assignment controls instead.)
   document.getElementById('shoot-tok-ctrl').classList.toggle('attn',_onlineActive&&isMyTurn()&&!G.shotLocked&&AP().tok.shoot>0);
-  document.getElementById('block-tok-ctrl').classList.toggle('attn',_onlineActive&&!isMyTurn());
 }
 function adjBT(n){_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;}
+// Pulse the blocker-assignment controls (Commit All button + available dice)
+// while any defender die is still unassigned. A nudge, not a gate: rolling
+// with zero blockers stays legal.
+function refreshBlockerNudge(){
+  const isDefender=!_onlineActive||!isMyTurn();
+  const anyAvail=isDefender&&OPP().z.defend.some(d=>!G.blockSelIds.includes(d.id));
+  const btn=document.querySelector('#bsel-dice .abtn');
+  if(btn)btn.classList.toggle('pulsing',anyAvail);
+  document.querySelectorAll('#bsel-dice .die-body').forEach(b=>{
+    b.classList.toggle('avail-pulse',anyAvail&&!b.classList.contains('sel'));
+  });
+}
 
 function resolveCombat(){
   // Online: only the defender resolves (the attacker waits for the result) —
@@ -1965,14 +1992,18 @@ function resolveCombat(){
     ap.goals++;
     ap.z.shoot.forEach(d=>ap.z.iced.push(d));ap.z.shoot=[];
     ap.tok.shoot=Math.max(0,ap.tok.shoot-shootTokensUsed);
-    bDice.forEach(d=>{const i=opp.z.defend.indexOf(d);if(i!==-1)opp.z.defend.splice(i,1);sendBench(opp,d);});
     opp.tok.block=Math.max(0,opp.tok.block-blockTokensUsed);
+    // Defender lost: they choose which assigned block dice go to the bench
+    // (max 2 — the rest ice). Dice stay in the defend zone until confirmed.
+    setupBenchPick(1-G.ap,'defend',bDice.map(d=>d.id));
   }else{
     addLog(`🛡 Blocked. (${sTotal} vs ${bTotal})`,'blk');
-    ap.z.shoot.forEach(d=>sendBench(ap,d));ap.z.shoot=[];
-    ap.tok.shoot=Math.max(0,ap.tok.shoot-shootTokensUsed);
     bDice.forEach(d=>{const i=opp.z.defend.indexOf(d);if(i!==-1)opp.z.defend.splice(i,1);opp.z.iced.push(d);});
     opp.tok.block=Math.max(0,opp.tok.block-blockTokensUsed);
+    ap.tok.shoot=Math.max(0,ap.tok.shoot-shootTokensUsed);
+    // Shooter lost: they choose which shoot dice go to the bench (max 2).
+    // Dice stay in the shoot zone until confirmed.
+    setupBenchPick(G.ap,'shoot',ap.z.shoot.map(d=>d.id));
   }
   G.blockSelIds=[];
   showCombatResult(result);
@@ -1986,6 +2017,110 @@ function resolveCombat(){
     _combatNonce=Math.max(_combatNonce,_lastCombatNonce)+1;
     _lastCombatNonce=_combatNonce;G.combatResult=result;pushState();
   }
+}
+// ═══════════════════ BENCH CHOICE (loser of the shot) ═══════════════════
+// Rulebook §9/§10: the loser's assigned dice head to the bench; if more than 2
+// would go at once the player chooses 2 and the rest go to the Iced Zone.
+let _benchSel=[],_benchFlashKey=null;
+function setupBenchPick(loserSlot,zone,ids){
+  G.benchPick=null;
+  if(!ids.length)return;
+  const p=G.players[loserSlot];
+  const need=Math.min(Math.max(0,2-p.z.bench.length),ids.length);
+  if(need<=0){ // bench full — no choice to make, everything ices
+    ids.forEach(id=>{const z=p.z[zone],i=z.findIndex(d=>d.id===id);if(i!==-1)p.z.iced.push(z.splice(i,1)[0]);});
+    addLog(`${p.name}: bench full — ${ids.length} die/dice to the Iced Zone.`);
+    return;
+  }
+  G.benchPick={loser:loserSlot,zone,ids:ids.slice(),picked:[],need,done:false};
+}
+// Owns the bench-choice step of the combat result panel: the loser picks,
+// everyone else sees a brief "choosing…" line (+ a one-time toast flash).
+// Also gates the Continue button until the choice is confirmed.
+function refreshBenchPhase(){
+  const bp=G.benchPick;
+  const area=document.getElementById('bench-pick-area');
+  const waitLine=document.getElementById('bench-wait-line');
+  const cbtn=document.getElementById('combat-continue-btn');
+  if(!bp){_benchFlashKey=null;_benchSel=[];}
+  const pending=bp&&!bp.done;
+  const iAmLoser=!_onlineActive||(bp&&bp.loser===_mySlot);
+  if(!pending){
+    area.style.display='none';waitLine.style.display='none';
+    // restore the Continue button to its normal post-result state
+    // (display timing stays with showCombatResult's reveal logic)
+    if(cbtn){
+      const iAmShooter=!_onlineActive||isMyTurn();
+      if(_onlineActive&&!iAmShooter){cbtn.disabled=true;cbtn.textContent='Waiting for shooter…';}
+      else{cbtn.disabled=false;cbtn.textContent='Continue';}
+    }
+    return;
+  }
+  const loserName=G.players[bp.loser].name;
+  if(iAmLoser){
+    waitLine.style.display='none';area.style.display='block';
+    renderBenchPickDice();
+    if(cbtn){cbtn.disabled=true;cbtn.textContent='Choose bench dice ↓';}
+  }else{
+    area.style.display='none';waitLine.style.display='block';
+    document.getElementById('bench-wait-name').textContent=loserName;
+    const key=bp.loser+':'+bp.ids.join(',');
+    if(_benchFlashKey!==key){_benchFlashKey=key;toast(`📦 ${loserName} is sending dice to the bench…`);}
+    if(cbtn){cbtn.disabled=true;cbtn.textContent=`Waiting for ${loserName}…`;}
+  }
+}
+function renderBenchPickDice(){
+  const bp=G.benchPick;if(!bp||bp.done)return;
+  const p=G.players[bp.loser];
+  const dice=p.z[bp.zone].filter(d=>bp.ids.includes(d.id));
+  // Preserve any selections across re-renders (e.g. an unrelated pull mid-choice)
+  _benchSel=_benchSel.filter(id=>bp.ids.includes(id)).slice(0,bp.need);
+  document.getElementById('bench-pick-title').textContent=`📦 Choose ${bp.need} for your bench (bench ${p.z.bench.length}/2)`;
+  const row=document.getElementById('bench-pick-dice');row.innerHTML='';
+  dice.forEach(d=>{
+    const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
+    const db=w.querySelector('.die-body');
+    db.style.cursor='pointer';
+    if(_benchSel.includes(d.id))db.classList.add('sel');
+    db.addEventListener('click',()=>{
+      const i=_benchSel.indexOf(d.id);
+      if(i===-1){
+        if(_benchSel.length>=bp.need){toast(`Bench takes ${bp.need} — the rest go to the Iced Zone.`);return;}
+        _benchSel.push(d.id);db.classList.add('sel');
+      }else{_benchSel.splice(i,1);db.classList.remove('sel');}
+      updateBenchConfirm();
+    });
+    row.appendChild(w);
+  });
+  const leftovers=bp.ids.length-bp.need;
+  document.getElementById('bench-pick-note').textContent=
+    leftovers>0?`Tap ${bp.need} to save — the other ${leftovers} go to the Iced Zone.`
+               :`Tap the ${bp.need===1?'die':'dice'} to send ${bp.need===1?'it':'them'} to your bench.`;
+  updateBenchConfirm();
+}
+function updateBenchConfirm(){
+  const bp=G.benchPick;
+  const b=document.getElementById('bench-pick-confirm');
+  b.textContent=`Send to Bench (${_benchSel.length}/${bp?bp.need:0})`;
+  b.disabled=!bp||_benchSel.length!==bp.need;
+}
+function confirmBenchPick(){
+  const bp=G.benchPick;
+  if(!bp||bp.done)return;
+  if(_onlineActive&&bp.loser!==_mySlot){toast('Waiting for the bench choice…');return;}
+  if(_benchSel.length!==bp.need){toast(`Choose ${bp.need} die/dice for the bench.`);return;}
+  bp.picked=_benchSel.slice();bp.done=true;
+  const p=G.players[bp.loser];
+  bp.ids.forEach(id=>{
+    const z=p.z[bp.zone],i=z.findIndex(d=>d.id===id);
+    if(i===-1)return;
+    const[d]=z.splice(i,1);
+    (bp.picked.includes(id)?p.z.bench:p.z.iced).push(d);
+  });
+  addLog(`${p.name}: benched ${bp.picked.length} (${bp.ids.length-bp.picked.length} iced).`);
+  if(_onlineActive)pushState();
+  renderAll();
+  refreshBenchPhase();
 }
 // Display-only combat reveal — used locally by the resolver AND remotely by
 // the other client from the synced result (never re-rolls, never mutates G).
@@ -2019,11 +2154,14 @@ function showCombatResult(r){
       else{cbtn.style.display='block';}
     }
   }
+  // Bench-choice step (loser picks bench dice; opponent sees the reminder).
+  refreshBenchPhase();
 }
 // Only the shooter advances past the combat result — this also closes the
 // defender's panel via the synced combatDone flag.
 function combatContinue(){
   if(_onlineActive&&!isMyTurn())return; // defender's Continue is greyed out
+  if(G.benchPick&&!G.benchPick.done){toast('Waiting for the bench choice…');return;}
   G.combatDone=true;
   if(_onlineActive)pushState();
   closeCombat();
@@ -3300,7 +3438,7 @@ function teardownOnline(){
   _onlineActive=false; _isWriting=false; _pendingRemote=null; _joinerReady=false;
   _lastRemoteSeq=-1; _pushSeq=0;
   _sTok=0; _combatNonce=0; _lastCombatNonce=0;
-  _lastSoRev=0;
+  _lastSoRev=0; _benchFlashKey=null; _benchSel=[];
   try{ document.getElementById('so-overlay').classList.remove('show'); }catch(e){}
   try{ document.getElementById('go-overlay').classList.remove('show'); }catch(e){}
   _onlineGen++;
@@ -3525,7 +3663,7 @@ function pushState(){
   _pushSeq=Math.max(_pushSeq,_lastRemoteSeq)+1;
   const state={
     seq:_pushSeq, sTok:_sTok, combatNonce:_combatNonce, combatResult:G.combatResult||null,
-    combatDone:!!G.combatDone,
+    combatDone:!!G.combatDone, benchPick:G.benchPick||null,
     period:G.period, ap:G.ap, phase:G.phase, clock:G.clock,
     penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared, shotLocked:!!G.shotLocked, fo:G.fo||null, so:G.so||null, gameOver:G.gameOver||null,
     assignmentStarted:G.assignmentStarted, advPending:G.advPending,
@@ -3577,6 +3715,10 @@ function pullState(remote){
   G.blockToksUsed=remote.blockToksUsed||0; G.rrUsed=remote.rrUsed;
   G.combatResult=remote.combatResult||null;
   G.combatDone=!!remote.combatDone;
+  // Firebase drops empty arrays — normalize the loser's bench choice.
+  G.benchPick=remote.benchPick?{loser:remote.benchPick.loser,zone:remote.benchPick.zone,
+    ids:remote.benchPick.ids||[],picked:remote.benchPick.picked||[],
+    need:remote.benchPick.need||0,done:!!remote.benchPick.done}:null;
   G.periodFirstPlayer=remote.periodFirstPlayer;
   remote.players.forEach((rp,i)=>{
     const lp=G.players[i];
@@ -3612,6 +3754,10 @@ function pullState(remote){
       closeCombat();
     }
   }
+  // Bench-choice phase: the loser's pick (or its completion) may arrive without
+  // a combat-nonce change — refresh the panel step and flash the opponent's
+  // reminder exactly once per choice.
+  refreshBenchPhase();
   // If a shot was confirmed and it's NOT my turn, open combat as defender.
   // The defender is only prompted once the shooter locks the shot — that's
   // what guarantees they see the committed tokens before assigning blockers.
