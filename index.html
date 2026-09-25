@@ -694,6 +694,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
       <div class="fo-player"><div class="nm" id="fo-n2">P2</div><div class="fo-dice" id="fo-d2"></div><div class="fo-total" id="fo-t2">–</div></div>
     </div>
     <div class="fo-winner" id="fo-win"></div>
+    <div class="fo-choice" id="fo-choice" style="display:none">
+      <p id="fo-choice-lbl" style="margin:0 0 10px;color:var(--gold);font-weight:700"></p>
+      <div style="display:flex;gap:12px;justify-content:center">
+        <button class="btn-ov" id="fo-even" onclick="pickFoChoice('even')">EVEN<br><small>10 · 8 · 6 · 4 · 2 — shoot first</small></button>
+        <button class="btn-ov" id="fo-odd" onclick="pickFoChoice('odd')">ODD<br><small>9 · 7 · 5 · 3 · 1 — shoot last at 01:00</small></button>
+      </div>
+    </div>
+    <p id="fo-wait" style="display:none;margin:8px 0;color:var(--gold);font-weight:700"></p>
     <button class="btn-ov" id="fo-btn" onclick="doFaceoff()">Roll Faceoff</button>
   </div>
 </div>
@@ -1113,9 +1121,12 @@ function showFaceoff(){
   ['fo-n1','fo-n2'].forEach((id,i)=>document.getElementById(id).textContent=G.players[i].name);
   ['fo-d1','fo-d2','fo-win'].forEach(id=>document.getElementById(id).innerHTML='');
   ['fo-t1','fo-t2'].forEach(id=>document.getElementById(id).textContent='–');
-  document.getElementById('fo-btn').textContent='Roll Faceoff';
-  document.getElementById('fo-btn').disabled=false;
-  document.getElementById('fo-btn').onclick=doFaceoff;
+  document.getElementById('fo-choice').style.display='none';
+  document.getElementById('fo-wait').style.display='none';
+  const _fob=document.getElementById('fo-btn');
+  _fob.style.display='';_fob.textContent='Roll Faceoff';
+  _fob.disabled=false;
+  _fob.onclick=doFaceoff;
   document.getElementById('fo-overlay').classList.add('show');
 }
 function rcf(){return CF[Math.floor(Math.random()*6)];}
@@ -1137,10 +1148,11 @@ function renderFoReadonly(){
     document.getElementById('fo-d2').innerHTML=fo.r2.map(v=>`<div class="fo-die">${v}</div>`).join('');
     document.getElementById('fo-t1').textContent=fo.t1;
     document.getElementById('fo-t2').textContent=fo.t2;
-    document.getElementById('fo-win').textContent=`${G.players[fo.w].name} wins the faceoff!`;
-    b.textContent='Waiting for host to begin…';
+    document.getElementById('fo-win').textContent=`${G.players[fo.w].name} wins the faceoff! +1 🏒 Shoot token.`;
+    // 2_20 — the winner (even a joiner) picks even/odd; otherwise wait.
+    renderFoChoiceState();
   }else{
-    b.textContent='Waiting for host to roll…';
+    b.style.display='';b.textContent='Waiting for host to roll…';
   }
 }
 function doFaceoff(){
@@ -1151,20 +1163,71 @@ function doFaceoff(){
   document.getElementById('fo-d1').innerHTML=r1.map(v=>`<div class="fo-die">${v}</div>`).join('');
   document.getElementById('fo-d2').innerHTML=r2.map(v=>`<div class="fo-die">${v}</div>`).join('');
   document.getElementById('fo-t1').textContent=t1;document.getElementById('fo-t2').textContent=t2;
-  const w=t1>t2?0:1;G.ap=w;G.periodFirstPlayer=w;
+  const w=t1>t2?0:1;
+  // 2_20 — Faceoff prize: the winner banks 1 Shoot token immediately, then
+  // chooses even- or odd-numbered clock turns for the period. G.ap /
+  // G.periodFirstPlayer are set from that choice in beginPeriodAfterFo —
+  // NOT here — so the turn order follows the winner's pick.
+  G.players[w].tok.shoot+=1;
+  G.fo={stage:'rolled',r1:r1,t1:t1,r2:r2,t2:t2,w:w,choice:null};
   // Online: whoever rolls syncs it — the other side mirrors the faceoff read-only.
-  if(_onlineActive){G.fo={stage:'rolled',r1:r1,t1:t1,r2:r2,t2:t2,w:w};pushState();}
-  document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff!`;
-  document.getElementById('fo-btn').textContent='Begin Period';
-  document.getElementById('fo-btn').onclick=()=>{
-    G.fo=null; // faceoff over — the mirror closes on the other side
-    document.getElementById('fo-overlay').classList.remove('show');
-    startTurn();
-    // Online: host pushes AFTER startTurn so the joiner gets the new turn's
-    // starting state (phase reset, cold->hot), not the pre-turn snapshot.
-    if(_onlineActive && _mySlot===0) pushState();
-  };
-  addLog(`Faceoff: P1=${t1}, P2=${t2} — ${G.players[w].name} goes first.`,'imp');
+  if(_onlineActive){pushState();}
+  document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! +1 🏒 Shoot token.`;
+  addLog(`Faceoff: P1=${t1}, P2=${t2} — ${G.players[w].name} wins (+1 🏒).`,'imp');
+  renderFoChoiceState();
+}
+// 2_20 — Drives the faceoff overlay once the dice are rolled: the winner picks
+// even/odd, everyone else waits, and the host (table creator) alone gets the
+// Begin Period button once the pick is in.
+function renderFoChoiceState(){
+  const fo=G.fo;if(!fo||fo.stage!=='rolled')return;
+  const w=fo.w;
+  const iAmWinner=!_onlineActive||_mySlot===w;
+  const iAmHost=!_onlineActive||_mySlot===0;
+  const choiceDiv=document.getElementById('fo-choice');
+  const waitEl=document.getElementById('fo-wait');
+  const btn=document.getElementById('fo-btn');
+  choiceDiv.style.display='none';waitEl.style.display='none';btn.style.display='none';
+  if(!fo.choice){
+    if(iAmWinner){
+      document.getElementById('fo-choice-lbl').textContent=`${G.players[w].name}, choose your turns:`;
+      choiceDiv.style.display='block';
+    }else{
+      waitEl.textContent=`Waiting for ${G.players[w].name} to choose even/odd…`;
+      waitEl.style.display='block';
+    }
+  }else if(iAmHost){
+    btn.style.display='';btn.disabled=false;btn.textContent='Begin Period';
+    btn.onclick=beginPeriodAfterFo;
+  }else{
+    waitEl.textContent=`${G.players[w].name} takes ${fo.choice.toUpperCase()} minutes. Waiting for host to begin…`;
+    waitEl.style.display='block';
+  }
+}
+// 2_20 — The faceoff winner locks in even or odd. A joiner-winner pushes the
+// pick so the host sees it; the host applies it when beginning the period.
+function pickFoChoice(c){
+  const fo=G.fo;if(!fo||fo.stage!=='rolled'||fo.choice)return;
+  if(_onlineActive&&_mySlot!==fo.w)return; // only the winner picks
+  fo.choice=c;
+  addLog(`${G.players[fo.w].name} chooses ${c.toUpperCase()} minutes.`,'imp');
+  if(_onlineActive)pushState(); // sync the pick so both sides see it live
+  renderFoChoiceState();
+}
+// 2_20 — Host-only: applies the winner's parity pick, then starts the period.
+// The table creator keeps sole control of beginning play.
+function beginPeriodAfterFo(){
+  const fo=G.fo;if(!fo||!fo.choice)return;
+  if(_onlineActive&&_mySlot!==0)return; // host drives
+  const w=fo.w;
+  G.periodFirstPlayer=(fo.choice==='odd')?(1-w):w;
+  G.ap=G.periodFirstPlayer;
+  G.fo=null; // faceoff over — the mirror closes on the other side
+  document.getElementById('fo-overlay').classList.remove('show');
+  startTurn();
+  // Online: host pushes AFTER startTurn so the joiner gets the new turn's
+  // starting state (phase reset, cold->hot), not the pre-turn snapshot.
+  if(_onlineActive&&_mySlot===0)pushState();
 }
 
 // ═══════════════════ TURN ENGINE ═══════════════════
@@ -2220,7 +2283,7 @@ function endTurn(){
   addLog(`${ap.name}: Turn ended. Clock→${G.clock<10?'0'+G.clock:''+G.clock}:00.`);
   const justPlayedIdx=G.ap;
   G.ap=1-G.ap;
-  // Period ends after the faceoff loser completes the 1:00 turn (clock ticks to 0)
+  // Period ends after whoever holds the 1:00 turn completes it (clock ticks to 0)
   const periodSecond=1-G.periodFirstPlayer;
   if(G.clock===0&&justPlayedIdx===periodSecond){
     if(_onlineActive){G.pe={next:G.period+1};pushState();} // mirror the period-end overlay to the other side
@@ -2493,8 +2556,8 @@ function renderBoard(){
   const clkStr=(G.clock<10?'0':'')+G.clock+':00';
   tv.textContent=clkStr;
   tv.className='timer-val'+(G.clock===1?' final-turn':G.clock<=4?' hot':'');
-  // Show which player's turn it is on the clock (even=initiative winner, odd=loser)
-  // Final turn banner: clock===1 (faceoff loser's last turn)
+  // Show which player's turn it is on the clock (even/odd per faceoff winner's pick)
+  // Final turn banner: clock===1 (whoever holds the 1:00 turn)
   const ftBanner=document.getElementById('final-turn-banner');
   if(ftBanner){
     const showBanner=(G.clock<=2);
@@ -3815,6 +3878,13 @@ function pullState(remote){
     const foEl=document.getElementById('fo-overlay');
     if(G.fo){if(!_foReadonly)showFaceoffReadonly();else renderFoReadonly();}
     else{if(foEl.classList.contains('show'))foEl.classList.remove('show');_foReadonly=false;}
+  }
+  // 2_20 — Host side: when the joiner wins the faceoff, their even/odd pick
+  // arrives via G.fo.choice on pull. Refresh the overlay so the Begin Period
+  // button appears for the host (table creator keeps begin control).
+  if(_onlineActive&&_mySlot===0){
+    const foEl=document.getElementById('fo-overlay');
+    if(G.fo&&G.fo.stage==='rolled'&&foEl.classList.contains('show'))renderFoChoiceState();
   }
   // Period-end mirror: the turn-ender shows it locally; the other side opens
   // it read-only. Only the host's "Period N →" button works.
