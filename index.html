@@ -870,7 +870,7 @@ function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC')
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
 function initG(l1,l2,bag1=[],bag2=[]){
-  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,shotLocked:false,combatResult:null,combatDone:false,fo:null,
+  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,shotLocked:false,combatResult:null,combatDone:false,fo:null,so:null,gameOver:null,
      assignmentStarted:false,
      advPending:false,
      periodFirstPlayer:0,
@@ -2125,6 +2125,8 @@ function showGameOver(){
   document.getElementById('go-win').textContent=`🏆 ${win} wins!`;
   document.getElementById('go-score').textContent=`${p0.goals} – ${p1.goals}`;
   document.getElementById('go-overlay').classList.add('show');
+  // Online: mirror the final result to the other side (their overlay is local-only otherwise).
+  if(_onlineActive){ G.gameOver={win:win,s0:p0.goals,s1:p1.goals}; pushState(); }
 }
 
 // ═══════════════════ SHOP ═══════════════════
@@ -2724,7 +2726,45 @@ let _so = {
   suddenDeath: false,
   practice: false,
   shotsPendingThisRound: 0, // how many shots left in current pair
+  phase: 'shoot', // online sync: 'shoot' | 'result' | 'final'
+  rev: 0,         // online sync: bumped on every mutation+push
 };
+let _lastSoRev=0; // last shootout revision this client rendered (online mirror)
+
+// ── ONLINE SYNC ──
+// The shootout is shared: the shooting player drives each shot on their own
+// screen (select + roll + next), every mutation bumps _so.rev and pushes
+// G.so, and the other side mirrors it read-only via soRenderSynced().
+// Firebase drops empty arrays, so normalize defensively on adopt.
+function normSo(s){
+  if(!s) return null;
+  s.results=s.results||[];
+  s.scores=s.scores||[0,0];
+  s.fwdPool=[0,1].map(i=>((s.fwdPool||[])[i])||[]);
+  s.usedFwds=[0,1].map(i=>((s.usedFwds||[])[i])||[]);
+  s.players=s.players||[];
+  if(!s.phase) s.phase='shoot';
+  if(s.rev==null) s.rev=0;
+  return s;
+}
+function soSyncPush(){
+  if(!_onlineActive) return;
+  _so.rev=(_so.rev||0)+1;
+  _lastSoRev=_so.rev; // our own echo must not re-render
+  G.so=_so;
+  pushState();
+}
+// Render the adopted shootout state (both sides call this; input is gated
+// separately so only the shooting player can act).
+function soRenderSynced(){
+  if(!_so) return;
+  document.getElementById('so-overlay').classList.add('show');
+  renderSOScoreboard();
+  if(_so.phase==='final'){ soShowFinal(); }
+  else if(_so.phase==='result'&&_so.results.length){ soShowResult(_so.results[_so.results.length-1]); }
+  else { soStartShooterTurn(); }
+}
+function soIAmShooter(){ return !_onlineActive||_mySlot===_so.shooterIdx; }
 
 // ── SETUP ──
 function showShootoutSetup(){
@@ -2774,6 +2814,8 @@ function startShootout(practice){
   _so.results = [];
   _so.suddenDeath = false;
   _so.selectedFwd = null;
+  _so.phase = 'shoot';
+  _so.rev = 0;
 
   // If from game, build players from G
   if(!practice || !_so.players){
@@ -2805,12 +2847,16 @@ function startShootout(practice){
 
   document.getElementById('so-overlay').classList.add('show');
   renderSOScoreboard();
+  // Online real-game shootout: publish the drawn shooters so both sides
+  // share the same pools, dice, and turn order. (Practice stays local.)
+  if(_onlineActive && !practice){ soSyncPush(); }
   soStartShooterTurn();
 }
 
 function restartShootout(){
   _so.scores=[0,0]; _so.round=1; _so.maxRounds=3;
   _so.shooterIdx=0; _so.results=[]; _so.suddenDeath=false; _so.selectedFwd=null;
+  _so.phase='shoot';
   // Re-draw 3 shooters from the full 5-player pool
   const drawShooters2 = pool => [...pool].sort(()=>Math.random()-.5).slice(0,3);
   _so.players.forEach(p=>{ p.forwards = drawShooters2(p.shooterPool); });
@@ -2818,6 +2864,7 @@ function restartShootout(){
   _so.usedFwds=[[],[]];
   document.getElementById('so-final-area').style.display='none';
   renderSOScoreboard();
+  if(_onlineActive && !_so.practice){ soSyncPush(); }
   soStartShooterTurn();
 }
 
@@ -2882,7 +2929,11 @@ function soStartShooterTurn(){
 
   document.getElementById('so-turn-info').textContent =
     `${sp.teamName||sp.name} shooting (3 of 5 drawn) vs ${_so.players[1-si].teamName||_so.players[1-si].name}'s ${goalieName}`;
-  document.getElementById('so-shooter-label').textContent = 'Choose a shooter (F or D):';
+  // Online: only the shooting player picks — the other side watches.
+  const iAmShooter = soIAmShooter();
+  document.getElementById('so-shooter-label').textContent = iAmShooter
+    ? 'Choose a shooter (F or D):'
+    : `Waiting for ${sp.teamName||sp.name} to shoot…`;
 
   const choices = document.getElementById('so-forward-choices');
   choices.innerHTML = '';
@@ -2907,7 +2958,7 @@ function soStartShooterTurn(){
     <div style="font-size:.62em;color:${isUsed?'#666':'#aaa'};text-align:center">
       ${isUsed?'Used':'Available'}
     </div>`;
-    if(!isUsed){
+    if(!isUsed && iAmShooter){
       wrap.querySelector('.die-body').addEventListener('click',()=>{
         choices.querySelectorAll('.die-body').forEach(b=>b.classList.remove('sel'));
         wrap.querySelector('.die-body').classList.add('sel');
@@ -2922,6 +2973,8 @@ function soStartShooterTurn(){
 // ── ROLL SHOT ──
 function soRollShot(){
   if(!_so.selectedFwd){toast('Choose a Forward first.');return;}
+  // Online: only the shooting player rolls on their own screen.
+  if(_onlineActive && _mySlot!==_so.shooterIdx){toast('⏳ Wait for your shot.');return;}
   const si = _so.shooterIdx;
   const fwdKey = _so.selectedFwd;
   const goaliePIdx = 1-si;
@@ -2960,16 +3013,34 @@ function soRollShot(){
   // Goal: shoot combat total strictly > block combat total
   const isGoal = shotPips > 0 && shotTotal > saveTotal;
 
-  // Update score and results
+  // Update score and results.
+  // shotRolls/saveRolls are stored (not re-rolled) so the other side sees
+  // the exact same dice.
   if(isGoal) _so.scores[si]++;
-  _so.results.push({playerIdx:si, round:_so.round, fwdKey, goalieKey,
-    shotPips, savePips, shotTotal, saveTotal, goal:isGoal, fwdFace, goalieFace});
+  const result={playerIdx:si, round:_so.round, fwdKey, goalieKey,
+    shotPips, savePips, shotTotal, saveTotal, shotRolls, saveRolls,
+    goal:isGoal, fwdFace, goalieFace};
+  _so.results.push(result);
+  _so.phase='result';
+  if(_onlineActive){ soSyncPush(); }
 
-  // Render result panel
+  // Render result panel (both sides render from the synced result)
+  soShowResult(result);
+}
+
+// Render one shootout result — called by the roller right after the roll,
+// and by the other side when the synced result arrives.
+function soShowResult(r){
+  const shotLabel = `${r.fwdFace.t}${r.fwdFace.v||''} → ${r.shotPips} shoot combat die${r.shotPips!==1?'s':''}`;
+  const saveLabel = `${r.goalieFace.t}${r.goalieFace.v||''} → ${r.savePips} block combat die${r.savePips!==1?'s':''}`;
+  const isGoal = r.goal;
+  const shotPips = r.shotPips, savePips = r.savePips;
+  const shotTotal = r.shotTotal, saveTotal = r.saveTotal;
+  const shotRolls = r.shotRolls||[], saveRolls = r.saveRolls||[];
   document.getElementById('so-shooter-area').style.display='none';
   document.getElementById('so-result-area').style.display='block';
 
-  document.getElementById('so-shot-key').textContent = fwdKey;
+  document.getElementById('so-shot-key').textContent = r.fwdKey;
   document.getElementById('so-shot-face-lbl').textContent = shotLabel;
   document.getElementById('so-shot-total').textContent = shotTotal;
 
@@ -2978,7 +3049,7 @@ function soRollShot(){
   shotDiceRow.innerHTML = shotRolls.map(v=>`<div class="cdie sd">${v}</div>`).join('') ||
     '<span style="color:#666;font-size:.8em">No combat dice</span>';
 
-  document.getElementById('so-save-key').textContent = goalieKey;
+  document.getElementById('so-save-key').textContent = r.goalieKey;
   document.getElementById('so-save-face-lbl').textContent = saveLabel;
   document.getElementById('so-save-total').textContent = saveTotal;
 
@@ -3000,7 +3071,15 @@ function soRollShot(){
   }
 
   renderSOScoreboard();
-  document.getElementById('so-next-btn').textContent = soIsLastShot() ? 'See Final Result →' : 'Next Shooter →';
+  const nb=document.getElementById('so-next-btn');
+  nb.textContent = soIsLastShot() ? 'See Final Result →' : 'Next Shooter →';
+  // Online: only the player who just shot clicks Next — the other side waits.
+  if(_onlineActive && _mySlot!==r.playerIdx){
+    nb.disabled=true;
+    nb.textContent='Waiting…';
+  }else{
+    nb.disabled=false;
+  }
 }
 
 function soIsLastShot(){
@@ -3011,19 +3090,23 @@ function soIsLastShot(){
 }
 
 function soAdvance(){
+  // Online: only the player who just shot advances the shootout.
+  if(_onlineActive && _mySlot!==_so.shooterIdx){toast('⏳ Wait for your turn.');return;}
   if(_so.shooterIdx===0){
     // P0 just shot — P1's turn same round
     _so.shooterIdx=1;
+    _so.phase='shoot';
+    if(_onlineActive){ soSyncPush(); }
     soStartShooterTurn();
   } else {
     // Both shot this round — end of round
     _so.shooterIdx=0;
     _so.round++;
-    if(!_so.suddenDeath && _so.round>_so.maxRounds){
-      soCheckWinner();
-    } else if(_so.suddenDeath){
-      soCheckWinner();
+    if((!_so.suddenDeath && _so.round>_so.maxRounds)||_so.suddenDeath){
+      soCheckWinner(); // sets phase + pushes in every branch
     } else {
+      _so.phase='shoot';
+      if(_onlineActive){ soSyncPush(); }
       soStartShooterTurn();
     }
   }
@@ -3035,15 +3118,21 @@ function soCheckWinner(){
     // Enter sudden death
     _so.suddenDeath=true;
     _so.maxRounds=_so.round;
+    _so.phase='shoot';
     toast('Still tied! Sudden death begins.');
+    if(_onlineActive){ soSyncPush(); }
     renderSOScoreboard();
     soStartShooterTurn();
   } else if(s0===s1 && _so.suddenDeath){
     // Sudden death round still tied — play another
     _so.maxRounds=_so.round;
+    _so.phase='shoot';
+    if(_onlineActive){ soSyncPush(); }
     renderSOScoreboard();
     soStartShooterTurn();
   } else {
+    _so.phase='final';
+    if(_onlineActive){ soSyncPush(); }
     soShowFinal();
   }
 }
@@ -3211,6 +3300,9 @@ function teardownOnline(){
   _onlineActive=false; _isWriting=false; _pendingRemote=null; _joinerReady=false;
   _lastRemoteSeq=-1; _pushSeq=0;
   _sTok=0; _combatNonce=0; _lastCombatNonce=0;
+  _lastSoRev=0;
+  try{ document.getElementById('so-overlay').classList.remove('show'); }catch(e){}
+  try{ document.getElementById('go-overlay').classList.remove('show'); }catch(e){}
   _onlineGen++;
 }
 
@@ -3435,7 +3527,7 @@ function pushState(){
     seq:_pushSeq, sTok:_sTok, combatNonce:_combatNonce, combatResult:G.combatResult||null,
     combatDone:!!G.combatDone,
     period:G.period, ap:G.ap, phase:G.phase, clock:G.clock,
-    penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared, shotLocked:!!G.shotLocked, fo:G.fo||null,
+    penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared, shotLocked:!!G.shotLocked, fo:G.fo||null, so:G.so||null, gameOver:G.gameOver||null,
     assignmentStarted:G.assignmentStarted, advPending:G.advPending,
     blockSelIds:G.blockSelIds||[], blockToksUsed:G.blockToksUsed||0,
     rrUsed:G.rrUsed, periodFirstPlayer:G.periodFirstPlayer,
@@ -3480,7 +3572,7 @@ function pullState(remote){
   // Apply full remote state to local G
   G.period=remote.period; G.ap=remote.ap; G.phase=remote.phase;
   G.clock=remote.clock; G.penaltyPool=remote.penaltyPool;
-  G.shotDeclared=remote.shotDeclared; G.shotLocked=!!remote.shotLocked; G.fo=remote.fo||null; G.assignmentStarted=remote.assignmentStarted;
+  G.shotDeclared=remote.shotDeclared; G.shotLocked=!!remote.shotLocked; G.fo=remote.fo||null; G.gameOver=remote.gameOver||null; G.assignmentStarted=remote.assignmentStarted;
   G.advPending=remote.advPending; G.blockSelIds=remote.blockSelIds||[];
   G.blockToksUsed=remote.blockToksUsed||0; G.rrUsed=remote.rrUsed;
   G.combatResult=remote.combatResult||null;
@@ -3545,6 +3637,24 @@ function pullState(remote){
     if(G.fo&&!foOpen&&!_foReadonly){showFaceoffReadonly();}
     else if(G.fo&&_foReadonly){renderFoReadonly();}
     else if(!G.fo&&_foReadonly){foEl.classList.remove('show');_foReadonly=false;}
+  }
+  // Game-over mirror: the other side never sees the local game-over overlay.
+  if(_onlineActive&&G.gameOver&&!document.getElementById('go-overlay').classList.contains('show')){
+    document.getElementById('go-win').textContent=`🏆 ${G.gameOver.win} wins!`;
+    document.getElementById('go-score').textContent=`${G.gameOver.s0} – ${G.gameOver.s1}`;
+    document.getElementById('go-overlay').classList.add('show');
+  }
+  // Shootout mirror: the shootout is driven shot-by-shot through G.so —
+  // each side only renders when a new revision lands, so a shooter's
+  // in-progress selection is never clobbered by a re-render.
+  if(_onlineActive){
+    if(remote.so){ G.so=normSo(remote.so); } else { G.so=null; }
+    if(G.so){
+      _so=G.so;
+      if(G.so.rev!==_lastSoRev){ _lastSoRev=G.so.rev; soRenderSynced(); }
+    }else{
+      _lastSoRev=0;
+    }
   }
   // Show waiting message when it's opponent's turn
   if(G.ap!==_mySlot){
