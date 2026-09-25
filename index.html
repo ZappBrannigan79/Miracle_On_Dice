@@ -1315,19 +1315,23 @@ function autoAssignSB(){
 }
 function autoAdvanceCostQueue(queue,idx){
   if(idx>=queue.length){renderAll();return;}
-  const d=queue[idx];
+  // Resolve by stable id at each step: a Firebase echo while the picker is
+  // open rebuilds every die object (remapDie), orphaning captured references.
+  const dieId=queue[idx].id;
   const ap=AP();
   // Die might have been moved already; check it's still in RS
-  if(!ap.z.rs.includes(d)){autoAdvanceCostQueue(queue,idx+1);return;}
+  if(!ap.z.rs.some(d=>d.id===dieId)){autoAdvanceCostQueue(queue,idx+1);return;}
   if(!hasEnergy1()){toast('No more energy to pay costs — remaining costed faces skipped.');renderAll();return;}
-  const label=d.face.t==='S'?`advance ${d.key} Shoot to ${G.clock>4?'Cold':'Hot'} Zone`:`advance ${d.key} Block to Defensive Zone`;
+  const dd=queue[idx];
+  const label=dd.face.t==='S'?`advance ${dd.key} Shoot to ${G.clock>4?'Cold':'Hot'} Zone`:`advance ${dd.key} Block to Defensive Zone`;
   openEPicker(1,label,()=>{
-    const i=ap.z.rs.indexOf(d);
-    if(i!==-1){
-      ap.z.rs.splice(i,1);
-      if(d.face.t==='S'){if(G.clock>4)ap.z.cold.push(d);else ap.z.hot.push(d);}
-      else ap.z.defend.push(d);
-      addLog(`${ap.name}: Costed ${d.key} advanced (1⚡ paid).`);
+    const ap2=AP();
+    const d=ap2.z.rs.find(x=>x.id===dieId);
+    if(d){
+      ap2.z.rs.splice(ap2.z.rs.indexOf(d),1);
+      if(d.face.t==='S'){if(G.clock>4)ap2.z.cold.push(d);else ap2.z.hot.push(d);}
+      else ap2.z.defend.push(d);
+      addLog(`${ap2.name}: Costed ${d.key} advanced (1⚡ paid).`);
     }
     renderAll();
     // Next in queue after a short delay so picker can close
@@ -1442,11 +1446,16 @@ function assignDie(die,action){
   }else if(action==='shoot-cost'){
     // Open energy picker — cost is 1E
     closeMenus();
+    const dieId=die.id;
     openEPicker(1, `advance ${dLbl(die)} to Offensive Zone`, ()=>{
-      const i2=AP().z.rs.indexOf(die);
-      if(i2!==-1)AP().z.rs.splice(i2,1);
-      if(G.clock>4)AP().z.cold.push(die);else AP().z.hot.push(die);
-      addLog(`${AP().name}: ${dLbl(die)}→${G.clock>4?'Cold':'Hot'} Zone (1⚡ paid).`);
+      // Re-resolve by id: a Firebase echo while the picker is open rebuilds
+      // every die object (remapDie), orphaning the captured reference.
+      const ap2=AP();
+      const d2=ap2.z.rs.find(x=>x.id===dieId);
+      if(!d2){toast('That die is no longer available.');renderAll();return;}
+      ap2.z.rs.splice(ap2.z.rs.indexOf(d2),1);
+      if(G.clock>4)ap2.z.cold.push(d2);else ap2.z.hot.push(d2);
+      addLog(`${ap2.name}: ${dLbl(d2)}→${G.clock>4?'Cold':'Hot'} Zone (1⚡ paid).`);
       renderAll();
     });
     return;
@@ -1455,11 +1464,15 @@ function assignDie(die,action){
     addLog(`${ap.name}: ${dLbl(die)}→Defensive Zone.`);
   }else if(action==='block-cost'){
     closeMenus();
+    const dieId=die.id;
     openEPicker(1, `advance ${dLbl(die)} to Defensive Zone`, ()=>{
-      const i2=AP().z.rs.indexOf(die);
-      if(i2!==-1)AP().z.rs.splice(i2,1);
-      AP().z.defend.push(die);
-      addLog(`${AP().name}: ${dLbl(die)}→Defensive Zone (1⚡ paid).`);
+      // Re-resolve by id (see shoot-cost).
+      const ap2=AP();
+      const d2=ap2.z.rs.find(x=>x.id===dieId);
+      if(!d2){toast('That die is no longer available.');renderAll();return;}
+      ap2.z.rs.splice(ap2.z.rs.indexOf(d2),1);
+      ap2.z.defend.push(d2);
+      addLog(`${ap2.name}: ${dLbl(d2)}→Defensive Zone (1⚡ paid).`);
       renderAll();
     });
     return;
@@ -1494,11 +1507,15 @@ function assignDie(die,action){
   }else if(action==='shutout-cost'){
     closeMenus();
     const soV=die.face.v;
+    const dieId=die.id;
     openEPicker(1, `activate Shutout for ${soV} Block Tokens`, ()=>{
-      const i2=AP().z.rs.indexOf(die);
-      if(i2!==-1)AP().z.rs.splice(i2,1);
-      AP().tok.block+=soV;AP().z.iced.push(die);
-      addLog(`${AP().name}: Shutout → +${soV} Block Tokens (1⚡ paid, ${AP().tok.block} total).`,'imp');
+      // Re-resolve by id (see shoot-cost).
+      const ap2=AP();
+      const d2=ap2.z.rs.find(x=>x.id===dieId);
+      if(!d2){toast('That die is no longer available.');renderAll();return;}
+      ap2.z.rs.splice(ap2.z.rs.indexOf(d2),1);
+      ap2.tok.block+=soV;ap2.z.iced.push(d2);
+      addLog(`${ap2.name}: Shutout → +${soV} Block Tokens (1⚡ paid, ${ap2.tok.block} total).`,'imp');
       renderAll();
     });
     return;
@@ -2683,13 +2700,13 @@ function getEnergySources() {
   // RS energy dice
   ap.z.rs.forEach(d => {
     if (d.face && (d.face.t === 'E' || d.energyPending) && d.face.v > 0) {
-      sources.push({ die: d, fromReserve: false, originalV: d.face.v, currentV: d.face.v, spentPips: 0 });
+      sources.push({ die: d, dieId: d.id, fromReserve: false, originalV: d.face.v, currentV: d.face.v, spentPips: 0 });
     }
   });
   // Reserve dice (HC cannot be in reserve, but guard anyway)
   ap.z.reserve.forEach(d => {
     if (d.key !== 'HC' && d.face && d.face.v > 0) {
-      sources.push({ die: d, fromReserve: true, originalV: d.face.v, currentV: d.face.v, spentPips: 0 });
+      sources.push({ die: d, dieId: d.id, fromReserve: true, originalV: d.face.v, currentV: d.face.v, spentPips: 0 });
     }
   });
   return sources;
@@ -2772,27 +2789,25 @@ function spendEPickPip(srcIdx) {
 function confirmEPick() {
   if (_epick.paid < _epick.needed) return;
   const ap = AP();
-  // Apply the spending to actual dice
+  // Apply the spending to actual dice. Dice are rebuilt from Firebase on
+  // every pull (remapDie), so a push echo landing while the picker was open
+  // orphans the captured references — re-resolve by stable id instead.
   _epick.sources.forEach(src => {
     if (src.spentPips === 0) return;
+    const zoneArr = src.fromReserve ? ap.z.reserve : ap.z.rs;
+    const die = zoneArr.find(x => x.id === src.dieId);
+    if (!die) return; // vanished mid-picker (shouldn't happen) — skip, don't ghost-duplicate
     if (src.currentV <= 0) {
       // Fully spent — remove from zone (HC never goes to iced)
-      if (src.fromReserve) {
-        const ri = ap.z.reserve.indexOf(src.die);
-        if (ri !== -1) ap.z.reserve.splice(ri, 1);
-        if (src.die.key !== 'HC') ap.z.iced.push(src.die);
-        // HC from reserve: just removed, set aside automatically
-      } else {
-        const ri = ap.z.rs.indexOf(src.die);
-        if (ri !== -1) ap.z.rs.splice(ri, 1);
-        src.die.energyPending = false;
-        if (src.die.key !== 'HC') ap.z.iced.push(src.die);
-        // HC: removed from RS, set aside automatically at end of turn
-      }
+      const ri = zoneArr.indexOf(die);
+      if (ri !== -1) zoneArr.splice(ri, 1);
+      if (!src.fromReserve) die.energyPending = false;
+      if (die.key !== 'HC') ap.z.iced.push(die);
+      // HC: removed from zone, set aside automatically at end of turn
     } else {
       // Spun down — update face value
-      src.die.face = { t: 'E', v: src.currentV };
-      src.die.energyPending = false;
+      die.face = { t: 'E', v: src.currentV };
+      die.energyPending = false;
     }
   });
   addLog(`${ap.name}: Paid ${_epick.paid}⚡ for ${_epick.label}.`, 'imp');
