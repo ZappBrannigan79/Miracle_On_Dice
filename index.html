@@ -3598,11 +3598,13 @@ function showOnlineSetup(){
 }
 
 function populateOnlineTeamSelects(){
-  const html=PRESETS.map((p,i)=>
+  // 2_28: 🎲 Random Team option (value -1) at the top of each dropdown
+  const html=`<option value="-1" style="background:#1a2d45;color:white;">🎲 Random Team</option>`+
+    PRESETS.map((p,i)=>
     `<option value="${i}" style="background:#1a2d45;color:white;">${p.name} — ${p.division||''}</option>`
   ).join('');
   ['online-host-team','online-join-team'].forEach(id=>{
-    const el=document.getElementById(id);if(el)el.innerHTML=html;
+    const el=document.getElementById(id);if(el){el.innerHTML=html;el.value='0';}
   });
 }
 
@@ -3626,7 +3628,8 @@ async function hostOnlineGame(){
   try{
     teardownOnline(); // clean up any previous session/listeners first
     const name=document.getElementById('online-host-name').value.trim()||'Player 1';
-    const teamIdx=parseInt(document.getElementById('online-host-team').value);
+    let teamIdx=parseInt(document.getElementById('online-host-team').value);
+    if(teamIdx<0)teamIdx=Math.floor(Math.random()*PRESETS.length); // 2_28: 🎲 Random Team
     const team=PRESETS[teamIdx];
     _roomCode=genCode(); _mySlot=0;
     _roomRef=_db.ref('rooms/'+_roomCode);
@@ -3659,8 +3662,7 @@ async function joinOnlineGame(){
   try{
     teardownOnline(); // clean up any previous session/listeners first
     const name=document.getElementById('online-join-name').value.trim()||'Player 2';
-    const teamIdx=parseInt(document.getElementById('online-join-team').value);
-    const team=PRESETS[teamIdx];
+    let teamIdx=parseInt(document.getElementById('online-join-team').value);
     const code=document.getElementById('online-room-code').value.trim().toUpperCase();
     if(code.length!==6){toast('Enter the 6-character room code.');return;}
     _roomCode=code; _mySlot=1;
@@ -3678,6 +3680,13 @@ async function joinOnlineGame(){
       toast('Reconnected — resuming your game…');
     }
     const p0=room.p0;
+    if(teamIdx<0){
+      // 2_28: 🎲 Random Team — avoid the host's team so both players differ
+      const hostIdx=(p0&&typeof p0.teamIdx==='number')?p0.teamIdx:-1;
+      do{ teamIdx=Math.floor(Math.random()*PRESETS.length); }
+      while(teamIdx===hostIdx&&PRESETS.length>1);
+    }
+    const team=PRESETS[teamIdx];
     await _roomRef.child('p1').set({name,teamIdx,teamName:team.name,ready:true});
     showLobby('Joined '+p0.name+"'s game!",code,'Starting game...');
     // Pin the ref + generation so a stale scheduled launch (from an earlier
