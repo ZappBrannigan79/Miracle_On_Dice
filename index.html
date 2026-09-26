@@ -496,7 +496,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2562,6 +2562,12 @@ function renderPbar(){
 function slotLabel(i){const n=G.players[i]&&G.players[i].name;return (n&&!/^Player [12]$/.test(n))?n:('P'+(i+1));}
 function renderBoard(){
   const ap=AP();
+  // 2_26: show the room code next to the title while online (for drop/rejoin)
+  const rcChip=document.getElementById('room-code-chip');
+  if(rcChip){
+    if(_roomCode){rcChip.style.display='';rcChip.textContent='ROOM '+_roomCode;}
+    else rcChip.style.display='none';
+  }
   const teamLabel = (ap.teamName||ap.name) + ' (' + slotLabel(G.ap) + ')';
   const myTurnIndicator = _onlineActive && !isMyTurn() ? ' ⏳' : _onlineActive ? ' ✅' : '';
   document.getElementById('aplbl').textContent=`${teamLabel}'s Turn${myTurnIndicator}`;
