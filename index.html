@@ -377,6 +377,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
             <select id="online-host-team" style="width:100%;background:#1a2d45;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px;font-size:.82em"></select>
           </div>
           <button class="btn-start" style="width:100%;padding:10px;font-size:.85em" onclick="hostOnlineGame()">Create Room →</button>
+          <button onclick="hostShootout()" style="width:100%;margin-top:8px;padding:9px;font-size:.8em;background:rgba(212,175,55,.12);border:1px solid #d4af37;color:#ffe9a8;border-radius:8px;cursor:pointer">🥅 Host Shootout — quick practice</button>
         </div>
         <div style="background:rgba(100,150,255,.08);border:1px solid #4488ff44;border-radius:10px;padding:16px;flex:1;min-width:200px;max-width:280px">
           <div style="font-size:.9em;font-weight:700;color:#88aaff;margin-bottom:10px;text-align:center">🔗 Join a Game</div>
@@ -3042,6 +3043,7 @@ function soSyncPush(){
   if(!_onlineActive) return;
   _so.rev=(_so.rev||0)+1;
   _lastSoRev=_so.rev; // our own echo must not re-render
+  if(_soOnly&&_roomRef){ _roomRef.child('so').set(_so); return; } // 2_33: shootout-only channel
   G.so=_so;
   pushState();
 }
@@ -3143,8 +3145,9 @@ function startShootout(practice){
   document.getElementById('so-overlay').classList.add('show');
   renderSOScoreboard();
   // Online real-game shootout: publish the drawn shooters so both sides
-  // share the same pools, dice, and turn order. (Practice stays local.)
-  if(_onlineActive && !practice){ soSyncPush(); }
+  // share the same pools, dice, and turn order. (Practice stays local —
+  // unless it's an online shootout-only session, which always publishes.)
+  if(_onlineActive && (!practice||_soOnly)){ soSyncPush(); }
   soStartShooterTurn();
 }
 
@@ -3159,7 +3162,7 @@ function restartShootout(){
   _so.usedFwds=[[],[]];
   document.getElementById('so-final-area').style.display='none';
   renderSOScoreboard();
-  if(_onlineActive && !_so.practice){ soSyncPush(); }
+  if(_onlineActive && (!_so.practice||_soOnly)){ soSyncPush(); }
   soStartShooterTurn();
 }
 
@@ -3581,6 +3584,7 @@ let _lastRemoteSeq=-1; // last Firebase state seq pulled — turn-passing is seq
 let _pushSeq=0;        // increments on every pushState so receivers can pull each new state
 let _onlineGen=0;      // bumps on every host/join/cancel — stale scheduled launches check this and abort
 let _hosting=false, _joining=false; // in-flight guards so double-clicks can't stack rooms/listeners
+let _soOnly=false;      // 2_33: online shootout-practice session (no full game attached)
 
 // Drop every listener on the previous room and reset sync state, so a
 // re-host / re-join / cancel starts clean instead of stacking listeners
@@ -3589,10 +3593,11 @@ function teardownOnline(){
   if(_roomRef){
     try{ _roomRef.child('p1').off(); }catch(e){}
     try{ _roomRef.child('state').off(); }catch(e){}
+    try{ _roomRef.child('so').off(); }catch(e){} // 2_33: shootout-only channel
     try{ _roomRef.off(); }catch(e){}
   }
   _roomRef=null; _roomCode=null; _mySlot=null;
-  _onlineActive=false; _isWriting=false; _pendingRemote=null; _joinerReady=false;
+  _onlineActive=false; _soOnly=false; _isWriting=false; _pendingRemote=null; _joinerReady=false;
   _lastRemoteSeq=-1; _pushSeq=0;
   _sTok=0; _combatNonce=0; _lastCombatNonce=0;
   _lastSoRev=0; _benchFlashKey=null; _benchSel=[];
@@ -3684,6 +3689,39 @@ async function hostOnlineGame(){
   }finally{ _hosting=false; }
 }
 
+// ── 2_33: SHOOTOUT PRACTICE HOST ──
+async function hostShootout(){
+  if(!initFirebase()) return;
+  if(_hosting) return; // ignore double-clicks while the room is being created
+  _hosting=true;
+  try{
+    teardownOnline(); // clean up any previous session/listeners first
+    const name=document.getElementById('online-host-name').value.trim()||'Player 1';
+    let teamIdx=parseInt(document.getElementById('online-host-team').value);
+    if(teamIdx<0)teamIdx=Math.floor(Math.random()*PRESETS.length); // 🎲 Random Team
+    const team=PRESETS[teamIdx];
+    _roomCode=genCode(); _mySlot=0;
+    _roomRef=_db.ref('rooms/'+_roomCode);
+    await _roomRef.set({
+      p0:{name,teamIdx,teamName:team.name,ready:true},
+      p1:null, so:null, mode:'shootout', created:Date.now()
+    });
+    showLobby('Share this code with your opponent:',_roomCode,'Waiting for opponent...');
+    // Pin the ref + generation: detach after the first ready so a second p1
+    // write can never re-run launch, and abort if a newer session started.
+    const ref=_roomRef, gen=_onlineGen;
+    ref.child('p1').on('value',snap=>{
+      if(snap.val()?.ready){
+        ref.child('p1').off();
+        const jn=snap.val().name, jt=snap.val().teamIdx, jtn=snap.val().teamName;
+        document.getElementById('online-lobby-status').textContent=
+          jn+' ('+jtn+') joined! Starting shootout...';
+        setTimeout(()=>{ if(gen!==_onlineGen) return; launchOnlineShootout(teamIdx,jt,true,name,jn,ref); },1200);
+      }
+    });
+  }finally{ _hosting=false; }
+}
+
 // ── JOIN ──
 async function joinOnlineGame(){
   if(!initFirebase()) return;
@@ -3700,6 +3738,7 @@ async function joinOnlineGame(){
     const snap=await _roomRef.once('value');
     const room=snap.val();
     if(!room){toast('Room not found. Check the code.');return;}
+    if(room.mode==='shootout'){toast("That's a shootout room — use 🥅 Join Shootout instead.");return;}
     // Reconnect: the same player (matching name) may rejoin after a refresh —
     // their fresh client rebuilds from the room's live state via the normal
     // join path, so a stuck tab doesn't have to cost the whole game.
@@ -3723,6 +3762,47 @@ async function joinOnlineGame(){
     // join that was superseded) can never hijack this session's room.
     const ref=_roomRef, gen=_onlineGen, p0team=p0.teamIdx;
     setTimeout(()=>{ if(gen!==_onlineGen) return; launchOnlineGame(teamIdx,p0team,false,null,null,ref); },1200);
+  }finally{ _joining=false; }
+}
+
+// ── 2_33: SHOOTOUT PRACTICE JOIN ──
+async function joinShootout(){
+  if(!initFirebase()) return;
+  if(_joining) return; // ignore double-clicks while a join is in flight
+  _joining=true;
+  try{
+    teardownOnline(); // clean up any previous session/listeners first
+    const name=document.getElementById('online-join-name').value.trim()||'Player 2';
+    let teamIdx=parseInt(document.getElementById('online-join-team').value);
+    const code=document.getElementById('online-room-code').value.trim().toUpperCase();
+    if(code.length!==6){toast('Enter the 6-character room code.');return;}
+    _roomCode=code; _mySlot=1;
+    _roomRef=_db.ref('rooms/'+_roomCode);
+    const snap=await _roomRef.once('value');
+    const room=snap.val();
+    if(!room){toast('Room not found. Check the code.');return;}
+    if(room.mode!=='shootout'){toast("That's a full-game room — use Join Room instead.");return;}
+    // Reconnect: same name may rejoin after a refresh and resume the shootout
+    // from the room's live state; a different name is turned away.
+    if(room.p1?.ready){
+      const existing=(room.p1.name||'').trim().toLowerCase();
+      if(existing!==name.trim().toLowerCase()){toast('Room is full.');return;}
+      toast('Reconnected — resuming your shootout…');
+    }
+    const p0=room.p0;
+    if(teamIdx<0){
+      // 🎲 Random Team — avoid the host's team so both players differ
+      const hostIdx=(p0&&typeof p0.teamIdx==='number')?p0.teamIdx:-1;
+      do{ teamIdx=Math.floor(Math.random()*PRESETS.length); }
+      while(teamIdx===hostIdx&&PRESETS.length>1);
+    }
+    const team=PRESETS[teamIdx];
+    await _roomRef.child('p1').set({name,teamIdx,teamName:team.name,ready:true});
+    showLobby('Joined '+p0.name+"'s shootout!",code,'Starting shootout...');
+    // Pin the ref + generation so a stale scheduled launch (from an earlier
+    // join that was superseded) can never hijack this session's room.
+    const ref=_roomRef, gen=_onlineGen, p0team=p0.teamIdx;
+    setTimeout(()=>{ if(gen!==_onlineGen) return; launchOnlineShootout(teamIdx,p0team,false,null,null,ref); },1200);
   }finally{ _joining=false; }
 }
 
@@ -3770,6 +3850,40 @@ function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName,ref){
       if(_isWriting){ _pendingRemote=remote; return; } // stashed, not lost — drained after the write acks
       _deliverRemote(remote);
     });
+  }
+}
+
+// ── 2_33: LAUNCH ONLINE SHOOTOUT PRACTICE ──
+// Host builds the shootout state from both presets and publishes it on
+// rooms/<code>/so; the joiner mirrors it read-only. Same rails as the
+// real-game overtime shootout, minus the game (dedicated channel so no
+// full-game state is needed).
+function launchOnlineShootout(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName,ref){
+  _roomRef=ref||_roomRef; // pin to the room this launch was scheduled for
+  _onlineActive=true; _mySlot=iAmHost?0:1; _soOnly=true;
+  document.getElementById('online-panel').classList.remove('show');
+  const lob=document.getElementById('online-lobby'); if(lob)lob.style.display='none';
+  // Both sides watch the shootout channel; rev-gating skips our own echoes.
+  _roomRef.child('so').on('value',snap=>{
+    const remote=snap.val(); if(!remote) return;
+    if(remote.rev===_lastSoRev) return;
+    _lastSoRev=remote.rev;
+    _so=normSo(remote);
+    document.getElementById('online-connecting-overlay').classList.remove('show');
+    soRenderSynced();
+  });
+  if(iAmHost){
+    const mkP=(nm,ti)=>{const pr=PRESETS[ti];
+      return {name:nm, teamName:pr.name,
+        shooterPool:pr.lineup.filter(k=>k[0]==='F'||k[0]==='D'),
+        goalie:pr.lineup.find(k=>k[0]==='G')||'G3'};};
+    _so.players=[mkP(myName||'Player 1',myTeamIdx), mkP(oppName||'Player 2',oppTeamIdx)];
+    startShootout(true); // practice=true; startShootout publishes via soSyncPush (_soOnly route)
+  }else{
+    // Joiner waits for the host's shootout state to arrive on rooms/<code>/so
+    document.getElementById('online-connecting-overlay').classList.add('show');
+    document.getElementById('online-connecting-msg').textContent=
+      'Connected to room '+_roomCode+' — waiting for host to start the shootout...';
   }
 }
 
