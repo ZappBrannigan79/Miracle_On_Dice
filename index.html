@@ -468,7 +468,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 
     <!-- CUSTOM BUILDER: 30-point budget -->
     <div class="team-builder" id="custom-panel">
-      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:10px">Build your team within 30 points (25pts for players (HC is automatic, not counted)). Min: 1 Forward, 1 Defenseman, 1 Goalie. No duplicate tiers per position.</div>
+      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:10px">Build your team: exactly 3 Forwards, 2 Defensemen, 1 Goalie — all 6 slots filled — within 25 points (HC is automatic, not counted). No duplicate tiers per position.</div>
       <div class="builder-grid">
         <div class="builder-player" id="cb-p1-panel">
           <h3>Player 1 <span class="pts-badge" id="p1-pts">0/25 pts</span></h3>
@@ -1081,11 +1081,10 @@ function startCustom(){
   const v=id=>{const el=document.getElementById(id);return el?el.value:'';};
   const getL=p=>['f1','f2','f3','d1','d2','g'].map(s=>v('p'+p+s)).filter(k=>k); // HC is automatic, not in lineup
   const l1=getL('1'),l2=getL('2');
-  // Validate minimums
-  if(!l1.some(k=>k.startsWith('F'))||!l1.some(k=>k.startsWith('D'))||!l1.some(k=>k.startsWith('G')))
-    {toast('Player 1: need at least 1 Forward, 1 Defenseman, 1 Goalie.');return;}
-  if(!l2.some(k=>k.startsWith('F'))||!l2.some(k=>k.startsWith('D'))||!l2.some(k=>k.startsWith('G')))
-    {toast('Player 2: need at least 1 Forward, 1 Defenseman, 1 Goalie.');return;}
+  // 2_32: only legal build is exactly 3F + 2D + 1G — all 6 slots must be filled
+  // (selects are position-locked, so 6 filled slots = 3F/2D/1G)
+  if(l1.length<6){toast('Player 1: fill all 6 slots — 3 Forwards, 2 Defensemen, 1 Goalie.');return;}
+  if(l2.length<6){toast('Player 2: fill all 6 slots — 3 Forwards, 2 Defensemen, 1 Goalie.');return;}
   // Validate no duplicate tiers per position
   const chkDups=(lineup,pname)=>{
     const seen={};
@@ -1483,7 +1482,8 @@ function getOpts(die){
     else o.push({l:'Reroll face (cannot use after assigning — goes to Iced)',a:'iced'});
   }else if(f.t==='SO'){
     if(canPay)o.push({l:`Shutout → gain ${f.v} Block Token(s) — costs 1⚡`,a:'shutout-cost'});
-    else o.push({l:`Shutout — BLOCKED: need 1⚡ to cash in`,a:'no-energy'});
+    // 2_32: broke shutout is still resolvable — die goes to Iced, no tokens (per rulebook)
+    else o.push({l:`Shutout — no 1⚡ to pay: die to Iced, no tokens`,a:'shutout-broke'});
   }else if(f.t==='PEN'){
     if(G.penaltyPool>0)o.push({l:`Give opponent a Penalty die (pool: ${G.penaltyPool} left)`,a:'pen-give'});
     else o.push({l:'Penalty pool empty — no penalty dice available',a:'pen-pool-empty'});
@@ -1552,6 +1552,11 @@ function assignDie(die,action){
   }else if(action==='iced'){
     ap.z.rs.splice(idx,1);ap.z.iced.push(die);
     addLog(`${ap.name}: ${dLbl(die)}→Iced Zone.`);
+    renderAll();return;
+  }else if(action==='shutout-broke'){
+    // 2_32: shutout resolved without the 1⚡ — die to Iced, no tokens (rulebook ruling)
+    ap.z.rs.splice(idx,1);ap.z.iced.push(die);
+    addLog(`${ap.name}: Shutout with no energy to pay — ${dLbl(die)} to Iced, no tokens gained.`);
     renderAll();return;
   }else if(action==='hc-energy-info'){
     toast('HC Energy is available for purchasing this turn. It will be set aside automatically at end of turn.');
@@ -1782,6 +1787,20 @@ function spendE(amt){
 // Pending trade state
 let _tradeCardIdx=-1;
 
+// 2_32: purchase bonuses — goalies: +1 Block token per die purchased (replaces
+// sell-out for goalies); other positions: sell-out token only on the 3rd die.
+function awardBuyBonus(ap,card){
+  if(card.key[0]==='G'){
+    ap.tok.block++;
+    toast(`${ap.name} gains 1 Block 🥅 Token (goalie purchase)!`);
+    addLog(`${ap.name}: Goalie purchase → +1 Block Token (${ap.tok.block} total).`,'imp');
+  }else if(!card.left){
+    const tokType=card.key[0]==='F'?'shoot':'block';
+    ap.tok[tokType]++;
+    toast(`${card.key} sold out! ${ap.name} gains 1 ${tokType==='shoot'?'Shoot 🏒':'Block 🥅'} Token!`);
+    addLog(`${ap.name}: ${card.key} sold out! Gained 1 ${tokType==='shoot'?'Shoot':'Block'} Token.`,'imp');
+  }
+}
 function buyCard(cardIdx,trade){
   const ap=AP();const card=ap.lineup[cardIdx];
   if(!card.left){toast('No dice left!');return;}
@@ -1803,14 +1822,7 @@ function buyCard(cardIdx,trade){
       card2.left--;
       ap2.z.iced.push(mkDie(card2.key));
       addLog(`${ap2.name}: Bought ${card2.key} for ${cost}E → Iced Zone.`,'imp');
-      if(!card2.left){
-    // Sell-out: F = Shoot token, D/G = Block token (automatic by position)
-    const soldPos=card2.key[0];
-    const tokType=(soldPos==='F')?'shoot':'block';
-    ap2.tok[tokType]++;
-    toast(`${card2.key} sold out! ${ap2.name} gains 1 ${tokType==='shoot'?'Shoot 🏒':'Block 🥅'} Token!`);
-    addLog(`${ap2.name}: ${card2.key} sold out! Gained 1 ${tokType==='shoot'?'Shoot':'Block'} Token.`,'imp');
-  }
+      awardBuyBonus(ap2,card2);
       renderAll();
     });
   }
@@ -1860,14 +1872,7 @@ function completeTrade(trashDieId){
   card2.left--;
   ap2.z.iced.push(mkDie(card2.key));
   addLog(`${ap2.name}: Bought ${card2.key} (Trade) → Iced Zone.`,'imp');
-  if(!card2.left){
-    // Sell-out: F = Shoot token, D/G = Block token (automatic by position)
-    const soldPos=card2.key[0];
-    const tokType=(soldPos==='F')?'shoot':'block';
-    ap2.tok[tokType]++;
-    toast(`${card2.key} sold out! ${ap2.name} gains 1 ${tokType==='shoot'?'Shoot 🏒':'Block 🥅'} Token!`);
-    addLog(`${ap2.name}: ${card2.key} sold out! Gained 1 ${tokType==='shoot'?'Shoot':'Block'} Token.`,'imp');
-  }
+  awardBuyBonus(ap2,card2);
   renderAll();
 }
 function buyTok(type){
@@ -3096,7 +3101,11 @@ function startShootout(practice){
   _so.scores = [0,0];
   _so.round = 1;
   _so.maxRounds = 3;
-  _so.shooterIdx = 0;
+  // 2_32: real game — the player who took the last turn of the game defends
+  // first. At game over G.ap has already flipped to the next player, so the
+  // last-turn player is 1-G.ap and the first shooter is G.ap. Practice: P1.
+  _so.firstShooter = (!practice && typeof G!=='undefined' && G.players) ? G.ap : 0;
+  _so.shooterIdx = _so.firstShooter;
   _so.results = [];
   _so.suddenDeath = false;
   _so.selectedFwd = null;
@@ -3141,7 +3150,7 @@ function startShootout(practice){
 
 function restartShootout(){
   _so.scores=[0,0]; _so.round=1; _so.maxRounds=3;
-  _so.shooterIdx=0; _so.results=[]; _so.suddenDeath=false; _so.selectedFwd=null;
+  _so.shooterIdx=_so.firstShooter||0; _so.results=[]; _so.suddenDeath=false; _so.selectedFwd=null;
   _so.phase='shoot';
   // Re-draw 3 shooters from the full 5-player pool
   const drawShooters2 = pool => [...pool].sort(()=>Math.random()-.5).slice(0,3);
@@ -3378,15 +3387,15 @@ function soIsLastShot(){
 function soAdvance(){
   // Online: only the player who just shot advances the shootout.
   if(_onlineActive && _mySlot!==_so.shooterIdx){toast('⏳ Wait for your turn.');return;}
-  if(_so.shooterIdx===0){
-    // P0 just shot — P1's turn same round
-    _so.shooterIdx=1;
+  if(_so.shooterIdx===_so.firstShooter){
+    // first shooter just shot — other's turn same round
+    _so.shooterIdx=1-_so.firstShooter;
     _so.phase='shoot';
     if(_onlineActive){ soSyncPush(); }
     soStartShooterTurn();
   } else {
     // Both shot this round — end of round
-    _so.shooterIdx=0;
+    _so.shooterIdx=_so.firstShooter;
     _so.round++;
     if((!_so.suddenDeath && _so.round>_so.maxRounds)||_so.suddenDeath){
       soCheckWinner(); // sets phase + pushes in every branch
@@ -3624,7 +3633,8 @@ function populateOnlineTeamSelects(){
     `<option value="${i}" style="background:#1a2d45;color:white;">${p.name} — ${p.division||''}</option>`
   ).join('');
   ['online-host-team','online-join-team'].forEach(id=>{
-    const el=document.getElementById(id);if(el){el.innerHTML=html;el.value='0';}
+    // 2_31: 🎲 Random Team is the default selection — zero clicks to jump in
+    const el=document.getElementById(id);if(el){el.innerHTML=html;el.value='-1';}
   });
 }
 
