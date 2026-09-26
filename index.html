@@ -2275,6 +2275,26 @@ function combatContinue(){
 function closeCombat(){document.getElementById('combat-panel').classList.remove('show');renderAll();}
 
 // ═══════════════════ END TURN ═══════════════════
+function confirmEndTurn(){
+  // 2_30: idiot-proofer — warn only when something of value would be lost:
+  // non-blank dice left in R&S (blanks are worthless), or the HC die showing
+  // energy (HC energy is use-or-lose: it can't go to Reserve, and the die
+  // itself returns to set-aside). Blanks alone, or a non-energy HC die alone,
+  // bypass the warning.
+  const ap=AP();
+  const rsWarn=ap.z.rs.filter(d=>{
+    if(d.key==='HC')return d.face&&d.face.t==='E';
+    return !d.face||d.face.t!=='BLANK';
+  });
+  if(rsWarn.length){
+    const n=rsWarn.length;
+    const hcE=rsWarn.some(d=>d.key==='HC');
+    let msg=`You still have ${n} ${n===1?'die':'dice'} in the Roll & Sort Zone — they'll be sent to Iced.`;
+    if(hcE)msg+=` (HC energy can't be saved to Reserve.)`;
+    if(!confirm(msg+` End your turn anyway?`))return;
+  }
+  confirmSkipShot();
+}
 function confirmSkipShot(){
   const ap=AP();
   // If shot already taken this turn, just end — no confirm needed
@@ -2735,7 +2755,7 @@ function renderActions(){
       if(ap.z.shoot.length)mk('🚨 Declare Shot!',declareShot,'prim');
       else if(!ap.z.hot.length)mk('Move dice to Shoot Zone first',()=>{},'sec',true);
     }
-    mk(G.shotDeclared?'End Turn':'End Turn / Skip Shot',G.shotDeclared?endTurn:confirmSkipShot,'sec');
+    mk(G.shotDeclared?'End Turn':'End Turn / Skip Shot',confirmEndTurn,'sec');
   }
 }
 function renderQA(){
