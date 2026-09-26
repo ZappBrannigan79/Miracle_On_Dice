@@ -281,6 +281,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .cresult.blocked{background:rgba(139,26,26,.3);color:#ffaaaa;border:1px solid #cc3333;}
 .block-sel-area h3{font-size:.8em;color:#ccc;margin-bottom:7px;}
 .block-sel-dice{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;min-height:30px;}
+/* 2_21 — opponent's (defender's) dice on the shooter's screen: visible but dimmed, not clickable */
+#bsel-dice .die-body.opp-dim{opacity:.55;filter:grayscale(.35);cursor:default!important;}
+#bsel-dice .die-body.opp-dim:hover{transform:none;}
 .tok-ctrl{background:rgba(255,200,60,.09);border:1px solid rgba(255,200,60,.5);border-radius:8px;padding:10px 12px;font-size:.85em;color:#ffe9b0;margin-bottom:10px;line-height:2;}
 .tok-ctrl strong{color:#ffd75e;}
 .tok-ctrl .tok-note{color:#cdb87a;font-size:.85em;}
@@ -622,7 +625,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
           <span class="tok-note">(you have <span id="ap-stok">0</span>) — each token = automatic +1 to your combat total</span>
         </div>
         <div style="border-top:1px solid rgba(255,255,255,.1);margin:10px 0;"></div>
-        <h3>🥅 Defender — click your Defensive Zone dice to block with</h3>
+        <h3 id="bsel-heading">🥅 Defender — click your Defensive Zone dice to block with</h3>
         <div class="block-sel-dice" id="bsel-dice"></div>
         <div class="tok-ctrl" id="block-tok-ctrl">🛡️ <strong>Block Tokens</strong> to use: <span id="btok-count" class="tok-count">0</span>
           <button onclick="adjBT(1)">+</button><button onclick="adjBT(-1)">–</button>
@@ -1952,6 +1955,13 @@ function openCombat(){
   document.getElementById('opp-btok').textContent=OPP().tok.block;
   // Hide shoot token row if attacker has none (or if I'm the defender — tokens are the attacker's call)
   const _iAmAttacker=!_onlineActive||isMyTurn();
+  // 2_21 — Online shooter: the defender's controls are read-only — the dice
+  // stay visible across the table, but dimmed and not clickable, and the
+  // Commit All button is hidden. (Solo still plays both sides.)
+  const _defViewOnly=_onlineActive&&isMyTurn();
+  document.getElementById('bsel-heading').textContent=_defViewOnly
+    ?'🥅 Defender\u2019s Defensive Zone dice'
+    :'🥅 Defender — click your Defensive Zone dice to block with';
   document.getElementById('shoot-tok-ctrl').style.display=(AP().tok.shoot>0&&_iAmAttacker)?'block':'none';
   const ap=AP();
   const bonus=G.clock===1?3:G.clock>4?1:2;
@@ -1964,9 +1974,9 @@ function openCombat(){
     `<strong>Defender bonus:</strong> +${bonus} Block Combat Die${bonus!==1?'s':''} auto (${G.clock===1?'1:00 FINAL TURN (+3)':G.clock<=4?'04:00–02:00 (+2)':'10:00–05:00 (+1)'}). Ties go to defense.`;
   renderAtkDice();
   const bsel=document.getElementById('bsel-dice');bsel.innerHTML='';
-  // Add Commit All Defenders button if any defend dice available
+  // Add Commit All Defenders button if any defend dice available (not for the online shooter — 2_21)
   const defendDice=OPP().z.defend;
-  if(defendDice.length>0){
+  if(defendDice.length>0&&!_defViewOnly){
     const commitAllBtn=document.createElement('button');
     commitAllBtn.className='abtn sec';
     commitAllBtn.style.cssText='font-size:.75em;padding:5px 10px;margin-bottom:8px;display:block;';
@@ -1990,16 +2000,21 @@ function openCombat(){
   OPP().z.defend.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
-    db.style.cursor='pointer';
-    db.addEventListener('click',()=>{
-      // Check tier uniqueness against already-selected block dice
-      const alreadySel=OPP().z.defend.filter(x=>G.blockSelIds.includes(x.id));
+    if(_defViewOnly){
+      // 2_21 — shooter sees the defender's dice dimmed across the table; no clicks.
+      db.classList.add('opp-dim');db.style.cursor='default';
+    }else{
+      db.style.cursor='pointer';
+      db.addEventListener('click',()=>{
+        // Check tier uniqueness against already-selected block dice
+        const alreadySel=OPP().z.defend.filter(x=>G.blockSelIds.includes(x.id));
 
-      const i=G.blockSelIds.indexOf(d.id);
-      if(i===-1){G.blockSelIds.push(d.id);db.classList.add('sel');}
-      else{G.blockSelIds.splice(i,1);db.classList.remove('sel');}
-      refreshBlockerNudge();
-    });
+        const i=G.blockSelIds.indexOf(d.id);
+        if(i===-1){G.blockSelIds.push(d.id);db.classList.add('sel');}
+        else{G.blockSelIds.splice(i,1);db.classList.remove('sel');}
+        refreshBlockerNudge();
+      });
+    }
     bsel.appendChild(w);
   });
   if(!OPP().z.defend.length)bsel.innerHTML='<div style="color:#888;font-size:.85em">No dice in Defensive Zone</div>';
