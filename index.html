@@ -376,8 +376,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
             <div style="font-size:.75em;color:#888;margin-bottom:4px">Your team:</div>
             <select id="online-host-team" style="width:100%;background:#1a2d45;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px;font-size:.82em"></select>
           </div>
-          <button class="btn-start" style="width:100%;padding:10px;font-size:.85em" onclick="hostOnlineGame()">Create Room →</button>
-          <button onclick="hostShootout()" style="width:100%;margin-top:8px;padding:9px;font-size:.8em;background:rgba(212,175,55,.12);border:1px solid #d4af37;color:#ffe9a8;border-radius:8px;cursor:pointer">🥅 Host Shootout — quick practice</button>
+          <button class="btn-start" style="width:100%;padding:10px;font-size:.85em" onclick="hostOnlineGame()">Host Full Game →</button>
+          <button class="btn-start" style="width:100%;padding:10px;font-size:.85em;margin-top:8px" onclick="hostShootout()">🥅 Host Shootout</button>
         </div>
         <div style="background:rgba(100,150,255,.08);border:1px solid #4488ff44;border-radius:10px;padding:16px;flex:1;min-width:200px;max-width:280px">
           <div style="font-size:.9em;font-weight:700;color:#88aaff;margin-bottom:10px;text-align:center">🔗 Join a Game</div>
@@ -395,7 +395,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
             <input id="online-room-code" type="text" placeholder="ABC123" maxlength="6"
               style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px 10px;font-size:1.2em;text-transform:uppercase;letter-spacing:4px;text-align:center">
           </div>
-          <button class="btn-start" style="width:100%;padding:10px;font-size:.85em;background:#4488ff" onclick="joinOnlineGame()">Join Room →</button>
+          <button class="btn-start" style="width:100%;padding:10px;font-size:.85em;background:#4488ff" onclick="joinOnlineGame()">Join Full Game →</button>
+          <button class="btn-start" style="width:100%;padding:10px;font-size:.85em;margin-top:8px;background:#4488ff" onclick="joinShootout()">🥅 Join Shootout</button>
         </div>
       </div>
       <!-- Lobby waiting area -->
