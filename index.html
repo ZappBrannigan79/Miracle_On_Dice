@@ -259,6 +259,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .tok-strip{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
 .tok{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.08);border-radius:10px;padding:2px 7px;font-size:.7em;font-weight:700;border:1px solid rgba(255,255,255,.15);}
 .tok.st{color:#88aaff;border-color:#4466cc;}.tok.bt{color:#ffaaaa;border-color:#cc4444;}
+/* 2_27 — prominent color-coded token pills (blue=shoot, red=block) */
+.tok-pill{display:inline-flex;align-items:center;gap:6px;font-size:.95em;font-weight:800;border-radius:10px;padding:4px 12px;border:2px solid;letter-spacing:.5px;line-height:1.2;}
+.tok-pill.tp-shoot{color:#a9c6ff;border-color:#3c78ff;background:rgba(60,120,255,.16);}
+.tok-pill.tp-block{color:#ffa3a3;border-color:#ff4646;background:rgba(255,70,70,.14);}
+.tok-pill .tp-n{font-size:1.2em;min-width:1em;text-align:center;}
 .epips{font-size:.78em;color:var(--gold);background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.3);padding:3px 9px;border-radius:10px;font-weight:700;}
 
 /* COMBAT */
@@ -555,7 +560,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
           <div class="opp-header" style="margin-bottom:2px;">
             <div class="opp-lbl" id="opplbl">Opponent</div>
             <div class="opp-tmr" id="opptmr"></div>
-            <div style="font-size:.7em;color:#666;margin-left:auto">Tokens: <span id="opptok"></span></div>
+            <div style="margin-left:auto;display:flex;gap:6px;align-items:center"><span id="opptok" style="display:flex;gap:6px;"></span></div>
             <button onclick="openOppBoard()" style="margin-left:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#aaa;font-size:.72em;padding:3px 8px;cursor:pointer;">👁 View Board</button>
           </div>
           <div class="opp-zones" id="oppzones"></div>
@@ -2619,8 +2624,9 @@ function renderBoard(){
   document.getElementById('shoot-pip').textContent=ap.z.shoot.length
     ?`${ap.z.shoot.length} die/dice → ${totalSCD} combat dice`:'';
   const ts=document.getElementById('tstrip');ts.innerHTML='';
-  if(ap.tok.shoot)ts.innerHTML+=`<span class="tok st">🏒 ${ap.tok.shoot}</span>`;
-  if(ap.tok.block)ts.innerHTML+=`<span class="tok bt">🥅 ${ap.tok.block}</span>`;
+  // 2_27: always show both token pills (even at 0) — prominent blue=shoot / red=block
+  ts.innerHTML+=`<span class="tok-pill tp-shoot">🏒 <span class="tp-n">${ap.tok.shoot}</span> SHOOT</span>`;
+  ts.innerHTML+=`<span class="tok-pill tp-block">🥅 <span class="tp-n">${ap.tok.block}</span> BLOCK</span>`;
   const ep=totalE();
   if(ep>0||G.phase>=4)ts.innerHTML+=`<span class="epips">⚡ ${ep}E available</span>`;
 }
@@ -2638,7 +2644,7 @@ function renderOpp(){
   const o=OPP();
   document.getElementById('opplbl').textContent=`${o.teamName||o.name} (${slotLabel(1-G.ap)}) — Opponent`;
   document.getElementById('opptmr').textContent=`Clock: ${G.clock<10?'0'+G.clock:G.clock}:00  |  Penalty Pool: ${G.penaltyPool??3}`;
-  document.getElementById('opptok').textContent=`🏒${o.tok.shoot} 🥅${o.tok.block}`;
+  document.getElementById('opptok').innerHTML=`<span class="tok-pill tp-shoot">🏒 <span class="tp-n">${o.tok.shoot}</span></span><span class="tok-pill tp-block">🥅 <span class="tp-n">${o.tok.block}</span></span>`;
   const hp=o.z.hot.length,cp=o.z.cold.length,dp=o.z.defend.length;
   // Pip totals for hot/cold/defend
   const hotPips=o.z.hot.reduce((s,d)=>s+(d.face?d.face.v:0),0);
@@ -3437,8 +3443,8 @@ function openOppBoard(){
   const panel=document.getElementById('opp-board-panel');
   document.getElementById('opp-board-title').textContent=
     `${o.teamName||o.name} — Full Board`;
-  document.getElementById('opp-board-sub').textContent=
-    `Tokens: 🏒${o.tok.shoot} Shoot  🥅${o.tok.block} Block  |  Bag: ${o.bag.length} dice  |  Clock: ${G.clock<10?'0'+G.clock:G.clock}:00`;
+  document.getElementById('opp-board-sub').innerHTML=
+    `<span class="tok-pill tp-shoot">🏒 <span class="tp-n">${o.tok.shoot}</span> SHOOT</span> <span class="tok-pill tp-block">🥅 <span class="tp-n">${o.tok.block}</span> BLOCK</span><span style="color:#888;font-size:.85em;margin-left:10px;">Bag: ${o.bag.length} dice &nbsp;|&nbsp; Clock: ${G.clock<10?'0'+G.clock:G.clock}:00</span>`;
 
   const content=document.getElementById('opp-board-content');
   content.innerHTML='';
