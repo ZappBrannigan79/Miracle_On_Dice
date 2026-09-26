@@ -149,8 +149,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .rs-act-btn{padding:3px 9px;font-size:.68em;font-weight:700;border-radius:5px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.4px;transition:all .15s;}
 .rs-act-btn.auto-sb{background:#334488;color:#aac4ff;border:1px solid #4466cc;}
 .rs-act-btn.auto-sb:hover{background:#445599;}
-.rs-act-btn.auto-bl{background:rgba(170,119,51,.2);color:#cc9944;border:1px solid #aa7733;}
-.rs-act-btn.auto-bl:hover{background:rgba(170,119,51,.4);}
+/* 2_24: .auto-bl styles removed with the button */
 
 /* DICE */
 .die-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;flex-shrink:0;cursor:default;}
@@ -506,7 +505,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
       <div class="score-player"><div class="score-name" id="sn2">P2</div><div class="score-goals" id="sg2">0</div></div>
     </div>
     <div id="final-turn-banner" style="display:none;align-items:center;gap:8px;background:rgba(255,100,50,.15);border:2px solid #ff6633;border-radius:10px;padding:7px 20px;font-size:1.05em;font-weight:900;color:#ff8855;text-transform:uppercase;letter-spacing:2px;">
-      ⏰ FINAL TURN OF PERIOD ⏰
+      ⏰ <span id="ftb-text">FINAL TURN OF PERIOD</span> ⏰
     </div>
     <div class="bar-right">
       <button class="btn-sm" onclick="openShop()">🛒 Buy</button>
@@ -1434,13 +1433,7 @@ function payOneCostFrom(ap){
     }
   }
 }
-function autoAssignBlanks(){
-  const ap=AP();
-  const bl=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='BLANK'));
-  bl.forEach(d=>{ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);});
-  if(bl.length)addLog(`${ap.name}: Auto-sent ${bl.length} blank(s)→Iced.`);
-  renderAll();
-}
+// (2_24: autoAssignBlanks removed — button eliminated; blanks go to Iced individually via die menu)
 
 // ═══════════════════ ASSIGNMENT MENU ═══════════════════
 function hasEnergy1(){
@@ -1497,6 +1490,9 @@ function getOpts(die){
       if(hasCold)o.push({l:`ADV — advance Cold Zone die to Hot (${ap.z.cold.length} available)`,a:'adv'});
       else o.push({l:'ADV — no dice in Cold Zone',a:'adv-empty'});
     }
+  }else if(f.t==='BLANK'){
+    // 2_24: blanks are individually clickable — send to Iced (auto-send button removed)
+    o.push({l:'Send to Iced',a:'iced'});
   }
   return o;
 }
@@ -2579,12 +2575,16 @@ function renderBoard(){
   tv.textContent=clkStr;
   tv.className='timer-val'+(G.clock===1?' final-turn':G.clock<=4?' hot':'');
   // Show which player's turn it is on the clock (even/odd per faceoff winner's pick)
-  // Final turn banner: clock===1 (whoever holds the 1:00 turn)
+  // Final turn banner: clock<=2 — names whose last turn it is (2_25)
   const ftBanner=document.getElementById('final-turn-banner');
   if(ftBanner){
     const showBanner=(G.clock<=2);
     ftBanner.style.display=showBanner?'flex':'none';
-    if(showBanner)ftBanner.classList.add('final-turn-flashing');
+    if(showBanner){
+      ftBanner.classList.add('final-turn-flashing');
+      const ftTxt=document.getElementById('ftb-text');
+      if(ftTxt)ftTxt.textContent=`${slotLabel(G.ap)}'s LAST TURN OF PERIOD`;
+    }
     else ftBanner.classList.remove('final-turn-flashing');
   }
   renderZone('z-rs',ap.z.rs,{inRS:true});
@@ -2625,9 +2625,7 @@ function renderRSActions(){
     const b1=document.createElement('button');
     b1.className='rs-act-btn auto-sb';b1.textContent='⚡ Auto-Assign Shoot & Block';
     b1.addEventListener('click',autoAssignSB);ra.appendChild(b1);
-    const b2=document.createElement('button');
-    b2.className='rs-act-btn auto-bl';b2.textContent='Auto-send Blanks→Iced';
-    b2.addEventListener('click',autoAssignBlanks);ra.appendChild(b2);
+    // 2_24: Auto-send Blanks→Iced button removed (unused); blanks are individually clickable instead
   }
 }
 function renderOpp(){
