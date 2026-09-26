@@ -2039,6 +2039,10 @@ function openCombat(){
   // solo keeps them live until the roll, and the defender never touches them).
   const tokLocked=_onlineActive&&isMyTurn()&&G.shotLocked;
   document.querySelectorAll('#shoot-tok-ctrl button').forEach(b=>{b.disabled=tokLocked;});
+  // 2_21 — the online shooter's client never touches the defender's Block Token steppers.
+  document.querySelectorAll('#block-tok-ctrl button').forEach(b=>{b.disabled=_defViewOnly;});
+  // 2_22 — the shooter doesn't need the defender's Block Token picker at all.
+  document.getElementById('block-tok-ctrl').style.display=_defViewOnly?'none':'block';
   // Gentle pulse so the shooter's token row isn't missed at decision time.
   // (The defender's token row stays static and prominent — the pulse now lives
   // on the blocker-assignment controls instead.)
