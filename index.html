@@ -599,7 +599,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 <div class="panel-overlay" id="shop-panel">
   <div class="panel-box">
     <button class="panel-close" onclick="closeShop()">✕</button>
-    <div class="panel-title" id="shop-title">Buy Phase</div>
+    <div class="panel-title" id="shop-title">Shop</div>
     <div class="panel-sub">Purchased dice go to Iced Zone. Spin-down change returned to RS Zone.</div>
     <div class="energy-bar" id="ebar"></div>
     <div class="card-grid" id="cgrid"></div>
@@ -888,7 +888,8 @@ const CF=[2,2,1,1,0,0];
 const FWD=['F1','F2','F3','F4','F5','F6','F7','F8'];
 const DEF=['D1','D2','D3','D4','D5','D6','D7','D8'];
 const GOA=['G3','G4','G5','G6'];
-const PHASES=['Advance Cold','Draw','Roll','Reroll','Roll & Buy','Shoot','End Turn'];
+const PHASES=['Advance','Draw','Roll & Assign','Shoot','End Turn'];
+const PHASEMAP=[0,1,2,2,2,3,4]; // 2_37: internal phase -> condensed 5-step display
 function posOf(k){return k.startsWith('F')?'F':k.startsWith('D')?'D':k.startsWith('G')?'G':k==='HC'?'HC':k==='Penalty'?'P':'R';}
 function tierOf(k){const m=k.match(/\d+/);return m?+m[0]:0;}
 function posName(k){return{F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach',R:'Rookie',P:'Penalty'}[posOf(k)]||k;}
@@ -1484,8 +1485,8 @@ function getOpts(die){
     else o.push({l:'Reroll face (cannot use after assigning — goes to Iced)',a:'iced'});
   }else if(f.t==='SO'){
     if(canPay)o.push({l:`Shutout → gain ${f.v} Block Token(s) — costs 1⚡`,a:'shutout-cost'});
-    // 2_32: broke shutout is still resolvable — die goes to Iced, no tokens (per rulebook)
-    else o.push({l:`Shutout — no 1⚡ to pay: die to Iced, no tokens`,a:'shutout-broke'});
+    // 2_36: broke shutout is NOT offered — the die just sits in R&S and falls to Iced at end of turn
+    else o.push({l:`Shutout (${f.v} Block) — BLOCKED: need 1⚡ to resolve`,a:'no-energy'});
   }else if(f.t==='PEN'){
     if(G.penaltyPool>0)o.push({l:`Give opponent a Penalty die (pool: ${G.penaltyPool} left)`,a:'pen-give'});
     else o.push({l:'Penalty pool empty — no penalty dice available',a:'pen-pool-empty'});
@@ -1554,11 +1555,6 @@ function assignDie(die,action){
   }else if(action==='iced'){
     ap.z.rs.splice(idx,1);ap.z.iced.push(die);
     addLog(`${ap.name}: ${dLbl(die)}→Iced Zone.`);
-    renderAll();return;
-  }else if(action==='shutout-broke'){
-    // 2_32: shutout resolved without the 1⚡ — die to Iced, no tokens (rulebook ruling)
-    ap.z.rs.splice(idx,1);ap.z.iced.push(die);
-    addLog(`${ap.name}: Shutout with no energy to pay — ${dLbl(die)} to Iced, no tokens gained.`);
     renderAll();return;
   }else if(action==='hc-energy-info'){
     toast('HC Energy is available for purchasing this turn. It will be set aside automatically at end of turn.');
@@ -2420,7 +2416,7 @@ function openShop(){
   if(spectating()){toast('⏳ Wait for your turn to shop.');return;}
   if(G.phase<4||_rrMode){toast('Finish rerolling first!');return;}
   const ap=AP();const avail=totalE();
-  document.getElementById('shop-title').textContent=`${ap.name} — Buy Phase`;
+  document.getElementById('shop-title').textContent=`${ap.name} — Shop`;
   document.getElementById('ebar').innerHTML=`Available Energy: <strong>${avail}E</strong> (RS energy dice + Reserve) — spin-down change returned to RS`;
   const grid=document.getElementById('cgrid');grid.innerHTML='';
   ap.lineup.forEach((card,idx)=>{
@@ -2584,9 +2580,10 @@ function renderAll(){
   if(spectating())closeShop();
   renderPbar();renderBoard();renderOpp();renderScore();renderActions();renderQA();renderRSActions();renderLog();}
 function renderPbar(){
+  const d=PHASEMAP[G.phase]; // 2_37: roll/reroll/assign/buy all display as Roll & Assign
   document.getElementById('pbar').innerHTML=PHASES.map((n,i)=>{
-    const c=i<G.phase?'done':i===G.phase?'active':'';
-    return`<span class="ph ${c}">${i<G.phase?'✓':(i+1)+'. '}${n}</span>${i<PHASES.length-1?'<span class="ph-arr">›</span>':''}`
+    const c=i<d?'done':i===d?'active':'';
+    return`<span class="ph ${c}">${i<d?'✓':(i+1)+'. '}${n}</span>${i<PHASES.length-1?'<span class="ph-arr">›</span>':''}`
   }).join('');
 }
 // Display label for a player slot: the entered lobby name, or P1/P2 when no
@@ -3126,12 +3123,14 @@ function startShootout(practice){
     }));
   }
 
-  // Draw 3 shooters randomly from the 5-player pool (3F + 2D) for each player
-  const drawShooters = pool => {
-    const shuffled = [...pool].sort(()=>Math.random()-.5);
-    return shuffled.slice(0,3);
-  };
-  _so.players.forEach(p=>{ p.forwards = drawShooters(p.shooterPool); });
+  // 2_35: shuffle all 5 skaters — first 3 are the regulation shooters (the
+  // player chooses their order); the rest wait in the bag for sudden death,
+  // drawn one at a time (bag refills with all 5 when exhausted).
+  _so.players.forEach(p=>{
+    const shuffled=[...p.shooterPool].sort(()=>Math.random()-.5);
+    p.forwards=shuffled.slice(0,3);
+    p.shooterBag=shuffled.slice(3);
+  });
 
   // Init shooter pools for this shootout (the drawn 3)
   _so.fwdPool = _so.players.map(p=>[...p.forwards]);
@@ -3156,9 +3155,12 @@ function restartShootout(){
   _so.scores=[0,0]; _so.round=1; _so.maxRounds=3;
   _so.shooterIdx=_so.firstShooter||0; _so.results=[]; _so.suddenDeath=false; _so.selectedFwd=null;
   _so.phase='shoot';
-  // Re-draw 3 shooters from the full 5-player pool
-  const drawShooters2 = pool => [...pool].sort(()=>Math.random()-.5).slice(0,3);
-  _so.players.forEach(p=>{ p.forwards = drawShooters2(p.shooterPool); });
+  // Re-draw 3 shooters from the full 5-player pool (2_35: rebuild the bag too)
+  _so.players.forEach(p=>{
+    const sh=[...p.shooterPool].sort(()=>Math.random()-.5);
+    p.forwards=sh.slice(0,3);
+    p.shooterBag=sh.slice(3);
+  });
   _so.fwdPool=_so.players.map(p=>[...p.forwards]);
   _so.usedFwds=[[],[]];
   document.getElementById('so-final-area').style.display='none';
@@ -3227,11 +3229,11 @@ function soStartShooterTurn(){
   const goalieName = _so.players[1-si].goalie;
 
   document.getElementById('so-turn-info').textContent =
-    `${sp.teamName||sp.name} shooting (3 of 5 drawn) vs ${_so.players[1-si].teamName||_so.players[1-si].name}'s ${goalieName}`;
+    `${sp.teamName||sp.name} shooting (${_so.suddenDeath?'sudden death — 1 drawn':'3 of 5 drawn'}) vs ${_so.players[1-si].teamName||_so.players[1-si].name}'s ${goalieName}`;
   // Online: only the shooting player picks — the other side watches.
   const iAmShooter = soIAmShooter();
   document.getElementById('so-shooter-label').textContent = iAmShooter
-    ? 'Choose a shooter (F or D):'
+    ? (_so.suddenDeath?'Sudden death — your shooter was drawn:':'Choose a shooter (F or D):')
     : `Waiting for ${sp.teamName||sp.name} to shoot…`;
 
   const choices = document.getElementById('so-forward-choices');
@@ -3267,6 +3269,12 @@ function soStartShooterTurn(){
     }
     choices.appendChild(wrap);
   });
+  // 2_35: sudden death — the single drawn shooter is pre-selected (no choice to make)
+  if(_so.suddenDeath && sp.forwards.length===1 && iAmShooter){
+    _so.selectedFwd=sp.forwards[0];
+    document.getElementById('so-roll-btn').disabled=false;
+    const onlyDie=choices.querySelector('.die-body'); if(onlyDie) onlyDie.classList.add('sel');
+  }
 }
 
 // ── ROLL SHOT ──
@@ -3411,6 +3419,19 @@ function soAdvance(){
   }
 }
 
+// 2_35: sudden-death shooter draw — one random die per player from their
+// remaining skaters; when a bag is empty it refills with all 5 and the
+// single draws continue.
+function soDrawSuddenDeathShooters(){
+  _so.players.forEach(sp=>{
+    if(!sp.shooterBag||!sp.shooterBag.length){
+      sp.shooterBag=[...sp.shooterPool].sort(()=>Math.random()-.5);
+    }
+    sp.forwards=[sp.shooterBag.pop()];
+  });
+  _so.usedFwds=[[],[]];
+}
+
 function soCheckWinner(){
   const [s0,s1]=_so.scores;
   if(s0===s1 && !_so.suddenDeath){
@@ -3418,6 +3439,7 @@ function soCheckWinner(){
     _so.suddenDeath=true;
     _so.maxRounds=_so.round;
     _so.phase='shoot';
+    soDrawSuddenDeathShooters(); // 2_35: single random shooter per player
     toast('Still tied! Sudden death begins.');
     if(_onlineActive){ soSyncPush(); }
     renderSOScoreboard();
@@ -3426,6 +3448,7 @@ function soCheckWinner(){
     // Sudden death round still tied — play another
     _so.maxRounds=_so.round;
     _so.phase='shoot';
+    soDrawSuddenDeathShooters(); // 2_35: next single random shooter per player
     if(_onlineActive){ soSyncPush(); }
     renderSOScoreboard();
     soStartShooterTurn();
@@ -3782,7 +3805,7 @@ async function joinShootout(){
     const snap=await _roomRef.once('value');
     const room=snap.val();
     if(!room){toast('Room not found. Check the code.');return;}
-    if(room.mode!=='shootout'){toast("That's a full-game room — use Join Room instead.");return;}
+    if(room.mode!=='shootout'){toast("That's a full-game room — use Join Full Game instead.");return;}
     // Reconnect: same name may rejoin after a refresh and resume the shootout
     // from the room's live state; a different name is turned away.
     if(room.p1?.ready){
