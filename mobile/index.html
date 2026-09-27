@@ -456,7 +456,21 @@ div[class$="-overlay"]>div{width:100%!important;max-width:560px;max-height:88vh;
 /* ---- misc touch polish ---- */
 button{min-height:44px;}
 #toast{z-index:500;bottom:calc(90px + env(safe-area-inset-bottom))!important;}
-.die-menu{position:fixed!important;z-index:600;}
+/* ---- mobile die-choice bottom sheet (replaces desktop side popup) ---- */
+.m-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:10000;
+  display:flex;align-items:flex-end;justify-content:center;}
+.m-sheet{width:100%;max-height:72dvh;overflow-y:auto;background:#0e1c36;
+  border-top:2px solid #d4a94e;border-radius:18px 18px 0 0;
+  padding:14px 14px calc(18px + env(safe-area-inset-bottom));
+  animation:m-sheet-up .18s ease-out;}
+@keyframes m-sheet-up{from{transform:translateY(48px);opacity:.3;}to{transform:none;opacity:1;}}
+.m-sheet-title{font-weight:800;color:#d4a94e;font-size:.9em;margin:2px 4px 12px;letter-spacing:.4px;}
+.m-sheet-btn{display:block;width:100%;text-align:left;margin:0 0 8px;padding:15px 12px;
+  background:#16294d;border:1px solid #2a3f5c;border-radius:12px;color:#fff;
+  font-size:.9em;font-weight:700;cursor:pointer;min-height:52px;}
+.m-sheet-btn:active{background:#23406f;}
+.m-sheet-cancel{display:block;width:100%;margin-top:4px;padding:14px;background:none;
+  border:1px solid #3a4a6a;border-radius:12px;color:#8b94a7;font-size:.88em;font-weight:700;}
 input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 </style>
 <!-- Firebase SDK -->
@@ -4354,6 +4368,31 @@ window.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   }
 });
+
+/* MOBILE v2 — bottom-sheet die menu. Replaces the desktop side popup
+   (position:fixed + left:calc(100%+10px) pushed it off-viewport on phones).
+   Same options (getOpts), same actions (assignDie) — zero logic changes. */
+window.showMenu = function(die, wrapEl){
+  document.querySelectorAll('.m-sheet-backdrop').forEach(s=>s.remove());
+  try{closeMenus();}catch(e){}
+  const opts=getOpts(die); if(!opts.length) return;
+  const bd=document.createElement('div'); bd.className='m-sheet-backdrop';
+  const sh=document.createElement('div'); sh.className='m-sheet';
+  const t=document.createElement('div'); t.className='m-sheet-title';
+  try{t.textContent=dLbl(die);}catch(e){t.textContent='Choose';}
+  sh.appendChild(t);
+  opts.forEach(o=>{
+    const b=document.createElement('button'); b.className='m-sheet-btn'; b.textContent=o.l;
+    b.addEventListener('click',ev=>{ev.stopPropagation();bd.remove();assignDie(die,o.a);});
+    sh.appendChild(b);
+  });
+  const c=document.createElement('button'); c.className='m-sheet-cancel'; c.textContent='Cancel';
+  c.addEventListener('click',ev=>{ev.stopPropagation();bd.remove();});
+  sh.appendChild(c);
+  bd.appendChild(sh);
+  bd.addEventListener('click',ev=>{if(ev.target===bd)bd.remove();});
+  document.body.appendChild(bd);
+};
 </script>
 
 </body>
