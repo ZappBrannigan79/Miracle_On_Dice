@@ -362,6 +362,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 
 /* ---- app frame ---- */
 #game.screen.active{height:100vh;height:100dvh;min-height:100dvh;max-height:100dvh;overflow:hidden;}
+/* kill pull-to-refresh: a reload wipes the in-memory game, so don't let the
+   overscroll gesture trigger one (inner scrolling is unaffected) */
+html,body{overscroll-behavior:none;}
+#m-scroll{overscroll-behavior-y:contain;}
 #m-top{flex-shrink:0;background:#0a1428;border-bottom:1px solid #1c2c4e;
   padding:8px 10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:60;}
 #m-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
