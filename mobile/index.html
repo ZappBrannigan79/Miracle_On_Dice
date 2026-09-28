@@ -520,7 +520,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.62</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.63</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <div class="setup-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.62</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.63</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3369,6 +3369,8 @@ function renderSOPresets(){
     <div class="preset-card-lineup" style="font-size:.72em">Surprise me</div>`;
   randCard.addEventListener('click', ()=>randomSOTeam(0));
   el.appendChild(randCard);
+  // 2_63: Random Team is the default — pre-pick one so Start works immediately
+  if(_so.sel1==null){_so.sel1=Math.floor(Math.random()*PRESETS.length);randCard.classList.add('selected');}
   PRESETS.forEach((p,i)=>{
     const card = document.createElement('div');
     const sel = _so.sel1 === i;
@@ -3389,7 +3391,7 @@ function renderSOAITeam(){
 function soAiReroll(){_so.aiIdx=Math.floor(Math.random()*PRESETS.length);renderSOAITeam();}
 
 function launchShootoutPractice(){
-  if(_so.sel1==null){toast('Select your roster first.');return;}
+  if(_so.sel1==null)_so.sel1=Math.floor(Math.random()*PRESETS.length); // 2_63: default to random
   const p1=PRESETS[_so.sel1], p2=PRESETS[_so.aiIdx||0];
   // 2_51: shootout practice is a vs-AI mini-game — the AI drives player 2
   _aiActive=true;_aiSlot=1;_aiPersona='coach';_aiSpeed=1;_aiBusy=false;_aiSelf=false;_aiDefPhase=null;
@@ -5017,9 +5019,9 @@ function aiMaybeShootout(){
 async function aiShootoutTurn(){
   const si=_so.shooterIdx,P=aiP();
   try{
-    // 2_53: 1s "choosing" pause with a pill, then the pick + "sends out" pill
-    aiPillShow('choosing shooter…',1000);
-    await aiSleep(1000);
+    // 2_63: shorter "choosing" pause (700ms), then the pick + "sends out" pill
+    aiPillShow('choosing shooter…',700);
+    await aiSleep(700);
     _aiSelf=true;
     if(!_so.suddenDeath){
       const used=_so.usedFwds[si];
@@ -5027,11 +5029,16 @@ async function aiShootoutTurn(){
       // 2_51: AI drafts its 3 regulation shooters in random order (was best→worst)
       _so.selectedFwd=avail[Math.floor(Math.random()*avail.length)]||_so.players[si].forwards[0];
       const rb=document.getElementById('so-roll-btn');if(rb)rb.disabled=false;
+      // 2_63: highlight the AI's pick with the yellow selection ring
+      document.querySelectorAll('#so-forward-choices .die-body').forEach(b=>{
+        const lbl=b.querySelector('.face-badge');
+        if(lbl&&lbl.textContent.trim()===_so.selectedFwd)b.classList.add('sel');
+      });
       aiPill(`sends out ${_so.selectedFwd}`);
     }else{
       aiPill(`sudden death — ${_so.selectedFwd} steps up`);
     }
-    await aiSleep(1200);
+    await aiSleep(800);
     soRollShot();
   }finally{_aiSelf=false;}
   // result settle → the player taps "Your Turn →" to continue (no auto-advance)
