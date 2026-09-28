@@ -360,6 +360,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:rgba(0,0,0,.2);}
 ::-webkit-scrollbar-thumb{background:rgba(200,168,75,.4);border-radius:2px;}
+/* 2_45 AI opponent */
+#ai-pill{position:fixed;left:50%;bottom:86px;transform:translate(-50%,20px);background:rgba(20,16,8,.95);border:1px solid #ffd75e;color:#ffe9a8;padding:8px 16px;border-radius:999px;font-size:.85em;z-index:9999;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:92vw;text-align:center}
+#ai-pill.show{opacity:1;transform:translate(-50%,0)}
+.persona-card{border:2px solid #444;border-radius:10px;padding:10px;cursor:pointer;text-align:center;background:rgba(255,255,255,.03);flex:1;min-width:110px}
+.persona-card.sel{border-color:#ffd75e;background:rgba(255,215,94,.08)}
+#ai-persona-cards{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 
 /* ============================================================
    MIRACLE ON DICE — MOBILE OVERRIDE LAYER (v1)
@@ -496,6 +502,8 @@ button{min-height:44px;}
 .m-sheet-cancel{display:block;width:100%;margin-top:4px;padding:14px;background:none;
   border:1px solid #3a4a6a;border-radius:12px;color:#8b94a7;font-size:.88em;font-weight:700;}
 input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
+/* 2_45 AI pills: clear the bottom action bar like the toast does */
+#ai-pill{bottom:calc(90px + env(safe-area-inset-bottom))!important;}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -598,6 +606,10 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div style="font-size:.83em;color:#aaa;text-align:center;margin-bottom:10px">
         5 pre-built teams. Each player selects one. Starting bag: 15 Rookies.
       </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
+        <button class="qs-filter-btn active" id="qs-mode-pvp" onclick="qsMode('pvp')">👥 Pass &amp; Play</button>
+        <button class="qs-filter-btn" id="qs-mode-ai" onclick="qsMode('ai')">🤖 Vs AI</button>
+      </div>
       <div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap">
         <button class="qs-filter-btn active" onclick="filterPresets('all',this)">All (24)</button>
         <button class="qs-filter-btn" onclick="filterPresets('North',this)">🏔️ North</button>
@@ -610,9 +622,15 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <h3>Player 1 <span style="font-size:.75em;color:#888">— click a team to select</span></h3>
           <div class="preset-cards" id="qs-p1" style="max-height:340px;overflow-y:auto"></div>
         </div>
-        <div class="builder-player">
+        <div class="builder-player" id="qs-p2col">
           <h3>Player 2 <span style="font-size:.75em;color:#888">— click a team to select</span></h3>
           <div class="preset-cards" id="qs-p2" style="max-height:340px;overflow-y:auto"></div>
+        </div>
+        <div class="builder-player" id="qs-aicol" style="display:none">
+          <h3>🤖 AI Opponent <span style="font-size:.75em;color:#888">— sits across the table</span></h3>
+          <div id="ai-team-line" style="font-size:.85em;margin-bottom:6px"></div>
+          <div style="font-size:.78em;color:#aaa">Choose its personality:</div>
+          <div id="ai-persona-cards"></div>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
@@ -1190,6 +1208,7 @@ function updateQSSummary(){
   s.style.color=(p1&&p2)?'var(--gold)':'#888';
 }
 function startQS(){
+  if(_qsMode==='ai'){startAIGame();return;}
   if(_qsSel[0]===null||_qsSel[1]===null){toast('Each player must select a preset.');return;}
   const p1=PRESETS[_qsSel[0]],p2=PRESETS[_qsSel[1]];
   initG(p1.lineup,p2.lineup,[],[]);
@@ -1300,6 +1319,7 @@ function showFaceoff(){
   _fob.disabled=false;
   _fob.onclick=doFaceoff;
   document.getElementById('fo-overlay').classList.add('show');
+  aiMaybeAutoFaceoff(); // 2_45: Vs AI hook
 }
 function rcf(){return CF[Math.floor(Math.random()*6)];}
 // Joiner-side (or non-rolling side) mirror of the host's faceoff: same overlay,
@@ -1327,7 +1347,7 @@ function renderFoReadonly(){
     b.style.display='';b.textContent='Waiting for host to roll…';
   }
 }
-function doFaceoff(){
+function doFaceoff(){if(aiGuard())return;
   // Online: the host drives the faceoff (the joiner mirrors read-only).
   if(_onlineActive&&_mySlot!==0){toast('Waiting for the host to roll the faceoff…');return;}
   let r1,r2,t1,t2;
@@ -1352,6 +1372,7 @@ function doFaceoff(){
   document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! +1 🏒 Shoot token.`;
   addLog(`Faceoff: P1=${t1}, P2=${t2} — ${G.players[w].name} wins (+1 🏒).`,'imp');
   renderFoChoiceState();
+  aiMaybeFoPick(); // 2_45: Vs AI hook
   });
 }
 // 2_20 — Drives the faceoff overlay once the dice are rolled: the winner picks
@@ -1367,7 +1388,8 @@ function renderFoChoiceState(){
   const btn=document.getElementById('fo-btn');
   choiceDiv.style.display='none';waitEl.style.display='none';btn.style.display='none';
   if(!fo.choice){
-    if(iAmWinner){
+    const aiWon=_aiActive&&w===_aiSlot; // 2_45: AI picks on its own
+    if(iAmWinner&&!aiWon){
       document.getElementById('fo-choice-lbl').textContent=`${G.players[w].name}, choose your turns:`;
       choiceDiv.style.display='block';
     }else{
@@ -1385,6 +1407,7 @@ function renderFoChoiceState(){
 // 2_20 — The faceoff winner locks in even or odd. A joiner-winner pushes the
 // pick so the host sees it; the host applies it when beginning the period.
 function pickFoChoice(c){
+  if(_aiActive&&G.fo&&G.fo.w===_aiSlot&&!_aiSelf)return; // 2_45
   const fo=G.fo;if(!fo||fo.stage!=='rolled'||fo.choice)return;
   if(_onlineActive&&_mySlot!==fo.w)return; // only the winner picks
   fo.choice=c;
@@ -1394,7 +1417,7 @@ function pickFoChoice(c){
 }
 // 2_20 — Host-only: applies the winner's parity pick, then starts the period.
 // The table creator keeps sole control of beginning play.
-function beginPeriodAfterFo(){
+function beginPeriodAfterFo(){if(aiGuard())return;
   const fo=G.fo;if(!fo||!fo.choice)return;
   if(_onlineActive&&_mySlot!==0)return; // host drives
   const w=fo.w;
@@ -1420,8 +1443,9 @@ function phase0(){
   ap.z.hot.push(...moved);
   addLog(moved.length?`${ap.name}: ${moved.length} Cold→Hot.`:`${ap.name}: Cold Zone empty.`);
   G.phase=1;renderAll();
+  aiMaybeStartTurn(); // 2_45: Vs AI hook
 }
-function rollAll(){
+function rollAll(){if(aiGuard())return;
   const ap=AP();
   const fromBench=ap.z.bench.splice(0);const drawn=[];
   for(let i=0;i<5;i++){
@@ -1467,26 +1491,26 @@ function refillBag(p){
 
 // ── FREE REROLL ──
 // ── FREE REROLL (Phase 3 — one free reroll of any dice) ──
-function enterFreeRR(){
+function enterFreeRR(){if(aiGuard())return;
   // Called at start of Phase 3 automatically — dice are immediately selectable
   AP().z.rs.forEach(d=>d.sel=false);
   _rrMode=true;_rrDieId=null;
   renderAll();
 }
-function skipRR(){
+function skipRR(){if(aiGuard())return;
   G.phase=4;
   addLog(`${AP().name}: Skipped free reroll.`);
   _rrMode=false;
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();
 }
-function enterRRFaceMode(dieId){
+function enterRRFaceMode(dieId){if(aiGuard())return;
   AP().z.rs.forEach(d=>d.sel=false);
   _rrMode=true;_rrDieId=dieId; // face-spend mode
   renderAll();
 }
 
-function confirmRRSel(){
+function confirmRRSel(){if(aiGuard())return;
   const ap=AP();
   const sel=ap.z.rs.filter(d=>d.sel);
   if(!sel.length){
@@ -1511,14 +1535,14 @@ function confirmRRSel(){
   animGameDice(sel); // 2_40: reroll animation
 }
 
-function cancelRRSel(){
+function cancelRRSel(){if(aiGuard())return;
   AP().z.rs.forEach(d=>{d.sel=false;});
   _rrMode=false;_rrDieId=null;
   renderAll();
 }
 
 // ═══════════════════ AUTO-ASSIGN ═══════════════════
-function autoAssignSB(){
+function autoAssignSB(){if(aiGuard())return;
   const ap=AP();
   // Separate free faces (advance immediately) from costed faces (need picker)
   const toProcess=[...ap.z.rs];
@@ -1967,7 +1991,7 @@ function awardBuyBonus(ap,card){
     addLog(`${ap.name}: ${card.key} sold out! Gained 1 ${tokType==='shoot'?'Shoot':'Block'} Token.`,'imp');
   }
 }
-function buyCard(cardIdx,trade){
+function buyCard(cardIdx,trade){if(aiGuard())return;
   const ap=AP();const card=ap.lineup[cardIdx];
   if(!card.left){toast('No dice left!');return;}
   const cost=COSTS[card.key]+(trade?2:0);const avail=totalE();
@@ -2041,7 +2065,7 @@ function completeTrade(trashDieId){
   awardBuyBonus(ap2,card2);
   renderAll();
 }
-function buyTok(type){
+function buyTok(type){if(aiGuard())return;
   if(totalE()<3){toast('Need 3E.');return;}
   closeShop();
   openEPicker(3, `buy 1 ${type} Token`, ()=>{
@@ -2052,17 +2076,17 @@ function buyTok(type){
 }
 
 // ═══════════════════ SHOOTING ═══════════════════
-function moveToShoot(id){
+function moveToShoot(id){if(aiGuard())return;
   const ap=AP();const i=ap.z.hot.findIndex(d=>d.id===id);if(i===-1)return;
   const d=ap.z.hot[i];
   ap.z.hot.splice(i,1);ap.z.shoot.push(d);renderAll();
 }
-function retFromShoot(id){
+function retFromShoot(id){if(aiGuard())return;
   const ap=AP();const i=ap.z.shoot.findIndex(d=>d.id===id);if(i===-1)return;
   const d=ap.z.shoot.splice(i,1)[0];ap.z.hot.push(d);renderAll();
 }
 // checkUniq removed — duplicate tiers allowed in combat
-function declareShot(){
+function declareShot(){if(aiGuard())return;
   const ap=AP();
   if(G.shotDeclared){toast('Only one shot per turn is allowed!');return;}
   if(!ap.z.shoot.length){toast('Add dice to Shoot Zone first!');return;}
@@ -2083,7 +2107,7 @@ function declareShot(){
 // Shooter locks in their token choice. THIS is what prompts the defender:
 // their panel only opens once the shot is locked, so they always see the
 // committed tokens before assigning blockers — no more resolving early.
-function lockShot(){
+function lockShot(){if(aiGuard())return;
   if(_onlineActive&&!isMyTurn())return;
   if(G.shotLocked||!G.shotDeclared)return;
   G.shotLocked=true;
@@ -2091,6 +2115,7 @@ function lockShot(){
   openCombat(); // rebuild: token steppers lock, button flips to "Waiting for defender…"
   renderAll();
   if(_onlineActive)pushState();
+  aiMaybeDefend(); // 2_45: Vs AI hook — AI defends the human's shot
 }
 
 // ═══════════════════ COMBAT ═══════════════════
@@ -2098,7 +2123,7 @@ function lockShot(){
 // Result = sum of combat dice (2,2,1,1,0,0) + tokens count as automatic 1 each
 // Pips on player dice determine HOW MANY combat dice to roll — NOT added to total
 let _bTok=0,_sTok=0,_combatNonce=0,_lastCombatNonce=0;
-function adjST(n){
+function adjST(n){if(aiGuard())return;
   _sTok=Math.max(0,Math.min(AP().tok.shoot,_sTok+n));
   document.getElementById('stok-count').textContent=_sTok;
   const atl=document.getElementById('atk-tok-line');
@@ -2157,6 +2182,7 @@ function openCombat(){
     commitAllBtn.style.cssText='font-size:.75em;padding:5px 10px;margin-bottom:8px;display:block;';
     commitAllBtn.textContent='⚡ Commit All Defenders';
     commitAllBtn.addEventListener('click',()=>{
+      if(_aiBusy&&!_aiSelf&&_aiDefPhase!=='humanDef')return; // 2_45
       // Select all defend dice
       G.blockSelIds=OPP().z.defend.map(d=>d.id);
       // Highlight all die bodies in bsel-dice
@@ -2181,6 +2207,7 @@ function openCombat(){
     }else{
       db.style.cursor='pointer';
       db.addEventListener('click',()=>{
+        if(_aiBusy&&!_aiSelf&&_aiDefPhase!=='humanDef')return; // 2_45
         // Check tier uniqueness against already-selected block dice
         const alreadySel=OPP().z.defend.filter(x=>G.blockSelIds.includes(x.id));
 
@@ -2223,7 +2250,7 @@ function openCombat(){
   // on the blocker-assignment controls instead.)
   document.getElementById('shoot-tok-ctrl').classList.toggle('attn',_onlineActive&&isMyTurn()&&!G.shotLocked&&AP().tok.shoot>0);
 }
-function adjBT(n){_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;}
+function adjBT(n){if(aiGuard()&&_aiDefPhase!=='humanDef')return;_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;}
 // Pulse the blocker-assignment controls (Commit All button + available dice)
 // while any defender die is still unassigned. A nudge, not a gate: rolling
 // with zero blockers stays legal.
@@ -2237,7 +2264,7 @@ function refreshBlockerNudge(){
   });
 }
 
-function resolveCombat(){
+function resolveCombat(){if(aiGuard()&&_aiDefPhase!=='humanDef')return; // 2_45
   // Online: only the defender resolves (the attacker waits for the result) —
   // and only after the shooter has confirmed the shot (tokens locked in).
   if(_onlineActive&&isMyTurn()){toast('Waiting for the defender to resolve…');return;}
@@ -2321,7 +2348,8 @@ function refreshBenchPhase(){
   const cbtn=document.getElementById('combat-continue-btn');
   if(!bp){_benchFlashKey=null;_benchSel=[];}
   const pending=bp&&!bp.done;
-  const iAmLoser=!_onlineActive||(bp&&bp.loser===_mySlot);
+  const aiLoser=_aiActive&&bp&&bp.loser===_aiSlot; // 2_45: AI picks its own bench
+  const iAmLoser=aiLoser?false:(!_onlineActive||(bp&&bp.loser===_mySlot));
   if(!pending){
     area.style.display='none';waitLine.style.display='none';
     // restore the Continue button to its normal post-result state
@@ -2381,7 +2409,7 @@ function updateBenchConfirm(){
   b.textContent=`Send to Bench (${_benchSel.length}/${bp?bp.need:0})`;
   b.disabled=!bp||_benchSel.length!==bp.need;
 }
-function confirmBenchPick(){
+function confirmBenchPick(){if(aiGuard())return;
   const bp=G.benchPick;
   if(!bp||bp.done)return;
   if(_onlineActive&&bp.loser!==_mySlot){toast('Waiting for the bench choice…');return;}
@@ -2448,6 +2476,7 @@ function showCombatResult(r){
     // scrambling and the result is displayed. (The immediate call that used
     // to sit below this line showed it mid-roll.)
     refreshBenchPhase(); // bench-pending override wins, as before 2_40
+    aiMaybeBench(); // 2_45: Vs AI hook — AI benches its best dice
   });
 }
 // Only the shooter advances past the combat result — this also closes the
@@ -2459,10 +2488,10 @@ function combatContinue(){
   if(_onlineActive)pushState();
   closeCombat();
 }
-function closeCombat(){document.getElementById('combat-panel').classList.remove('show');renderAll();}
+function closeCombat(){document.getElementById('combat-panel').classList.remove('show');renderAll();aiMaybeResume();} // 2_45: Vs AI hook
 
 // ═══════════════════ END TURN ═══════════════════
-function confirmEndTurn(){
+function confirmEndTurn(){if(aiGuard())return;
   // 2_30: idiot-proofer — warn only when something of value would be lost:
   // non-blank dice left in R&S (blanks are worthless), or the HC die showing
   // energy (HC energy is use-or-lose: it can't go to Reserve, and the die
@@ -2492,7 +2521,7 @@ function confirmSkipShot(){
   }
   endTurn();
 }
-function endTurn(){
+function endTurn(){if(aiGuard())return;
   const ap=AP();
   // Cancel any debounced auto-push scheduled before this flip — it must not
   // fire after the turn changes hands (widens the write window / double-push).
@@ -2531,6 +2560,7 @@ function endTurn(){
 
 // ═══════════════════ PERIOD END ═══════════════════
 function showPeriodEnd(){
+  _aiBusy=false;_aiDefPhase=null; // 2_45: Vs AI — period break releases the board
   document.getElementById('pe-title').textContent=`Period ${G.period} Complete`;
   document.getElementById('pe-score').textContent=`${G.players[0].goals} – ${G.players[1].goals}`;
   const next=G.period+1;
@@ -2596,7 +2626,7 @@ function showGameOver(){
 }
 
 // ═══════════════════ SHOP ═══════════════════
-function openShop(){
+function openShop(){if(aiGuard())return;
   if(spectating()){toast('⏳ Wait for your turn to shop.');return;}
   if(G.phase<4||_rrMode){toast('Finish rerolling first!');return;}
   const ap=AP();const avail=totalE();
@@ -2824,7 +2854,7 @@ function renderZone(zid,arr,opts={}){
 
 let _menu=null;
 function closeMenus(){document.querySelectorAll('.die-menu').forEach(m=>m.remove());_menu=null;}
-function showMenu(die,wrapEl){
+function showMenu(die,wrapEl){if(aiGuard())return;
   closeMenus();
   const opts=getOpts(die);if(!opts.length)return;
   const m=document.createElement('div');m.className='die-menu';
@@ -2989,6 +3019,16 @@ function renderActions(){
     vb.className='abtn sec';vb.textContent='👁 View My Board';
     vb.addEventListener('click',openOppBoard);row.appendChild(vb);
     return;
+  }
+  // 2_45: Vs AI — the human watches; speed toggle included
+  if(_aiBusy){
+    const P=aiP();
+    row.innerHTML=`<div class="watch-pill">🤖 <b>${P.name} is thinking…</b></div>`;
+    const sp=document.createElement('button');sp.className='abtn sec';
+    sp.style.cssText='font-size:.75em;padding:6px 10px';
+    sp.textContent=_aiSpeed===2?'Speed: 2×':_aiSpeed===0?'Speed: Max':'Speed: 1×';
+    sp.addEventListener('click',()=>{_aiSpeed=_aiSpeed===1?2:_aiSpeed===2?0:1;renderActions();});
+    row.appendChild(sp);return;
   }
   const mk=(lbl,fn,cls='prim',dis=false,pulse=false)=>{
     const b=document.createElement('button');
@@ -3532,6 +3572,7 @@ function soStartShooterTurn(){
     </div>`;
     if(!isUsed && iAmShooter && !_so.suddenDeath){ // 2_43: sudden-death die is display-only
       wrap.querySelector('.die-body').addEventListener('click',()=>{
+        if(_aiBusy&&!_aiSelf)return; // 2_45: AI picks its own shooter
         choices.querySelectorAll('.die-body').forEach(b=>b.classList.remove('sel'));
         wrap.querySelector('.die-body').classList.add('sel');
         _so.selectedFwd = fwdKey;
@@ -3546,10 +3587,11 @@ function soStartShooterTurn(){
     _so.selectedFwd=sp.forwards[0];
     document.getElementById('so-roll-btn').disabled=false;
   }
+  aiMaybeShootout(); // 2_45: Vs AI hook
 }
 
 // ── ROLL SHOT ──
-function soRollShot(){
+function soRollShot(){if(aiGuard())return;
   if(!_so.selectedFwd){toast('Choose a Forward first.');return;}
   // Online: only the shooting player rolls on their own screen.
   if(_onlineActive && _mySlot!==_so.shooterIdx){toast('⏳ Wait for your shot.');return;}
@@ -3670,6 +3712,7 @@ function soShowResult(r){
       }else{
         nb.disabled=false;
       }
+      aiMaybeShootoutAdvance(r); // 2_45: Vs AI hook
     });
 }
 
@@ -3680,7 +3723,7 @@ function soIsLastShot(){
          (_so.suddenDeath && _so.shooterIdx===1);
 }
 
-function soAdvance(){
+function soAdvance(){if(aiGuard())return;
   // Online: only the player who just shot advances the shootout.
   if(_onlineActive && _mySlot!==_so.shooterIdx){toast('⏳ Wait for your turn.');return;}
   if(_so.shooterIdx===_so.firstShooter){
@@ -4434,6 +4477,405 @@ renderAll=function(){
 };
 
 window.addEventListener('DOMContentLoaded',()=>{ populateOnlineTeamSelects(); });
+
+
+// ═══════════════════════════════════════════════════════════════════
+// AI OPPONENT (2_45) — Vs AI mode
+// A "virtual hand": calls the same action functions the UI buttons call,
+// choosing among getOpts() legal moves. It cannot cheat — every move goes
+// through the same rules as a human click. Presentation (pills, pacing)
+// only; no game-logic changes.
+// ═══════════════════════════════════════════════════════════════════
+let _aiActive=false,_aiSlot=1,_aiPersona='balanced',_aiBusy=false,_aiSelf=false,_aiSpeed=1,_aiDefPhase=null;
+let _qsMode='pvp',_aiPersonaSel='balanced',_aiTeamIdx=null;
+
+const AI_PERSONAS={
+  blitz:{name:'Blitz',icon:'🔥',tag:'Aggressive',
+    desc:'Pushes every shooter, buys early, rerolls for upside.',
+    aggression:.9,spend:.85,risk:.85,tokens:.8,holdBack:0,foPick:'even'},
+  trapper:{name:'Trapper',icon:'🧊',tag:'Patient',
+    desc:'Banks energy, holds shooters back, saves tokens for late.',
+    aggression:.25,spend:.3,risk:.25,tokens:.3,holdBack:2,foPick:'odd'},
+  coach:{name:'Coach',icon:'♟️',tag:'Balanced',
+    desc:'Solid all-around game. The default sparring partner.',
+    aggression:.55,spend:.55,risk:.5,tokens:.55,holdBack:1,foPick:'random'},
+};
+function aiP(){return AI_PERSONAS[_aiPersona]||AI_PERSONAS.coach;}
+function aiIsTurn(){return _aiActive&&typeof G!=='undefined'&&G.ap===_aiSlot;}
+function aiGuard(){return _aiBusy&&!_aiSelf;}
+function aiSleep(ms){return new Promise(r=>setTimeout(r,_aiSpeed===0?40:Math.round(ms/(_aiSpeed===2?2.2:1))));}
+function aiTierRank(key){const p=posOf(key);return p==='F'?4:p==='D'?3:p==='G'?2:1;}
+function aiDieRank(d){return aiTierRank(d.key)*1000+tierOf(d.key)*10+((d.face&&d.face.v)||0);}
+
+// ── Step-summary pills: their own channel so they never clobber warnings ──
+function aiPill(msg){
+  const P=aiP();let el=document.getElementById('ai-pill');
+  if(!el){el=document.createElement('div');el.id='ai-pill';document.body.appendChild(el);}
+  el.innerHTML=`${P.icon} <b>${P.name}</b> — ${msg}`;
+  el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2800);
+}
+
+// ── Quickstart: mode toggle + persona picker ──
+function qsMode(m){
+  _qsMode=m;
+  document.getElementById('qs-mode-pvp').classList.toggle('active',m==='pvp');
+  document.getElementById('qs-mode-ai').classList.toggle('active',m==='ai');
+  document.getElementById('qs-p2col').style.display=m==='ai'?'none':'';
+  document.getElementById('qs-aicol').style.display=m==='ai'?'':'none';
+  if(m==='ai')renderAIPanel();
+}
+function aiPickPersona(k){
+  _aiPersonaSel=k;
+  [...document.querySelectorAll('#ai-persona-cards .persona-card')].forEach(c=>c.classList.toggle('sel',c.dataset.k===k));
+  renderAIPanelTeam();
+}
+function aiRerollTeam(){_aiTeamIdx=Math.floor(Math.random()*PRESETS.length);renderAIPanelTeam();}
+function renderAIPanel(){
+  if(_aiTeamIdx===null||_aiTeamIdx===undefined)_aiTeamIdx=Math.floor(Math.random()*PRESETS.length);
+  renderAIPanelTeam();
+  const pc=document.getElementById('ai-persona-cards');pc.innerHTML='';
+  Object.entries(AI_PERSONAS).forEach(([k,P])=>{
+    const d=document.createElement('div');d.className='persona-card'+(k===_aiPersonaSel?' sel':'');
+    d.dataset.k=k;
+    d.innerHTML=`<div style="font-size:1.4em">${P.icon}</div><div style="font-weight:700">${P.name}</div>`+
+      `<div style="font-size:.72em;color:#ffd75e">${P.tag}</div>`+
+      `<div style="font-size:.72em;color:#aaa;margin-top:4px">${P.desc}</div>`;
+    d.addEventListener('click',()=>aiPickPersona(k));
+    pc.appendChild(d);
+  });
+}
+function renderAIPanelTeam(){
+  const p=PRESETS[_aiTeamIdx];
+  document.getElementById('ai-team-line').innerHTML=
+    `<span style="font-size:1.2em">🏒</span> <b>${p.name}</b> <span style="color:#888">(${p.pts} pts)</span> `+
+    `<button class="abtn sec" style="font-size:.75em;padding:4px 10px;margin-left:8px" onclick="aiRerollTeam()">🎲 Re-roll team</button>`;
+}
+function startAIGame(){
+  if(_qsSel[0]===null){toast('Select your team first.');return;}
+  const p1=PRESETS[_qsSel[0]],p2=PRESETS[_aiTeamIdx||0];
+  _aiActive=true;_aiSlot=1;_aiPersona=_aiPersonaSel;_aiBusy=false;_aiDefPhase=null;
+  initG(p1.lineup,p2.lineup,[],[]);
+  const P=aiP();
+  G.players[0].teamName=p1.name;
+  G.players[1].teamName=p2.name;
+  G.players[1].name=`${P.icon} ${P.name}`;
+  [p1,p2].forEach((p,i)=>{
+    const diff=25-p.pts;
+    if(diff>0){
+      let ch;
+      if(i===1){ch=P.aggression>=0.5;G.players[i].tok[ch?'shoot':'block']+=diff;}
+      else{
+        ch=confirm(`${G.players[i].name} (${p.name}): ${p.pts}pt build earns ${diff} starting token${diff>1?'s':''}!\nOK = Shoot | Cancel = Block`);
+        if(ch)G.players[i].tok.shoot+=diff;else G.players[i].tok.block+=diff;
+      }
+      addLog(`${G.players[i].name}: Sub-25pt build — gained ${diff} ${ch?'Shoot':'Block'} token${diff>1?'s':''}.`,'imp');
+    }
+  });
+  addLog(`🤖 Vs AI: ${P.icon} ${P.name} (${P.tag}) sits across the table with ${p2.name}.`,'imp');
+  beginGame();
+}
+
+// ── Turn driver ──
+function aiMaybeStartTurn(){
+  if(aiIsTurn()){if(_aiBusy)return;_aiBusy=true;aiTurnMain();}
+  else{_aiBusy=false;_aiDefPhase=null;}
+}
+async function aiTurnMain(){
+  const P=aiP();
+  aiPill(`takes the turn`);
+  try{
+    await aiSleep(900);if(!aiIsTurn())return;
+    _aiSelf=true;try{rollAll();}finally{_aiSelf=false;}
+    await aiSleep(1100);if(!aiIsTurn())return;
+    aiDoReroll(P);
+    await aiSleep(800);if(!aiIsTurn())return;
+    aiDoAssign(P);
+    await aiSleep(800);if(!aiIsTurn())return;
+    aiDoBuy(P);
+    await aiSleep(800);if(!aiIsTurn())return;
+    const shot=await aiDoShoot(P);
+    if(!shot){
+      await aiSleep(600);if(!aiIsTurn())return;
+      _aiSelf=true;try{aiPill('ends the turn');endTurn();}finally{_aiSelf=false;}
+    }
+    // shot=true: driver pauses — the human defends, then closeCombat resumes the AI end turn
+  }catch(e){console.error('AI turn error:',e);_aiBusy=false;_aiDefPhase=null;renderAll();}
+}
+
+// How much the AI likes KEEPING a die (higher = keep). Used for reroll targeting.
+function aiDieScore(d,P){
+  const f=d.face;if(!f)return 0;
+  if(f.t==='BLANK')return 0;
+  if(f.t==='E')return 4;
+  if(f.t==='S')return 2+f.v*.5+P.aggression*1.5;
+  if(f.t==='B')return 2+f.v*.5+(1-P.aggression)*1.5;
+  if(f.t==='W')return 3.5;
+  if(f.t==='RR')return 2;
+  if(f.t==='PEN')return 2.5;
+  if(f.t==='ADV')return 2;
+  if(f.t==='SO')return 2;
+  return 1;
+}
+function aiDoReroll(P){
+  const ap=AP();
+  const cands=ap.z.rs.filter(d=>d.key!=='HC').map(d=>({d,s:aiDieScore(d,P)}))
+    .filter(x=>x.s<2).sort((a,b)=>a.s-b.s);
+  const picks=cands.slice(0,Math.round(1+P.risk*3));
+  _aiSelf=true;
+  try{
+    if(picks.length){
+      picks.forEach(x=>x.d.sel=true);confirmRRSel();
+      aiPill(`re-rolled ${picks.length} ${picks.length===1?'die':'dice'} 🎲`);
+    }else{skipRR();}
+  }finally{_aiSelf=false;}
+}
+// Mirror of assignDie's costed shoot/block path, minus the picker UI (cost pre-paid via spendE).
+function aiAdvance(d,which){
+  const ap=AP();const i=ap.z.rs.indexOf(d);if(i===-1)return;
+  ap.z.rs.splice(i,1);G.assignmentStarted=true;
+  if(which==='S'){
+    if(G.clock>4)ap.z.cold.push(d);else ap.z.hot.push(d);
+    addLog(`${ap.name}: ${dLbl(d)}→${G.clock>4?'Cold':'Hot'} Zone (1⚡ paid).`);
+  }else{ap.z.defend.push(d);addLog(`${ap.name}: ${dLbl(d)}→Defensive Zone (1⚡ paid).`);}
+}
+function aiResolveAdv(){
+  const ap=AP();
+  if(!G.advPending)return;
+  const best=[...ap.z.cold].sort((a,b)=>aiDieRank(b)-aiDieRank(a))[0];
+  if(best){ap.z.cold.splice(ap.z.cold.indexOf(best),1);ap.z.hot.push(best);
+    addLog(`${ap.name}: ADV — ${dLbl(best)} advanced Cold→Hot Zone.`,'imp');}
+  G.advPending=false;renderAll();
+}
+function aiDoAssign(P){
+  const ap=AP();
+  let nS=0,nB=0,nR=0,nI=0;
+  const zone=G.clock>4?'Cold':'Hot';
+  _aiSelf=true;
+  try{
+    // PEN faces — always use while the pool has dice
+    [...ap.z.rs].forEach(d=>{if(d.face&&d.face.t==='PEN'&&G.penaltyPool>0)assignDie(d,'pen-give');});
+    // RR face-spend before assignment starts (the kids' move: reroll the RR side)
+    const rrd=ap.z.rs.find(d=>d.face&&d.face.t==='RR');
+    if(rrd&&P.risk>0.55&&!G.assignmentStarted){
+      const weak=ap.z.rs.filter(d=>d!==rrd&&aiDieScore(d,P)<1.2);
+      if(weak.length>=2){assignDie(rrd,'rr');weak.slice(0,3).forEach(d=>d.sel=true);confirmRRSel();}
+    }
+    // main pass over a snapshot — assignDie mutates rs
+    [...ap.z.rs].forEach(d=>{
+      const f=d.face;if(!f)return;
+      if(f.t==='E'){
+        if(d.key!=='HC'&&ap.z.reserve.length<2&&P.spend<0.5){assignDie(d,'reserve');nR++;}
+        // else: leave in RS as spendable energy
+      }else if(f.t==='S'||f.t==='W'){
+        const asShoot=f.t==='S'||P.aggression>=0.5;
+        if(f.c){
+          if(totalE()>=1&&P.spend>0.35){spendE(1);aiAdvance(d,asShoot?'S':'B');asShoot?nS++:nB++;}
+          else{assignDie(d,'iced');nI++;}
+        }else{assignDie(d,asShoot?'shoot':'block');asShoot?nS++:nB++;}
+      }else if(f.t==='B'){
+        if(f.c){
+          if(totalE()>=1&&P.spend>0.35){spendE(1);aiAdvance(d,'B');nB++;}
+          else{assignDie(d,'iced');nI++;}
+        }else{assignDie(d,'block');nB++;}
+      }else if(f.t==='SO'){
+        if(totalE()>=1&&P.tokens>0.4){
+          spendE(1);ap.tok.block+=f.v;ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);
+          addLog(`${ap.name}: Shutout → +${f.v} Block Tokens (1⚡ paid, ${ap.tok.block} total).`,'imp');
+        }
+        // else: leave it — falls to Iced at end of turn (2_36)
+      }else if(f.t==='ADV'){
+        if(G.clock!==10&&ap.z.cold.length){assignDie(d,'adv');aiResolveAdv();}
+        else{assignDie(d,'iced');nI++;}
+      }else if(f.t==='BLANK'||f.t==='RR'){
+        assignDie(d,'iced');nI++;
+      }
+      // PEN handled above (pool empty → sits, ices at end of turn)
+    });
+  }finally{_aiSelf=false;}
+  renderAll();
+  const bits=[];
+  if(nS)bits.push(`${nS} shooter${nS>1?'s':''} (${zone})`);
+  if(nB)bits.push(`${nB} blocker${nB>1?'s':''}`);
+  if(nR)bits.push(`${nR} to Reserve`);
+  if(nI)bits.push(`${nI} iced`);
+  if(bits.length)aiPill(`assigned ${bits.join(' · ')}`);
+  else aiPill(`holds its roll`);
+}
+function aiDoBuy(P){
+  const ap=AP();
+  if(P.spend<0.3||totalE()<1)return; // banks everything
+  let best=null;
+  ap.lineup.forEach((c,idx)=>{
+    if(c.key==='HC'||!c.left)return;
+    const cost=COSTS[c.key]||99;
+    if(totalE()<cost)return;
+    const val=tierOf(c.key)+(c.key.startsWith('F')?P.aggression*2:c.key.startsWith('D')?(1-P.aggression)*2:1);
+    const score=val/Math.max(1,cost);
+    if(!best||score>best.score)best={idx,key:c.key,cost,score};
+  });
+  _aiSelf=true;
+  try{
+    if(best&&P.spend>0.45){
+      // mirror buyCard's draft path without the picker UI
+      spendE(best.cost);
+      const card=ap.lineup[best.idx];card.left--;
+      ap.z.iced.push(mkDie(card.key));
+      addLog(`${ap.name}: Bought ${card.key} for ${best.cost}E → Iced Zone.`,'imp');
+      awardBuyBonus(ap,card);
+      renderAll();
+      aiPill(`drafted ${best.key} for ${best.cost}E 🛒`);
+      return;
+    }
+    if(P.tokens>0.6&&totalE()>=6){
+      spendE(3);
+      if(P.aggression>=0.5){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`bought a 🎯 Shoot token`);}
+      else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`bought a 🥅 Block token`);}
+      renderAll();
+    }
+  }finally{_aiSelf=false;}
+}
+async function aiDoShoot(P){
+  const ap=AP();
+  if(!ap.z.hot.length)return false;
+  // commit best-first, holding holdBack dice in Hot for later turns
+  const sorted=[...ap.z.hot].sort((a,b)=>aiDieRank(b)-aiDieRank(a));
+  const commit=sorted.slice(0,Math.max(1,sorted.length-P.holdBack));
+  _aiSelf=true;
+  try{commit.forEach(d=>moveToShoot(d.id));}finally{_aiSelf=false;}
+  renderAll();
+  await aiSleep(800);if(!aiIsTurn())return true;
+  _aiSelf=true;
+  try{
+    declareShot();
+    const pips=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
+    let want=0;
+    if(ap.tok.shoot>0){
+      if(P.tokens>0.65&&pips>=3)want=Math.min(ap.tok.shoot,2);
+      else if(G.clock<=2&&pips>=2)want=Math.min(ap.tok.shoot,2);
+      else if(P.tokens>0.4&&pips>=4)want=1;
+    }
+    for(let i=0;i<want;i++)adjST(1);
+    lockShot();
+  }finally{_aiSelf=false;}
+  _aiDefPhase='humanDef';
+  const n=ap.z.shoot.length;
+  aiPill(`shoots with ${n} ${n===1?'die':'dice'}${_sTok?` + ${_sTok} 🎯`:''} — defend!`);
+  renderAll();
+  return true; // driver pauses; the human defends, closeCombat resumes the AI end turn
+}
+
+// ── AI defends (human shot) ──
+function aiMaybeDefend(){
+  if(!_aiActive||G.ap===_aiSlot)return; // AI is the shooter — human defends
+  _aiBusy=true;_aiDefPhase='aiDef';renderAll();
+  aiDefendTurn();
+}
+async function aiDefendTurn(){
+  const P=aiP(),me=G.players[_aiSlot];
+  try{
+    aiPill(`studies your shot…`);
+    await aiSleep(1100);
+    _aiSelf=true;
+    G.blockSelIds=me.z.defend.map(d=>d.id);
+    try{
+      document.querySelectorAll('#bsel-dice .die-body').forEach(b=>b.classList.add('sel'));
+      const totalPips=me.z.defend.reduce((s,d)=>s+(d.face?d.face.v:0),0);
+      const binfo=document.getElementById('bsel-info');
+      if(binfo)binfo.textContent=`${me.z.defend.length} dice committed (${totalPips} block pips → ${totalPips} combat dice)`;
+    }catch(e){}
+    renderAll();
+    await aiSleep(900);
+    const atk=G.players[G.ap];
+    const atkPips=atk.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0)+_sTok;
+    const myPips=me.z.defend.reduce((s,d)=>s+(d.face?d.face.v:1),0);
+    const bonus=G.clock===1?3:G.clock>4?1:2;
+    let want=0;
+    if(me.tok.block>0){
+      const short=atkPips-(myPips+bonus);
+      if(short>0)want=Math.min(me.tok.block,short,P.tokens>0.5?3:2);
+      else if(P.tokens>0.7&&atkPips>=4)want=1;
+    }
+    for(let i=0;i<want;i++)adjBT(1);
+    const nb=me.z.defend.length;
+    aiPill(want?`commits ${nb} blockers + ${want} 🥅`:`commits ${nb} blocker${nb===1?'':'s'}`);
+    renderAll();
+    await aiSleep(1000);
+    resolveCombat();
+  }finally{_aiSelf=false;_aiDefPhase=null;}
+  // settle → aiMaybeBench handles an AI bench loss; the human clicks Continue
+}
+// Called from closeCombat: resume the AI end turn after it shot, or release the board.
+function aiMaybeResume(){
+  if(!_aiActive)return;
+  if(G.ap===_aiSlot&&G.shotDeclared){
+    _aiDefPhase=null;
+    setTimeout(()=>{_aiSelf=true;try{aiPill('ends the turn');endTurn();}finally{_aiSelf=false;}},900);
+  }else{_aiBusy=false;_aiDefPhase=null;renderAll();}
+}
+// Called from the combat settle: the AI benches its best dice (tier order F>D>G>Rookie).
+function aiMaybeBench(){
+  if(!(_aiActive&&G.benchPick&&!G.benchPick.done&&G.benchPick.loser===_aiSlot))return;
+  setTimeout(()=>{
+    const bp=G.benchPick;if(!bp||bp.done)return;
+    const p=G.players[bp.loser];
+    const ranked=p.z[bp.zone].filter(d=>bp.ids.includes(d.id)).sort((a,b)=>aiDieRank(b)-aiDieRank(a));
+    _aiSelf=true;
+    try{
+      _benchSel=ranked.slice(0,bp.need).map(d=>d.id);
+      confirmBenchPick();
+      aiPill(`benched ${Math.min(bp.need,ranked.length)} ${bp.need===1?'die':'dice'} 📦`);
+    }finally{_aiSelf=false;}
+  },1500);
+}
+
+// ── Faceoff auto-drive ──
+function aiMaybeAutoFaceoff(){
+  if(!_aiActive)return;
+  setTimeout(()=>{_aiSelf=true;try{doFaceoff();}finally{_aiSelf=false;}},900);
+}
+function aiMaybeFoPick(){
+  if(!(_aiActive&&G.fo&&G.fo.w===_aiSlot))return;
+  const P=aiP();
+  setTimeout(()=>{
+    let c=P.foPick;if(c==='random')c=Math.random()<0.5?'even':'odd';
+    _aiSelf=true;
+    try{
+      pickFoChoice(c);
+      aiPill(`wins the faceoff, chooses ${c.toUpperCase()} minutes`);
+      setTimeout(()=>{_aiSelf=true;try{beginPeriodAfterFo();}finally{_aiSelf=false;}},900);
+    }finally{_aiSelf=false;}
+  },1100);
+}
+
+// ── Shootout auto-drive ──
+function aiMaybeShootout(){
+  if(!_aiActive||!_so||_so.phase==='final'||_so.shooterIdx!==_aiSlot){if(_aiActive)_aiBusy=false;return;}
+  _aiBusy=true;aiShootoutTurn();
+}
+async function aiShootoutTurn(){
+  const si=_so.shooterIdx,P=aiP();
+  try{
+    await aiSleep(1000);
+    _aiSelf=true;
+    if(!_so.suddenDeath){
+      const used=_so.usedFwds[si];
+      const avail=_so.players[si].forwards.filter(k=>!used.includes(k))
+        .sort((a,b)=>(aiTierRank(b)-aiTierRank(a))||(tierOf(b)-tierOf(a)));
+      _so.selectedFwd=avail[0]||_so.players[si].forwards[0];
+      const rb=document.getElementById('so-roll-btn');if(rb)rb.disabled=false;
+      aiPill(`sends out ${_so.selectedFwd}`);
+    }else{
+      aiPill(`sudden death — ${_so.selectedFwd} steps up`);
+    }
+    await aiSleep(800);
+    soRollShot();
+  }finally{_aiSelf=false;}
+  // result settle → aiMaybeShootoutAdvance moves to the next shooter
+}
+function aiMaybeShootoutAdvance(r){
+  if(!(_aiActive&&r&&r.playerIdx===_aiSlot))return;
+  setTimeout(()=>{_aiSelf=true;try{soAdvance();}finally{_aiSelf=false;}},1700);
+}
 
 </script>
 
