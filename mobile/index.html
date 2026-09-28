@@ -38,7 +38,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .builder-player{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:16px;}
 /* 2_52: the team list column stretches to match the AI options column height */
 #qs-panel .builder-player{display:flex;flex-direction:column;}
-#qs-p1{flex:1;overflow-y:auto;min-height:300px;}
+#qs-p1{flex:1;overflow-y:auto;min-height:300px;max-height:550px;} /* 2_52b: cap it — uncapped flex grew forever */
 .builder-player h3{color:var(--gold);font-size:1em;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;}
 .builder-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:.9em;color:#ccc;}
 .builder-row label{width:80px;flex-shrink:0;}
@@ -520,7 +520,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.52</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.53</span></div>
     <div class="setup-sub">Hockey Dice-Building Game — Playtesting Simulator</div>
     <div class="setup-btns">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
@@ -679,7 +679,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.52</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.53</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3720,12 +3720,19 @@ function soShowResult(r){
         resEl.textContent=`🥅 SAVED! (${saveTotal} ≥ ${shotTotal})`;
       }
       renderSOScoreboard();
-      nb.textContent = soIsLastShot() ? 'See Final Result →' : 'Next Shooter →';
+      // 2_52b: vs AI — no Next button on the AI's turn; it auto-advances after a pause
+      if(_so.vsAI&&r.playerIdx===_aiSlot){
+        nb.style.display='none';
+        aiPill(soIsLastShot()?"AI's turn done — your shot is next!":"AI's shot done — your turn is up!");
+      }else{
+        nb.style.display='';
+        nb.textContent = soIsLastShot() ? 'See Final Result →' : 'Next Shooter →';
+      }
       // Online: only the player who just shot clicks Next — the other side waits.
       if(_onlineActive && _mySlot!==r.playerIdx){
         nb.disabled=true;
         nb.textContent='Waiting…';
-      }else{
+      }else if(!(_so.vsAI&&r.playerIdx===_aiSlot)){
         nb.disabled=false;
       }
       aiMaybeShootoutAdvance(r); // 2_45: Vs AI hook
@@ -4734,7 +4741,7 @@ function aiResolveAdv(){
 }
 function aiDoAssign(P){
   const ap=AP();
-  let nS=0,nB=0,nI=0;
+  let nS=0,nB=0;
   const zone=G.clock>4?'Cold':'Hot';
   _aiSelf=true;
   try{
@@ -4755,12 +4762,12 @@ function aiDoAssign(P){
         const asShoot=f.t==='S'||P.aggression>=0.5;
         if(f.c){
           if(totalE()>=1&&P.spend>0.35){spendE(1);aiAdvance(d,asShoot?'S':'B');asShoot?nS++:nB++;}
-          else{assignDie(d,'iced');nI++;}
+          else{assignDie(d,"iced");}
         }else{assignDie(d,asShoot?'shoot':'block');asShoot?nS++:nB++;}
       }else if(f.t==='B'){
         if(f.c){
           if(totalE()>=1&&P.spend>0.35){spendE(1);aiAdvance(d,'B');nB++;}
-          else{assignDie(d,'iced');nI++;}
+          else{assignDie(d,"iced");}
         }else{assignDie(d,'block');nB++;}
       }else if(f.t==='SO'){
         if(totalE()>=1&&P.tokens>0.4){
@@ -4770,9 +4777,9 @@ function aiDoAssign(P){
         // else: leave it — falls to Iced at end of turn (2_36)
       }else if(f.t==='ADV'){
         if(G.clock!==10&&ap.z.cold.length){assignDie(d,'adv');aiResolveAdv();}
-        else{assignDie(d,'iced');nI++;}
+        else{assignDie(d,"iced");}
       }else if(f.t==='BLANK'||f.t==='RR'){
-        assignDie(d,'iced');nI++;
+        assignDie(d,"iced");
       }
       // PEN handled above (pool empty → sits, ices at end of turn)
     });
@@ -4782,7 +4789,7 @@ function aiDoAssign(P){
   const dieWord=n=>n===1?'die':'dice'; // 2_52
   if(nS)bits.push(`${nS} ${dieWord(nS)} to offensive (${zone}) zone`);
   if(nB)bits.push(`${nB} ${dieWord(nB)} to defense zone`);
-  if(nI)bits.push(`${nI} iced`);
+  // 2_52b: no "X iced" in the summary — blanks/unused energy don't matter to the player
   if(bits.length)aiPill(`assigned ${bits.join(' · ')}`);
   else aiPill(`holds its roll`);
 }
