@@ -679,7 +679,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.42em;color:#5a6a7a;font-weight:400;letter-spacing:1px">v2.49</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4493,6 +4493,26 @@ const AI_PERSONAS={
 function aiP(){return AI_PERSONAS[_aiPersona]||AI_PERSONAS.coach;}
 function aiIsTurn(){return _aiActive&&typeof G!=='undefined'&&G.ap===_aiSlot;}
 function aiGuard(){return _aiBusy&&!_aiSelf;}
+// 2_49: stuck watchdog — if the board is AI-busy on the human's turn with no AI
+// activity (not defending, not shootout), release it rather than strand the game.
+setInterval(()=>{
+  try{
+    if(!_aiActive)return;
+    if(!_aiBusy){window._aiWatchdogT=null;return;}
+    if(typeof G==='undefined')return;
+    if(G.ap===_aiSlot)return; // AI's turn — leave it
+    if(_aiDefPhase)return; // AI defending — leave it
+    if(typeof _so!=='undefined'&&_so&&_so.phase!=='final')return; // shootout — leave it
+    const now=Date.now();
+    if(!window._aiWatchdogT)window._aiWatchdogT=now;
+    if(now-window._aiWatchdogT>8000){
+      window._aiWatchdogT=null;
+      _aiBusy=false;_aiDefPhase=null;
+      if(typeof renderAll==='function')renderAll();
+      if(typeof addLog==='function')addLog('⚠️ Coach released the board (stuck guard).','imp');
+    }
+  }catch(e){}
+},2000);
 // 2_46: base pacing slowed ~3.5x so every step is readable; speed is chosen in the menu
 function aiPace(ms){return _aiSpeed===0?Math.min(ms,200):Math.round(ms*3.5/(_aiSpeed===2?2.2:1));}
 function aiSleep(ms){return new Promise(r=>setTimeout(r,aiPace(ms)));}
@@ -4544,7 +4564,14 @@ function aiShowTurnSummary(onTake){
   el.classList.add('show');
   document.getElementById('ai-take-turn').addEventListener('click',()=>{
     el.classList.remove('show');el.classList.remove('summary');el.innerHTML=''; // 2_48: cleared, so nothing stale lingers
-    try{onTake&&onTake();}catch(e){console.error('take-turn error:',e);_aiBusy=false;_aiDefPhase=null;renderAll();}
+    try{onTake&&onTake();}catch(e){console.error('take-turn error:',e);}
+    finally{
+      // 2_49: the tap means the human is taking over — the board must be free.
+      // If the turn flipped to the human, force-release; never strand on "thinking".
+      _aiSelf=false;
+      if(typeof G!=='undefined'&&G.ap!==_aiSlot){_aiBusy=false;_aiDefPhase=null;}
+      renderAll();
+    }
   });
 }
 
@@ -4627,7 +4654,7 @@ async function aiTurnMain(){
     if(!shot){
       await aiSleep(600);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
       aiPill('ends the turn');
-      aiShowTurnSummary(()=>{_aiSelf=true;try{endTurn();}finally{_aiSelf=false;}}); // 2_48: tap Take Turn to end the AI turn
+      aiShowTurnSummary(()=>{_aiSelf=true;try{endTurn();}finally{_aiSelf=false;if(G.ap!==_aiSlot){_aiBusy=false;_aiDefPhase=null;}}}); // 2_49: tap Take Turn to end the AI turn — board released
     }
     // shot=true: driver pauses — the human defends, then closeCombat resumes the AI end turn
   }catch(e){console.error('AI turn error:',e);_aiBusy=false;_aiDefPhase=null;renderAll();}
