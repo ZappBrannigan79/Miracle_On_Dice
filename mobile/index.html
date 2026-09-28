@@ -181,6 +181,15 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .pos-HC .die-body{background:radial-gradient(circle at 35% 35%,#c8a84b,#6b5422);border-color:#e8c86b;}
 .pos-R .die-body{background:radial-gradient(circle at 35% 35%,#ddd,#aaa);border-color:#ccc;}
 .pos-P .die-body{background:radial-gradient(circle at 35% 35%,#222,#111);border-color:#444;}
+@keyframes dicewob{0%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}50%{transform:translate(-50%,-50%) rotate(12deg) scale(1.14);}100%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}}
+@keyframes dicewob2{0%{transform:rotate(-12deg) scale(1.12);}50%{transform:rotate(12deg) scale(1.18);}100%{transform:rotate(-12deg) scale(1.12);}}
+.face-badge.rolling{animation:dicewob .13s linear infinite;}
+.cdie.rolling,.fo-die.rolling{animation:dicewob2 .13s linear infinite;}
+/* 2_41: goal celebration + token pop */
+@keyframes goalpop{0%{transform:scale(.5);opacity:0;}45%{transform:scale(1.18);opacity:1;}75%{transform:scale(.94);}100%{transform:scale(1);}}
+.goalpop{animation:goalpop .65s ease-out;}
+@keyframes tokpop{0%{transform:scale(1);}40%{transform:scale(1.35);}100%{transform:scale(1);}}
+.tok-pill.tokpop{animation:tokpop .45s ease-out;}
 .face-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;font-size:.67em;font-weight:900;line-height:1.1;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.5);pointer-events:none;}
 .fb-E{background:var(--fc-E);color:#111;}
 .fb-S{background:var(--fc-S);color:#fff;}
@@ -1062,6 +1071,7 @@ function initG(l1,l2,bag1=[],bag2=[]){
      clock:10, // shared 10-min period clock, ticks 1 per turn
      players:[mkPlayer('Player 1',l1,bag1),mkPlayer('Player 2',l2,bag2)]};
   _rrMode=false;_rrDieId=null;
+  _lastTok={}; // 2_41: reset token-pop tracker for the new game
 }
 function AP(){return G.players[G.ap];}
 function OPP(){return G.players[1-G.ap];}
@@ -1323,10 +1333,14 @@ function doFaceoff(){
   if(_onlineActive&&_mySlot!==0){toast('Waiting for the host to roll the faceoff…');return;}
   let r1,r2,t1,t2;
   do{r1=[rcf(),rcf()];r2=[rcf(),rcf()];t1=r1[0]+r1[1];t2=r2[0]+r2[1];}while(t1===t2);
-  document.getElementById('fo-d1').innerHTML=r1.map(v=>`<div class="fo-die">${v}</div>`).join('');
-  document.getElementById('fo-d2').innerHTML=r2.map(v=>`<div class="fo-die">${v}</div>`).join('');
-  document.getElementById('fo-t1').textContent=t1;document.getElementById('fo-t2').textContent=t2;
   const w=t1>t2?0:1;
+  // 2_40: dice scramble first — totals, prize, and sync land on the settle.
+  const _fd1=document.getElementById('fo-d1'),_fd2=document.getElementById('fo-d2');
+  _fd1.innerHTML=r1.map(()=>`<div class="fo-die">?</div>`).join('');
+  _fd2.innerHTML=r2.map(()=>`<div class="fo-die">?</div>`).join('');
+  document.getElementById('fo-t1').textContent='–';document.getElementById('fo-t2').textContent='–';
+  document.getElementById('fo-win').textContent='🎲 Rolling…';
+  animNumbers([..._fd1.children,..._fd2.children],[...r1,...r2],()=>{
   // 2_20 — Faceoff prize: the winner banks 1 Shoot token immediately, then
   // chooses even- or odd-numbered clock turns for the period. G.ap /
   // G.periodFirstPlayer are set from that choice in beginPeriodAfterFo —
@@ -1335,9 +1349,11 @@ function doFaceoff(){
   G.fo={stage:'rolled',r1:r1,t1:t1,r2:r2,t2:t2,w:w,choice:null};
   // Online: whoever rolls syncs it — the other side mirrors the faceoff read-only.
   if(_onlineActive){pushState();}
+  document.getElementById('fo-t1').textContent=t1;document.getElementById('fo-t2').textContent=t2;
   document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! +1 🏒 Shoot token.`;
   addLog(`Faceoff: P1=${t1}, P2=${t2} — ${G.players[w].name} wins (+1 🏒).`,'imp');
   renderFoChoiceState();
+  });
 }
 // 2_20 — Drives the faceoff overlay once the dice are rolled: the winner picks
 // even/odd, everyone else waits, and the host (table creator) alone gets the
@@ -1441,6 +1457,7 @@ function rollAll(){
   _rrMode=true;_rrDieId=null;
   AP().z.rs.forEach(d=>d.sel=false);
   renderAll();
+  animGameDice(ap.z.rs); // 2_40: roll animation
 }
 function refillBag(p){
   // Never include HC die in bag refill
@@ -1492,6 +1509,7 @@ function confirmRRSel(){
   _rrMode=false;_rrDieId=null;
   if(wasFreeReroll){G.rrUsed=true;G.phase=4;}
   renderAll();
+  animGameDice(sel); // 2_40: reroll animation
 }
 
 function cancelRRSel(){
@@ -2385,35 +2403,50 @@ function confirmBenchPick(){
 // Display-only combat reveal — used locally by the resolver AND remotely by
 // the other client from the synced result (never re-rolls, never mutates G).
 function showCombatResult(r){
-  document.getElementById('scdice').innerHTML=
-    r.sr.map(v=>`<div class="cdie sd">${v}</div>`).join('')+
+  // 2_40: combat dice scramble first — totals, banner, and Continue land on the settle.
+  const _sc=document.getElementById('scdice'),_bc=document.getElementById('bcdice');
+  _sc.innerHTML=
+    r.sr.map(()=>`<div class="cdie sd">?</div>`).join('')+
     Array.from({length:r.sTok||0},()=>`<div class="cdie sd" style="border-style:dashed;opacity:.8">+1</div>`).join('');
-  document.getElementById('bcdice').innerHTML=
-    r.br.map(v=>`<div class="cdie bd">${v}</div>`).join('')+
+  _bc.innerHTML=
+    r.br.map(()=>`<div class="cdie bd">?</div>`).join('')+
     Array.from({length:r.bTok||0},()=>`<div class="cdie bd" style="border-style:dashed;opacity:.8">+1</div>`).join('');
-  document.getElementById('stotal').textContent=r.sTotal;
-  document.getElementById('btotal').textContent=r.bTotal;
-  document.getElementById('sbreak').textContent=r.sBreak;
-  document.getElementById('bbreak').textContent=r.bBreak;
+  document.getElementById('stotal').textContent='–';
+  document.getElementById('btotal').textContent='–';
+  document.getElementById('sbreak').textContent='🎲 Rolling…';
+  document.getElementById('bbreak').textContent='🎲 Rolling…';
   const banner=document.getElementById('crbanner');
-  if(r.isGoal){banner.className='cresult goal';banner.textContent='🚨 GOAL! 🚨';}
-  else{banner.className='cresult blocked';banner.textContent='🛡 SHOT BLOCKED';}
+  banner.className='cresult';banner.textContent='🎲 Rolling…';
   document.getElementById('block-sel-area').style.display='none';
   document.getElementById('combat-result').style.display='block';
-  // Continue duty: only the shooter advances past the result. The defender's
-  // button is greyed out; the shooter's appears after a short beat so the
-  // result registers before it can be clicked away.
-  const cbtn=document.getElementById('combat-continue-btn');
-  const iAmShooter=!_onlineActive||isMyTurn();
-  if(cbtn){
-    if(_onlineActive&&!iAmShooter){
-      cbtn.style.display='block';cbtn.disabled=true;cbtn.textContent='Waiting for shooter…';
-    }else{
-      cbtn.disabled=false;cbtn.textContent='Continue';
-      if(_onlineActive){cbtn.style.display='none';setTimeout(()=>{cbtn.style.display='block';},2500);}
-      else{cbtn.style.display='block';}
+  const _cbtnPre=document.getElementById('combat-continue-btn');
+  if(_cbtnPre)_cbtnPre.style.display='none'; // restored on the settle
+  // Only the rolled dice animate — the dashed +1 token dice are not rolled.
+  const _shotCells=[..._sc.querySelectorAll('.cdie.sd')].slice(0,r.sr.length);
+  const _saveCells=[..._bc.querySelectorAll('.cdie.bd')].slice(0,r.br.length);
+  animNumbers([..._shotCells,..._saveCells],[...r.sr,...r.br],()=>{
+    document.getElementById('stotal').textContent=r.sTotal;
+    document.getElementById('btotal').textContent=r.bTotal;
+    document.getElementById('sbreak').textContent=r.sBreak;
+    document.getElementById('bbreak').textContent=r.bBreak;
+    if(r.isGoal){banner.className='cresult goal';banner.textContent='🚨 GOAL! 🚨';popGoal(banner);}
+    else{banner.className='cresult blocked';banner.textContent='🛡 SHOT BLOCKED';}
+    // Continue duty: only the shooter advances past the result. The defender's
+    // button is greyed out; the shooter's appears after a short beat so the
+    // result registers before it can be clicked away.
+    const cbtn=document.getElementById('combat-continue-btn');
+    const iAmShooter=!_onlineActive||isMyTurn();
+    if(cbtn){
+      if(_onlineActive&&!iAmShooter){
+        cbtn.style.display='block';cbtn.disabled=true;cbtn.textContent='Waiting for shooter…';
+      }else{
+        cbtn.disabled=false;cbtn.textContent='Continue';
+        if(_onlineActive){cbtn.style.display='none';setTimeout(()=>{cbtn.style.display='block';},2500);}
+        else{cbtn.style.display='block';}
+      }
     }
-  }
+    refreshBenchPhase(); // bench-pending override wins, as before 2_40
+  });
   // Bench-choice step (loser picks bench dice; opponent sees the reminder).
   refreshBenchPhase();
 }
@@ -2654,6 +2687,84 @@ function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
   </div>`;
 }
 
+// ═══════════════════ 2_41: GOAL + TOKEN ANIMATIONS ═══════════════════
+// popGoal: restartable goal-banner celebration (re-adding the class alone
+// would not restart the animation on back-to-back goals).
+function popGoal(el){
+  if(_REDUCED_MOTION||!el)return;
+  el.classList.remove('goalpop');void el.offsetWidth;el.classList.add('goalpop');
+}
+// Token pop: remembers last rendered counts per player+type; the pill pops
+// only when its number actually changed. Presentation only.
+let _lastTok={};
+function tokPopCls(pi,type,val){
+  const k=pi+':'+type,prev=_lastTok[k];
+  _lastTok[k]=val;
+  return (prev!==undefined&&prev!==val&&!_REDUCED_MOTION)?' tokpop':'';
+}
+
+// ═══════════════════ 2_40: ROLL ANIMATION ═══════════════════
+// Every result is decided BEFORE the animation runs — faces scramble for
+// about half a second, then settle on the true faces. Presentation only:
+// outcomes, Firebase sync, and game logic are untouched. Skipped instantly
+// when requestAnimationFrame is unavailable (test harness) or the user
+// prefers reduced motion.
+const _REDUCED_MOTION=(typeof matchMedia==='function')&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function _faceBadgeInner(f){
+  if(f.t==='BLANK')return '—';
+  if(f.t==='SO')return 'SO<br>'+f.v;
+  return f.t+(f.v?'<br>'+f.v:'');
+}
+// Animate real game dice (roll phase, free reroll): `dice` are die objects
+// already rendered with their final faces. Each face-badge scrambles through
+// random legal faces, then the true rendered face is restored.
+function animGameDice(dice,done){
+  const items=[];
+  (dice||[]).forEach(d=>{
+    if(!d||!d.face)return;
+    const w=document.querySelector('.die-wrap[data-id="'+d.id+'"]');
+    const b=w&&w.querySelector('.face-badge');
+    if(!b)return;
+    items.push({b:b,faces:DEFS[d.key]||DEFS.Penalty,fh:b.innerHTML,fc:b.className});
+  });
+  if(!items.length||_REDUCED_MOTION||typeof requestAnimationFrame!=='function'){if(done)done();return;}
+  let n=items.length;
+  items.forEach((it,i)=>{
+    const total=460+i*55,t0=performance.now();
+    it.b.classList.add('rolling');
+    (function frame(now){
+      const t=(now||performance.now())-t0;
+      if(t>=total){it.b.innerHTML=it.fh;it.b.className=it.fc;if(--n===0&&done)done();return;}
+      const f=it.faces[(Math.random()*it.faces.length)|0];
+      it.b.className='face-badge rolling '+fbClass(f.t,!!f.c);
+      it.b.innerHTML=_faceBadgeInner(f);
+      requestAnimationFrame(frame);
+    })();
+  });
+}
+// Animate plain number dice (combat dice, faceoff dice). `cells` are the
+// elements, `finals` the true numbers — settled in cascade order.
+function animNumbers(cells,finals,done){
+  const items=[];
+  cells.forEach((el,i)=>{if(el&&finals[i]!=null)items.push({el:el,final:finals[i]});});
+  if(!items.length){if(done)done();return;}
+  if(_REDUCED_MOTION||typeof requestAnimationFrame!=='function'){
+    items.forEach(it=>{it.el.textContent=it.final;it.el.classList.remove('rolling');});
+    if(done)done();return;
+  }
+  let n=items.length;
+  items.forEach((it,i)=>{
+    const total=520+i*45,t0=performance.now();
+    it.el.classList.add('rolling');
+    (function frame(now){
+      const t=(now||performance.now())-t0;
+      if(t>=total){it.el.textContent=it.final;it.el.classList.remove('rolling');if(--n===0&&done)done();return;}
+      it.el.textContent=1+((Math.random()*6)|0);
+      requestAnimationFrame(frame);
+    })();
+  });
+}
+
 function renderZone(zid,arr,opts={}){
   const el=document.getElementById(zid);if(!el)return;el.innerHTML='';
   const inIced=(zid==='z-iced');
@@ -2806,8 +2917,8 @@ function renderBoard(){
     ?`${ap.z.shoot.length} die/dice → ${totalSCD} combat dice`:'';
   const ts=document.getElementById('tstrip');ts.innerHTML='';
   // 2_27: always show both token pills (even at 0) — prominent blue=shoot / red=block
-  ts.innerHTML+=`<span class="tok-pill tp-shoot">🏒 <span class="tp-n">${ap.tok.shoot}</span> SHOOT</span>`;
-  ts.innerHTML+=`<span class="tok-pill tp-block">🥅 <span class="tp-n">${ap.tok.block}</span> BLOCK</span>`;
+  ts.innerHTML+=`<span class="tok-pill tp-shoot${tokPopCls(G.ap,'s',ap.tok.shoot)}">🏒 <span class="tp-n">${ap.tok.shoot}</span> SHOOT</span>`;
+  ts.innerHTML+=`<span class="tok-pill tp-block${tokPopCls(G.ap,'b',ap.tok.block)}">🥅 <span class="tp-n">${ap.tok.block}</span> BLOCK</span>`;
   const ep=totalE();
   if(ep>0||G.phase>=4)ts.innerHTML+=`<span class="epips">⚡ ${ep}E available</span>`;
 }
@@ -2825,7 +2936,7 @@ function renderOpp(){
   const o=OPP();
   document.getElementById('opplbl').textContent=`${o.teamName||o.name} (${slotLabel(1-G.ap)}) — Opponent`;
   document.getElementById('opptmr').textContent=`Clock: ${G.clock<10?'0'+G.clock:G.clock}:00  |  Penalty Pool: ${G.penaltyPool??3}`;
-  document.getElementById('opptok').innerHTML=`<span class="tok-pill tp-shoot">🏒 <span class="tp-n">${o.tok.shoot}</span></span><span class="tok-pill tp-block">🥅 <span class="tp-n">${o.tok.block}</span></span>`;
+  document.getElementById('opptok').innerHTML=`<span class="tok-pill tp-shoot${tokPopCls(1-G.ap,'s',o.tok.shoot)}">🏒 <span class="tp-n">${o.tok.shoot}</span></span><span class="tok-pill tp-block${tokPopCls(1-G.ap,'b',o.tok.block)}">🥅 <span class="tp-n">${o.tok.block}</span></span>`;
   const hp=o.z.hot.length,cp=o.z.cold.length,dp=o.z.defend.length;
   // Pip totals for hot/cold/defend
   const hotPips=o.z.hot.reduce((s,d)=>s+(d.face?d.face.v:0),0);
@@ -3504,46 +3615,59 @@ function soShowResult(r){
   document.getElementById('so-shooter-area').style.display='none';
   document.getElementById('so-result-area').style.display='block';
 
+  // 2_40: combat dice scramble first — totals and the GOAL!/SAVED! banner land on the settle.
+  const nb=document.getElementById('so-next-btn');
+  nb.disabled=true; // re-enabled on the settle
   document.getElementById('so-shot-key').textContent = r.fwdKey;
   document.getElementById('so-shot-face-lbl').textContent = shotLabel;
-  document.getElementById('so-shot-total').textContent = shotTotal;
+  document.getElementById('so-shot-total').textContent = '–';
 
-  // Render shot combat dice
+  // Render shot combat dice (scrambling placeholders)
   const shotDiceRow = document.getElementById('so-shot-dice-row');
-  shotDiceRow.innerHTML = shotRolls.map(v=>`<div class="cdie sd">${v}</div>`).join('') ||
+  shotDiceRow.innerHTML = shotRolls.map(()=>`<div class="cdie sd">?</div>`).join('') ||
     '<span style="color:#666;font-size:.8em">No combat dice</span>';
 
   document.getElementById('so-save-key').textContent = r.goalieKey;
   document.getElementById('so-save-face-lbl').textContent = saveLabel;
-  document.getElementById('so-save-total').textContent = saveTotal;
+  document.getElementById('so-save-total').textContent = '–';
 
-  // Render save combat dice
+  // Render save combat dice (scrambling placeholders)
   const saveDiceRow = document.getElementById('so-save-dice-row');
-  saveDiceRow.innerHTML = saveRolls.map(v=>`<div class="cdie bd">${v}</div>`).join('') ||
+  saveDiceRow.innerHTML = saveRolls.map(()=>`<div class="cdie bd">?</div>`).join('') ||
     '<span style="color:#666;font-size:.8em">No combat dice</span>';
 
   const resEl = document.getElementById('so-shot-result');
-  if(shotPips===0){
-    resEl.style.background='rgba(80,80,80,.3)';resEl.style.color='#aaa';
-    resEl.textContent='No shot attempt';
-  } else if(isGoal){
-    resEl.style.background='rgba(26,58,139,.35)';resEl.style.color='#88aaff';
-    resEl.textContent=`🚨 GOAL! (${shotTotal} vs ${saveTotal})`;
-  } else {
-    resEl.style.background='rgba(139,26,26,.35)';resEl.style.color='#ffaaaa';
-    resEl.textContent=`🥅 SAVED! (${saveTotal} ≥ ${shotTotal})`;
-  }
+  resEl.classList.remove('goalpop');
+  resEl.style.background='rgba(80,80,80,.3)';resEl.style.color='#aaa';
+  resEl.textContent='🎲 Rolling…';
 
-  renderSOScoreboard();
-  const nb=document.getElementById('so-next-btn');
-  nb.textContent = soIsLastShot() ? 'See Final Result →' : 'Next Shooter →';
-  // Online: only the player who just shot clicks Next — the other side waits.
-  if(_onlineActive && _mySlot!==r.playerIdx){
-    nb.disabled=true;
-    nb.textContent='Waiting…';
-  }else{
-    nb.disabled=false;
-  }
+  animNumbers(
+    [...shotDiceRow.querySelectorAll('.cdie.sd'),...saveDiceRow.querySelectorAll('.cdie.bd')],
+    [...shotRolls,...saveRolls],
+    ()=>{
+      document.getElementById('so-shot-total').textContent = shotTotal;
+      document.getElementById('so-save-total').textContent = saveTotal;
+      if(shotPips===0){
+        resEl.style.background='rgba(80,80,80,.3)';resEl.style.color='#aaa';
+        resEl.textContent='No shot attempt';
+      } else if(isGoal){
+        resEl.style.background='rgba(26,58,139,.35)';resEl.style.color='#88aaff';
+        resEl.textContent=`🚨 GOAL! (${shotTotal} vs ${saveTotal})`;
+        popGoal(resEl);
+      } else {
+        resEl.style.background='rgba(139,26,26,.35)';resEl.style.color='#ffaaaa';
+        resEl.textContent=`🥅 SAVED! (${saveTotal} ≥ ${shotTotal})`;
+      }
+      renderSOScoreboard();
+      nb.textContent = soIsLastShot() ? 'See Final Result →' : 'Next Shooter →';
+      // Online: only the player who just shot clicks Next — the other side waits.
+      if(_onlineActive && _mySlot!==r.playerIdx){
+        nb.disabled=true;
+        nb.textContent='Waiting…';
+      }else{
+        nb.disabled=false;
+      }
+    });
 }
 
 function soIsLastShot(){
