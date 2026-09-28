@@ -520,7 +520,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.66</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.69</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <div class="setup-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.66</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.69</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3417,7 +3417,7 @@ function startShootout(practice){
   // 2_32: real game — the player who took the last turn of the game defends
   // first. At game over G.ap has already flipped to the next player, so the
   // last-turn player is 1-G.ap and the first shooter is G.ap. Practice: P1.
-  _so.firstShooter = (!practice && typeof G!=='undefined' && G.players) ? G.ap : 0;
+  _so.firstShooter = (!practice && typeof G!=='undefined' && G.players) ? G.ap : (Math.random()<0.5?0:1); // 2_67: mini-game coinflip for first shooter
   _so.shooterIdx = _so.firstShooter;
   _so.results = [];
   _so.suddenDeath = false;
@@ -3543,19 +3543,7 @@ function soStartShooterTurn(){
 
   document.getElementById('so-turn-info').textContent =
     `${sp.teamName||sp.name} shooting (${_so.suddenDeath?'sudden death — 1 drawn':'3 of 5 drawn'}) vs ${_so.players[1-si].teamName||_so.players[1-si].name}'s ${goalieName}`;
-  // 2_51: vs-AI practice — the player taps to take their turn (the AI rolls automatically)
-  if(_so.vsAI&&si===0&&!_so.playerTurnGo){
-    document.getElementById('so-shooter-label').textContent='Your turn — ready?';
-    const choices=document.getElementById('so-forward-choices');
-    choices.innerHTML='';
-    const btn=document.createElement('button');
-    btn.className='abtn prim';btn.style.cssText='font-size:1.1em;padding:14px 32px;margin:12px auto;display:block';
-    btn.textContent='Take Your Shot →';
-    btn.addEventListener('click',()=>{_so.playerTurnGo=true;soStartShooterTurn();});
-    choices.appendChild(btn);
-    document.getElementById('so-roll-btn').disabled=true;
-    return;
-  }
+  // 2_68: vs-AI practice — the player takes their turn directly (no "Take Your Shot" gate)
   _so.playerTurnGo=false;
   // 2_51: no Roll Shot button on the AI's turn — it rolls automatically
   const _rr=document.getElementById('so-roll-row');
@@ -3735,7 +3723,7 @@ function soShowResult(r){
         _aiBusy=false; // 2_61: AI is done — release the guard so the player's tap works
       }else{
         nb.style.display='';
-        nb.textContent = _soLastBtn || 'Next Shooter →';
+        nb.textContent = _soLastBtn || 'AI Turn →'; // 2_69: directional — you're advancing to the AI's turn
       }
       // Online: only the player who just shot clicks Next — the other side waits.
       if(_onlineActive && _mySlot!==r.playerIdx){
