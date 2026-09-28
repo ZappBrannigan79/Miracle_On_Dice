@@ -528,7 +528,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.83</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.85</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <div class="setup-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
@@ -689,7 +689,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.83</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.85</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2284,6 +2284,12 @@ function resolveCombat(){if(aiGuard()&&_aiDefPhase!=='humanDef')return; // 2_45
   const sTotal=sr.reduce((a,b)=>a+b,0)+shootTokensUsed;
   const bTotal=br.reduce((a,b)=>a+b,0)+blockTokensUsed;
   const isGoal=sTotal>bTotal;
+  // 2_84: if the AI shot, append the real outcome to its turn note (was prematurely "Blocked!")
+  if(_aiActive&&G.ap===_aiSlot&&_aiTurnNotes.length){
+    const li=_aiTurnNotes.length-1;
+    if(_aiTurnNotes[li].startsWith('shoots with'))
+      _aiTurnNotes[li]+=isGoal?' — GOAL! 🚨':' — Blocked!';
+  }
   // The full result travels to the other client so the shooter sees the same
   // GOAL!/BLOCKED reveal (combat dice are rolled once, by the defender).
   const result={sr,br,sTotal,bTotal,isGoal,sTok:shootTokensUsed,bTok:blockTokensUsed,
@@ -4604,8 +4610,8 @@ setInterval(()=>{
     }
   }catch(e){}
 },2000);
-// 2_83: flat pacing — Relaxed 2000ms, Brisk 1000ms, Max 500ms
-function aiPace(ms){return _aiSpeed===0?500:_aiSpeed===2?1000:2000;}
+// 2_85: flat pacing — Relaxed 2500ms, Brisk 1500ms, Max 750ms
+function aiPace(ms){return _aiSpeed===0?750:_aiSpeed===2?1500:2500;}
 function aiSleep(ms){return new Promise(r=>setTimeout(r,aiPace(ms)));}
 function aiLater(fn,ms){setTimeout(fn,aiPace(ms));}
 function aiTierRank(key){const p=posOf(key);return p==='F'?4:p==='D'?3:p==='G'?2:1;}
@@ -5051,8 +5057,8 @@ async function aiDoShoot(P){
   _aiDefPhase='humanDef';
   const n=ap.z.shoot.length;
   const shotMsg=`shoots with ${n} ${n===1?'die':'dice'}${_sTok?` + ${_sTok} 🎯`:''}`;
-  if(_aiSpeed===0){aiPill(shotMsg);aiPillNow('🛡️ Blocked!');} // 2_47: note stashed, signal shown
-  else aiPill(`${shotMsg} — Blocked!`); // 2_52: was "defend!"
+  if(_aiSpeed===0){aiPill(shotMsg);aiPillNow('🛡️ defending…');} // 2_47: note stashed, signal shown
+  else aiPill(shotMsg); // 2_84: neutral note — outcome appended after combat resolves
   renderAll();
   return true; // driver pauses; the human defends, closeCombat resumes the AI end turn
 }
