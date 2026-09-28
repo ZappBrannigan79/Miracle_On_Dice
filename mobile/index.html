@@ -36,6 +36,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .team-builder{display:none;}.team-builder.show{display:block;}.pts-badge{font-size:.75em;}
 .builder-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
 .builder-player{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:16px;}
+/* 2_52: the team list column stretches to match the AI options column height */
+#qs-panel .builder-player{display:flex;flex-direction:column;}
+#qs-p1{flex:1;overflow-y:auto;min-height:300px;}
 .builder-player h3{color:var(--gold);font-size:1em;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;}
 .builder-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:.9em;color:#ccc;}
 .builder-row label{width:80px;flex-shrink:0;}
@@ -517,10 +520,10 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice</div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.52</span></div>
     <div class="setup-sub">Hockey Dice-Building Game — Playtesting Simulator</div>
     <div class="setup-btns">
-      <button class="btn-mode btn-qs" onclick="showQS()">⚡ Quick Start</button>
+      <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
       <button class="btn-mode btn-cb" onclick="showCustom()">🏒 Build Teams (25pts)</button>
     </div>
     <div style="text-align:center;margin-bottom:16px">
@@ -616,7 +619,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div class="builder-grid">
         <div class="builder-player">
           <h3>Player 1 <span style="font-size:.75em;color:#888">— click a team to select</span></h3>
-          <div class="preset-cards" id="qs-p1" style="max-height:520px;overflow-y:auto"></div>
+          <div class="preset-cards" id="qs-p1"></div>
         </div>
         <div class="builder-player" id="qs-aicol">
           <h3>🤖 AI Opponent <span style="font-size:.75em;color:#888">— sits across the table</span></h3>
@@ -676,7 +679,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.51</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.52</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -956,7 +959,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div id="so-shooter-area">
       <div style="font-size:.82em;color:var(--gold);font-weight:700;margin-bottom:8px" id="so-shooter-label">Choose a Forward to shoot with:</div>
       <div id="so-forward-choices" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:12px"></div>
-      <div style="display:flex;gap:8px;justify-content:center">
+      <div id="so-roll-row" style="display:flex;gap:8px;justify-content:center">
         <button class="abtn prim" id="so-roll-btn" onclick="soRollShot()" disabled style="min-width:140px">🎲 Roll Shot</button>
       </div>
     </div>
@@ -3551,6 +3554,9 @@ function soStartShooterTurn(){
     return;
   }
   _so.playerTurnGo=false;
+  // 2_51: no Roll Shot button on the AI's turn — it rolls automatically
+  const _rr=document.getElementById('so-roll-row');
+  if(_rr)_rr.style.display=(_so.vsAI&&si===_aiSlot)?'none':'flex';
   // Online: only the shooting player picks — the other side watches.
   const iAmShooter = soIAmShooter();
   document.getElementById('so-shooter-label').textContent = iAmShooter
@@ -4728,7 +4734,7 @@ function aiResolveAdv(){
 }
 function aiDoAssign(P){
   const ap=AP();
-  let nS=0,nB=0,nR=0,nI=0;
+  let nS=0,nB=0,nI=0;
   const zone=G.clock>4?'Cold':'Hot';
   _aiSelf=true;
   try{
@@ -4744,8 +4750,7 @@ function aiDoAssign(P){
     [...ap.z.rs].forEach(d=>{
       const f=d.face;if(!f)return;
       if(f.t==='E'){
-        if(d.key!=='HC'&&ap.z.reserve.length<2&&P.spend<0.5){assignDie(d,'reserve');nR++;}
-        // else: leave in RS as spendable energy
+        // 2_52b: all energy stays in RS for the buy phase — banking to reserve happens after buying
       }else if(f.t==='S'||f.t==='W'){
         const asShoot=f.t==='S'||P.aggression>=0.5;
         if(f.c){
@@ -4774,42 +4779,96 @@ function aiDoAssign(P){
   }finally{_aiSelf=false;}
   renderAll();
   const bits=[];
-  if(nS)bits.push(`${nS} shooter${nS>1?'s':''} (${zone})`);
-  if(nB)bits.push(`${nB} blocker${nB>1?'s':''}`);
-  if(nR)bits.push(`${nR} to Reserve`);
+  const dieWord=n=>n===1?'die':'dice'; // 2_52
+  if(nS)bits.push(`${nS} ${dieWord(nS)} to offensive (${zone}) zone`);
+  if(nB)bits.push(`${nB} ${dieWord(nB)} to defense zone`);
   if(nI)bits.push(`${nI} iced`);
   if(bits.length)aiPill(`assigned ${bits.join(' · ')}`);
   else aiPill(`holds its roll`);
 }
+// 2_52: AI spends the HC die FIRST — it can't go to reserve, so leftover HC energy is wasted
+function aiSpendE(amt){
+  const ap=AP();let rem=amt;
+  const hc=ap.z.rs.find(d=>d.key==='HC'&&d.face&&(d.face.t==='E'||d.energyPending)&&d.face.v>0);
+  if(hc&&rem>0){
+    if(hc.face.v<=rem){rem-=hc.face.v;hc.face.v=0;}
+    else{hc.face.v-=rem;rem=0;}
+    hc.energyPending=false;
+  }
+  if(rem>0)spendE(rem);
+}
 function aiDoBuy(P){
   const ap=AP();
   if(P.spend<0.3||totalE()<1)return; // banks everything
-  let best=null;
-  ap.lineup.forEach((c,idx)=>{
-    if(c.key==='HC'||!c.left)return;
-    const cost=COSTS[c.key]||99;
-    if(totalE()<cost)return;
-    const val=tierOf(c.key)+(c.key.startsWith('F')?P.aggression*2:c.key.startsWith('D')?(1-P.aggression)*2:1);
-    const score=val/Math.max(1,cost);
-    if(!best||score>best.score)best={idx,key:c.key,cost,score};
-  });
   _aiSelf=true;
   try{
-    if(best&&P.spend>0.45){
-      // mirror buyCard's draft path without the picker UI
-      spendE(best.cost);
-      const card=ap.lineup[best.idx];card.left--;
-      ap.z.iced.push(mkDie(card.key));
-      addLog(`${ap.name}: Bought ${card.key} for ${best.cost}E → Iced Zone.`,'imp');
-      awardBuyBonus(ap,card);
-      renderAll();
-      aiPill(`drafted ${best.key} for ${best.cost}E 🛒`);
-      return;
+    // 2_52: trade UP — highest affordable tier (trashing a rookie), not the
+    // cheapest draft. Buys repeatedly while energy lasts instead of stopping at one.
+    for(let iter=0;iter<4&&P.spend>0.45;iter++){
+      const E=totalE();
+      if(E<1)break;
+      const posBonus=k=>k.startsWith('F')?P.aggression*2:k.startsWith('D')?(1-P.aggression)*2:1;
+      // Best trade: highest tier affordable at trade cost (cost+2)
+      let trade=null;
+      ap.lineup.forEach((c,idx)=>{
+        if(c.key==='HC'||!c.left)return;
+        const cost=(COSTS[c.key]||99)+2;
+        if(E<cost)return;
+        const score=tierOf(c.key)*10+posBonus(c.key);
+        if(!trade||score>trade.score)trade={idx,key:c.key,cost,score};
+      });
+      // Trash the worst iced die (a rookie) to complete the trade
+      let trash=null;
+      if(trade&&ap.z.iced.length){
+        trash=[...ap.z.iced].sort((a,b)=>tierOf(a.key)-tierOf(b.key))[0];
+      }
+      if(trade&&trash){
+        aiSpendE(trade.cost);
+        const ti=ap.z.iced.indexOf(trash);
+        if(ti!==-1)ap.z.iced.splice(ti,1);
+        const card=ap.lineup[trade.idx];card.left--;
+        ap.z.iced.push(mkDie(card.key));
+        addLog(`${ap.name}: Traded ${trash.key} → ${card.key} for ${trade.cost}E.`,'imp');
+        awardBuyBonus(ap,card);
+        aiPill(`traded up to ${trade.key} for ${trade.cost}E 🛒`);
+        renderAll();
+        continue;
+      }
+      // Fallback: draft the best affordable die outright
+      let best=null;
+      ap.lineup.forEach((c,idx)=>{
+        if(c.key==='HC'||!c.left)return;
+        const cost=COSTS[c.key]||99;
+        if(E<cost)return;
+        const score=tierOf(c.key)*10+posBonus(c.key);
+        if(!best||score>best.score)best={idx,key:c.key,cost,score};
+      });
+      if(best){
+        aiSpendE(best.cost);
+        const card=ap.lineup[best.idx];card.left--;
+        ap.z.iced.push(mkDie(card.key));
+        addLog(`${ap.name}: Bought ${card.key} for ${best.cost}E → Iced Zone.`,'imp');
+        awardBuyBonus(ap,card);
+        aiPill(`drafted ${best.key} for ${best.cost}E 🛒`);
+        renderAll();
+        continue;
+      }
+      break;
     }
     if(P.tokens>0.6&&totalE()>=6){
-      spendE(3);
+      aiSpendE(3);
       if(P.aggression>=0.5){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`bought a 🎯 Shoot token`);}
       else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`bought a 🥅 Block token`);}
+      renderAll();
+    }
+    // 2_52b: bank leftover energy dice to reserve (1 die or many — whatever fits).
+    // totalE() already counts reserve energy, so the buy loop above spent from the full pool.
+    const rsEnergy=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='E'||d.energyPending));
+    const space=2-ap.z.reserve.length;
+    if(rsEnergy.length&&space>0){
+      const toBank=rsEnergy.sort((a,b)=>b.face.v-a.face.v).slice(0,space);
+      toBank.forEach(d=>assignDie(d,'reserve'));
+      aiPill(`banked ${toBank.length} ${toBank.length===1?'die':'dice'} to reserve 🏦`);
       renderAll();
     }
   }finally{_aiSelf=false;}
@@ -4840,8 +4899,8 @@ async function aiDoShoot(P){
   _aiDefPhase='humanDef';
   const n=ap.z.shoot.length;
   const shotMsg=`shoots with ${n} ${n===1?'die':'dice'}${_sTok?` + ${_sTok} 🎯`:''}`;
-  if(_aiSpeed===0){aiPill(shotMsg);aiPillNow('🛡️ Defend!');} // 2_47: note stashed, signal shown
-  else aiPill(`${shotMsg} — defend!`);
+  if(_aiSpeed===0){aiPill(shotMsg);aiPillNow('🛡️ Blocked!');} // 2_47: note stashed, signal shown
+  else aiPill(`${shotMsg} — Blocked!`); // 2_52: was "defend!"
   renderAll();
   return true; // driver pauses; the human defends, closeCombat resumes the AI end turn
 }
@@ -4950,9 +5009,9 @@ async function aiShootoutTurn(){
     _aiSelf=true;
     if(!_so.suddenDeath){
       const used=_so.usedFwds[si];
-      const avail=_so.players[si].forwards.filter(k=>!used.includes(k))
-        .sort((a,b)=>(aiTierRank(b)-aiTierRank(a))||(tierOf(b)-tierOf(a)));
-      _so.selectedFwd=avail[0]||_so.players[si].forwards[0];
+      const avail=_so.players[si].forwards.filter(k=>!used.includes(k));
+      // 2_51: AI drafts its 3 regulation shooters in random order (was best→worst)
+      _so.selectedFwd=avail[Math.floor(Math.random()*avail.length)]||_so.players[si].forwards[0];
       const rb=document.getElementById('so-roll-btn');if(rb)rb.disabled=false;
       aiPill(`sends out ${_so.selectedFwd}`);
     }else{
