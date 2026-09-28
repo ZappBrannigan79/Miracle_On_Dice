@@ -604,11 +604,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <!-- QUICK START: 5 teams, filterable -->
     <div class="team-builder" id="qs-panel">
       <div style="font-size:.83em;color:#aaa;text-align:center;margin-bottom:10px">
-        5 pre-built teams. Each player selects one. Starting bag: 15 Rookies.
-      </div>
-      <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">
-        <button class="qs-filter-btn active" id="qs-mode-pvp" onclick="qsMode('pvp')">👥 Pass &amp; Play</button>
-        <button class="qs-filter-btn" id="qs-mode-ai" onclick="qsMode('ai')">🤖 Vs AI</button>
+        Select your team below, then face the AI across the table. Starting bag: 15 Rookies.
       </div>
       <div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap">
         <button class="qs-filter-btn active" onclick="filterPresets('all',this)">All (24)</button>
@@ -622,21 +618,21 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <h3>Player 1 <span style="font-size:.75em;color:#888">— click a team to select</span></h3>
           <div class="preset-cards" id="qs-p1" style="max-height:340px;overflow-y:auto"></div>
         </div>
-        <div class="builder-player" id="qs-p2col">
-          <h3>Player 2 <span style="font-size:.75em;color:#888">— click a team to select</span></h3>
-          <div class="preset-cards" id="qs-p2" style="max-height:340px;overflow-y:auto"></div>
-        </div>
-        <div class="builder-player" id="qs-aicol" style="display:none">
+        <div class="builder-player" id="qs-aicol">
           <h3>🤖 AI Opponent <span style="font-size:.75em;color:#888">— sits across the table</span></h3>
           <div id="ai-team-line" style="font-size:.85em;margin-bottom:6px"></div>
           <div style="font-size:.78em;color:#aaa">Choose its personality:</div>
           <div id="ai-persona-cards"></div>
+          <div style="font-size:.78em;color:#aaa;margin-top:10px">AI speed <span style="color:#666">(how fast it plays its turn)</span>:</div>
+          <div id="ai-speed-btns" style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+            <button class="qs-filter-btn active" onclick="aiPickSpeed(1,this)">1× Relaxed</button>
+            <button class="qs-filter-btn" onclick="aiPickSpeed(2,this)">2× Brisk</button>
+            <button class="qs-filter-btn" onclick="aiPickSpeed(0,this)">Max ⚡</button>
+          </div>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
-        <button class="abtn sec" style="font-size:.78em;padding:6px 12px" onclick="randomTeam(0)">🎲 Random P1</button>
-        <button class="abtn sec" style="font-size:.78em;padding:6px 12px" onclick="randomTeam(1)">🎲 Random P2</button>
-        <button class="abtn sec" style="font-size:.78em;padding:6px 12px" onclick="randomTeam(0);randomTeam(1)">🎲 Random Both</button>
+        <button class="abtn sec" style="font-size:.78em;padding:6px 12px" onclick="randomTeam(0)">🎲 Random Team</button>
         <div style="flex:1"></div>
         <div id="qs-sel-summary" style="font-size:.78em;color:#aaa">No teams selected yet.</div>
       </div>
@@ -1156,7 +1152,7 @@ function showQS(){
   document.getElementById('custom-panel').classList.remove('show');
   const qp=document.getElementById('qs-panel');
   qp.classList.toggle('show');
-  if(qp.classList.contains('show'))renderPresetCards();
+  if(qp.classList.contains('show')){renderAIPanel();renderPresetCards();}
 }
 function showCustom(){
   document.getElementById('qs-panel').classList.remove('show');
@@ -1171,7 +1167,7 @@ function filterPresets(filter,btn){
   renderPresetCards();
 }
 function renderPresetCards(){
-  [0,1].forEach(pi=>{
+  [0].forEach(pi=>{
     const el=document.getElementById('qs-p'+(pi+1));
     el.innerHTML='';
     PRESETS.forEach((p,i)=>{
@@ -1201,31 +1197,13 @@ function updateQSSummary(){
   const s=document.getElementById('qs-sel-summary');
   if(!s)return;
   const p1=_qsSel[0]!==null?PRESETS[_qsSel[0]]:null;
-  const p2=_qsSel[1]!==null?PRESETS[_qsSel[1]]:null;
-  const t1=p1?`P1: ${p1.name} (${p1.pts}pt)`:'P1: not selected';
-  const t2=p2?`P2: ${p2.name} (${p2.pts}pt)`:'P2: not selected';
+  const pai=(_aiTeamIdx!==null&&_aiTeamIdx!==undefined)?PRESETS[_aiTeamIdx]:null;
+  const t1=p1?`You: ${p1.name} (${p1.pts}pt)`:'You: not selected';
+  const t2=pai?`AI: ${pai.name} (${pai.pts}pt)`:'AI: not drawn';
   s.textContent=`${t1}  |  ${t2}`;
-  s.style.color=(p1&&p2)?'var(--gold)':'#888';
+  s.style.color=(p1&&pai)?'var(--gold)':'#888';
 }
-function startQS(){
-  if(_qsMode==='ai'){startAIGame();return;}
-  if(_qsSel[0]===null||_qsSel[1]===null){toast('Each player must select a preset.');return;}
-  const p1=PRESETS[_qsSel[0]],p2=PRESETS[_qsSel[1]];
-  initG(p1.lineup,p2.lineup,[],[]);
-  // Store team name and emoji on player objects for display
-  G.players[0].teamName=p1.name; // includes emoji e.g. "🐍 Cobras"
-  G.players[1].teamName=p2.name;
-  // Sub-25pt builds earn the difference as starting tokens
-  [p1,p2].forEach((p,i)=>{
-    const diff=25-p.pts;
-    if(diff>0){
-      const ch=confirm(`${G.players[i].name} (${p.name}): ${p.pts}pt build earns ${diff} starting token${diff>1?'s':''}!\nOK = Shoot | Cancel = Block`);
-      if(ch)G.players[i].tok.shoot+=diff;else G.players[i].tok.block+=diff;
-      addLog(`${G.players[i].name}: Sub-25pt build — gained ${diff} ${ch?'Shoot':'Block'} token${diff>1?'s':''}.`,'imp');
-    }
-  });
-  beginGame();
-}
+function startQS(){startAIGame();}
 
 // ── CUSTOM BUILDER ──
 function populateSels(){
@@ -3024,11 +3002,7 @@ function renderActions(){
   if(_aiBusy){
     const P=aiP();
     row.innerHTML=`<div class="watch-pill">🤖 <b>${P.name} is thinking…</b></div>`;
-    const sp=document.createElement('button');sp.className='abtn sec';
-    sp.style.cssText='font-size:.75em;padding:6px 10px';
-    sp.textContent=_aiSpeed===2?'Speed: 2×':_aiSpeed===0?'Speed: Max':'Speed: 1×';
-    sp.addEventListener('click',()=>{_aiSpeed=_aiSpeed===1?2:_aiSpeed===2?0:1;renderActions();});
-    row.appendChild(sp);return;
+    return;
   }
   const mk=(lbl,fn,cls='prim',dis=false,pulse=false)=>{
     const b=document.createElement('button');
@@ -3800,8 +3774,8 @@ function soShowFinal(){
 }
 
 function randomTeam(playerIdx){
-  // Pick a random preset different from what the other player picked
-  const other = _qsSel[1-playerIdx];
+  // Pick a random preset different from the AI's team
+  const other = _aiTeamIdx;
   let pick;
   do { pick = Math.floor(Math.random()*PRESETS.length); }
   while(pick === other && PRESETS.length > 1);
@@ -4487,7 +4461,7 @@ window.addEventListener('DOMContentLoaded',()=>{ populateOnlineTeamSelects(); })
 // only; no game-logic changes.
 // ═══════════════════════════════════════════════════════════════════
 let _aiActive=false,_aiSlot=1,_aiPersona='balanced',_aiBusy=false,_aiSelf=false,_aiSpeed=1,_aiDefPhase=null;
-let _qsMode='pvp',_aiPersonaSel='balanced',_aiTeamIdx=null;
+let _aiPersonaSel='balanced',_aiTeamIdx=null,_aiSpeedSel=1; // 2_46: quickstart is Vs AI only
 
 const AI_PERSONAS={
   blitz:{name:'Blitz',icon:'🔥',tag:'Aggressive',
@@ -4503,7 +4477,10 @@ const AI_PERSONAS={
 function aiP(){return AI_PERSONAS[_aiPersona]||AI_PERSONAS.coach;}
 function aiIsTurn(){return _aiActive&&typeof G!=='undefined'&&G.ap===_aiSlot;}
 function aiGuard(){return _aiBusy&&!_aiSelf;}
-function aiSleep(ms){return new Promise(r=>setTimeout(r,_aiSpeed===0?40:Math.round(ms/(_aiSpeed===2?2.2:1))));}
+// 2_46: base pacing slowed ~3.5x so every step is readable; speed is chosen in the menu
+function aiPace(ms){return _aiSpeed===0?Math.min(ms,200):Math.round(ms*3.5/(_aiSpeed===2?2.2:1));}
+function aiSleep(ms){return new Promise(r=>setTimeout(r,aiPace(ms)));}
+function aiLater(fn,ms){setTimeout(fn,aiPace(ms));}
 function aiTierRank(key){const p=posOf(key);return p==='F'?4:p==='D'?3:p==='G'?2:1;}
 function aiDieRank(d){return aiTierRank(d.key)*1000+tierOf(d.key)*10+((d.face&&d.face.v)||0);}
 
@@ -4512,24 +4489,20 @@ function aiPill(msg){
   const P=aiP();let el=document.getElementById('ai-pill');
   if(!el){el=document.createElement('div');el.id='ai-pill';document.body.appendChild(el);}
   el.innerHTML=`${P.icon} <b>${P.name}</b> — ${msg}`;
-  el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2800);
+  el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),Math.max(1600,aiPace(1400)));
 }
 
 // ── Quickstart: mode toggle + persona picker ──
-function qsMode(m){
-  _qsMode=m;
-  document.getElementById('qs-mode-pvp').classList.toggle('active',m==='pvp');
-  document.getElementById('qs-mode-ai').classList.toggle('active',m==='ai');
-  document.getElementById('qs-p2col').style.display=m==='ai'?'none':'';
-  document.getElementById('qs-aicol').style.display=m==='ai'?'':'none';
-  if(m==='ai')renderAIPanel();
-}
 function aiPickPersona(k){
   _aiPersonaSel=k;
   [...document.querySelectorAll('#ai-persona-cards .persona-card')].forEach(c=>c.classList.toggle('sel',c.dataset.k===k));
   renderAIPanelTeam();
 }
 function aiRerollTeam(){_aiTeamIdx=Math.floor(Math.random()*PRESETS.length);renderAIPanelTeam();}
+function aiPickSpeed(sp,btn){
+  _aiSpeedSel=sp;
+  [...document.querySelectorAll('#ai-speed-btns .qs-filter-btn')].forEach(b=>b.classList.toggle('active',b===btn));
+}
 function renderAIPanel(){
   if(_aiTeamIdx===null||_aiTeamIdx===undefined)_aiTeamIdx=Math.floor(Math.random()*PRESETS.length);
   renderAIPanelTeam();
@@ -4553,7 +4526,7 @@ function renderAIPanelTeam(){
 function startAIGame(){
   if(_qsSel[0]===null){toast('Select your team first.');return;}
   const p1=PRESETS[_qsSel[0]],p2=PRESETS[_aiTeamIdx||0];
-  _aiActive=true;_aiSlot=1;_aiPersona=_aiPersonaSel;_aiBusy=false;_aiDefPhase=null;
+  _aiActive=true;_aiSlot=1;_aiPersona=_aiPersonaSel;_aiBusy=false;_aiDefPhase=null;_aiSpeed=_aiSpeedSel; // 2_46
   initG(p1.lineup,p2.lineup,[],[]);
   const P=aiP();
   G.players[0].teamName=p1.name;
@@ -4809,13 +4782,13 @@ function aiMaybeResume(){
   if(!_aiActive)return;
   if(G.ap===_aiSlot&&G.shotDeclared){
     _aiDefPhase=null;
-    setTimeout(()=>{_aiSelf=true;try{aiPill('ends the turn');endTurn();}finally{_aiSelf=false;}},900);
+    aiLater(()=>{_aiSelf=true;try{aiPill('ends the turn');endTurn();}finally{_aiSelf=false;}},900);
   }else{_aiBusy=false;_aiDefPhase=null;renderAll();}
 }
 // Called from the combat settle: the AI benches its best dice (tier order F>D>G>Rookie).
 function aiMaybeBench(){
   if(!(_aiActive&&G.benchPick&&!G.benchPick.done&&G.benchPick.loser===_aiSlot))return;
-  setTimeout(()=>{
+  aiLater(()=>{
     const bp=G.benchPick;if(!bp||bp.done)return;
     const p=G.players[bp.loser];
     const ranked=p.z[bp.zone].filter(d=>bp.ids.includes(d.id)).sort((a,b)=>aiDieRank(b)-aiDieRank(a));
@@ -4831,7 +4804,7 @@ function aiMaybeBench(){
 // ── Faceoff auto-drive ──
 function aiMaybeAutoFaceoff(){
   if(!_aiActive)return;
-  setTimeout(()=>{_aiSelf=true;try{doFaceoff();}finally{_aiSelf=false;}},900);
+  aiLater(()=>{_aiSelf=true;try{doFaceoff();}finally{_aiSelf=false;}},900);
 }
 function aiMaybeFoPick(){
   if(!(_aiActive&&G.fo&&G.fo.w===_aiSlot))return;
@@ -4842,9 +4815,9 @@ function aiMaybeFoPick(){
     try{
       pickFoChoice(c);
       aiPill(`wins the faceoff, chooses ${c.toUpperCase()} minutes`);
-      setTimeout(()=>{_aiSelf=true;try{beginPeriodAfterFo();}finally{_aiSelf=false;}},900);
+      aiLater(()=>{_aiSelf=true;try{beginPeriodAfterFo();}finally{_aiSelf=false;}},900);
     }finally{_aiSelf=false;}
-  },1100);
+  },aiPace(1100));
 }
 
 // ── Shootout auto-drive ──
@@ -4874,7 +4847,7 @@ async function aiShootoutTurn(){
 }
 function aiMaybeShootoutAdvance(r){
   if(!(_aiActive&&r&&r.playerIdx===_aiSlot))return;
-  setTimeout(()=>{_aiSelf=true;try{soAdvance();}finally{_aiSelf=false;}},1700);
+  aiLater(()=>{_aiSelf=true;try{soAdvance();}finally{_aiSelf=false;}},1700);
 }
 
 </script>
