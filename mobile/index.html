@@ -521,17 +521,13 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <div id="setup" class="screen active">
   <div class="setup-box">
     <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.53</span></div>
-    <div class="setup-sub">Hockey Dice-Building Game — Playtesting Simulator</div>
-    <div class="setup-btns">
+    <div class="setup-sub">Hockey Bag Building Game</div>
+    <div class="setup-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
-      <button class="btn-mode btn-cb" onclick="showCustom()">🏒 Build Teams (25pts)</button>
+      <button class="btn-mode" style="background:transparent;color:#c85500;border:2px solid #c85500;" onclick="showShootoutSetup()">🥅 Shootout Mini Game</button>
+      <button class="btn-mode" style="background:rgba(100,200,100,.12);color:#66cc66;border:2px solid #66cc66;" onclick="showOnlineSetup()">🌐 Play Online vs Friend</button>
     </div>
-    <div style="text-align:center;margin-bottom:16px">
-      <button class="btn-mode" style="background:transparent;color:#c85500;border:2px solid #c85500;padding:10px 24px;font-size:.85em" onclick="showShootoutSetup()">🥅 Shootout Practice</button>
-    </div>
-    <div style="text-align:center;margin-bottom:16px">
-      <button class="btn-mode" style="background:rgba(100,200,100,.12);color:#66cc66;border:2px solid #66cc66;padding:10px 24px;font-size:.85em;width:220px" onclick="showOnlineSetup()">🌐 Play Online vs Friend</button>
-    </div>
+  </div>
     <!-- ONLINE SETUP PANEL -->
     <div class="team-builder" id="online-panel">
       <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:14px">
