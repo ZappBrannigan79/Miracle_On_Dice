@@ -520,7 +520,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.53</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.60</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <div class="setup-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
@@ -583,7 +583,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <!-- SHOOTOUT SETUP -->
     <div class="team-builder" id="so-panel">
       <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:12px">
-        Pick your roster, then face the AI in a 3-round shootout. The AI drafts its shooters best&nbsp;→&nbsp;worst and rolls automatically — you tap to take your shots.
+        Pick your roster, then face the AI in a 3-round shootout. The AI drafts its shooters and rolls automatically — you tap to take your shots.
       </div>
       <div class="builder-grid">
         <div class="builder-player">
@@ -595,8 +595,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <div id="so-ai-team-line" style="font-size:.85em;margin-bottom:8px"></div>
           <button class="abtn sec" style="font-size:.78em;padding:6px 10px" onclick="soAiReroll()">🎲 Re-roll AI Team</button>
           <div style="font-size:.75em;color:#888;margin-top:10px;line-height:1.5">
-            The AI's goalie defends all your shots.<br>
-            Its 3 shooters go in order: best tier first, worst tier last.
+            The AI's goalie defends all your shots.
           </div>
         </div>
       </div>
@@ -675,7 +674,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.53</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.60</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3716,10 +3715,12 @@ function soShowResult(r){
         resEl.textContent=`🥅 SAVED! (${saveTotal} ≥ ${shotTotal})`;
       }
       renderSOScoreboard();
-      // 2_52b: vs AI — no Next button on the AI's turn; it auto-advances after a pause
+      // 2_53: vs-AI mini-game — after the AI's shot, the result stays up with a
+      // "Your Turn →" button; the player taps to continue (no auto-advance)
       if(_so.vsAI&&r.playerIdx===_aiSlot){
-        nb.style.display='none';
-        aiPill(soIsLastShot()?"AI's turn done — your shot is next!":"AI's shot done — your turn is up!");
+        nb.style.display='';
+        nb.textContent = soIsLastShot() ? 'See Final Result →' : 'Your Turn →';
+        nb.disabled=false;
       }else{
         nb.style.display='';
         nb.textContent = soIsLastShot() ? 'See Final Result →' : 'Next Shooter →';
@@ -3731,7 +3732,8 @@ function soShowResult(r){
       }else if(!(_so.vsAI&&r.playerIdx===_aiSlot)){
         nb.disabled=false;
       }
-      aiMaybeShootoutAdvance(r); // 2_45: Vs AI hook
+      // 2_53: no auto-advance in the vs-AI mini-game — the player drives the pace
+      if(!(_so.vsAI&&r.playerIdx===_aiSlot))aiMaybeShootoutAdvance(r); // 2_45: Vs AI hook
     });
 }
 
@@ -5008,6 +5010,8 @@ function aiMaybeShootout(){
 async function aiShootoutTurn(){
   const si=_so.shooterIdx,P=aiP();
   try{
+    // 2_53: 1s "choosing" pause with a pill, then the pick + "sends out" pill
+    aiPillShow('choosing shooter…',1000);
     await aiSleep(1000);
     _aiSelf=true;
     if(!_so.suddenDeath){
@@ -5020,10 +5024,10 @@ async function aiShootoutTurn(){
     }else{
       aiPill(`sudden death — ${_so.selectedFwd} steps up`);
     }
-    await aiSleep(800);
+    await aiSleep(1200);
     soRollShot();
   }finally{_aiSelf=false;}
-  // result settle → aiMaybeShootoutAdvance moves to the next shooter
+  // result settle → the player taps "Your Turn →" to continue (no auto-advance)
 }
 function aiMaybeShootoutAdvance(r){
   if(!(_aiActive&&r&&r.playerIdx===_aiSlot))return;
