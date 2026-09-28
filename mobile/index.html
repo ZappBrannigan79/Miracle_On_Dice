@@ -168,7 +168,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 
 /* DICE */
 .die-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;flex-shrink:0;cursor:default;}
-.die-body{width:54px;height:54px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.4);transition:all .15s;position:relative;flex-shrink:0;user-select:none;}
+.die-body{width:54px;height:54px;border-radius:12px; /* 2_42: rounded squares, like the faceoff dice */display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.4);transition:all .15s;position:relative;flex-shrink:0;user-select:none;}
 .die-body:hover{transform:scale(1.07);}
 .die-body.sel{box-shadow:0 0 0 4px #ffff00,0 0 14px #ffff00!important;transform:scale(1.1);border-color:#ffff00!important;}
 .die-body.sel-rr{box-shadow:0 0 0 4px #dd7722,0 0 14px #dd7722!important;border-color:#dd7722!important;transform:scale(1.08);}
@@ -183,8 +183,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .pos-P .die-body{background:radial-gradient(circle at 35% 35%,#222,#111);border-color:#444;}
 @keyframes dicewob{0%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}50%{transform:translate(-50%,-50%) rotate(12deg) scale(1.14);}100%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}}
 @keyframes dicewob2{0%{transform:rotate(-12deg) scale(1.12);}50%{transform:rotate(12deg) scale(1.18);}100%{transform:rotate(-12deg) scale(1.12);}}
-.face-badge.rolling{animation:dicewob .13s linear infinite;}
-.cdie.rolling,.fo-die.rolling{animation:dicewob2 .13s linear infinite;}
+.cdie.rolling,.fo-die.rolling,.die-body.rolling{animation:dicewob2 .13s linear infinite;} /* 2_42: main dice shake like faceoff dice */
 /* 2_41: goal celebration + token pop */
 @keyframes goalpop{0%{transform:scale(.5);opacity:0;}45%{transform:scale(1.18);opacity:1;}75%{transform:scale(.94);}100%{transform:scale(1);}}
 .goalpop{animation:goalpop .65s ease-out;}
@@ -2703,7 +2702,7 @@ function tokPopCls(pi,type,val){
   return (prev!==undefined&&prev!==val&&!_REDUCED_MOTION)?' tokpop':'';
 }
 
-// ═══════════════════ 2_40: ROLL ANIMATION ═══════════════════
+// ═══════════════════ 2_40/2_42: ROLL ANIMATION ═══════════════════
 // Every result is decided BEFORE the animation runs — faces scramble for
 // about half a second, then settle on the true faces. Presentation only:
 // outcomes, Firebase sync, and game logic are untouched. Skipped instantly
@@ -2717,7 +2716,8 @@ function _faceBadgeInner(f){
 }
 // Animate real game dice (roll phase, free reroll): `dice` are die objects
 // already rendered with their final faces. Each face-badge scrambles through
-// random legal faces, then the true rendered face is restored.
+// random legal faces while the whole die body shakes (2_42: dicewob2, the
+// faceoff shake), then everything settles on the true rendered faces.
 function animGameDice(dice,done){
   const items=[];
   (dice||[]).forEach(d=>{
@@ -2725,16 +2725,18 @@ function animGameDice(dice,done){
     const w=document.querySelector('.die-wrap[data-id="'+d.id+'"]');
     const b=w&&w.querySelector('.face-badge');
     if(!b)return;
-    items.push({b:b,faces:DEFS[d.key]||DEFS.Penalty,fh:b.innerHTML,fc:b.className});
+    const bd=w.querySelector('.die-body');
+    items.push({b:b,bd:bd,faces:DEFS[d.key]||DEFS.Penalty,fh:b.innerHTML,fc:b.className});
   });
   if(!items.length||_REDUCED_MOTION||typeof requestAnimationFrame!=='function'){if(done)done();return;}
   let n=items.length;
   items.forEach((it,i)=>{
     const total=460+i*55,t0=performance.now();
     it.b.classList.add('rolling');
+    if(it.bd)it.bd.classList.add('rolling');
     (function frame(now){
       const t=(now||performance.now())-t0;
-      if(t>=total){it.b.innerHTML=it.fh;it.b.className=it.fc;if(--n===0&&done)done();return;}
+      if(t>=total){it.b.innerHTML=it.fh;it.b.className=it.fc;if(it.bd)it.bd.classList.remove('rolling');if(--n===0&&done)done();return;}
       const f=it.faces[(Math.random()*it.faces.length)|0];
       it.b.className='face-badge rolling '+fbClass(f.t,!!f.c);
       it.b.innerHTML=_faceBadgeInner(f);
