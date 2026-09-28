@@ -2444,10 +2444,11 @@ function showCombatResult(r){
         else{cbtn.style.display='block';}
       }
     }
+    // 2_44: bench-choice UI lands here, on the settle — after the dice stop
+    // scrambling and the result is displayed. (The immediate call that used
+    // to sit below this line showed it mid-roll.)
     refreshBenchPhase(); // bench-pending override wins, as before 2_40
   });
-  // Bench-choice step (loser picks bench dice; opponent sees the reminder).
-  refreshBenchPhase();
 }
 // Only the shooter advances past the combat result — this also closes the
 // defender's panel via the synced combatDone flag.
@@ -3529,7 +3530,7 @@ function soStartShooterTurn(){
     <div style="font-size:.62em;color:${isUsed?'#666':'#aaa'};text-align:center">
       ${isUsed?'Used':'Available'}
     </div>`;
-    if(!isUsed && iAmShooter){
+    if(!isUsed && iAmShooter && !_so.suddenDeath){ // 2_43: sudden-death die is display-only
       wrap.querySelector('.die-body').addEventListener('click',()=>{
         choices.querySelectorAll('.die-body').forEach(b=>b.classList.remove('sel'));
         wrap.querySelector('.die-body').classList.add('sel');
@@ -3539,11 +3540,11 @@ function soStartShooterTurn(){
     }
     choices.appendChild(wrap);
   });
-  // 2_35: sudden death — the single drawn shooter is pre-selected (no choice to make)
+  // 2_35/2_43: sudden death — the single drawn shooter is pre-set (no choice to make);
+  // shown plainly with no selection ring.
   if(_so.suddenDeath && sp.forwards.length===1 && iAmShooter){
     _so.selectedFwd=sp.forwards[0];
     document.getElementById('so-roll-btn').disabled=false;
-    const onlyDie=choices.querySelector('.die-body'); if(onlyDie) onlyDie.classList.add('sel');
   }
 }
 
