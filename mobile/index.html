@@ -584,22 +584,25 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <!-- SHOOTOUT SETUP -->
     <div class="team-builder" id="so-panel">
       <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:12px">
-        Pick a preset for each player. Each Forward in their lineup gets one shot. Their Goalie defends all shots.
+        Pick your roster, then face the AI in a 3-round shootout. The AI drafts its shooters best&nbsp;→&nbsp;worst and rolls automatically — you tap to take your shots.
       </div>
       <div class="builder-grid">
         <div class="builder-player">
-          <h3>Player 1 — Choose Roster</h3>
+          <h3>Your Roster — Choose Team</h3>
           <div class="preset-cards" id="so-p1" style="max-height:300px;overflow-y:auto"></div>
         </div>
         <div class="builder-player">
-          <h3>Player 2 — Choose Roster</h3>
-          <div class="preset-cards" id="so-p2" style="max-height:300px;overflow-y:auto"></div>
+          <h3>🤖 AI Opponent</h3>
+          <div id="so-ai-team-line" style="font-size:.85em;margin-bottom:8px"></div>
+          <button class="abtn sec" style="font-size:.78em;padding:6px 10px" onclick="soAiReroll()">🎲 Re-roll AI Team</button>
+          <div style="font-size:.75em;color:#888;margin-top:10px;line-height:1.5">
+            The AI's goalie defends all your shots.<br>
+            Its 3 shooters go in order: best tier first, worst tier last.
+          </div>
         </div>
       </div>
       <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
-        <button class="abtn sec" style="font-size:.78em;padding:6px 10px" onclick="randomSOTeam(0)">🎲 Random P1</button>
-        <button class="abtn sec" style="font-size:.78em;padding:6px 10px" onclick="randomSOTeam(1)">🎲 Random P2</button>
-        <button class="abtn sec" style="font-size:.78em;padding:6px 10px" onclick="randomSOTeam(0);randomSOTeam(1)">🎲 Both</button>
+        <button class="abtn sec" style="font-size:.78em;padding:6px 10px" onclick="randomSOTeam(0)">🎲 Random Team</button>
         <button class="btn-start" style="flex:1;padding:10px" onclick="launchShootoutPractice()">Start Shootout →</button>
       </div>
     </div>
@@ -609,17 +612,11 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div style="font-size:.83em;color:#aaa;text-align:center;margin-bottom:10px">
         Select your team below, then face the AI across the table. Starting bag: 15 Rookies.
       </div>
-      <div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;flex-wrap:wrap">
-        <button class="qs-filter-btn active" onclick="filterPresets('all',this)">All (24)</button>
-        <button class="qs-filter-btn" onclick="filterPresets('North',this)">🏔️ North</button>
-        <button class="qs-filter-btn" onclick="filterPresets('East',this)">🌅 East</button>
-        <button class="qs-filter-btn" onclick="filterPresets('South',this)">🏝️ South</button>
-        <button class="qs-filter-btn" onclick="filterPresets('West',this)">🌄 West</button>
-      </div>
+      <!-- 2_51: division filters removed — all 24 teams always listed -->
       <div class="builder-grid">
         <div class="builder-player">
           <h3>Player 1 <span style="font-size:.75em;color:#888">— click a team to select</span></h3>
-          <div class="preset-cards" id="qs-p1" style="max-height:340px;overflow-y:auto"></div>
+          <div class="preset-cards" id="qs-p1" style="max-height:520px;overflow-y:auto"></div>
         </div>
         <div class="builder-player" id="qs-aicol">
           <h3>🤖 AI Opponent <span style="font-size:.75em;color:#888">— sits across the table</span></h3>
@@ -628,7 +625,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <div id="ai-persona-cards"></div>
           <div style="font-size:.78em;color:#aaa;margin-top:10px">AI speed <span style="color:#666">(how fast it plays its turn)</span>:</div>
           <div id="ai-speed-btns" style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
-            <button class="qs-filter-btn active" onclick="aiPickSpeed(1,this)">1× Relaxed</button>
+            <button class="qs-filter-btn" onclick="aiPickSpeed(1,this)">1× Relaxed</button>
             <button class="qs-filter-btn" onclick="aiPickSpeed(2,this)">2× Brisk</button>
             <button class="qs-filter-btn" onclick="aiPickSpeed(0,this)">Max ⚡</button>
           </div>
@@ -679,7 +676,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.42em;color:#5a6a7a;font-weight:400;letter-spacing:1px">v2.49</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.51</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1149,8 +1146,6 @@ const PRESETS=[
    lineup:['F6','F2','F1','D8','D3','G5','HC'], desc:'F6+F2+F1 | D8+D3 | G5 — Elite D, one scoring threat'},
 ];
 let _qsSel=[null,null]; // selected preset index per player
-
-let _qsFilter='all';
 function showQS(){
   document.getElementById('custom-panel').classList.remove('show');
   const qp=document.getElementById('qs-panel');
@@ -1163,22 +1158,15 @@ function showCustom(){
   cp.classList.toggle('show');
   if(cp.classList.contains('show'))populateSels();
 }
-function filterPresets(filter,btn){
-  _qsFilter=filter;
-  document.querySelectorAll('.qs-filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderPresetCards();
-}
-function renderPresetCards(){
+function renderPresetCards(){ // 2_51: division filters removed — all teams always shown
   [0].forEach(pi=>{
     const el=document.getElementById('qs-p'+(pi+1));
     el.innerHTML='';
     PRESETS.forEach((p,i)=>{
-      const show=_qsFilter==='all'||p.division===_qsFilter;
       const selCls=_qsSel[pi]===i?'selected':'';
       const pts_badge_col=p.pts===27?'#55aa55':p.pts===26?'#c8a84b':'#aa7733';
       const card=document.createElement('div');
-      card.className=`preset-card ${selCls}${show?'':' hidden'}`;
+      card.className=`preset-card ${selCls}`;
       card.dataset.pts=p.pts;
       card.dataset.arch=p.archetype;
       const divColor={'North':'#c82020','East':'#c8880a','South':'#1a6dd4','West':'#226622'}[p.division]||'#888';
@@ -2393,9 +2381,10 @@ function updateBenchConfirm(){
   b.textContent=`Send to Bench (${_benchSel.length}/${bp?bp.need:0})`;
   b.disabled=!bp||_benchSel.length!==bp.need;
 }
-function confirmBenchPick(){if(aiGuard())return;
+function confirmBenchPick(){
   const bp=G.benchPick;
   if(!bp||bp.done)return;
+  if(_aiActive&&bp.loser===_aiSlot&&!_aiSelf)return; // 2_50: AI picks its own bench — human taps must not interfere. (Blanket aiGuard() here swallowed the HUMAN's pick after any AI combat, sticking the game.)
   if(_onlineActive&&bp.loser!==_mySlot){toast('Waiting for the bench choice…');return;}
   if(_benchSel.length!==bp.need){toast(`Choose ${bp.need} die/dice for the bench.`);return;}
   bp.picked=_benchSel.slice();bp.done=true;
@@ -3015,7 +3004,9 @@ function renderActions(){
     return;
   }
   // 2_45: Vs AI — the human watches; speed toggle included
-  if(_aiBusy){
+  // 2_51: never show human action buttons on the AI's turn — _aiBusy alone
+  // toggles mid-turn and made Roll Dice flash in and out.
+  if(_aiBusy||(_aiActive&&typeof G!=='undefined'&&G.ap===_aiSlot)){
     const P=aiP();
     row.innerHTML=`<div class="watch-pill">🤖 <b>${P.name} is thinking…</b></div>`;
     return;
@@ -3316,6 +3307,9 @@ let _so = {
   results: [],        // [{playerIdx, fwdKey, goalieKey, shotPips, savePips, goal}]
   suddenDeath: false,
   practice: false,
+  vsAI: false, // 2_51: shootout practice vs AI mini-game
+  aiIdx: null, // 2_51: AI's preset team index for practice
+  playerTurnGo: false, // 2_51: player tapped "take your shot" this turn
   shotsPendingThisRound: 0, // how many shots left in current pair
   phase: 'shoot', // online sync: 'shoot' | 'result' | 'final'
   rev: 0,         // online sync: bumped on every mutation+push
@@ -3368,29 +3362,39 @@ function showShootoutSetup(){
 }
 
 function renderSOPresets(){
-  [0,1].forEach(pi=>{
-    const el = document.getElementById('so-p'+(pi+1));
-    el.innerHTML = '';
-    PRESETS.forEach((p,i)=>{
-      const card = document.createElement('div');
-      const sel = _so['sel'+(pi+1)] === i;
-      card.className = 'preset-card' + (sel?' selected':'');
-      card.innerHTML = `<div class="preset-card-name">${p.name}</div>
-        <div class="preset-card-lineup" style="font-size:.72em">${p.desc}</div>`;
-      card.addEventListener('click', ()=>{ _so['sel'+(pi+1)]=i; renderSOPresets(); });
-      el.appendChild(card);
-    });
+  // 2_51: shootout practice is now vs AI — only the player's roster is picked
+  const el = document.getElementById('so-p1');
+  el.innerHTML = '';
+  PRESETS.forEach((p,i)=>{
+    const card = document.createElement('div');
+    const sel = _so.sel1 === i;
+    card.className = 'preset-card' + (sel?' selected':'');
+    card.innerHTML = `<div class="preset-card-name">${p.name}</div>
+      <div class="preset-card-lineup" style="font-size:.72em">${p.desc}</div>`;
+    card.addEventListener('click', ()=>{ _so.sel1=i; renderSOPresets(); });
+    el.appendChild(card);
   });
+  if(_so.aiIdx===null||_so.aiIdx===undefined)_so.aiIdx=Math.floor(Math.random()*PRESETS.length);
+  renderSOAITeam();
 }
+function renderSOAITeam(){
+  const p=PRESETS[_so.aiIdx];
+  const el=document.getElementById('so-ai-team-line');
+  if(el&&p)el.innerHTML=`${p.name} <span style="color:#888;font-size:.85em">(${p.desc})</span>`;
+}
+function soAiReroll(){_so.aiIdx=Math.floor(Math.random()*PRESETS.length);renderSOAITeam();}
 
 function launchShootoutPractice(){
-  if(_so.sel1==null||_so.sel2==null){toast('Each player must select a roster.');return;}
-  const p1=PRESETS[_so.sel1], p2=PRESETS[_so.sel2];
+  if(_so.sel1==null){toast('Select your roster first.');return;}
+  const p1=PRESETS[_so.sel1], p2=PRESETS[_so.aiIdx||0];
+  // 2_51: shootout practice is a vs-AI mini-game — the AI drives player 2
+  _aiActive=true;_aiSlot=1;_aiPersona='coach';_aiSpeed=1;_aiBusy=false;_aiSelf=false;_aiDefPhase=null;
+  _so.vsAI=true;
   // Shooter pool = all 3 Forwards + all 2 Defensemen (5 total); draw 3 randomly
   const buildPool = lineup => lineup.filter(k=>k.startsWith('F')||k.startsWith('D'));
   _so.players = [
-    {name:'Player 1', teamName:p1.name, shooterPool:buildPool(p1.lineup), goalie:p1.lineup.find(k=>k.startsWith('G'))||'G3'},
-    {name:'Player 2', teamName:p2.name, shooterPool:buildPool(p2.lineup), goalie:p2.lineup.find(k=>k.startsWith('G'))||'G3'},
+    {name:'You', teamName:p1.name, shooterPool:buildPool(p1.lineup), goalie:p1.lineup.find(k=>k.startsWith('G'))||'G3'},
+    {name:'🤖 Coach', teamName:p2.name, shooterPool:buildPool(p2.lineup), goalie:p2.lineup.find(k=>k.startsWith('G'))||'G3'},
   ];
   document.getElementById('so-panel').classList.remove('show');
   startShootout(true);
@@ -3399,6 +3403,8 @@ function launchShootoutPractice(){
 // ── START / RESTART ──
 function startShootout(practice){
   _so.practice = practice;
+  if(!practice){_so.vsAI=false;} // 2_51: real-game shootouts are never vs-AI practice
+  _so.playerTurnGo=false;
   _so.scores = [0,0];
   _so.round = 1;
   _so.maxRounds = 3;
@@ -3531,6 +3537,20 @@ function soStartShooterTurn(){
 
   document.getElementById('so-turn-info').textContent =
     `${sp.teamName||sp.name} shooting (${_so.suddenDeath?'sudden death — 1 drawn':'3 of 5 drawn'}) vs ${_so.players[1-si].teamName||_so.players[1-si].name}'s ${goalieName}`;
+  // 2_51: vs-AI practice — the player taps to take their turn (the AI rolls automatically)
+  if(_so.vsAI&&si===0&&!_so.playerTurnGo){
+    document.getElementById('so-shooter-label').textContent='Your turn — ready?';
+    const choices=document.getElementById('so-forward-choices');
+    choices.innerHTML='';
+    const btn=document.createElement('button');
+    btn.className='abtn prim';btn.style.cssText='font-size:1.1em;padding:14px 32px;margin:12px auto;display:block';
+    btn.textContent='Take Your Shot →';
+    btn.addEventListener('click',()=>{_so.playerTurnGo=true;soStartShooterTurn();});
+    choices.appendChild(btn);
+    document.getElementById('so-roll-btn').disabled=true;
+    return;
+  }
+  _so.playerTurnGo=false;
   // Online: only the shooting player picks — the other side watches.
   const iAmShooter = soIAmShooter();
   document.getElementById('so-shooter-label').textContent = iAmShooter
@@ -4477,7 +4497,7 @@ window.addEventListener('DOMContentLoaded',()=>{ populateOnlineTeamSelects(); })
 // only; no game-logic changes.
 // ═══════════════════════════════════════════════════════════════════
 let _aiActive=false,_aiSlot=1,_aiPersona='balanced',_aiBusy=false,_aiSelf=false,_aiSpeed=1,_aiDefPhase=null;
-let _aiPersonaSel='balanced',_aiTeamIdx=null,_aiSpeedSel=1; // 2_46: quickstart is Vs AI only
+let _aiPersonaSel=null,_aiTeamIdx=null,_aiSpeedSel=null; // 2_51: nothing preselected — the player must choose persona + speed
 
 const AI_PERSONAS={
   blitz:{name:'Blitz',icon:'🔥',tag:'Aggressive',
@@ -4555,7 +4575,7 @@ function aiShowTurnSummary(onTake){
   const P=aiP();let el=document.getElementById('ai-pill');
   if(!el){el=document.createElement('div');el.id='ai-pill';document.body.appendChild(el);}
   clearTimeout(el._t);
-  const notes=_aiTurnNotes.length?_aiTurnNotes:['takes the turn'];
+  const notes=_aiTurnNotes; // 2_51: action lines only — no "takes/ends the turn" filler
   _aiTurnNotes=[];
   el.classList.add('summary');
   el.innerHTML=`${P.icon} <b>${P.name}</b> — turn summary`+
@@ -4608,6 +4628,8 @@ function renderAIPanelTeam(){
 }
 function startAIGame(){
   if(_qsSel[0]===null){toast('Select your team first.');return;}
+  if(_aiPersonaSel===null){toast('Choose the AI\'s personality first.');return;} // 2_51: no preselected persona
+  if(_aiSpeedSel===null){toast('Choose the AI\'s speed first.');return;} // 2_51: no preselected speed
   const p1=PRESETS[_qsSel[0]],p2=PRESETS[_aiTeamIdx||0];
   _aiActive=true;_aiSlot=1;_aiPersona=_aiPersonaSel;_aiBusy=false;_aiDefPhase=null;_aiSpeed=_aiSpeedSel; // 2_46
   initG(p1.lineup,p2.lineup,[],[]);
@@ -4639,7 +4661,7 @@ function aiMaybeStartTurn(){
 async function aiTurnMain(){
   const P=aiP();
   _aiTurnNotes=[]; // 2_47
-  aiPill(`takes the turn`);
+  // 2_51: no "takes the turn" note — summary keeps only the action lines
   try{
     await aiSleep(900);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48: never hold the board when the turn moved on
     _aiSelf=true;try{rollAll();}finally{_aiSelf=false;}
@@ -4653,7 +4675,7 @@ async function aiTurnMain(){
     const shot=await aiDoShoot(P);
     if(!shot){
       await aiSleep(600);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
-      aiPill('ends the turn');
+      // 2_51: no "ends the turn" note — summary keeps only the action lines
       aiShowTurnSummary(()=>{_aiSelf=true;try{endTurn();}finally{_aiSelf=false;if(G.ap!==_aiSlot){_aiBusy=false;_aiDefPhase=null;}}}); // 2_49: tap Take Turn to end the AI turn — board released
     }
     // shot=true: driver pauses — the human defends, then closeCombat resumes the AI end turn
@@ -4863,7 +4885,7 @@ async function aiDefendTurn(){
     await aiSleep(1000);
     resolveCombat();
     aiShowSummary(); // 2_47
-  }finally{_aiSelf=false;_aiDefPhase=null;}
+  }finally{_aiSelf=false;_aiDefPhase=null;_aiBusy=false;} // 2_50: AI defend done — human drives bench pick + Continue; holding _aiBusy swallows the SEND TO BENCH tap via aiGuard
   // settle → aiMaybeBench handles an AI bench loss; the human clicks Continue
 }
 // Called from closeCombat: resume the AI end turn after it shot, or release the board.
