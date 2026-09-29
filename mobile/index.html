@@ -536,15 +536,16 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.139</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.140</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
       <button onclick="resumeGame()" style="width:100%;background:#f8bd55;color:#0a0f1e;border:none;border-radius:10px;padding:12px;font-size:.95em;font-weight:800;cursor:pointer;">▶ Resume Game</button>
-      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;">
+      <div style="margin-top:6px;">
         <span id="resume-info" style="font-size:.75em;color:#aaa;"></span>
-        <button onclick="discardSave()" title="Discard saved game" style="background:none;border:none;color:#666;font-size:.8em;cursor:pointer;padding:2px 6px;">✕</button>
       </div>
+      <!-- 2_140: labeled Discard button — the old ✕ was 10px, grey-on-navy, ~14px tap target -->
+      <button onclick="discardSave()" style="margin-top:8px;background:transparent;border:1px solid #6e5555;color:#c99292;border-radius:8px;padding:9px 22px;font-size:.8em;font-weight:700;cursor:pointer;">Discard saved game</button>
     </div>
     <div class="setup-btns" id="mode-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
@@ -697,7 +698,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.139</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.140</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -5826,7 +5827,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // — main zones in turn-flow order —
   ['z-rs', 'z-hot', 'z-cold', 'z-defend'].forEach(id => move(zwrap(id), scroll));
 
-  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_139: Tim's order
+  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_140: Tim's order
   const tabbar = document.createElement('div'); tabbar.id = 'm-tabs';
   const tabbody = document.createElement('div'); tabbody.id = 'm-tabbody';
   scroll.appendChild(tabbar); scroll.appendChild(tabbody);
