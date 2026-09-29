@@ -539,7 +539,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.142</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.143</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -559,6 +559,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <!-- 2_120: tapping the banner goes back to the mode list (no separate Back button) -->
     <div id="mode-header" style="display:none;max-width:320px;margin:0 auto 20px;">
       <div id="mode-header-banner" style="cursor:pointer;" onclick="backToModes()" title="Back to game modes"></div>
+      <!-- 2_143: hint that the banner is the back button -->
+      <div style="text-align:center;font-size:.7em;color:#777;margin-top:6px;">↑ tap the title above to go back</div>
     </div>
   </div>
     <!-- ONLINE SETUP PANEL -->
@@ -657,9 +659,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <button class="qs-filter-btn ai-speed-pulse" style="flex:1;padding:10px;font-size:.85em" onclick="aiPickSpeed(2,this)">Fast</button>
         </div>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
-        <div style="flex:1"></div>
-        <div id="qs-sel-summary" style="font-size:.78em;color:#aaa">No teams selected yet.</div>
+      <div style="display:flex;justify-content:center;margin-top:10px">
+        <div id="qs-sel-summary" style="font-size:.78em;color:#aaa;text-align:center">No teams selected yet.</div>
       </div>
       <div style="margin-top:8px">
         <button class="btn-start" style="width:100%;padding:12px" onclick="startQS()">Start Game →</button>
@@ -701,7 +702,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.142</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.143</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -5832,7 +5833,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // — main zones in turn-flow order —
   ['z-rs', 'z-hot', 'z-cold', 'z-defend'].forEach(id => move(zwrap(id), scroll));
 
-  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_142: Tim's order
+  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_143: Tim's order
   const tabbar = document.createElement('div'); tabbar.id = 'm-tabs';
   const tabbody = document.createElement('div'); tabbody.id = 'm-tabbody';
   scroll.appendChild(tabbar); scroll.appendChild(tabbody);
