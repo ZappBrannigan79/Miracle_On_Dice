@@ -528,7 +528,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.100</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.101</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <div class="setup-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
@@ -679,7 +679,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.100</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.101</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4785,7 +4785,7 @@ async function aiTurnMain(){
   }catch(e){
     console.error('AI turn error:',e);
     _aiBusy=false;_aiDefPhase=null;_aiSelf=false;
-    // 2_100: never strand the game — show the summary card with what the AI did,
+    // 2_101: never strand the game — show the summary card with what the AI did,
     // log the actual error for debugging, and let Take Turn end it gracefully
     try{
       if(typeof G!=='undefined'&&G.ap===_aiSlot){
@@ -5043,7 +5043,7 @@ function aiBankReserve(){
 function aiTopTiers(n){
   const ap=AP();
   const owned={};
-  [...ap.z.bag,...ap.z.iced,...ap.z.rs,...ap.z.cold,...ap.z.hot,...ap.z.defend,...ap.z.reserve].forEach(d=>{
+  [...ap.bag,...ap.z.iced,...ap.z.rs,...ap.z.cold,...ap.z.hot,...ap.z.defend,...ap.z.reserve].forEach(d=>{
     const pos=d.key[0];owned[pos]=(owned[pos]||0)+1;
   });
   const avail=[];
