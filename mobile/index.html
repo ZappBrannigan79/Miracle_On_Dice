@@ -528,7 +528,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.87</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.89</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <div class="setup-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
@@ -626,17 +626,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <div class="builder-player" id="qs-aicol">
           <h3>🤖 AI Opponent <span style="font-size:.75em;color:#888">— sits across the table</span></h3>
           <div id="ai-team-line" style="font-size:.85em;margin-bottom:6px"></div>
-          <div style="font-size:.78em;color:#aaa">Choose its personality:</div>
-          <div id="ai-persona-cards"></div>
-          <!-- 2_73: Persona Lab — adjustable dials per persona -->
-          <div id="persona-lab" style="margin-top:12px;padding:10px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid rgba(255,255,255,.1)">
-            <div style="font-size:.82em;font-weight:800;color:#ffd75e;margin-bottom:8px;cursor:pointer" onclick="document.getElementById('persona-lab-dials').classList.toggle('hidden')">🔬 Persona Lab <span style="color:#888;font-weight:400">(tune the AI)</span></div>
-            <div id="persona-lab-dials" class="hidden">
-              <div style="font-size:.72em;color:#888;margin-bottom:8px">Drag a slider, then play. Changes apply immediately and are saved.</div>
-              <div id="persona-lab-sliders"></div>
-              <button class="abtn sec" style="font-size:.75em;padding:6px 12px;margin-top:8px" onclick="resetPersonaLab()">Reset to defaults</button>
-            </div>
-          </div>
+          <div style="font-size:.85em;margin-top:6px">♟️ <b>Coach</b> <span style="color:#888">— your sparring partner</span></div>
           <div style="font-size:.78em;color:#aaa;margin-top:10px">AI speed <span style="color:#666">(how fast it plays its turn)</span>:</div>
           <div id="ai-speed-btns" style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
             <button class="qs-filter-btn" onclick="aiPickSpeed(1,this)">1× Relaxed</button>
@@ -689,7 +679,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.87</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.89</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4543,17 +4533,12 @@ window.addEventListener('DOMContentLoaded',()=>{ populateOnlineTeamSelects(); })
 // only; no game-logic changes.
 // ═══════════════════════════════════════════════════════════════════
 let _aiActive=false,_aiSlot=1,_aiPersona='balanced',_aiBusy=false,_aiSelf=false,_aiSpeed=1,_aiDefPhase=null;
-let _aiPersonaSel=null,_aiTeamIdx=null,_aiSpeedSel=null; // 2_51: nothing preselected — the player must choose persona + speed
+let _aiPersonaSel='coach',_aiTeamIdx=null,_aiSpeedSel=null; // 2_88: Coach is the only AI — auto-selected
 
+// 2_88: Coach is the only AI opponent (Blitz/Trapper removed per Tim's call)
 const AI_PERSONAS={
-  blitz:{name:'Blitz',icon:'🔥',tag:'Aggressive',
-    desc:'Pushes every shooter, buys early, rerolls for upside.',
-    dials:{buy:85,shooters:90,reroll:80,desperation:90},foPick:'even'},
-  trapper:{name:'Trapper',icon:'🧊',tag:'Patient',
-    desc:'Banks energy, holds shooters back, saves tokens for late.',
-    dials:{buy:30,shooters:25,reroll:35,desperation:10},foPick:'odd'},
   coach:{name:'Coach',icon:'♟️',tag:'Balanced',
-    desc:'Solid all-around game. The default sparring partner.',
+    desc:'Solid all-around game. Your sparring partner.',
     dials:{buy:55,shooters:50,reroll:55,desperation:50},foPick:'random'},
 };
 // 2_73: Persona Lab — dials are 0-100, adjustable via sliders, persisted to localStorage
@@ -4732,16 +4717,7 @@ function aiPickSpeed(sp,btn){
 function renderAIPanel(){
   if(_aiTeamIdx===null||_aiTeamIdx===undefined)_aiTeamIdx=Math.floor(Math.random()*PRESETS.length);
   renderAIPanelTeam();
-  const pc=document.getElementById('ai-persona-cards');pc.innerHTML='';
-  Object.entries(AI_PERSONAS).forEach(([k,P])=>{
-    const d=document.createElement('div');d.className='persona-card'+(k===_aiPersonaSel?' sel':'');
-    d.dataset.k=k;
-    d.innerHTML=`<div style="font-size:1.4em">${P.icon}</div><div style="font-weight:700">${P.name}</div>`+
-      `<div style="font-size:.72em;color:#ffd75e">${P.tag}</div>`+
-      `<div style="font-size:.72em;color:#aaa;margin-top:4px">${P.desc}</div>`;
-    d.addEventListener('click',()=>aiPickPersona(k));
-    pc.appendChild(d);
-  });
+  // 2_88: Coach is the only AI — no persona cards to render
 }
 function renderAIPanelTeam(){
   const p=PRESETS[_aiTeamIdx];
@@ -4751,7 +4727,7 @@ function renderAIPanelTeam(){
 }
 function startAIGame(){
   if(_qsSel[0]===null){toast('Select your team first.');return;}
-  if(_aiPersonaSel===null){toast('Choose the AI\'s personality first.');return;} // 2_51: no preselected persona
+  // 2_88: Coach is auto-selected (only AI) — no persona choice needed
   if(_aiSpeedSel===null){toast('Choose the AI\'s speed first.');return;} // 2_51: no preselected speed
   const p1=PRESETS[_qsSel[0]],p2=PRESETS[_aiTeamIdx||0];
   _aiActive=true;_aiSlot=1;_aiPersona=_aiPersonaSel;_aiBusy=false;_aiDefPhase=null;_aiSpeed=_aiSpeedSel; // 2_46
@@ -4822,27 +4798,67 @@ function aiDieScore(d,P){
 }
 function aiDoReroll(P){
   const ap=AP();
-  const eff=aiEffReroll(); // 2_73: 0-1 effective reroll eagerness (with desperation)
-  const isFirstTurn=G.clock===10, isLastTurn=G.clock===1;
-  const agg01=isLastTurn&&aiDial('reroll')>25; // 2_73: 01:00 nothing-to-lose mode
-  const picks=[];
-  ap.z.rs.forEach(d=>{
-    const f=d.face;if(!f)return;
-    if(d.key==='HC'){
-      // 2_73: 50% reroll HC any result; turn 1 always reroll ADV (useless on 10:00)
-      if(isFirstTurn){if(f.t==='ADV')picks.push(d);}
-      else if(Math.random()<0.5)picks.push(d);
-      return;
-    }
-    if(f.t==='BLANK'){picks.push(d);return;} // 2_73: blanks always rerolled at any level
-    if(agg01){if(f.t!=='S')picks.push(d);return;} // 2_73: 01:00 — reroll everything but shoot faces
-    if(f.t==='E'){
-      // 2_73: 0=never; 100=50% for 2/3-energy, 80% for 1-energy
-      const p=f.v===1?eff*0.8:eff*0.5;
-      if(Math.random()<p)picks.push(d);
-    }
-    // S/B/W/etc kept (unless 01:00 aggressive)
+  const d100=()=>Math.floor(Math.random()*100)+1;
+  const picked=new Set(), keepE=new Set();
+  const rs=ap.z.rs;
+  // 2_89: Coach reroll table (Tim's d100 spec). Order by face type:
+  // 1. energy → 2. blank → 3. HC non-energy → 4. F/D shoot/block → 5. goalie
+  // ── 1. ENERGY ──
+  rs.forEach(d=>{
+    const f=d.face;if(!f||f.t!=='E')return;
+    let p;
+    if(d.key==='HC')p=75;
+    else if(d.key==='Rookie')p=f.v===1?80:20;
+    else p=f.v===1?100:f.v===2?80:60; // F/D
+    if(d100()<=p)picked.add(d);else keepE.add(d);
   });
+  // ── 2. BLANK ── always reroll
+  rs.forEach(d=>{if(d.face&&d.face.t==='BLANK')picked.add(d);});
+  // ── 3. HC non-energy (RR/ADV/PEN) ──
+  rs.forEach(d=>{
+    if(d.key!=='HC'||picked.has(d))return;
+    const f=d.face;if(!f||f.t==='E')return;
+    let p=0;
+    if(f.t==='RR'||f.t==='PEN')p=25;
+    else if(f.t==='ADV'){
+      if(G.clock===10||G.clock<=4)p=100; // 10:00 + 04:00–01:00: always fish for ADV
+      else{ // 09:00–05:00: 25% if shoot pips showing in R&S/cold, else 75%
+        const hasShoot=[...ap.z.rs,...ap.z.cold].some(x=>x.face&&x.face.t==='S'&&(x.face.v||0)>0);
+        p=hasShoot?25:75;
+      }
+    }
+    if(d100()<=p)picked.add(d);
+  });
+  // ── 4. F/D/Rookie shoot/block ── (costed faces collected for funding below)
+  const costed=[];
+  rs.forEach(d=>{
+    if(picked.has(d))return;
+    const f=d.face;if(!f)return;
+    const isF=d.key.startsWith('F'),isD=d.key.startsWith('D'),isR=d.key==='Rookie';
+    if(!isF&&!isD&&!isR)return;
+    if(f.t==='W')return; // wild: 0% always keep
+    if(f.t!=='S'&&f.t!=='B')return;
+    if(isR){if(d100()<=5)picked.add(d);return;} // rookie S/B: 5%
+    if(!f.c){if(d100()<=20)picked.add(d);} // side 4 (low): 20%
+    else costed.push({d,pri:isF?0:2}); // side 5 (high, costed): needs 1e
+  });
+  // ── 5. GOALIE ── sides 1-4 always keep; 5-6 (costed) need 1e
+  rs.forEach(d=>{
+    if(picked.has(d)||!d.key.startsWith('G'))return;
+    const f=d.face;if(!f||!f.c)return; // plain block: 0% keep
+    costed.push({d,pri:1,isG:true});
+  });
+  // Fund costed faces: 1e pip per face, priority Forwards → Goalies → Defensemen.
+  // Pool = reserve pips + kept R&S energy pips. Unfunded: F/D 5%, G 50% reroll.
+  let pool=0;
+  ap.z.reserve.forEach(d=>{if(d.face)pool+=d.face.v;});
+  keepE.forEach(d=>{pool+=d.face.v;});
+  costed.sort((a,b)=>a.pri-b.pri);
+  costed.forEach(({d,isG})=>{
+    if(pool>=1)pool-=1; // funded → keep
+    else if(d100()<=(isG?50:5))picked.add(d);
+  });
+  const picks=[...picked];
   _aiSelf=true;
   try{
     if(picks.length){
