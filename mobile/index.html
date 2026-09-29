@@ -38,7 +38,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .builder-player{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:16px;}
 /* 2_52: the team list column stretches to match the AI options column height */
 #qs-panel .builder-player{display:flex;flex-direction:column;}
-#qs-p1{flex:1;overflow-y:auto;min-height:300px;max-height:550px;} /* 2_52b: cap it — uncapped flex grew forever */
+#qs-p1{flex:1;} /* 2_130: was min-height:300px from the old card-list days — created dead space under the dropdown */
 .builder-player h3{color:var(--gold);font-size:1em;margin-bottom:12px;text-transform:uppercase;letter-spacing:1px;}
 #so-panel .builder-player h3, #qs-panel .builder-player h3{white-space:nowrap;font-size:.88em;letter-spacing:.5px;line-height:1.6;} /* 2_126/2_127: one line each; fixed line-height so 🧑/🤖 glyph heights can't offset the columns */
 .builder-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:.9em;color:#ccc;}
@@ -534,7 +534,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.129</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.130</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -640,7 +640,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         </div>
         <div class="builder-player" id="qs-aicol">
           <h3>🤖 AI Opponent</h3>
-          <div id="ai-team-line" style="font-size:.85em;margin-bottom:6px"></div>
+          <div id="ai-team-line" style="margin-bottom:6px"></div>
         </div>
       </div>
       <!-- 2_129: AI speed moved full-width below the columns so both team cards sit even -->
@@ -695,7 +695,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.129</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.130</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
