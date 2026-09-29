@@ -532,7 +532,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.123</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.124</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -617,11 +617,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         </div>
         <div class="builder-player">
           <h3>🤖 AI Opponent</h3>
-          <div id="so-ai-team-line" style="font-size:.85em;margin-bottom:8px"></div>
-          <button class="abtn sec" style="font-size:.78em;padding:6px 10px" onclick="soAiReroll()">🎲 Re-roll AI Team</button>
-          <div style="font-size:.75em;color:#888;margin-top:10px;line-height:1.5">
-            The AI's goalie defends all your shots.
-          </div>
+          <div id="so-ai"></div>
         </div>
       </div>
       <div style="margin-top:10px">
@@ -695,7 +691,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.123</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.124</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3431,6 +3427,7 @@ let _so = {
 };
 let _lastSoRev=0; // last shootout revision this client rendered (online mirror)
 let _soManualPick=false; // 2_121: true once the user hand-picks the shootout team
+let _soAiManualPick=false; // 2_124: true once the user hand-picks the AI's shootout team
 
 // ── ONLINE SYNC ──
 // The shootout is shared: the shooting player drives each shot on their own
@@ -3516,12 +3513,38 @@ function renderSOPresets(){
   renderSOAITeam();
 }
 function renderSOAITeam(){
-  // 2_121: structured team display via shared helper
-  const p=PRESETS[_so.aiIdx];
-  const el=document.getElementById('so-ai-team-line');
-  if(el&&p)el.innerHTML=teamInfoHTML(p, true);
+  // 2_124: dropdown + structured team display, mirroring the player's column
+  const el=document.getElementById('so-ai');
+  if(!el)return;
+  el.innerHTML='';
+  if(_so.aiIdx==null)_so.aiIdx=Math.floor(Math.random()*PRESETS.length);
+  const sel=document.createElement('select');
+  sel.style.cssText='width:100%;background:#1a2d45;color:white;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px;font-size:.9em;cursor:pointer;';
+  const randOpt=document.createElement('option');
+  randOpt.value='-1';
+  randOpt.textContent='🎲 Random Team — surprise me';
+  randOpt.style.cssText='background:#1a2d45;color:white;';
+  if(!_soAiManualPick)randOpt.selected=true;
+  sel.appendChild(randOpt);
+  PRESETS.forEach((p,i)=>{
+    const opt=document.createElement('option');
+    opt.value=String(i);
+    opt.textContent=`${p.name} — ${p.division||''} (${p.pts}pt)`;
+    opt.style.cssText='background:#1a2d45;color:white;';
+    if(_soAiManualPick&&_so.aiIdx===i)opt.selected=true;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change',()=>{
+    const v=parseInt(sel.value,10);
+    if(v===-1){_soAiManualPick=false;_so.aiIdx=Math.floor(Math.random()*PRESETS.length);}
+    else{_soAiManualPick=true;_so.aiIdx=v;}
+    renderSOAITeam();
+  });
+  el.appendChild(sel);
+  const infoWrap=document.createElement('div');
+  infoWrap.innerHTML=teamInfoHTML(PRESETS[_so.aiIdx], !_soAiManualPick);
+  el.appendChild(infoWrap);
 }
-function soAiReroll(){_so.aiIdx=Math.floor(Math.random()*PRESETS.length);renderSOAITeam();}
 
 function launchShootoutPractice(){
   if(_so.sel1==null)_so.sel1=Math.floor(Math.random()*PRESETS.length); // 2_63: default to random
@@ -3872,9 +3895,11 @@ function soShowResult(r){
 
 function soIsLastShot(){
   // Is this the last shot before we evaluate end?
-  // After this shot: if shooterIdx=1 AND round >= maxRounds → end check
-  return (_so.shooterIdx===1 && _so.round>=_so.maxRounds && !_so.suddenDeath) ||
-         (_so.suddenDeath && _so.shooterIdx===1);
+  // After this shot: if shooterIdx = the second shooter (1-firstShooter) AND round >= maxRounds → end check
+  // 2_124: was hardcoded to shooterIdx===1, which broke when the coinflip (2_67) let the AI shoot first
+  const secondShooter=1-_so.firstShooter;
+  return (_so.shooterIdx===secondShooter && _so.round>=_so.maxRounds && !_so.suddenDeath) ||
+         (_so.suddenDeath && _so.shooterIdx===secondShooter);
 }
 
 function soAdvance(){if(aiGuard())return;
