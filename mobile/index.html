@@ -150,6 +150,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* Button pulse */
 .abtn.pulsing{animation:btnpulse 1.2s ease-in-out infinite;}
 @keyframes btnpulse{0%,100%{opacity:1;box-shadow:none;}50%{opacity:.75;box-shadow:0 0 10px rgba(200,168,75,.7);}}
+/* 2_142: your-turn flash — plain text, gentle opacity pulse, never button-like */
+.so-yourturn{display:inline-block;font-size:1.05em;font-weight:800;letter-spacing:3px;color:var(--gold);animation:soTurnPulse 1.8s ease-in-out infinite;}
+@keyframes soTurnPulse{0%,100%{opacity:1;}50%{opacity:.5;}}
 .abtn.pulsing-orange{animation:btnpulse-o 1.2s ease-in-out infinite;}
 @keyframes btnpulse-o{0%,100%{opacity:1;box-shadow:none;}50%{opacity:.75;box-shadow:0 0 10px rgba(221,119,34,.7);}}
 .z-shoot{background:rgba(26,58,139,.25);border:1px solid rgba(26,58,139,.5);color:#aac4ff;}
@@ -536,7 +539,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.141</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.142</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -698,7 +701,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.141</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.142</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1015,8 +1018,6 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <button class="btn-ov" onclick="restartShootout()">🔄 Shootout Again</button>
       <button class="btn-ov" onclick="document.getElementById('so-overlay').classList.remove('show');location.reload()">New Game</button>
     </div>
-    <!-- 2_141: your-turn nudge — pulsing bar, human's turn only -->
-    <div id="so-turn-bar" style="display:none;margin-top:14px;text-align:center;font-size:.8em;font-weight:800;letter-spacing:2px;color:#0a0f1e;background:#f8bd55;border-radius:8px;padding:8px;animation:btnpulse 1.6s infinite;">YOUR TURN</div>
   </div>
 </div>
 <!-- OPPONENT BOARD OVERLAY -->
@@ -3707,18 +3708,16 @@ function soStartShooterTurn(){
 
   const si = _so.shooterIdx;
   const sp = _so.players[si];
-  const goalieName = _so.players[1-si].goalie;
 
-  document.getElementById('so-turn-info').textContent =
-    `${sp.teamName||sp.name} shooting (${_so.suddenDeath?'sudden death — 1 drawn':'3 of 5 drawn'}) vs ${_so.players[1-si].teamName||_so.players[1-si].name}'s ${goalieName}`;
+  // 2_142: narration eliminated — this line is now the your-turn flash (text only, not a button)
+  const _ti=document.getElementById('so-turn-info');
+  const _humanTurn=!((_so.vsAI&&si===_aiSlot)||!soIAmShooter());
+  _ti.innerHTML=_humanTurn?'<span class="so-yourturn">YOUR TURN</span>':'';
   // 2_68: vs-AI practice — the player takes their turn directly (no "Take Your Shot" gate)
   _so.playerTurnGo=false;
   // 2_51: no Roll Shot button on the AI's turn — it rolls automatically
   const _rr=document.getElementById('so-roll-row');
   if(_rr)_rr.style.display=(_so.vsAI&&si===_aiSlot)?'none':'flex';
-  // 2_141: your-turn nudge — pulsing bar on the human's turn only, nothing on AI/opponent turns
-  const _tb=document.getElementById('so-turn-bar');
-  if(_tb)_tb.style.display=((_so.vsAI&&si===_aiSlot)||!soIAmShooter())?'none':'block';
   // Online: only the shooting player picks — the other side watches.
   const iAmShooter = soIAmShooter();
   document.getElementById('so-shooter-label').textContent = iAmShooter
@@ -3984,7 +3983,7 @@ function soShowFinal(){
   document.getElementById('so-shooter-area').style.display='none';
   document.getElementById('so-result-area').style.display='none';
   document.getElementById('so-final-area').style.display='block';
-  document.getElementById('so-turn-bar').style.display='none'; // 2_141: no nudge on the final screen
+  document.getElementById('so-turn-info').innerHTML=''; // 2_142: no flash on the final screen
   const [s0,s1]=_so.scores;
   const winner=s0>s1?(_so.players[0].teamName||_so.players[0].name):(_so.players[1].teamName||_so.players[1].name);
   document.getElementById('so-final-msg').innerHTML=
@@ -5833,7 +5832,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // — main zones in turn-flow order —
   ['z-rs', 'z-hot', 'z-cold', 'z-defend'].forEach(id => move(zwrap(id), scroll));
 
-  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_141: Tim's order
+  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_142: Tim's order
   const tabbar = document.createElement('div'); tabbar.id = 'm-tabs';
   const tabbody = document.createElement('div'); tabbody.id = 'm-tabbody';
   scroll.appendChild(tabbar); scroll.appendChild(tabbody);
