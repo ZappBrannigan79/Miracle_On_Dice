@@ -59,7 +59,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .qs-filter-btn{padding:4px 12px;font-size:.75em;font-weight:700;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#aaa;cursor:pointer;transition:all .15s;}
 .qs-filter-btn:hover{background:rgba(255,255,255,.15);color:white;}
 .qs-filter-btn.active{background:var(--gold);color:#111;border-color:var(--gold);}
-/* 2_118: subtle pulse on AI speed buttons to draw the eye — stops once one is picked */
+/* 2_121: subtle pulse on AI speed buttons to draw the eye — stops once one is picked */
 @keyframes aiSpeedPulse{0%,100%{box-shadow:0 0 0 0 rgba(248,189,85,.0);}50%{box-shadow:0 0 8px 2px rgba(248,189,85,.45);}}
 .ai-speed-pulse{animation:aiSpeedPulse 2s ease-in-out infinite;}
 .ai-speed-pulse.active{animation:none;}
@@ -532,15 +532,23 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.118</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.121</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
+    <!-- 2_121: Resume button — only shown when a saved game exists -->
+    <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
+      <button onclick="resumeGame()" style="width:100%;background:#f8bd55;color:#0a0f1e;border:none;border-radius:10px;padding:12px;font-size:.95em;font-weight:800;cursor:pointer;">▶ Resume Game</button>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;">
+        <span id="resume-info" style="font-size:.75em;color:#aaa;"></span>
+        <button onclick="discardSave()" title="Discard saved game" style="background:none;border:none;color:#666;font-size:.8em;cursor:pointer;padding:2px 6px;">✕</button>
+      </div>
+    </div>
     <div class="setup-btns" id="mode-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
       <button class="btn-mode" style="background:transparent;color:#c85500;border:2px solid #c85500;" onclick="showShootoutSetup()">🥅 Shootout Mini Game</button>
       <button class="btn-mode" style="background:rgba(100,200,100,.12);color:#66cc66;border:2px solid #66cc66;" onclick="showOnlineSetup()">🌐 Play Online vs Friend</button>
     </div>
-    <!-- 2_118: slim mode header — replaces the three buttons once a mode is chosen -->
-    <!-- 2_118: tapping the banner goes back to the mode list (no separate Back button) -->
+    <!-- 2_120: slim mode header — replaces the three buttons once a mode is chosen -->
+    <!-- 2_120: tapping the banner goes back to the mode list (no separate Back button) -->
     <div id="mode-header" style="display:none;max-width:320px;margin:0 auto 20px;">
       <div id="mode-header-banner" style="cursor:pointer;" onclick="backToModes()" title="Back to game modes"></div>
     </div>
@@ -687,7 +695,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.118</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.121</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1157,8 +1165,8 @@ const PRESETS=[
    lineup:['F6','F2','F1','D8','D3','G5','HC'], desc:'F6+F2+F1 | D8+D3 | G5 — Elite D, one scoring threat'},
 ];
 let _qsSel=[null,null]; // selected preset index per player
-let _qsManualPick=false; // 2_118: true once the user hand-picks a team (dropdown shows Random placeholder until then)
-// 2_118: structured team display — one line per element, used across all setup menus
+let _qsManualPick=false; // 2_121: true once the user hand-picks a team (dropdown shows Random placeholder until then)
+// 2_121: structured team display — one line per element, used across all setup menus
 // 🎲 Random:
 // 🦣 Mammoth
 // 🏔️ North
@@ -1178,15 +1186,15 @@ function showQS(){
   document.getElementById('custom-panel').classList.remove('show');
   const qp=document.getElementById('qs-panel');
   const wasShown=qp.classList.contains('show');
-  // 2_118: slim header — hide mode buttons, show the chosen mode
+  // 2_121: slim header — hide mode buttons, show the chosen mode
   if(!wasShown){enterMode('vsai');}
   else{backToModes();return;}
   qp.classList.add('show');
   renderAIPanel();renderPresetCards();
 }
-// 2_118: mode header helpers
-// 2_118: banner mimics the main-menu button styling per mode
-// 2_118: the banner itself is the back button (tap it to return to the mode list)
+// 2_121: mode header helpers
+// 2_121: banner mimics the main-menu button styling per mode
+// 2_121: the banner itself is the back button (tap it to return to the mode list)
 function enterMode(mode){
   document.getElementById('mode-btns').style.display='none';
   const mh=document.getElementById('mode-header');
@@ -1211,8 +1219,8 @@ function showCustom(){
   if(cp.classList.contains('show'))populateSels();
 }
 function renderPresetCards(){
-  // 2_118: compact dropdown instead of the full scrolling card list.
-  // 2_118: "🎲 Random Team" stays as the placeholder until the user hand-picks;
+  // 2_121: compact dropdown instead of the full scrolling card list.
+  // 2_121: "🎲 Random Team" stays as the placeholder until the user hand-picks;
   // a random team is pre-picked behind the scenes so Start works immediately.
   [0].forEach(pi=>{
     const el=document.getElementById('qs-p'+(pi+1));
@@ -1230,7 +1238,7 @@ function renderPresetCards(){
     randOpt.value='-1';
     randOpt.textContent='🎲 Random Team — surprise me';
     randOpt.style.cssText='background:#1a2d45;color:white;';
-    if(!_qsManualPick)randOpt.selected=true; // 2_118: placeholder until hand-picked
+    if(!_qsManualPick)randOpt.selected=true; // 2_121: placeholder until hand-picked
     sel.appendChild(randOpt);
     PRESETS.forEach((p,i)=>{
       const opt=document.createElement('option');
@@ -1246,7 +1254,7 @@ function renderPresetCards(){
       else{_qsManualPick=true;selectPreset(pi,v);}
     });
     el.appendChild(sel);
-    // 2_118: structured team display via shared helper
+    // 2_121: structured team display via shared helper
     const infoWrap=document.createElement('div');
     infoWrap.innerHTML=teamInfoHTML(PRESETS[_qsSel[pi]], !_qsManualPick);
     el.appendChild(infoWrap);
@@ -1255,7 +1263,7 @@ function renderPresetCards(){
 }
 function selectPreset(playerIdx,presetIdx){
   _qsSel[playerIdx]=presetIdx;
-  if(playerIdx===0)_qsManualPick=true; // 2_118
+  if(playerIdx===0)_qsManualPick=true; // 2_121
   renderPresetCards();
 }
 function updateQSSummary(){
@@ -1340,6 +1348,7 @@ function startCustom(){
   beginGame();
 }
 function beginGame(){
+  clearSave(); // 2_121: new game replaces any saved one
   renderAll();showScreen('game');showFaceoff();
   // Online: the joiner mirrors the faceoff read-only — without an explicit
   // signal their screen sits empty until the host rolls.
@@ -2142,7 +2151,7 @@ function declareShot(){if(aiGuard())return;
   _sTok=0; // fresh token commitment for this shot
   // The shooter confirms shoot tokens BEFORE the defender is asked to block.
   // No tokens to decide on → nothing to confirm, lock at once.
-  // 2_118: local Vs AI no longer auto-locks when the human has tokens —
+  // 2_121: local Vs AI no longer auto-locks when the human has tokens —
   // the human gets a Confirm Shot step before Coach defends.
   G.shotLocked=ap.tok.shoot===0;
   if(G.shotLocked){
@@ -2279,7 +2288,7 @@ function openCombat(){
   const rb=document.querySelector('#block-sel-area .abtn.prim');
   if(rb){
     rb.disabled=false;rb.textContent='Roll Combat Dice!';rb.onclick=resolveCombat;
-    // 2_118: in Vs AI, when Coach defends the human's shot he auto-rolls —
+    // 2_121: in Vs AI, when Coach defends the human's shot he auto-rolls —
     // hide the button so the human isn't offered a duplicate roll.
     if(_aiActive&&_aiDefPhase){rb.style.display='none';}
     else{rb.style.display='';}
@@ -2289,7 +2298,7 @@ function openCombat(){
       if(G.shotLocked){rb.disabled=true;rb.textContent='Waiting for defender to resolve…';}
       else{rb.textContent='Confirm Shot →';rb.onclick=lockShot;}
     }
-    // 2_118: local Vs AI — human shooter with tokens gets a Confirm Shot step
+    // 2_121: local Vs AI — human shooter with tokens gets a Confirm Shot step
     // before Coach defends (shot not locked yet).
     if(!_onlineActive&&_aiActive&&G.ap!==_aiSlot&&!G.shotLocked){
       rb.textContent='Confirm Shot →';rb.onclick=lockShot;
@@ -2297,7 +2306,7 @@ function openCombat(){
   }
   // Token steppers lock once the shot is confirmed (online shooter only —
   // solo keeps them live until the roll, and the defender never touches them).
-  // 2_118: lock steppers once the shot is confirmed — online shooter, or
+  // 2_121: lock steppers once the shot is confirmed — online shooter, or
   // local Vs AI human shooter.
   const tokLocked=G.shotLocked&&(_onlineActive&&isMyTurn()||!_onlineActive&&_aiActive&&G.ap!==_aiSlot);
   document.querySelectorAll('#shoot-tok-ctrl button').forEach(b=>{b.disabled=tokLocked;});
@@ -2324,7 +2333,7 @@ function refreshBlockerNudge(){
   });
 }
 
-let _combatResolving=false; // 2_118: prevent double-resolution of the same shot
+let _combatResolving=false; // 2_121: prevent double-resolution of the same shot
 function resolveCombat(){
   if(_combatResolving)return; // already resolving this shot
   _combatResolving=true;
@@ -2602,7 +2611,7 @@ function endTurn(){if(aiGuard())return;
   if(typeof renderAll==='function') clearTimeout(renderAll._pushTimer);
   // Check reserve: if something there after buy phase, it stays (can be used next turn)
   // Clean RS: send remaining to iced EXCEPT reserve-eligible energy that player wants to keep
-  // 2_118: Leftover energy in RS after buy → fill remaining reserve slots, biggest first (was: only 1)
+  // 2_120: Leftover energy in RS after buy → fill remaining reserve slots, biggest first (was: only 1)
   const rsE=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='E'||d.energyPending));
   const rsSpace=2-ap.z.reserve.length;
   if(rsE.length&&rsSpace>0){
@@ -2959,7 +2968,9 @@ function renderAll(){
   // If the turn just passed to the opponent, a shop left open on this client
   // would let the new spectator keep buying — shut it.
   if(spectating())closeShop();
-  renderPbar();renderBoard();renderOpp();renderScore();renderActions();renderQA();renderRSActions();renderLog();}
+  renderPbar();renderBoard();renderOpp();renderScore();renderActions();renderQA();renderRSActions();renderLog();
+  saveGame(); // 2_121: debounced autosave (skips mid-AI-turn)
+}
 function renderPbar(){
   const d=PHASEMAP[G.phase]; // 2_37: roll/reroll/assign/buy all display as Roll & Assign
   document.getElementById('pbar').innerHTML=PHASES.map((n,i)=>{
@@ -3418,7 +3429,7 @@ let _so = {
   rev: 0,         // online sync: bumped on every mutation+push
 };
 let _lastSoRev=0; // last shootout revision this client rendered (online mirror)
-let _soManualPick=false; // 2_118: true once the user hand-picks the shootout team
+let _soManualPick=false; // 2_121: true once the user hand-picks the shootout team
 
 // ── ONLINE SYNC ──
 // The shootout is shared: the shooting player drives each shot on their own
@@ -3470,7 +3481,7 @@ function showShootoutSetup(){
 
 function renderSOPresets(){
   // 2_51: shootout practice is now vs AI — only the player's roster is picked
-  // 2_118: dropdown + structured team display (matches Vs AI setup)
+  // 2_121: dropdown + structured team display (matches Vs AI setup)
   const el = document.getElementById('so-p1');
   el.innerHTML = '';
   // 2_63: Random Team is the default — pre-pick one so Start works immediately
@@ -3504,7 +3515,7 @@ function renderSOPresets(){
   renderSOAITeam();
 }
 function renderSOAITeam(){
-  // 2_118: structured team display via shared helper
+  // 2_121: structured team display via shared helper
   const p=PRESETS[_so.aiIdx];
   const el=document.getElementById('so-ai-team-line');
   if(el&&p)el.innerHTML=teamInfoHTML(p, true);
@@ -4621,7 +4632,7 @@ renderAll=function(){
   }
 };
 
-window.addEventListener('DOMContentLoaded',()=>{ populateOnlineTeamSelects(); });
+window.addEventListener('DOMContentLoaded',()=>{ populateOnlineTeamSelects(); updateResumeBtn(); }); // 2_121: show Resume if a save exists
 
 
 // ═══════════════════════════════════════════════════════════════════
@@ -4633,7 +4644,8 @@ window.addEventListener('DOMContentLoaded',()=>{ populateOnlineTeamSelects(); })
 // ═══════════════════════════════════════════════════════════════════
 let _aiActive=false,_aiSlot=1,_aiPersona='balanced',_aiBusy=false,_aiSelf=false,_aiSpeed=1,_aiDefPhase=null;
 let _aiPersonaSel='coach',_aiTeamIdx=null,_aiSpeedSel=null; // 2_88: Coach is the only AI — auto-selected
-let _aiManualPick=false; // 2_118: true once the user hand-picks the AI's team
+let _aiManualPick=false; // 2_121: true once the user hand-picks the AI's team
+let _aiReserveBanked=0; // 2_121: dice sent to reserve this buy phase (single summary line)
 
 // 2_88: Coach is the only AI opponent (Blitz/Trapper removed per Tim's call)
 const AI_PERSONAS={
@@ -4822,7 +4834,7 @@ function renderAIPanel(){
   // 2_88: Coach is the only AI — no persona cards to render
 }
 function renderAIPanelTeam(){
-  // 2_118: dropdown matching the player column — "🎲 Random Team" placeholder,
+  // 2_121: dropdown matching the player column — "🎲 Random Team" placeholder,
   // random team pre-picked behind the scenes; team info shown below.
   const el=document.getElementById('ai-team-line');
   el.innerHTML='';
@@ -4848,7 +4860,7 @@ function renderAIPanelTeam(){
     else{aiPickTeam(v);}
   });
   el.appendChild(sel);
-  // 2_118: structured team display via shared helper
+  // 2_121: structured team display via shared helper
   const infoWrap=document.createElement('div');
   infoWrap.innerHTML=teamInfoHTML(PRESETS[_aiTeamIdx], !_aiManualPick);
   el.appendChild(infoWrap);
@@ -4888,6 +4900,7 @@ function aiMaybeStartTurn(){
 async function aiTurnMain(){
   const P=aiP();
   _aiTurnNotes=[]; // 2_47
+  saveGameNow(); // 2_121: AI turn is atomic — this pre-turn snapshot is the resume point
   // 2_93: last turn's banked dice become spendable again
   AP().z.reserve.forEach(d=>{d.committed=false;});
   // 2_51: no "takes the turn" note — summary keeps only the action lines
@@ -4903,7 +4916,7 @@ async function aiTurnMain(){
     await aiSleep(800);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
     const shot=await aiDoShoot(P);
     if(!shot){
-      await aiSleep(300);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_118: halved (was 600) — end-of-turn → summary felt too long
+      await aiSleep(300);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_121: halved (was 600) — end-of-turn → summary felt too long
       // 2_51: no "ends the turn" note — summary keeps only the action lines
       aiShowTurnSummary(()=>{_aiSelf=true;try{endTurn();}finally{_aiSelf=false;if(G.ap!==_aiSlot){_aiBusy=false;_aiDefPhase=null;}}}); // 2_49: tap Take Turn to end the AI turn — board released
     }
@@ -4911,7 +4924,7 @@ async function aiTurnMain(){
   }catch(e){
     console.error('AI turn error:',e);
     _aiBusy=false;_aiDefPhase=null;_aiSelf=false;
-    // 2_118: never strand the game — show the summary card with what the AI did,
+    // 2_121: never strand the game — show the summary card with what the AI did,
     // log the actual error for debugging, and let Take Turn end it gracefully
     try{
       if(typeof G!=='undefined'&&G.ap===_aiSlot){
@@ -5011,7 +5024,9 @@ function aiDoReroll(P){
       picks.forEach(x=>x.sel=true);confirmRRSel();
       aiPill(`re-rolled ${picks.length} ${picks.length===1?'die':'dice'} 🎲`);
     }else{skipRR();}
-  }finally{_aiSelf=false;}
+  }finally{
+    _aiSelf=false;
+  }
 }
 // Mirror of assignDie's costed shoot/block path, minus the picker UI (cost pre-paid via spendE).
 function aiAdvance(d,which){
@@ -5047,7 +5062,7 @@ function aiDoAssign(P){
       if(rrpicks.length){
         assignDie(rrd,'rr');
         rrpicks.forEach(d=>d.sel=true);confirmRRSel();
-        aiPill(`HC reroll: ${rrpicks.length} ${rrpicks.length===1?'die':'dice'} 🎲`); // 2_118: visible step + summary blurb
+        aiPill(`HC reroll: ${rrpicks.length} ${rrpicks.length===1?'die':'dice'} 🎲`); // 2_121: visible step + summary blurb
       }
     }
     // 2_92: Coach assignment order (Tim's spec) —
@@ -5153,7 +5168,7 @@ function aiTotalE(){
 function aiBankReserve(){
   const ap=AP();
   const d100=()=>Math.floor(Math.random()*100)+1;
-  // 2_118: collect count for a single summary pill (was: log only, missing from turn summary)
+  // 2_121: collect count for a single summary pill (was: log only, missing from turn summary)
   let banked=0;
   [...ap.z.rs].forEach(d=>{
     if(!d.face||d.face.t!=='E'||d.key==='HC')return;
@@ -5167,11 +5182,12 @@ function aiBankReserve(){
       addLog(`${ap.name}: Banked ${d.face.v}E to Reserve.`,'imp');
     }
   });
-  if(banked)aiPill(`banked ${banked} ${banked===1?'die':'dice'} to reserve 🏦`);
+  // 2_121: counted toward the combined "reserved x dice" summary line (fired at end of aiDoBuy)
+  _aiReserveBanked+=banked;
 }
 // 2_94: top N distinct tiers available in the lineup (not HC, left>0).
 // Ties broken by fewest of that position already owned (keeps roster balanced).
-// 2_118: n=0 (or omitted) returns ALL tiers, highest first — for affordable-cascade.
+// 2_121: n=0 (or omitted) returns ALL tiers, highest first — for affordable-cascade.
 function aiTopTiers(n){
   const ap=AP();
   const owned={};
@@ -5194,7 +5210,7 @@ function aiTopTiers(n){
   }
   return tiers;
 }
-// 2_118: highest AFFORDABLE tier from a tier list (cascade top-down)
+// 2_121: highest AFFORDABLE tier from a tier list (cascade top-down)
 function aiAffordableTier(tiers,isTrade){
   const E=aiTotalE();
   for(const t of tiers){
@@ -5225,7 +5241,7 @@ function aiSpendForTrade(cost){
   if(rem>0)aiSpendE(rem,true);
 }
 // 2_94: execute a tier buy — k is trade1/trade2/draft1/draft2
-// 2_118: cascades top-down to the highest AFFORDABLE tier (not just the single top tier)
+// 2_121: cascades top-down to the highest AFFORDABLE tier (not just the single top tier)
 function aiBuyTier(k){
   const ap=AP();
   const isTrade=k.startsWith('trade');
@@ -5254,7 +5270,7 @@ function aiBuyTier(k){
   return true;
 }
 // 2_94: "next best" — TRADE if possible, else DRAFT
-// 2_118: cascades to highest affordable tier
+// 2_121: cascades to highest affordable tier
 function aiBuyNextBest(){
   const ap=AP();
   const allTiers=aiTopTiers(0);
@@ -5287,7 +5303,7 @@ function aiBuyNextBest(){
   return false;
 }
 // 2_94: can this buy option actually be done right now?
-// 2_118: trade/draft check the cascade — any affordable tier in the pool counts
+// 2_121: trade/draft check the cascade — any affordable tier in the pool counts
 function aiBuyPossible(k){
   const ap=AP();
   const E=aiTotalE();
@@ -5315,6 +5331,7 @@ function aiBuyPossible(k){
 function aiDoBuy(P){
   const ap=AP();
   _aiSelf=true;
+  _aiReserveBanked=0; // 2_121: combined reserve count for a single summary line
   try{
     // 2_93: pre-buy banking — each energy die may go straight to reserve first
     aiBankReserve();
@@ -5354,7 +5371,7 @@ function aiDoBuy(P){
             .sort((a,b)=>b.face.v-a.face.v)[0];
           if(e&&ap.z.reserve.length<2){
             e.committed=true;assignDie(e,'reserve');
-            aiPill(`saved ${e.face.v}E to reserve 🏦`); // 2_118: dropped "instead" — sounded weird
+            _aiReserveBanked++; // 2_121: counted toward the combined "reserved x dice" summary line
           }
           break;
         }
@@ -5368,7 +5385,7 @@ function aiDoBuy(P){
       renderAll();
     }
     // 2_93: post-buy sweep — leftover R&S energy fills remaining reserve slots, biggest first
-    // 2_118: hardened — do the move directly (not via assignDie) to avoid silent guard drops; log the outcome
+    // 2_121: hardened — do the move directly (not via assignDie) to avoid silent guard drops; log the outcome
     const rsEnergy=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='E'||d.energyPending));
     const space=2-ap.z.reserve.length;
     if(rsEnergy.length&&space>0){
@@ -5382,12 +5399,17 @@ function aiDoBuy(P){
           banked++;
         }
       });
-      if(banked)aiPill(`banked ${banked} ${banked===1?'die':'dice'} to reserve 🏦`);
+      // 2_121: counted toward the combined "reserved x dice" summary line (fired at end of aiDoBuy)
+      _aiReserveBanked+=banked;
       renderAll();
     }else if(rsEnergy.length){
       addLog(`${ap.name}: post-buy sweep skipped — reserve full, ${rsEnergy.length}E left in R&S.`);
     }
-  }finally{_aiSelf=false;}
+  }finally{
+    _aiSelf=false;
+    // 2_121: single combined reserve line for the summary ("reserved x dice")
+    if(_aiReserveBanked>0)aiPill(`reserved ${_aiReserveBanked} ${_aiReserveBanked===1?'die':'dice'} 🏦`);
+  }
 }
 async function aiDoShoot(P){
   const ap=AP();
@@ -5440,7 +5462,7 @@ async function aiDoShoot(P){
 function aiMaybeDefend(){
   if(!_aiActive||_aiBusy||G.ap===_aiSlot)return; // AI is the shooter — human defends
   _aiBusy=true;_aiDefPhase='aiDef';renderAll();
-  // 2_118: openCombat ran before the flag was set, so hide the button here —
+  // 2_121: openCombat ran before the flag was set, so hide the button here —
   // Coach auto-rolls, the human shouldn't see a duplicate Roll button.
   try{const rb=document.querySelector('#block-sel-area .abtn.prim');if(rb)rb.style.display='none';}catch(e){}
   aiDefendTurn();
@@ -5472,7 +5494,7 @@ async function aiDefendTurn(){
     }catch(e){}
     renderAll();
     await aiSleep(900);
-    // 2_118: auto-spend block tokens to reach (shooter pips + 2),
+    // 2_121: auto-spend block tokens to reach (shooter pips + 2),
     // counting block dice pips + clock bonus. Replaces the 2_97 token-match.
     const atkPips=atk.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:0),0)+(_sTok||0);
     const clkBonus=G.clock===1?3:G.clock>4?1:2;
@@ -5480,7 +5502,7 @@ async function aiDefendTurn(){
     const tokNeed=Math.max(0,(atkPips+2)-(blkPips+clkBonus));
     let matched=0;
     for(let i=0;i<tokNeed&&_bTok<me.tok.block;i++){adjBT(1);matched++;}
-    // 2_118: past the +2 target, extras are 25% each (was 50%) — tokens...
+    // 2_121: past the +2 target, extras are 25% each (was 50%) — tokens...
     while(_bTok<me.tok.block&&Math.random()<0.25){adjBT(1);matched++;}
     // ...and uncommitted defend dice, regardless of pips showing
     const extras=me.z.defend.filter(d=>d.face&&(d.face.t==='B'||d.face.t==='W')&&!G.blockSelIds.includes(d.id));
@@ -5583,6 +5605,129 @@ function aiMaybeShootoutAdvance(r){
   if(!(_aiActive&&r&&r.playerIdx===_aiSlot))return;
   setTimeout(()=>{_aiSelf=true;try{soAdvance();aiShowSummary();}finally{_aiSelf=false;}},900); // 2_86: quick shootout pacing
 }
+
+// 2_121: solo / Vs AI autosave + Resume. Game state is plain data (dice are
+// {id,key,pos,tier,face,sel,...}), so it JSON-serializes cleanly. Saves are
+// debounced on every render; the AI turn is atomic (saved once at its start,
+// never mid-turn) so a resume restarts a clean AI turn.
+const MOD_SAVE_KEY='modSaveV1';
+let _saveTimer=null;
+function getSave(){
+  try{
+    const raw=localStorage.getItem(MOD_SAVE_KEY);
+    if(!raw)return null;
+    const d=JSON.parse(raw);
+    return (d&&d.G&&d.G.players)?d:null;
+  }catch(e){return null;}
+}
+function saveGameNow(){
+  try{
+    if(typeof G==='undefined'||!G.players)return;
+    if(typeof _onlineActive!=='undefined'&&_onlineActive)return; // online games live in Firebase
+    if(G.gameOver){localStorage.removeItem(MOD_SAVE_KEY);updateResumeBtn();return;}
+    if(_aiActive&&_aiBusy)return; // AI turn is atomic — saved at its start
+    const d={v:121,savedAt:Date.now(),
+      mode:_aiActive?'vsai':'solo',
+      G:G,idCounter:(typeof _id!=='undefined'?_id:0),
+      ai:{slot:_aiSlot,persona:_aiPersonaSel,speed:_aiSpeedSel,teamIdx:_aiTeamIdx,
+          qsSel:_qsSel,qsManual:_qsManualPick,aiManual:_aiManualPick}};
+    localStorage.setItem(MOD_SAVE_KEY,JSON.stringify(d));
+    updateResumeBtn();
+  }catch(e){}
+}
+function saveGame(){ // debounced — renderAll fires constantly
+  if(_saveTimer)clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(saveGameNow,800);
+}
+function clearSave(){try{localStorage.removeItem(MOD_SAVE_KEY);}catch(e){}updateResumeBtn();}
+function updateResumeBtn(){
+  const wrap=document.getElementById('resume-wrap');
+  if(!wrap)return;
+  const d=getSave();
+  if(d){
+    wrap.style.display='block';
+    const mins=String(Math.floor(d.G.clock/60)).padStart(2,'0');
+    const secs=String(d.G.clock%60).padStart(2,'0');
+    const info=document.getElementById('resume-info');
+    if(info)info.textContent=(d.mode==='vsai'?'🤖 Vs AI':'👥 Solo')+
+      ` · Period ${d.G.period} · ${mins}:${secs} · ${d.G.players[d.G.ap]?d.G.players[d.G.ap].name:''}`;
+  }else{
+    wrap.style.display='none';
+  }
+}
+function discardSave(){
+  if(confirm('Discard the saved game?')){
+    clearSave();
+    toast('Saved game discarded');
+  }
+}
+function resumeGame(){
+  const d=getSave();
+  if(!d){toast('No saved game found');return;}
+  try{
+    G=d.G;
+    if(typeof d.idCounter==='number')_id=d.idCounter;
+    _aiActive=(d.mode==='vsai');
+    if(_aiActive&&d.ai){
+      _aiSlot=d.ai.slot;_aiPersonaSel=d.ai.persona;_aiSpeedSel=d.ai.speed;
+      _aiTeamIdx=d.ai.teamIdx;_qsSel=d.ai.qsSel||[null,null];
+      _qsManualPick=!!d.ai.qsManual;_aiManualPick=!!d.ai.aiManual;
+      _aiPersona='coach';_aiBusy=false;_aiSelf=false;_aiDefPhase=null;
+      _aiSpeed=(typeof _aiSpeedSel==='number')?_aiSpeedSel:1;
+    }else{
+      _aiActive=false;_aiBusy=false;_aiSelf=false;
+    }
+    // reset transient UI flags that don't survive a reload
+    _rrMode=false;_rrDieId=null;
+    showScreen('game');
+    renderAll();
+    // transitional states: re-open their UI
+    if(G.fo){try{showFaceoff();}catch(e){}}
+    else if(G.benchPick){try{refreshBenchPhase();}catch(e){}}
+    else if(_aiActive&&G.ap===_aiSlot){
+      // AI's turn: restart it clean (its pre-turn save is the restore point)
+      setTimeout(()=>{try{aiTurnMain();}catch(e){}},600);
+    }
+    toast('Game resumed');
+  }catch(e){
+    console.error('Resume failed:',e);
+    toast('Could not resume — starting fresh');
+    clearSave();
+  }
+}
+
+// 2_120: Android back-button handling for the installed PWA.
+// Without this, the system back button kills the app and the game is lost.
+// Now: in a game → confirm before returning to the menu; on the menu → double-press to exit.
+(function(){
+  if(!(window.history&&history.pushState))return;
+  let backArmed=false, backTimer=null;
+  // Seed one history entry so the first back press fires popstate instead of exiting
+  history.pushState({modApp:true},'');
+  window.addEventListener('popstate',()=>{
+    const inGame=document.getElementById('game')&&
+      document.getElementById('game').classList.contains('active');
+    if(inGame){
+      // Stay in the app; ask before abandoning the game
+      history.pushState({modApp:true},'');
+      if(confirm('Leave this game and return to the main menu?')){
+        try{showScreen('setup');}catch(e){}
+      }
+    }else{
+      if(backArmed){
+        // Second press within the window: let the browser exit (don't re-push)
+        backArmed=false;
+        if(backTimer){clearTimeout(backTimer);backTimer=null;}
+      }else{
+        // First press: stay, arm the double-press
+        backArmed=true;
+        history.pushState({modApp:true},'');
+        try{toast('Press back again to exit');}catch(e){}
+        backTimer=setTimeout(()=>{backArmed=false;backTimer=null;},2000);
+      }
+    }
+  });
+})();
 
 </script>
 
