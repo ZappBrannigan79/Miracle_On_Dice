@@ -528,7 +528,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.89</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.98</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <div class="setup-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
@@ -679,7 +679,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.89</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.98</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1919,7 +1919,7 @@ function totalE(){
 // Spend exactly `amt` energy using spin-down change logic
 // Priority: RS energy dice smallest first, then reserve
 // Returns remainder after spending (should be 0 if enough available)
-function spendE(amt){
+function spendE(amt,skipCommitted){
   const ap=AP();let rem=amt;
   // Collect spendable dice: RS energy/wildE + reserve
   // Spend RS energy dice first (smallest pips first)
@@ -1946,7 +1946,8 @@ function spendE(amt){
     }
   }
   // If still need energy, drain reserve dice (smallest first)
-  const resArr=[...ap.z.reserve].sort((a,b)=>a.face.v-b.face.v);
+  // 2_93: skipCommitted — dice banked to reserve THIS turn can't be spent
+  const resArr=[...ap.z.reserve].filter(d=>!(skipCommitted&&d.committed)).sort((a,b)=>a.face.v-b.face.v);
   for(const rv of resArr){
     if(rem<=0)break;
     if(!rv.face)continue;
@@ -4600,7 +4601,8 @@ function aiPace(ms){return _aiSpeed===0?750:_aiSpeed===2?1500:2500;}
 function aiSleep(ms){return new Promise(r=>setTimeout(r,aiPace(ms)));}
 function aiLater(fn,ms){setTimeout(fn,aiPace(ms));}
 function aiTierRank(key){const p=posOf(key);return p==='F'?4:p==='D'?3:p==='G'?2:1;}
-function aiDieRank(d){return aiTierRank(d.key)*1000+tierOf(d.key)*10+((d.face&&d.face.v)||0);}
+// 2_98: bench priority — highest tier, then position F>D>G>Rookie, then pips
+function aiBenchRank(d){return tierOf(d.key)*100+aiTierRank(d.key)*10+((d.face&&d.face.v)||0);}
 
 // ── Step-summary pills: their own channel so they never clobber warnings ──
 let _aiTurnNotes=[]; // 2_47: Max speed collects step pills into one turn summary
@@ -4760,6 +4762,8 @@ function aiMaybeStartTurn(){
 async function aiTurnMain(){
   const P=aiP();
   _aiTurnNotes=[]; // 2_47
+  // 2_93: last turn's banked dice become spendable again
+  AP().z.reserve.forEach(d=>{d.committed=false;});
   // 2_51: no "takes the turn" note — summary keeps only the action lines
   try{
     await aiSleep(900);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48: never hold the board when the turn moved on
@@ -4796,13 +4800,13 @@ function aiDieScore(d,P){
   if(f.t==='SO')return 2;
   return 1;
 }
-function aiDoReroll(P){
+// 2_90: shared d100 reroll table — used by the free reroll AND the HC RR spend.
+// Returns {picks:[dice to reroll]}. Decision order: energy → blank → HC → F/D → goalie.
+function aiRerollTable(){
   const ap=AP();
   const d100=()=>Math.floor(Math.random()*100)+1;
   const picked=new Set(), keepE=new Set();
   const rs=ap.z.rs;
-  // 2_89: Coach reroll table (Tim's d100 spec). Order by face type:
-  // 1. energy → 2. blank → 3. HC non-energy → 4. F/D shoot/block → 5. goalie
   // ── 1. ENERGY ──
   rs.forEach(d=>{
     const f=d.face;if(!f||f.t!=='E')return;
@@ -4821,22 +4825,22 @@ function aiDoReroll(P){
     let p=0;
     if(f.t==='RR'||f.t==='PEN')p=25;
     else if(f.t==='ADV'){
-      if(G.clock===10||G.clock<=4)p=100; // 10:00 + 04:00–01:00: always fish for ADV
-      else{ // 09:00–05:00: 25% if shoot pips showing in R&S/cold, else 75%
+      if(G.clock===10||G.clock<=4)p=100;
+      else{
         const hasShoot=[...ap.z.rs,...ap.z.cold].some(x=>x.face&&x.face.t==='S'&&(x.face.v||0)>0);
         p=hasShoot?25:75;
       }
     }
     if(d100()<=p)picked.add(d);
   });
-  // ── 4. F/D/Rookie shoot/block ── (costed faces collected for funding below)
+  // ── 4. F/D/Rookie shoot/block ──
   const costed=[];
   rs.forEach(d=>{
     if(picked.has(d))return;
     const f=d.face;if(!f)return;
     const isF=d.key.startsWith('F'),isD=d.key.startsWith('D'),isR=d.key==='Rookie';
     if(!isF&&!isD&&!isR)return;
-    if(f.t==='W')return; // wild: 0% always keep
+    if(f.t==='W')return; // wild: always keep
     if(f.t!=='S'&&f.t!=='B')return;
     if(isR){if(d100()<=5)picked.add(d);return;} // rookie S/B: 5%
     if(!f.c){if(d100()<=20)picked.add(d);} // side 4 (low): 20%
@@ -4845,20 +4849,22 @@ function aiDoReroll(P){
   // ── 5. GOALIE ── sides 1-4 always keep; 5-6 (costed) need 1e
   rs.forEach(d=>{
     if(picked.has(d)||!d.key.startsWith('G'))return;
-    const f=d.face;if(!f||!f.c)return; // plain block: 0% keep
+    const f=d.face;if(!f||!f.c)return;
     costed.push({d,pri:1,isG:true});
   });
-  // Fund costed faces: 1e pip per face, priority Forwards → Goalies → Defensemen.
-  // Pool = reserve pips + kept R&S energy pips. Unfunded: F/D 5%, G 50% reroll.
+  // Fund costed faces: 1e pip per face, priority F → G → D. Unfunded: F/D 5%, G 50%.
   let pool=0;
   ap.z.reserve.forEach(d=>{if(d.face)pool+=d.face.v;});
   keepE.forEach(d=>{pool+=d.face.v;});
   costed.sort((a,b)=>a.pri-b.pri);
   costed.forEach(({d,isG})=>{
-    if(pool>=1)pool-=1; // funded → keep
+    if(pool>=1)pool-=1;
     else if(d100()<=(isG?50:5))picked.add(d);
   });
-  const picks=[...picked];
+  return [...picked];
+}
+function aiDoReroll(P){
+  const picks=aiRerollTable();
   _aiSelf=true;
   try{
     if(picks.length){
@@ -4879,7 +4885,8 @@ function aiAdvance(d,which){
 function aiResolveAdv(){
   const ap=AP();
   if(!G.advPending)return;
-  const best=[...ap.z.cold].sort((a,b)=>aiDieRank(b)-aiDieRank(a))[0];
+  // 2_98: most pips in cold → hot
+  const best=[...ap.z.cold].sort((a,b)=>((b.face&&b.face.v)||0)-((a.face&&a.face.v)||0))[0];
   if(best){ap.z.cold.splice(ap.z.cold.indexOf(best),1);ap.z.hot.push(best);
     addLog(`${ap.name}: ADV — ${dLbl(best)} advanced Cold→Hot Zone.`,'imp');}
   G.advPending=false;renderAll();
@@ -4892,42 +4899,56 @@ function aiDoAssign(P){
   try{
     // PEN faces — always use while the pool has dice
     [...ap.z.rs].forEach(d=>{if(d.face&&d.face.t==='PEN'&&G.penaltyPool>0)assignDie(d,'pen-give');});
-    // RR face-spend before assignment starts (the kids' move: reroll the RR side)
+    // 2_91: HC RR — check the table FIRST (like a human looking at their dice);
+    // only spend the face if there's actually something to reroll, else leave it and continue
     const rrd=ap.z.rs.find(d=>d.face&&d.face.t==='RR');
-    if(rrd&&aiEffReroll()>0.55&&!G.assignmentStarted){
-      const weak=ap.z.rs.filter(d=>d!==rrd&&aiDieScore(d,P)<1.2);
-      if(weak.length>=2){assignDie(rrd,'rr');weak.slice(0,3).forEach(d=>d.sel=true);confirmRRSel();}
-    }
-    // main pass over a snapshot — assignDie mutates rs
-    [...ap.z.rs].forEach(d=>{
-      const f=d.face;if(!f)return;
-      if(f.t==='E'){
-        // 2_52b: all energy stays in RS for the buy phase — banking to reserve happens after buying
-      }else if(f.t==='S'||f.t==='W'){
-        const asShoot=f.t==='S'||aiEffShooters()>=0.5; // 2_73: shooter commitment decides
-        if(f.c){
-          if(totalE()>=1){spendE(1);aiAdvance(d,asShoot?'S':'B');asShoot?nS++:nB++;} // 2_73: costed advancement ALWAYS paid
-          else{assignDie(d,"iced");}
-        }else{assignDie(d,asShoot?'shoot':'block');asShoot?nS++:nB++;}
-      }else if(f.t==='B'){
-        if(f.c){
-          if(totalE()>=1){spendE(1);aiAdvance(d,'B');nB++;} // 2_73: costed advancement ALWAYS paid
-          else{assignDie(d,"iced");}
-        }else{assignDie(d,'block');nB++;}
-      }else if(f.t==='SO'){
-        if(totalE()>=1&&aiDial('buy')>20){ // 2_73: Shutout=block token buy; hoarders (buy≤20) skip it
-          spendE(1);ap.tok.block+=f.v;ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);
-          addLog(`${ap.name}: Shutout → +${f.v} Block Tokens (1⚡ paid, ${ap.tok.block} total).`,'imp');
-        }
-        // else: leave it — falls to Iced at end of turn (2_36)
-      }else if(f.t==='ADV'){
-        if(G.clock!==10&&ap.z.cold.length){assignDie(d,'adv');aiResolveAdv();}
-        else{assignDie(d,"iced");}
-      }else if(f.t==='BLANK'||f.t==='RR'){
-        assignDie(d,"iced");
+    if(rrd&&!G.assignmentStarted){
+      const rrpicks=aiRerollTable().filter(d=>d!==rrd);
+      if(rrpicks.length){
+        assignDie(rrd,'rr');
+        rrpicks.forEach(d=>d.sel=true);confirmRRSel();
       }
-      // PEN handled above (pool empty → sits, ices at end of turn)
+    }
+    // 2_92: Coach assignment order (Tim's spec) —
+    // 1. shoot → 2. block → 3. shutout → 4. ADV → 5. PEN → 6. wild → 7. energy (next)
+    // 1. SHOOT faces → cold/hot (costed: pay if able, else leave sitting for end-of-turn ice)
+    [...ap.z.rs].forEach(d=>{
+      const f=d.face;if(!f||f.t!=='S')return;
+      if(f.c){
+        if(aiTotalE()>=1){aiSpendE(1,false);aiAdvance(d,'S');nS++;}
+      }else{assignDie(d,'shoot');nS++;}
     });
+    // 2. BLOCK faces → defend (costed: pay if able, else leave sitting)
+    [...ap.z.rs].forEach(d=>{
+      const f=d.face;if(!f||f.t!=='B')return;
+      if(f.c){
+        if(aiTotalE()>=1){aiSpendE(1,false);aiAdvance(d,'B');nB++;}
+      }else{assignDie(d,'block');nB++;}
+    });
+    // 3. SHUTOUT → pay 1e, gain block tokens (else leave sitting)
+    [...ap.z.rs].forEach(d=>{
+      const f=d.face;if(!f||f.t!=='SO')return;
+      if(aiTotalE()>=1){
+        aiSpendE(1,false);ap.tok.block+=f.v;
+        ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);
+        addLog(`${ap.name}: Shutout → +${f.v} Block Tokens (1⚡ paid, ${ap.tok.block} total).`,'imp');
+      }
+    });
+    // 4. ADV → most-pips cold die to hot (10:00 or empty cold: ice it)
+    [...ap.z.rs].forEach(d=>{
+      const f=d.face;if(!f||f.t!=='ADV')return;
+      if(G.clock!==10&&ap.z.cold.length){assignDie(d,'adv');aiResolveAdv();}
+      else{assignDie(d,"iced");}
+    });
+    // 5. PEN — handled above (pool empty → sits, ices at end of turn)
+    // 6. WILD → zone with fewest pips (offensive = cold+hot vs defensive; tie → offensive)
+    [...ap.z.rs].forEach(d=>{
+      const f=d.face;if(!f||f.t!=='W')return;
+      const off=[...ap.z.cold,...ap.z.hot].reduce((s,x)=>s+((x.face&&x.face.t==='S')?x.face.v:0),0);
+      const def=ap.z.defend.reduce((s,x)=>s+((x.face&&x.face.t==='B')?x.face.v:0),0);
+      if(off<=def){assignDie(d,'shoot');nS++;}else{assignDie(d,'block');nB++;}
+    });
+    // 7. ENERGY → stays in R&S for the buy phase (2_52b); resolved next
   }finally{_aiSelf=false;}
   renderAll();
   const bits=[];
@@ -4939,7 +4960,9 @@ function aiDoAssign(P){
   else aiPill(`holds its roll`);
 }
 // 2_52: AI spends the HC die FIRST — it can't go to reserve, so leftover HC energy is wasted
-function aiSpendE(amt){
+// 2_95: AI energy spend. forTrade=true: HC → rookie → largest tier first (rookies to iced as fodder).
+// forTrade=false (draft/token/other): HC → largest tier first → rookie last (rookies are preferred reserve savings).
+function aiSpendE(amt,forTrade){
   const ap=AP();let rem=amt;
   const hc=ap.z.rs.find(d=>d.key==='HC'&&d.face&&(d.face.t==='E'||d.energyPending)&&d.face.v>0);
   if(hc&&rem>0){
@@ -4947,94 +4970,242 @@ function aiSpendE(amt){
     else{hc.face.v-=rem;rem=0;}
     hc.energyPending=false;
   }
-  if(rem>0)spendE(rem);
+  if(rem<=0)return;
+  const pool=[];
+  ap.z.rs.forEach(d=>{
+    if(d.key!=='HC'&&d.face&&(d.face.t==='E'||d.energyPending)&&d.face.v>0)pool.push({d,zone:'rs'});
+  });
+  ap.z.reserve.forEach(d=>{
+    if(!d.committed&&d.face&&d.face.v>0)pool.push({d,zone:'reserve'});
+  });
+  pool.sort((a,b)=>{
+    const aRook=a.d.key==='Rookie',bRook=b.d.key==='Rookie';
+    if(aRook!==bRook)return forTrade?(aRook?-1:1):(aRook?1:-1);
+    const tDiff=tierOf(b.d.key)-tierOf(a.d.key);
+    if(tDiff!==0)return tDiff;
+    return a.d.face.v-b.d.face.v;
+  });
+  for(const {d,zone} of pool){
+    if(rem<=0)break;
+    if(d.face.v<=rem){
+      rem-=d.face.v;
+      if(zone==='rs')ap.z.rs.splice(ap.z.rs.indexOf(d),1);
+      else ap.z.reserve.splice(ap.z.reserve.indexOf(d),1);
+      ap.z.iced.push(d);
+    }else{
+      const ch=d.face.v-rem;rem=0;
+      d.face={t:'E',v:ch};
+      addLog(`${ap.name}: Spun down ${zone==='reserve'?'reserve':'energy'} die to ${ch}E change.`);
+    }
+    d.energyPending=false;
+  }
+}
+// 2_93: AI's spendable energy = R&S energy + reserve dice banked on PRIOR turns
+function aiTotalE(){
+  const ap=AP();let t=0;
+  ap.z.rs.forEach(d=>{if(d.face&&(d.face.t==='E'||d.energyPending))t+=d.face.v;});
+  ap.z.reserve.forEach(d=>{if(d.face&&!d.committed)t+=d.face.v;});
+  return t;
+}
+// 2_93: pre-buy banking — each R&S energy die has a % chance to go straight to
+// reserve before purchases are considered. Banked dice are committed (can't be spent this turn).
+function aiBankReserve(){
+  const ap=AP();
+  const d100=()=>Math.floor(Math.random()*100)+1;
+  [...ap.z.rs].forEach(d=>{
+    if(!d.face||d.face.t!=='E'||d.key==='HC')return;
+    if(ap.z.reserve.length>=2)return;
+    const p=d.face.v>=3?10:d.face.v===2?20:30;
+    if(d100()<=p){
+      ap.z.rs.splice(ap.z.rs.indexOf(d),1);
+      d.committed=true;d.energyPending=false;
+      ap.z.reserve.push(d);
+      addLog(`${ap.name}: Banked ${d.face.v}E to Reserve.`,'imp');
+    }
+  });
+}
+// 2_94: top N distinct tiers available in the lineup (not HC, left>0).
+// Ties broken by fewest of that position already owned (keeps roster balanced).
+function aiTopTiers(n){
+  const ap=AP();
+  const owned={};
+  [...ap.z.bag,...ap.z.iced,...ap.z.rs,...ap.z.cold,...ap.z.hot,...ap.z.defend,...ap.z.reserve].forEach(d=>{
+    const pos=d.key[0];owned[pos]=(owned[pos]||0)+1;
+  });
+  const avail=[];
+  ap.lineup.forEach((c,idx)=>{
+    if(c.key==='HC'||!c.left)return;
+    avail.push({key:c.key,idx,tier:tierOf(c.key)});
+  });
+  avail.sort((a,b)=>{
+    if(b.tier!==a.tier)return b.tier-a.tier;
+    return (owned[a.key[0]]||0)-(owned[b.key[0]]||0);
+  });
+  const tiers=[],seen=new Set();
+  for(const c of avail){
+    if(!seen.has(c.tier)){seen.add(c.tier);tiers.push(c);}
+    if(tiers.length>=n)break;
+  }
+  return tiers;
+}
+// 2_94: is there a rookie available to trash for a trade? (iced, or R&S rookie energy we'd spend)
+function aiHasTrashFodder(){
+  const ap=AP();
+  if(ap.z.iced.some(d=>tierOf(d.key)===1))return true;
+  return ap.z.rs.some(d=>d.key==='Rookie'&&d.face&&d.face.t==='E'&&d.face.v>0);
+}
+// 2_94: spend for a trade — if no rookie in iced, force-spend an R&S rookie energy die first
+// so it lands in iced as trash fodder
+function aiSpendForTrade(cost){
+  const ap=AP();let rem=cost;
+  if(!ap.z.iced.some(d=>tierOf(d.key)===1)){
+    const rsRook=ap.z.rs.find(d=>d.key==='Rookie'&&d.face&&d.face.t==='E'&&d.face.v>0);
+    if(rsRook){
+      const v=rsRook.face.v;
+      ap.z.rs.splice(ap.z.rs.indexOf(rsRook),1);ap.z.iced.push(rsRook);
+      rsRook.energyPending=false;rem-=v;
+      addLog(`${ap.name}: Spent ${v}E (Rookie → iced as trade fodder).`);
+    }
+  }
+  if(rem>0)aiSpendE(rem,true);
+}
+// 2_94: execute a tier buy — k is trade1/trade2/draft1/draft2
+function aiBuyTier(k){
+  const ap=AP();
+  const isTrade=k.startsWith('trade');
+  const tops=aiTopTiers(2);
+  const t=tops[(k==='trade1'||k==='draft1')?0:1];
+  if(!t)return false;
+  const cost=(COSTS[t.key]||99)+(isTrade?2:0);
+  if(aiTotalE()<cost)return false;
+  if(isTrade){
+    if(!aiHasTrashFodder())return false;
+    aiSpendForTrade(cost);
+    const rook=ap.z.iced.filter(d=>tierOf(d.key)===1)[0];
+    if(!rook)return false;
+    ap.z.iced.splice(ap.z.iced.indexOf(rook),1);
+    addLog(`${ap.name}: Traded ${rook.key} → ${t.key} for ${cost}E.`,'imp');
+    aiPill(`traded up to ${t.key} for ${cost}E 🛒`);
+  }else{
+    aiSpendE(cost,false);
+    addLog(`${ap.name}: Drafted ${t.key} for ${cost}E.`,'imp');
+    aiPill(`drafted ${t.key} for ${cost}E 🛒`);
+  }
+  const card=ap.lineup[t.idx];card.left--;
+  ap.z.iced.push(mkDie(t.key));
+  awardBuyBonus(ap,card);
+  return true;
+}
+// 2_94: "next best" — TRADE if possible, else DRAFT
+function aiBuyNextBest(){
+  const ap=AP();
+  const tops=aiTopTiers(1),t=tops[0];
+  if(!t)return false;
+  const E=aiTotalE();
+  const tradeCost=(COSTS[t.key]||99)+2, draftCost=COSTS[t.key]||99;
+  if(E>=tradeCost&&aiHasTrashFodder()){
+    aiSpendForTrade(tradeCost);
+    const rook=ap.z.iced.filter(d=>tierOf(d.key)===1)[0];
+    if(rook){
+      ap.z.iced.splice(ap.z.iced.indexOf(rook),1);
+      const card=ap.lineup[t.idx];card.left--;
+      ap.z.iced.push(mkDie(t.key));
+      addLog(`${ap.name}: Traded ${rook.key} → ${t.key} for ${tradeCost}E.`,'imp');
+      awardBuyBonus(ap,card);
+      aiPill(`traded up to ${t.key} for ${tradeCost}E 🛒`);
+      return true;
+    }
+  }
+  if(E>=draftCost){
+    aiSpendE(draftCost,false);
+    const card=ap.lineup[t.idx];card.left--;
+    ap.z.iced.push(mkDie(t.key));
+    addLog(`${ap.name}: Drafted ${t.key} for ${draftCost}E.`,'imp');
+    awardBuyBonus(ap,card);
+    aiPill(`drafted ${t.key} for ${draftCost}E 🛒`);
+    return true;
+  }
+  return false;
+}
+// 2_94: can this buy option actually be done right now?
+function aiBuyPossible(k){
+  const ap=AP();
+  const E=aiTotalE();
+  const tops=aiTopTiers(2);
+  if(k==='trade1'||k==='trade2'){
+    const t=tops[k==='trade1'?0:1];if(!t)return false;
+    return E>=(COSTS[t.key]||99)+2&&aiHasTrashFodder();
+  }
+  if(k==='draft1'||k==='draft2'){
+    const t=tops[k==='draft1'?0:1];if(!t)return false;
+    return E>=(COSTS[t.key]||99);
+  }
+  if(k==='token')return E>=3;
+  if(k==='nextbest'){
+    const t=tops[0];
+    const canTrade=t&&E>=(COSTS[t.key]||99)+2&&aiHasTrashFodder();
+    const canDraft=t&&E>=(COSTS[t.key]||99);
+    const canReserve=ap.z.reserve.length<2&&
+      ap.z.rs.some(d=>d.key!=='HC'&&d.face&&d.face.t==='E');
+    return canTrade||canDraft||canReserve;
+  }
+  return false;
 }
 function aiDoBuy(P){
   const ap=AP();
-  const buy=aiDial('buy'); // 2_73: 0-100 buy aggression
-  if(totalE()<1)return;
-  const reserveFull=ap.z.reserve.length>=2;
-  if(buy<=0&&!reserveFull)return; // 2_73: buy=0 hoards everything unless reserve is full
   _aiSelf=true;
   try{
-    // 2_73: priority per Tim's spec —
-    //   buy=0:  reserve (hoard) → trade → draft (overflow only)
-    //   buy=100: trade → shoot token → block token → draft
-    const sh=aiEffShooters();
-    const posBonus=k=>k.startsWith('F')?sh*2:k.startsWith('D')?(1-sh)*2:1;
-    const buyTokens=buy>=70; // high buy: tokens in the priority order
-    const maxIter=buy>=70?4:buy>=40?2:1; // spend rounds scale with dial
-    for(let iter=0;iter<maxIter;iter++){
-      const E=totalE();
-      if(E<1)break;
-      // 1. Best trade: highest tier affordable at cost+2, trashing a ROOKIE from iced
-      let trade=null;
-      ap.lineup.forEach((c,idx)=>{
-        if(c.key==='HC'||!c.left)return;
-        const cost=(COSTS[c.key]||99)+2;
-        if(E<cost)return;
-        const score=tierOf(c.key)*10+posBonus(c.key);
-        if(!trade||score>trade.score)trade={idx,key:c.key,cost,score};
+    // 2_93: pre-buy banking — each energy die may go straight to reserve first
+    aiBankReserve();
+    if(aiTotalE()<1)return;
+    // 2_94: Coach buy table (Tim's d100). Each category fires once per buy phase;
+    // a taken category's weight splits evenly among the remaining ones.
+    const W={trade1:46,trade2:6,draft1:18,draft2:6,token:18,nextbest:6};
+    const taken=new Set();
+    while(true){
+      const remaining=Object.keys(W).filter(k=>!taken.has(k));
+      if(!remaining.length)break;
+      const cur={};
+      remaining.forEach(k=>cur[k]=W[k]);
+      taken.forEach(tk=>{
+        const share=W[tk]/remaining.length;
+        remaining.forEach(k=>cur[k]+=share);
       });
-      let trash=null;
-      if(trade&&ap.z.iced.length){
-        const rook=ap.z.iced.filter(d=>tierOf(d.key)===1)
-          .sort((a,b)=>tierOf(a.key)-tierOf(b.key))[0];
-        if(rook)trash=rook; // 2_73: trade requires trashing a rookie
+      const possible=remaining.filter(k=>aiBuyPossible(k));
+      if(!possible.length)break;
+      const total=possible.reduce((s,k)=>s+cur[k],0);
+      let r=Math.random()*total,pick=possible[possible.length-1];
+      for(const k of possible){r-=cur[k];if(r<=0){pick=k;break;}}
+      if(pick==='token'){
+        aiSpendE(3,false);
+        if(Math.random()<0.5){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`bought a 🎯 Shoot token`);}
+        else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`bought a 🥅 Block token`);}
+        taken.add('token');
+      }else if(pick==='nextbest'){
+        if(Math.random()<0.5){
+          if(!aiBuyNextBest())break;
+        }else{
+          const e=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&d.face.t==='E')
+            .sort((a,b)=>b.face.v-a.face.v)[0];
+          if(e&&ap.z.reserve.length<2){
+            e.committed=true;assignDie(e,'reserve');
+            aiPill(`saved ${e.face.v}E to reserve instead 🏦`);
+          }
+          break;
+        }
+        taken.add('nextbest');
+      }else{
+        if(!aiBuyTier(pick))break;
+        taken.add(pick);
       }
-      if(trade&&trash){
-        aiSpendE(trade.cost);
-        const ti=ap.z.iced.indexOf(trash);
-        if(ti!==-1)ap.z.iced.splice(ti,1);
-        const card=ap.lineup[trade.idx];card.left--;
-        ap.z.iced.push(mkDie(card.key));
-        addLog(`${ap.name}: Traded ${trash.key} → ${card.key} for ${trade.cost}E.`,'imp');
-        awardBuyBonus(ap,card);
-        aiPill(`traded up to ${trade.key} for ${trade.cost}E 🛒`);
-        renderAll();
-        continue;
-      }
-      // 2. Shoot token (high buy only, in priority order)
-      if(buyTokens&&E>=3){
-        aiSpendE(3);ap.tok.shoot++;
-        addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`bought a 🎯 Shoot token`);
-        renderAll();continue;
-      }
-      // 3. Block token (high buy only, in priority order)
-      if(buyTokens&&E>=3){
-        aiSpendE(3);ap.tok.block++;
-        addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`bought a 🥅 Block token`);
-        renderAll();continue;
-      }
-      // 4. Fallback: draft the best affordable die outright
-      let best=null;
-      ap.lineup.forEach((c,idx)=>{
-        if(c.key==='HC'||!c.left)return;
-        const cost=COSTS[c.key]||99;
-        if(E<cost)return;
-        const score=tierOf(c.key)*10+posBonus(c.key);
-        if(!best||score>best.score)best={idx,key:c.key,cost,score};
-      });
-      if(best){
-        aiSpendE(best.cost);
-        const card=ap.lineup[best.idx];card.left--;
-        ap.z.iced.push(mkDie(card.key));
-        addLog(`${ap.name}: Bought ${card.key} for ${best.cost}E → Iced Zone.`,'imp');
-        awardBuyBonus(ap,card);
-        aiPill(`drafted ${best.key} for ${best.cost}E 🛒`);
-        renderAll();
-        continue;
-      }
-      break;
+      renderAll();
     }
-    // 2_73: token buying is in the priority loop above (buy>=70); no standalone block
-    // 2_52b: bank leftover energy dice to reserve (1 die or many — whatever fits).
-    // totalE() already counts reserve energy, so the buy loop above spent from the full pool.
+    // 2_93: post-buy sweep — leftover R&S energy fills remaining reserve slots, biggest first
     const rsEnergy=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='E'||d.energyPending));
     const space=2-ap.z.reserve.length;
     if(rsEnergy.length&&space>0){
       const toBank=rsEnergy.sort((a,b)=>b.face.v-a.face.v).slice(0,space);
-      toBank.forEach(d=>assignDie(d,'reserve'));
+      toBank.forEach(d=>{d.committed=true;assignDie(d,'reserve');});
       aiPill(`banked ${toBank.length} ${toBank.length===1?'die':'dice'} to reserve 🏦`);
       renderAll();
     }
@@ -5042,21 +5213,29 @@ function aiDoBuy(P){
 }
 async function aiDoShoot(P){
   const ap=AP();
-  if(!ap.z.hot.length)return false;
-  // 2_73: shooter commitment — 0=push none; >10=at least 1; 50=wide sway; 100=push all
-  const sorted=[...ap.z.hot].sort((a,b)=>aiDieRank(b)-aiDieRank(a));
-  const sDial=aiDial('shooters'), eff=aiEffShooters(), total=sorted.length;
-  let nCommit;
-  if(sDial<=0){nCommit=0;}
-  else if(eff>=1){nCommit=total;}
-  else{
-    const base=eff*total;
-    const variance=Math.sin(eff*Math.PI)*total*0.5; // widest sway near 50
-    nCommit=Math.round(base+(Math.random()*2-1)*variance);
-    nCommit=Math.max(1,Math.min(total,nCommit)); // dial>0: at least 1, at most all
+  // 2_96: shooters = S/W dice in hot
+  const shooters=ap.z.hot.filter(d=>d.face&&(d.face.t==='S'||d.face.t==='W'));
+  if(!shooters.length)return false;
+  const byPips=[...shooters].sort((a,b)=>b.face.v-a.face.v); // desc
+  const d100=()=>Math.floor(Math.random()*100)+1;
+  let commit=[];
+  if(G.clock===2||G.clock===1){
+    commit=shooters; // final turns: 100% push all
+  }else if(shooters.length===1){
+    if(d100()<=70)commit=shooters; // 70% shoot, 30% hold
+  }else if(shooters.length===2){
+    const r=d100();
+    if(r<=75)commit=shooters; // 75% both
+    else if(r<=95)commit=[byPips[0]]; // 20% high-pip only
+    // 5%: hold both
+  }else{
+    const r=d100();
+    if(r<=50)commit=shooters; // 50% push all
+    else if(r<=70)commit=byPips.slice(0,-1); // 20% hold smallest
+    else if(r<=90)commit=byPips.slice(1); // 20% hold largest
+    else commit=byPips.slice(0,-2); // 10% hold two smallest
   }
-  if(nCommit<=0)return false; // holding everything — no shot
-  const commit=sorted.slice(0,nCommit);
+  if(!commit.length)return false; // holding everything — no shot
   _aiSelf=true;
   try{commit.forEach(d=>moveToShoot(d.id));}finally{_aiSelf=false;}
   renderAll();
@@ -5092,26 +5271,34 @@ async function aiDefendTurn(){
     aiPill(`studies your shot…`);
     await aiSleep(1100);
     _aiSelf=true;
-    G.blockSelIds=me.z.defend.map(d=>d.id);
+    const atk=G.players[G.ap];
+    const nAtk=atk.z.shoot.length; // shooter's declared dice
+    // 2_97: commit N+2 blockers 75% of the time, N+1 blockers 25% (best pips first)
+    const d100=()=>Math.floor(Math.random()*100)+1;
+    const wantN=nAtk+(d100()<=75?2:1);
+    const blockers=[...me.z.defend]
+      .filter(d=>d.face&&(d.face.t==='B'||d.face.t==='W'))
+      .sort((a,b)=>b.face.v-a.face.v)
+      .slice(0,wantN);
+    G.blockSelIds=blockers.map(d=>d.id);
     try{
-      document.querySelectorAll('#bsel-dice .die-body').forEach(b=>b.classList.add('sel'));
-      const totalPips=me.z.defend.reduce((s,d)=>s+(d.face?d.face.v:0),0);
+      document.querySelectorAll('#bsel-dice .die-body').forEach(b=>{
+        if(G.blockSelIds.includes(b.dataset.id))b.classList.add('sel');
+      });
+      const totalPips=blockers.reduce((s,d)=>s+(d.face?d.face.v:0),0);
       const binfo=document.getElementById('bsel-info');
-      if(binfo)binfo.textContent=`${me.z.defend.length} dice committed (${totalPips} block pips → ${totalPips} combat dice)`;
+      if(binfo)binfo.textContent=`${blockers.length} dice committed (${totalPips} block pips → ${totalPips} combat dice)`;
     }catch(e){}
     renderAll();
     await aiSleep(900);
-    const atk=G.players[G.ap];
-    const atkPips=atk.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0)+_sTok;
-    const myPips=me.z.defend.reduce((s,d)=>s+(d.face?d.face.v:1),0);
-    let want=0;
-    // 2_73: block tokens — spend when my block pips < their shoot pips + 2
-    if(me.tok.block>0&&myPips<atkPips+2){
-      want=Math.min(me.tok.block,(atkPips+2)-myPips);
+    // 2_97: match each declared shoot token with a block token — 75% per token, if available
+    const sTok=_sTok||0;
+    let matched=0;
+    for(let i=0;i<sTok;i++){
+      if(_bTok<me.tok.block&&Math.random()<0.75){adjBT(1);matched++;}
     }
-    for(let i=0;i<want;i++)adjBT(1);
-    const nb=me.z.defend.length;
-    aiPill(want?`commits ${nb} blockers + ${want} 🥅`:`commits ${nb} blocker${nb===1?'':'s'}`);
+    const nb=blockers.length;
+    aiPill(matched?`commits ${nb} blockers + ${matched} 🥅`:`commits ${nb} blocker${nb===1?'':'s'}`);
     renderAll();
     await aiSleep(1000);
     resolveCombat();
@@ -5134,7 +5321,7 @@ function aiMaybeBench(){
   aiLater(()=>{
     const bp=G.benchPick;if(!bp||bp.done)return;
     const p=G.players[bp.loser];
-    const ranked=p.z[bp.zone].filter(d=>bp.ids.includes(d.id)).sort((a,b)=>aiDieRank(b)-aiDieRank(a));
+    const ranked=p.z[bp.zone].filter(d=>bp.ids.includes(d.id)).sort((a,b)=>aiBenchRank(b)-aiBenchRank(a));
     _aiSelf=true;
     try{
       _benchSel=ranked.slice(0,bp.need).map(d=>d.id);
