@@ -528,12 +528,17 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.112</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.115</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
-    <div class="setup-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
+    <div class="setup-btns" id="mode-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
       <button class="btn-mode" style="background:transparent;color:#c85500;border:2px solid #c85500;" onclick="showShootoutSetup()">🥅 Shootout Mini Game</button>
       <button class="btn-mode" style="background:rgba(100,200,100,.12);color:#66cc66;border:2px solid #66cc66;" onclick="showOnlineSetup()">🌐 Play Online vs Friend</button>
+    </div>
+    <!-- 2_115: slim mode header — replaces the three buttons once a mode is chosen -->
+    <!-- 2_115: tapping the banner goes back to the mode list (no separate Back button) -->
+    <div id="mode-header" style="display:none;max-width:320px;margin:0 auto 20px;">
+      <div id="mode-header-banner" style="cursor:pointer;" onclick="backToModes()" title="Back to game modes"></div>
     </div>
   </div>
     <!-- ONLINE SETUP PANEL -->
@@ -620,7 +625,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <!-- 2_51: division filters removed — all 24 teams always listed -->
       <div class="builder-grid">
         <div class="builder-player">
-          <h3>Player 1 <span style="font-size:.75em;color:#888">— click a team to select</span></h3>
+          <h3>Player 1 <span style="font-size:.75em;color:#888">— pick your team</span></h3>
           <div class="preset-cards" id="qs-p1"></div>
         </div>
         <div class="builder-player" id="qs-aicol">
@@ -679,7 +684,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.112</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.115</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1149,11 +1154,36 @@ const PRESETS=[
    lineup:['F6','F2','F1','D8','D3','G5','HC'], desc:'F6+F2+F1 | D8+D3 | G5 — Elite D, one scoring threat'},
 ];
 let _qsSel=[null,null]; // selected preset index per player
+let _qsManualPick=false; // 2_115: true once the user hand-picks a team (dropdown shows Random placeholder until then)
 function showQS(){
   document.getElementById('custom-panel').classList.remove('show');
   const qp=document.getElementById('qs-panel');
-  qp.classList.toggle('show');
-  if(qp.classList.contains('show')){renderAIPanel();renderPresetCards();}
+  const wasShown=qp.classList.contains('show');
+  // 2_115: slim header — hide mode buttons, show the chosen mode
+  if(!wasShown){enterMode('vsai');}
+  else{backToModes();return;}
+  qp.classList.add('show');
+  renderAIPanel();renderPresetCards();
+}
+// 2_115: mode header helpers
+// 2_115: banner mimics the main-menu button styling per mode
+// 2_115: the banner itself is the back button (tap it to return to the mode list)
+function enterMode(mode){
+  document.getElementById('mode-btns').style.display='none';
+  const mh=document.getElementById('mode-header');
+  mh.style.display='block';
+  const banners={
+    vsai:'<div class="btn-mode btn-qs" style="width:100%;text-align:center;">🤖 Full Game vs AI</div>',
+    shootout:'<div class="btn-mode" style="width:100%;text-align:center;background:transparent;color:#c85500;border:2px solid #c85500;">🥅 Shootout Mini Game</div>',
+    online:'<div class="btn-mode" style="width:100%;text-align:center;background:rgba(100,200,100,.12);color:#66cc66;border:2px solid #66cc66;">🌐 Play Online vs Friend</div>'
+  };
+  document.getElementById('mode-header-banner').innerHTML=banners[mode]||'';
+}
+function backToModes(){
+  ['qs-panel','custom-panel','so-panel','online-panel'].forEach(id=>
+    document.getElementById(id)?.classList.remove('show'));
+  document.getElementById('mode-header').style.display='none';
+  document.getElementById('mode-btns').style.display='';
 }
 function showCustom(){
   document.getElementById('qs-panel').classList.remove('show');
@@ -1161,43 +1191,58 @@ function showCustom(){
   cp.classList.toggle('show');
   if(cp.classList.contains('show'))populateSels();
 }
-function renderPresetCards(){ // 2_51: division filters removed — all teams always shown
+function renderPresetCards(){
+  // 2_115: compact dropdown instead of the full scrolling card list.
+  // 2_115: "🎲 Random Team" stays as the placeholder until the user hand-picks;
+  // a random team is pre-picked behind the scenes so Start works immediately.
   [0].forEach(pi=>{
     const el=document.getElementById('qs-p'+(pi+1));
     el.innerHTML='';
-    // 2_72: 🎲 Random Team as the top card (was a bottom button)
-    const randCard=document.createElement('div');
-    randCard.className='preset-card'+((_qsSel[pi]==null||_qsSel[pi]===-1)?' selected':'');
-    randCard.innerHTML=`<div class="preset-card-name">🎲 Random Team</div>
-      <div class="preset-card-lineup" style="font-size:.72em">Surprise me</div>`;
-    randCard.addEventListener('click',()=>randomTeam(pi));
-    el.appendChild(randCard);
     // 2_72: Random Team is the default — pre-pick one so Start works immediately
     if(_qsSel[pi]==null||_qsSel[pi]===-1){
       let pick;const other=_aiTeamIdx;
       do{pick=Math.floor(Math.random()*PRESETS.length);}while(pick===other&&PRESETS.length>1);
       _qsSel[pi]=pick;
     }
+    const sel=document.createElement('select');
+    sel.id='qs-team-select';
+    sel.style.cssText='width:100%;background:#1a2d45;color:white;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px;font-size:.9em;cursor:pointer;';
+    const randOpt=document.createElement('option');
+    randOpt.value='-1';
+    randOpt.textContent='🎲 Random Team — surprise me';
+    randOpt.style.cssText='background:#1a2d45;color:white;';
+    if(!_qsManualPick)randOpt.selected=true; // 2_115: placeholder until hand-picked
+    sel.appendChild(randOpt);
     PRESETS.forEach((p,i)=>{
-      const selCls=_qsSel[pi]===i?'selected':'';
-      const pts_badge_col=p.pts===27?'#55aa55':p.pts===26?'#c8a84b':'#aa7733';
-      const card=document.createElement('div');
-      card.className=`preset-card ${selCls}`;
-      card.dataset.pts=p.pts;
-      card.dataset.arch=p.archetype;
-      const divColor={'North':'#c82020','East':'#c8880a','South':'#1a6dd4','West':'#226622'}[p.division]||'#888';
-      card.innerHTML=`
-        <div class="preset-card-name">${p.name}</div>
-        <div class="preset-card-pts" style="color:${divColor}">${p.divEmoji} ${p.division} Division</div>
-        <div class="preset-card-lineup">${p.desc}</div>`;
-      card.addEventListener('click',()=>selectPreset(pi,i));
-      el.appendChild(card);
+      const opt=document.createElement('option');
+      opt.value=String(i);
+      opt.textContent=`${p.name} — ${p.division||''} (${p.pts}pt)`;
+      opt.style.cssText='background:#1a2d45;color:white;';
+      if(_qsManualPick&&_qsSel[pi]===i)opt.selected=true;
+      sel.appendChild(opt);
     });
+    sel.addEventListener('change',()=>{
+      const v=parseInt(sel.value,10);
+      if(v===-1){_qsManualPick=false;randomTeam(pi);} // randomTeam re-renders
+      else{_qsManualPick=true;selectPreset(pi,v);}
+    });
+    el.appendChild(sel);
+    // show the picked team's lineup under the dropdown
+    const p=PRESETS[_qsSel[pi]];
+    if(p){
+      const info=document.createElement('div');
+      info.style.cssText='font-size:.78em;color:#aaa;margin-top:8px;line-height:1.4;';
+      const divColor={'North':'#c82020','East':'#c8880a','South':'#1a6dd4','West':'#226622'}[p.division]||'#888';
+      const prefix=_qsManualPick?'':'🎲 Random: ';
+      info.innerHTML=`${prefix}<b style="color:#fff">${p.name}</b> <span style="color:${divColor}">${p.divEmoji||''} ${p.division||''}</span> · ${p.desc||''}`;
+      el.appendChild(info);
+    }
   });
   updateQSSummary();
 }
 function selectPreset(playerIdx,presetIdx){
   _qsSel[playerIdx]=presetIdx;
+  if(playerIdx===0)_qsManualPick=true; // 2_115
   renderPresetCards();
 }
 function updateQSSummary(){
@@ -2084,7 +2129,7 @@ function declareShot(){if(aiGuard())return;
   _sTok=0; // fresh token commitment for this shot
   // The shooter confirms shoot tokens BEFORE the defender is asked to block.
   // No tokens to decide on → nothing to confirm, lock at once.
-  // 2_112: local Vs AI no longer auto-locks when the human has tokens —
+  // 2_115: local Vs AI no longer auto-locks when the human has tokens —
   // the human gets a Confirm Shot step before Coach defends.
   G.shotLocked=ap.tok.shoot===0;
   if(G.shotLocked){
@@ -2221,7 +2266,7 @@ function openCombat(){
   const rb=document.querySelector('#block-sel-area .abtn.prim');
   if(rb){
     rb.disabled=false;rb.textContent='Roll Combat Dice!';rb.onclick=resolveCombat;
-    // 2_112: in Vs AI, when Coach defends the human's shot he auto-rolls —
+    // 2_115: in Vs AI, when Coach defends the human's shot he auto-rolls —
     // hide the button so the human isn't offered a duplicate roll.
     if(_aiActive&&_aiDefPhase){rb.style.display='none';}
     else{rb.style.display='';}
@@ -2231,7 +2276,7 @@ function openCombat(){
       if(G.shotLocked){rb.disabled=true;rb.textContent='Waiting for defender to resolve…';}
       else{rb.textContent='Confirm Shot →';rb.onclick=lockShot;}
     }
-    // 2_112: local Vs AI — human shooter with tokens gets a Confirm Shot step
+    // 2_115: local Vs AI — human shooter with tokens gets a Confirm Shot step
     // before Coach defends (shot not locked yet).
     if(!_onlineActive&&_aiActive&&G.ap!==_aiSlot&&!G.shotLocked){
       rb.textContent='Confirm Shot →';rb.onclick=lockShot;
@@ -2239,7 +2284,7 @@ function openCombat(){
   }
   // Token steppers lock once the shot is confirmed (online shooter only —
   // solo keeps them live until the roll, and the defender never touches them).
-  // 2_112: lock steppers once the shot is confirmed — online shooter, or
+  // 2_115: lock steppers once the shot is confirmed — online shooter, or
   // local Vs AI human shooter.
   const tokLocked=G.shotLocked&&(_onlineActive&&isMyTurn()||!_onlineActive&&_aiActive&&G.ap!==_aiSlot);
   document.querySelectorAll('#shoot-tok-ctrl button').forEach(b=>{b.disabled=tokLocked;});
@@ -2266,7 +2311,7 @@ function refreshBlockerNudge(){
   });
 }
 
-let _combatResolving=false; // 2_112: prevent double-resolution of the same shot
+let _combatResolving=false; // 2_115: prevent double-resolution of the same shot
 function resolveCombat(){
   if(_combatResolving)return; // already resolving this shot
   _combatResolving=true;
@@ -2544,7 +2589,7 @@ function endTurn(){if(aiGuard())return;
   if(typeof renderAll==='function') clearTimeout(renderAll._pushTimer);
   // Check reserve: if something there after buy phase, it stays (can be used next turn)
   // Clean RS: send remaining to iced EXCEPT reserve-eligible energy that player wants to keep
-  // 2_112: Leftover energy in RS after buy → fill remaining reserve slots, biggest first (was: only 1)
+  // 2_115: Leftover energy in RS after buy → fill remaining reserve slots, biggest first (was: only 1)
   const rsE=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='E'||d.energyPending));
   const rsSpace=2-ap.z.reserve.length;
   if(rsE.length&&rsSpace>0){
@@ -3402,8 +3447,11 @@ function showShootoutSetup(){
   document.getElementById('qs-panel').classList.remove('show');
   document.getElementById('custom-panel').classList.remove('show');
   const panel = document.getElementById('so-panel');
-  panel.classList.toggle('show');
-  if(panel.classList.contains('show')) renderSOPresets();
+  const wasShown=panel.classList.contains('show');
+  if(!wasShown){enterMode('shootout');}
+  else{backToModes();return;}
+  panel.classList.add('show');
+  renderSOPresets();
 }
 
 function renderSOPresets(){
@@ -4047,8 +4095,11 @@ function showOnlineSetup(){
   ['qs-panel','custom-panel','so-panel'].forEach(id=>
     document.getElementById(id)?.classList.remove('show'));
   const panel=document.getElementById('online-panel');
-  panel.classList.toggle('show');
-  if(panel.classList.contains('show')) populateOnlineTeamSelects();
+  const wasShown=panel.classList.contains('show');
+  if(!wasShown){enterMode('online');}
+  else{backToModes();return;}
+  panel.classList.add('show');
+  populateOnlineTeamSelects();
 }
 
 function populateOnlineTeamSelects(){
@@ -4799,7 +4850,7 @@ async function aiTurnMain(){
     await aiSleep(800);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
     const shot=await aiDoShoot(P);
     if(!shot){
-      await aiSleep(300);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_112: halved (was 600) — end-of-turn → summary felt too long
+      await aiSleep(300);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_115: halved (was 600) — end-of-turn → summary felt too long
       // 2_51: no "ends the turn" note — summary keeps only the action lines
       aiShowTurnSummary(()=>{_aiSelf=true;try{endTurn();}finally{_aiSelf=false;if(G.ap!==_aiSlot){_aiBusy=false;_aiDefPhase=null;}}}); // 2_49: tap Take Turn to end the AI turn — board released
     }
@@ -4807,7 +4858,7 @@ async function aiTurnMain(){
   }catch(e){
     console.error('AI turn error:',e);
     _aiBusy=false;_aiDefPhase=null;_aiSelf=false;
-    // 2_112: never strand the game — show the summary card with what the AI did,
+    // 2_115: never strand the game — show the summary card with what the AI did,
     // log the actual error for debugging, and let Take Turn end it gracefully
     try{
       if(typeof G!=='undefined'&&G.ap===_aiSlot){
@@ -4943,7 +4994,7 @@ function aiDoAssign(P){
       if(rrpicks.length){
         assignDie(rrd,'rr');
         rrpicks.forEach(d=>d.sel=true);confirmRRSel();
-        aiPill(`HC reroll: ${rrpicks.length} ${rrpicks.length===1?'die':'dice'} 🎲`); // 2_112: visible step + summary blurb
+        aiPill(`HC reroll: ${rrpicks.length} ${rrpicks.length===1?'die':'dice'} 🎲`); // 2_115: visible step + summary blurb
       }
     }
     // 2_92: Coach assignment order (Tim's spec) —
@@ -5063,7 +5114,7 @@ function aiBankReserve(){
 }
 // 2_94: top N distinct tiers available in the lineup (not HC, left>0).
 // Ties broken by fewest of that position already owned (keeps roster balanced).
-// 2_112: n=0 (or omitted) returns ALL tiers, highest first — for affordable-cascade.
+// 2_115: n=0 (or omitted) returns ALL tiers, highest first — for affordable-cascade.
 function aiTopTiers(n){
   const ap=AP();
   const owned={};
@@ -5086,7 +5137,7 @@ function aiTopTiers(n){
   }
   return tiers;
 }
-// 2_112: highest AFFORDABLE tier from a tier list (cascade top-down)
+// 2_115: highest AFFORDABLE tier from a tier list (cascade top-down)
 function aiAffordableTier(tiers,isTrade){
   const E=aiTotalE();
   for(const t of tiers){
@@ -5117,7 +5168,7 @@ function aiSpendForTrade(cost){
   if(rem>0)aiSpendE(rem,true);
 }
 // 2_94: execute a tier buy — k is trade1/trade2/draft1/draft2
-// 2_112: cascades top-down to the highest AFFORDABLE tier (not just the single top tier)
+// 2_115: cascades top-down to the highest AFFORDABLE tier (not just the single top tier)
 function aiBuyTier(k){
   const ap=AP();
   const isTrade=k.startsWith('trade');
@@ -5146,7 +5197,7 @@ function aiBuyTier(k){
   return true;
 }
 // 2_94: "next best" — TRADE if possible, else DRAFT
-// 2_112: cascades to highest affordable tier
+// 2_115: cascades to highest affordable tier
 function aiBuyNextBest(){
   const ap=AP();
   const allTiers=aiTopTiers(0);
@@ -5179,7 +5230,7 @@ function aiBuyNextBest(){
   return false;
 }
 // 2_94: can this buy option actually be done right now?
-// 2_112: trade/draft check the cascade — any affordable tier in the pool counts
+// 2_115: trade/draft check the cascade — any affordable tier in the pool counts
 function aiBuyPossible(k){
   const ap=AP();
   const E=aiTotalE();
@@ -5246,7 +5297,7 @@ function aiDoBuy(P){
             .sort((a,b)=>b.face.v-a.face.v)[0];
           if(e&&ap.z.reserve.length<2){
             e.committed=true;assignDie(e,'reserve');
-            aiPill(`saved ${e.face.v}E to reserve 🏦`); // 2_112: dropped "instead" — sounded weird
+            aiPill(`saved ${e.face.v}E to reserve 🏦`); // 2_115: dropped "instead" — sounded weird
           }
           break;
         }
@@ -5260,7 +5311,7 @@ function aiDoBuy(P){
       renderAll();
     }
     // 2_93: post-buy sweep — leftover R&S energy fills remaining reserve slots, biggest first
-    // 2_112: hardened — do the move directly (not via assignDie) to avoid silent guard drops; log the outcome
+    // 2_115: hardened — do the move directly (not via assignDie) to avoid silent guard drops; log the outcome
     const rsEnergy=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='E'||d.energyPending));
     const space=2-ap.z.reserve.length;
     if(rsEnergy.length&&space>0){
@@ -5332,7 +5383,7 @@ async function aiDoShoot(P){
 function aiMaybeDefend(){
   if(!_aiActive||_aiBusy||G.ap===_aiSlot)return; // AI is the shooter — human defends
   _aiBusy=true;_aiDefPhase='aiDef';renderAll();
-  // 2_112: openCombat ran before the flag was set, so hide the button here —
+  // 2_115: openCombat ran before the flag was set, so hide the button here —
   // Coach auto-rolls, the human shouldn't see a duplicate Roll button.
   try{const rb=document.querySelector('#block-sel-area .abtn.prim');if(rb)rb.style.display='none';}catch(e){}
   aiDefendTurn();
@@ -5364,7 +5415,7 @@ async function aiDefendTurn(){
     }catch(e){}
     renderAll();
     await aiSleep(900);
-    // 2_112: auto-spend block tokens to reach (shooter pips + 2),
+    // 2_115: auto-spend block tokens to reach (shooter pips + 2),
     // counting block dice pips + clock bonus. Replaces the 2_97 token-match.
     const atkPips=atk.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:0),0)+(_sTok||0);
     const clkBonus=G.clock===1?3:G.clock>4?1:2;
@@ -5372,7 +5423,7 @@ async function aiDefendTurn(){
     const tokNeed=Math.max(0,(atkPips+2)-(blkPips+clkBonus));
     let matched=0;
     for(let i=0;i<tokNeed&&_bTok<me.tok.block;i++){adjBT(1);matched++;}
-    // 2_112: past the +2 target, extras are 25% each (was 50%) — tokens...
+    // 2_115: past the +2 target, extras are 25% each (was 50%) — tokens...
     while(_bTok<me.tok.block&&Math.random()<0.25){adjBT(1);matched++;}
     // ...and uncommitted defend dice, regardless of pips showing
     const extras=me.z.defend.filter(d=>d.face&&(d.face.t==='B'||d.face.t==='W')&&!G.blockSelIds.includes(d.id));
