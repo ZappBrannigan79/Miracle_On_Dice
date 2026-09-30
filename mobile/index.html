@@ -541,7 +541,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.151</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.152</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -704,7 +704,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.151</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.152</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2143,7 +2143,10 @@ function buyTok(type){if(aiGuard())return;
 
 // ═══════════════════ SHOOTING ═══════════════════
 function moveToShoot(id){if(aiGuard())return;
-  const ap=AP();const i=ap.z.hot.findIndex(d=>d.id===id);if(i===-1)return;
+  const ap=AP();
+  // 2_152: one shot per turn — never let dice leave Hot after a shot was taken
+  if(G.shotDeclared){toast('Shot already taken this turn — dice stay in the Hot Zone.');return;}
+  const i=ap.z.hot.findIndex(d=>d.id===id);if(i===-1)return;
   const d=ap.z.hot[i];
   ap.z.hot.splice(i,1);ap.z.shoot.push(d);renderAll();
 }
@@ -2634,7 +2637,11 @@ function endTurn(){if(aiGuard())return;
   }
   // HC die goes back to set-aside (not iced); everything else → iced
   ap.z.rs.forEach(d=>{d.energyPending=false;if(d.key==='HC'){/* set-aside */}else{ap.z.iced.push(d);}});ap.z.rs=[];
-  ap.z.shoot.forEach(d=>ap.z.iced.push(d));ap.z.shoot=[];
+  // 2_152: stranded Shoot Zone dice — if a shot was already taken they got here
+  // by mistake, so send them back to Hot instead of icing them
+  if(G.shotDeclared&&ap.z.shoot.length){ap.z.shoot.forEach(d=>ap.z.hot.push(d));}
+  else{ap.z.shoot.forEach(d=>ap.z.iced.push(d));}
+  ap.z.shoot=[];
   G.clock=Math.max(0,G.clock-1);
   addLog(`${ap.name}: Turn ended. Clock→${G.clock<10?'0'+G.clock:''+G.clock}:00.`);
   const justPlayedIdx=G.ap;
@@ -2949,8 +2956,14 @@ function renderZone(zid,arr,opts={}){
         }
       });
     }else if(!locked&&opts.fromHot&&G.phase===4){
-      body.style.cursor='pointer';body.title='Click → Shoot Zone';
-      body.addEventListener('click',()=>moveToShoot(die.id));
+      if(G.shotDeclared){
+        // 2_152: shot already taken — gray out, no second trip to the Shoot Zone
+        body.style.cursor='default';body.style.opacity='.45';
+        body.title='Shot already taken this turn';
+      }else{
+        body.style.cursor='pointer';body.title='Click → Shoot Zone';
+        body.addEventListener('click',()=>moveToShoot(die.id));
+      }
     }else if(!locked&&opts.fromShoot){
       body.style.cursor='pointer';body.title='Click → back to Hot Zone';
       body.addEventListener('click',()=>retFromShoot(die.id));
@@ -5866,7 +5879,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // — main zones in turn-flow order —
   ['z-rs', 'z-hot', 'z-cold', 'z-defend'].forEach(id => move(zwrap(id), scroll));
 
-  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_151: Tim's order
+  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_152: Tim's order
   const tabbar = document.createElement('div'); tabbar.id = 'm-tabs';
   const tabbody = document.createElement('div'); tabbody.id = 'm-tabbody';
   scroll.appendChild(tabbar); scroll.appendChild(tabbody);
