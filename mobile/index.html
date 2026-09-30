@@ -539,7 +539,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.147</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.150</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -702,7 +702,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.147</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.150</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1736,7 +1736,7 @@ function getOpts(die){
     o.push({l:`Wild as Shoot → ${z} Zone (${f.v} pip)`,a:'shoot'});
     o.push({l:`Wild as Block → Defensive Zone (${f.v} pip)`,a:'block'});
   }else if(f.t==='RR'){
-    if(!G.assignmentStarted)o.push({l:'Spend Reroll → reroll remaining RS dice',a:'rr'});
+    if(!G.assignmentStarted)o.push({l:'Spend Reroll → pick any R&S dice to reroll',a:'rr'}); // 2_149: "pick any" — it opens a picker, not an auto-reroll-all
     else o.push({l:'Reroll face (cannot use after assigning — goes to Iced)',a:'iced'});
   }else if(f.t==='SO'){
     if(canPay)o.push({l:`Shutout → gain ${f.v} Block Token(s) — costs 1⚡`,a:'shutout-cost'});
@@ -4963,6 +4963,9 @@ async function aiTurnMain(){
     await aiSleep(1100);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
     aiDoReroll(P);
     await aiSleep(800);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
+    // 2_150: HC reroll gets its own visible beat — pause so the player sees the
+    // dice reroll (animation + pill) before assignment continues
+    if(aiDoHcReroll(P)){await aiSleep(900);if(!aiIsTurn()){_aiBusy=false;renderAll();return;}}
     aiDoAssign(P);
     await aiSleep(800);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
     aiDoBuy(P);
@@ -5113,14 +5116,13 @@ function aiResolveAdv(){
     addLog(`${ap.name}: ADV — ${dLbl(best)} advanced Cold→Hot Zone.`,'imp');}
   G.advPending=false;renderAll();
 }
-function aiDoAssign(P){
+// 2_150: HC reroll is its own visible beat — extracted from aiDoAssign so the
+// turn driver can pause on it. The player sees the dice actually reroll
+// (animation + pill) before assignment continues. Returns true if it rerolled.
+function aiDoHcReroll(P){
   const ap=AP();
-  let nS=0,nB=0;
-  const zone=G.clock>4?'Cold':'Hot';
   _aiSelf=true;
   try{
-    // PEN faces — always use while the pool has dice
-    [...ap.z.rs].forEach(d=>{if(d.face&&d.face.t==='PEN'&&G.penaltyPool>0)assignDie(d,'pen-give');});
     // 2_91: HC RR — check the table FIRST (like a human looking at their dice);
     // only spend the face if there's actually something to reroll, else leave it and continue
     const rrd=ap.z.rs.find(d=>d.face&&d.face.t==='RR');
@@ -5130,8 +5132,23 @@ function aiDoAssign(P){
         assignDie(rrd,'rr');
         rrpicks.forEach(d=>d.sel=true);confirmRRSel();
         aiPill(`HC reroll: ${rrpicks.length} ${rrpicks.length===1?'die':'dice'} 🎲`); // 2_121: visible step + summary blurb
+        return true;
       }
     }
+  }finally{_aiSelf=false;}
+  return false;
+}
+function aiDoAssign(P){
+  const ap=AP();
+  let nS=0,nB=0;
+  const zone=G.clock>4?'Cold':'Hot';
+  _aiSelf=true;
+  try{
+    // PEN faces — always use while the pool has dice
+    // 2_148: narrate it — the player needs to know a Penalty die hit their bag
+    let nPen=0;
+    [...ap.z.rs].forEach(d=>{if(d.face&&d.face.t==='PEN'&&G.penaltyPool>0){assignDie(d,'pen-give');nPen++;}});
+    if(nPen)aiPill(`sent ${nPen} Penalty ${nPen===1?'die':'dice'} to your bag ⚖️`);
     // 2_92: Coach assignment order (Tim's spec) —
     // 1. shoot → 2. block → 3. shutout → 4. ADV → 5. PEN → 6. wild → 7. energy (next)
     // 1. SHOOT faces → cold/hot (costed: pay if able, else leave sitting for end-of-turn ice)
@@ -5839,7 +5856,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // — main zones in turn-flow order —
   ['z-rs', 'z-hot', 'z-cold', 'z-defend'].forEach(id => move(zwrap(id), scroll));
 
-  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_147: Tim's order
+  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_150: Tim's order
   const tabbar = document.createElement('div'); tabbar.id = 'm-tabs';
   const tabbody = document.createElement('div'); tabbody.id = 'm-tabbody';
   scroll.appendChild(tabbar); scroll.appendChild(tabbody);
