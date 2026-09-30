@@ -305,6 +305,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* COMBAT */
 .combat-box{background:#0a1820;border:2px solid var(--gold);border-radius:12px;padding:18px;max-width:720px;width:100%;max-height:92vh;overflow-y:auto;} /* 2_147: scrollable so tall content never clips */
 .combat-title{font-size:1.2em;font-weight:900;color:var(--gold);text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:2px;}
+.combat-clock{font-size:.68em;font-weight:900;letter-spacing:1px;color:#fff;border:2px solid #fff;border-radius:8px;padding:2px 9px;margin-left:6px;vertical-align:middle;white-space:nowrap;} /* 2_151: mini clock — white 10:00–05:00 */
+.combat-clock.hot{color:#ff6666;border-color:#ff3b3b;} /* 2_151: red 04:00–01:00, matches header */
 .combat-info{background:rgba(255,255,255,.05);border-radius:6px;padding:8px 12px;font-size:.8em;color:#ccc;margin-bottom:12px;line-height:1.6;}
 .combat-info strong{color:var(--gold);}
 .combat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
@@ -539,7 +541,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.150</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.151</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -702,7 +704,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.150</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v2.151</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -819,7 +821,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- COMBAT PANEL -->
 <div class="panel-overlay" id="combat-panel">
   <div class="combat-box">
-    <div class="combat-title">⚔️ Shot on Goal</div>
+    <div class="combat-title">⚔️ Shot on Goal <span class="combat-clock" id="combat-clock"></span></div>
     <!-- 2_147: combat-info summary removed (all info duplicated elsewhere) -->
     <div id="block-sel-area">
       <div class="block-sel-area">
@@ -2214,7 +2216,14 @@ function renderAtkDice(){
     `<span id="atk-tok-line">${_sTok>0?` • 🎯 <strong style="color:#ffd75e">+${_sTok} token${_sTok!==1?'s':''}</strong>`:''}</span>`;
 }
 
+// 2_151: mini game clock in the shot panel — white 10:00–05:00, red 04:00–01:00 (matches header badge)
+function renderCombatClock(){
+  const el=document.getElementById('combat-clock');if(!el||typeof G==='undefined')return;
+  el.textContent=(G.clock<10?'0':'')+G.clock+':00';
+  el.classList.toggle('hot',G.clock<=4);
+}
 function openCombat(){
+  renderCombatClock(); // 2_151: mini clock next to the title (white 10:00–05:00, red 04:00–01:00)
   _bTok=0; // _sTok is reset per-shot in declareShot; the defender keeps the attacker's synced value
   document.getElementById('btok-count').textContent='0';
   document.getElementById('stok-count').textContent=_sTok;
@@ -4576,6 +4585,7 @@ function pullState(remote){
     // treat the (diverged) nonce as a fresh resolution.
     if(remote.combatResult && !remote.combatDone){
       showCombatResult(remote.combatResult);
+      renderCombatClock(); // 2_151: clock on the synced reveal too
       document.getElementById('combat-panel').classList.add('show');
     }else if(document.getElementById('combat-panel').classList.contains('show')){
       closeCombat();
@@ -5856,7 +5866,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // — main zones in turn-flow order —
   ['z-rs', 'z-hot', 'z-cold', 'z-defend'].forEach(id => move(zwrap(id), scroll));
 
-  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_150: Tim's order
+  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_151: Tim's order
   const tabbar = document.createElement('div'); tabbar.id = 'm-tabs';
   const tabbody = document.createElement('div'); tabbody.id = 'm-tabbody';
   scroll.appendChild(tabbar); scroll.appendChild(tabbody);
