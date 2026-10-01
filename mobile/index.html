@@ -329,13 +329,17 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* 2_21 — opponent's (defender's) dice on the shooter's screen: visible but dimmed, not clickable */
 #bsel-dice .die-body.opp-dim{opacity:.55;filter:grayscale(.35);cursor:default!important;}
 #bsel-dice .die-body.opp-dim:hover{transform:none;}
-.tok-ctrl{background:rgba(255,200,60,.09);border:1px solid rgba(255,200,60,.5);border-radius:8px;padding:10px 12px;font-size:.85em;color:#ffe9b0;margin-bottom:10px;line-height:2;}
+.tok-ctrl{background:rgba(255,200,60,.09);border:1px solid rgba(255,200,60,.5);border-radius:10px;padding:10px 14px;font-size:.85em;color:#ffe9b0;margin-bottom:10px;}
 .tok-ctrl strong{color:#ffd75e;}
-.tok-ctrl .tok-note{color:#cdb87a;font-size:.85em;}
-.tok-ctrl button{margin:0 3px;padding:6px 15px;font-size:1.15em;font-weight:800;background:rgba(255,200,60,.18);border:1px solid rgba(255,200,60,.65);color:#ffd75e;border-radius:6px;cursor:pointer;}
-.tok-ctrl button:not(:disabled):hover{background:rgba(255,200,60,.34);}
-.tok-ctrl button:disabled{opacity:.35;cursor:default;}
-.tok-count{font-size:1.5em;font-weight:800;color:#ffd75e;min-width:1.5em;display:inline-block;text-align:center;}
+.tok-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.tok-avail{background:rgba(255,215,94,.14);border:1px solid rgba(255,215,94,.55);border-radius:999px;padding:3px 12px;font-size:.85em;color:#ffe9b0;white-space:nowrap;}
+.tok-avail b{color:#ffd75e;font-size:1.25em;margin-right:2px;}
+.tok-step{display:flex;align-items:center;justify-content:center;gap:16px;margin:2px 0 8px;}
+.tok-step button{padding:8px 22px;font-size:1.4em;font-weight:800;background:rgba(255,200,60,.18);border:1px solid rgba(255,200,60,.65);color:#ffd75e;border-radius:8px;cursor:pointer;min-width:64px;}
+.tok-step button:not(:disabled):hover{background:rgba(255,200,60,.34);}
+.tok-step button:disabled{opacity:.35;cursor:default;}
+.tok-count{font-size:1.9em;font-weight:800;color:#ffd75e;min-width:1.6em;display:inline-block;text-align:center;}
+.tok-hint{text-align:center;color:#cdb87a;font-size:.82em;}
 @keyframes tokPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,200,60,.0);}50%{box-shadow:0 0 14px 2px rgba(255,200,60,.55);}}
 .tok-ctrl.attn{animation:tokPulse 1.6s ease-in-out infinite;border-color:#ffd75e;}
 /* Blocker-assignment nudge: pulse the Commit All button + available dice while
@@ -553,7 +557,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.10</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.11</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -716,7 +720,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.10</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.11</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -842,18 +846,23 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <div id="atk-dice-sum"></div>
         <div style="border-top:1px solid rgba(255,255,255,.1);margin:10px 0;"></div>
         <h3 style="color:#88aaff;margin-bottom:6px" id="shoot-tok-head">🏒 Attacker — commit Shoot Tokens (optional)</h3>
-        <div class="tok-ctrl" id="shoot-tok-ctrl">🎯 <strong>Shoot Tokens</strong> to add: <span id="stok-count" class="tok-count">0</span>
-          <button onclick="adjST(1)">+</button><button onclick="adjST(-1)">–</button>
-          <span class="tok-note">(you have <span id="ap-stok">0</span>) — each token = automatic +1 to your combat total</span>
+        <div class="tok-ctrl" id="shoot-tok-ctrl">
+          <div class="tok-top"><span>🎯 <strong>Shoot Tokens</strong></span><span class="tok-avail"><b id="ap-stok">0</b> available</span></div>
+          <div class="tok-step"><button onclick="adjST(-1)">−</button><span id="stok-count" class="tok-count">0</span><button onclick="adjST(1)">+</button></div>
+          <div class="tok-hint">each token = +1 to your combat total</div>
         </div>
         <div style="border-top:1px solid rgba(255,255,255,.1);margin:10px 0;" id="shoot-tok-div"></div>
         <h3 id="bsel-heading">🥅 Defender — click your Defensive Zone dice to block with</h3>
         <div class="block-sel-dice" id="bsel-dice"></div>
-        <div class="tok-ctrl" id="block-tok-ctrl">🛡️ <strong>Block Tokens</strong> to use: <span id="btok-count" class="tok-count">0</span>
-          <button onclick="adjBT(1)">+</button><button onclick="adjBT(-1)">–</button>
-          <span class="tok-note">(you have <span id="opp-btok">0</span>) — each token = automatic +1 to your block total</span>
+        <div class="tok-ctrl" id="block-tok-ctrl">
+          <div class="tok-top"><span>🛡️ <strong>Block Tokens</strong></span><span class="tok-avail"><b id="opp-btok">0</b> available</span></div>
+          <div class="tok-step"><button onclick="adjBT(-1)">−</button><span id="btok-count" class="tok-count">0</span><button onclick="adjBT(1)">+</button></div>
+          <div class="tok-hint">each token = +1 to your block total</div>
         </div>
-        <div class="tok-ctrl" id="block-tok-counter" style="display:none">🛡️ <span class="tok-note" id="block-tok-counter-txt"></span></div>
+        <div class="tok-ctrl" id="block-tok-counter" style="display:none">
+          <div class="tok-top"><span>🛡️ <strong>Block Tokens</strong></span><span class="tok-avail"><b id="block-tok-counter-n">0</b> available</span></div>
+          <div class="tok-hint" id="block-tok-counter-txt"></div>
+        </div>
         <button class="abtn prim" style="width:100%;margin-top:6px" onclick="resolveCombat()">Roll Combat Dice!</button>
       </div>
     </div>
@@ -2408,7 +2417,8 @@ function openCombat(){
     // 3_10: Coach's block tokens are his own call — counter, not picker
     document.getElementById('block-tok-ctrl').style.display='none';
     const P=aiP(),n=OPP().tok.block;
-    document.getElementById('block-tok-counter-txt').innerHTML=`${P.icon} ${P.name} has <b>${n}</b> Block token${n===1?'':'s'} available`;
+    document.getElementById('block-tok-counter-n').textContent=n;
+    document.getElementById('block-tok-counter-txt').textContent=`${P.icon} ${P.name} commits ${n===1?'it':'them'} himself`;
     blockCtr.style.display='block';
   }else{
     document.getElementById('block-tok-ctrl').style.display='block';blockCtr.style.display='none';
