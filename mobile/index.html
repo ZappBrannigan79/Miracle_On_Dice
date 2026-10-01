@@ -397,7 +397,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 #adv-picker .adv-pk-dice{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;overflow-y:auto;min-height:0;margin:4px 0 12px}
 #adv-picker .adv-pk-dice .die-wrap{cursor:pointer}
 #adv-picker .adv-pk-dice .die-wrap:hover .die-body{border-color:#ffd75e}
-#adv-picker #adv-pk-cancel{width:100%;font-size:.9em;padding:8px}
 .persona-card{border:2px solid #444;border-radius:10px;padding:10px;cursor:pointer;text-align:center;background:rgba(255,255,255,.03);flex:1;min-width:110px}
 .persona-card.sel{border-color:#ffd75e;background:rgba(255,215,94,.08)}
 #ai-persona-cards{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
@@ -557,7 +556,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.14</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.15</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -720,7 +719,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.14</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.15</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1939,7 +1938,7 @@ function openAdvPicker(){
   closeAdvPicker();
   const ap=AP();
   const back=document.createElement('div');back.id='adv-picker-back';
-  back.innerHTML=`<div id="adv-picker"><div class="adv-pk-head">\u2744\uFE0F Cold Zone \u2014 tap a die to send it to Hot</div><div class="adv-pk-dice"></div><button class="abtn sec" id="adv-pk-cancel">Cancel</button></div>`;
+  back.innerHTML=`<div id="adv-picker"><div class="adv-pk-head">\u2744\uFE0F Cold Zone \u2014 tap a die to send it to Hot</div><div class="adv-pk-dice"></div></div>`;
   const tray=back.querySelector('.adv-pk-dice');
   ap.z.cold.forEach(die=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(die);
@@ -1957,9 +1956,8 @@ function openAdvPicker(){
     });
     tray.appendChild(wrap);
   });
-  const cancel=()=>{if(!(_aiActive&&G.ap===_aiSlot))G.advPending=true;closeAdvPicker();renderAll();}; // 3_04: board-pick fallback only on a human turn
-  back.querySelector('#adv-pk-cancel').addEventListener('click',cancel);
-  back.addEventListener('click',e=>{if(e.target===back)cancel();});
+  // 3_15: no Cancel — the picker only opens with 2+ cold dice and there's no
+  // downside to advancing, so a pick is mandatory. Backdrop taps do nothing.
   document.body.appendChild(back);
 }
 function closeAdvPicker(){const el=document.getElementById('adv-picker-back');if(el)el.remove();}
