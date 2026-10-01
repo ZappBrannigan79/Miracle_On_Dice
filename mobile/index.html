@@ -568,7 +568,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.29</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.30</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -731,7 +731,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.29</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.30</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4953,10 +4953,10 @@ function aiStripHTML(center,nowrap){ // 3_09
   return `<div class="ai-strip${center?' center':''}${nowrap?' nowrap':''}">${_aiStripIcons.map(e=>`<span>${e}</span>`).join('')}</div>`;
 }
 let _aiStepMsg=null,_aiStepT=null; // 2_139: current step text shown in the action bar's watch-pill slot
-function aiPill(msg){
+function aiPill(msg,ms){
   _aiTurnNotes.push(msg); // 2_48: always collected for the end-of-turn summary
   aiStripPush(msg); // 3_09: summary-bound actions earn a timeline icon (signals/recaps bypass aiPill)
-  if(_aiSpeed!==0)aiPillShow(msg);
+  if(_aiSpeed!==0)aiPillShow(msg,ms); // 3_30: optional ms forwards a custom display life (studies pill)
 }
 function aiPillNow(msg){aiPillShow(msg,aiPace(2200));} // 2_74: speed-capped signal
 function aiSummaryCardLive(){
@@ -5758,7 +5758,7 @@ async function aiDefendTurn(){
   _aiTurnNotes=[]; // 2_47
   _aiStripIcons=[]; // 3_09: defend response is its own sequence
   try{
-    aiPill(`👀 studies your shot…`);
+    aiPill(`👀 studies your shot…`, 30000); // 3_30: no auto-expiry — the commits pill below replaces it directly, no flicker (Tim)
     await aiSleep(1100);
     _aiSelf=true;
     const atk=G.players[G.ap];
