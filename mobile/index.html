@@ -568,7 +568,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.36</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.37</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -731,7 +731,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.36</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.37</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1725,21 +1725,21 @@ function payOneCostFrom(ap){
   if(rsE.length){
     const p=rsE[0];
     if(p.face.v===1){ap.z.rs.splice(ap.z.rs.indexOf(p),1);ap.z.iced.push(p);}
-    else{p.face={t:p.face.t,v:p.face.v-1};}
+    else{p.face={t:p.face.t,v:p.face.v-1};p.spun=true;} // 3_37: spun down — cannot be rerolled
   }else{
     // Try HC energy face — just spin it down, never send to iced
     const hcE=ap.z.rs.filter(d=>d.key==='HC'&&d.face&&d.face.t==='E'&&d.face.v>=1);
     if(hcE.length){
       const h=hcE[0];
-      if(h.face.v===1){h.face.v=0;/* HC will be set aside at end of turn */}
-      else{h.face={t:'E',v:h.face.v-1};}
+      if(h.face.v===1){h.face.v=0;h.spun=true;/* HC will be set aside at end of turn */} // 3_37: spent — cannot be rerolled
+      else{h.face={t:'E',v:h.face.v-1};h.spun=true;} // 3_37: spun down — cannot be rerolled
     }else{
       // Try reserve (non-HC only)
       const resE2=ap.z.reserve.filter(d=>d.key!=='HC'&&d.face&&d.face.v>=1).sort((a,b)=>a.face.v-b.face.v);
       if(resE2.length){
         const rv=resE2[0];
         if(rv.face.v===1){ap.z.reserve.splice(ap.z.reserve.indexOf(rv),1);ap.z.iced.push(rv);}
-        else{rv.face={t:rv.face.t,v:rv.face.v-1};}
+        else{rv.face={t:rv.face.t,v:rv.face.v-1};rv.spun=true;} // 3_37: spun down — cannot be rerolled
       }
     }
   }
@@ -3554,6 +3554,7 @@ function confirmEPick() {
       // Spun down — update face value
       die.face = { t: 'E', v: src.currentV };
       die.energyPending = false;
+      die.spun = true; // 3_37: shop picker spin-down — cannot be rerolled
     }
   });
   addLog(`${ap.name}: Paid ${_epick.paid}⚡ for ${_epick.label}.`, 'imp');
@@ -4741,7 +4742,7 @@ function pushState(){
 function remapDie(d){
   if(!d) return null;
   const live=mkDie(d.key||'Rookie');
-  live.id=d.id; live.face=d.face||null; live.sel=!!d.sel;
+  live.id=d.id; live.face=d.face||null; live.sel=!!d.sel; live.spun=!!d.spun; // 3_37: spun flag survives Firebase pulls
   if(d.pos) live.pos=d.pos; if(d.tier) live.tier=d.tier;
   return live;
 }
@@ -5488,7 +5489,7 @@ function aiSpendE(amt,forTrade){
       ap.z.iced.push(d);
     }else{
       const ch=d.face.v-rem;rem=0;
-      d.face={t:'E',v:ch};
+      d.face={t:'E',v:ch};d.spun=true; // 3_37: AI spin-down — excluded from his reroll table
       addLog(`${ap.name}: Spun down ${zone==='reserve'?'reserve':'energy'} die to ${ch}E change.`);
     }
     d.energyPending=false;
