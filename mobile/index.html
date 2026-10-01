@@ -441,9 +441,11 @@ body:has(#game.screen.active){height:100%;overflow:hidden;margin:0;}
 #m-top .period-label{font-size:.58em;color:#8b94a7;letter-spacing:1px;}
 #m-top .period-val{font-size:1.1em;font-weight:900;color:#d4a94e;}
 #m-top #timerbox{margin:0;}
-/* 3_28: clock + quit share one row — the old Buy/Lineup/Reset button row is gone on phones */
-#m-clockrow{display:flex;align-items:center;justify-content:center;gap:8px;margin:0;}
-#m-clockrow .btn-sm.danger{padding:7px 10px;font-size:.85em;border-radius:10px;line-height:1;}
+/* 3_29: clock re-centered; labeled reset pinned to the banner's far right (Tim) */
+#m-clockrow{position:relative;display:flex;align-items:center;justify-content:center;width:100%;margin:0;}
+#m-clockrow .btn-sm.danger{position:absolute;right:2px;top:50%;transform:translateY(-50%);
+  padding:7px 10px;font-size:.66em;font-weight:800;letter-spacing:.4px;border-radius:10px;
+  line-height:1.2;white-space:nowrap;}
 #m-top .bar-right{display:none!important;}
 #m-top #room-code-chip{margin-left:8px;}
 #pbar{display:flex;align-items:center;justify-content:center;gap:3px;max-width:100%;overflow-x:auto;padding:2px;}
@@ -566,7 +568,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.28</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.29</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -729,7 +731,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.28</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.29</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -6052,9 +6054,9 @@ window.addEventListener('DOMContentLoaded', () => {
   move($('timerbox'), clockRow);
   const resetBtn = topbar.querySelector('.bar-right .btn-sm.danger');
   if (resetBtn) {
-    resetBtn.textContent = '↩';
+    resetBtn.innerHTML = '&#8617; RESET GAME';
     resetBtn.title = 'Quit to menu (new game)';
-    resetBtn.setAttribute('aria-label', 'Quit to menu — new game');
+    resetBtn.setAttribute('aria-label', 'Reset game — quit to menu');
     clockRow.appendChild(resetBtn);
   }
   move($('pbar'), top);
