@@ -557,7 +557,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.12</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.14</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -720,7 +720,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.12</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.14</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -934,8 +934,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div class="fo-choice" id="fo-choice" style="display:none">
       <p id="fo-choice-lbl" style="margin:0 0 10px;color:var(--gold);font-weight:700"></p>
       <div style="display:flex;gap:12px;justify-content:center">
-        <button class="btn-ov" id="fo-tok-shoot" onclick="pickFoChoice('shoot')">🎯 +1 SHOOT<br><small>shoot token</small></button>
-        <button class="btn-ov" id="fo-tok-block" onclick="pickFoChoice('block')">🛡️ +1 BLOCK<br><small>block token</small></button>
+        <button class="btn-ov" id="fo-tok-shoot" onclick="pickFoChoice('shoot')">🎯 +1 SHOOT</button>
+        <button class="btn-ov" id="fo-tok-block" onclick="pickFoChoice('block')">🛡️ +1 BLOCK</button>
       </div>
     </div>
     <p id="fo-wait" style="display:none;margin:8px 0;color:var(--gold);font-weight:700"></p>
@@ -2312,15 +2312,16 @@ function openCombat(){
   // stay visible across the table, but dimmed and not clickable, and the
   // Commit All button is hidden. (Solo still plays both sides.)
   const _defViewOnly=_onlineActive&&isMyTurn();
+  const attackerIsAI=_aiActive&&G.ap===_aiSlot;
+  const defenderIsAI=_aiActive&&G.ap!==_aiSlot;
   document.getElementById('bsel-heading').textContent=_defViewOnly
     ?'🥅 Defender\u2019s Defensive Zone dice'
+    :defenderIsAI?`🥅 Defender — ${aiP().name}\u2019s Defensive Zone dice`
     :'🥅 Defender — click your Defensive Zone dice to block with';
   // 3_10: in Vs AI the human never touches Coach's tokens — he auto-commits (shoot:
     // 50%/token at declaration, block: auto to shooter+1 then 20% each to +2), and the
     // declaration line / pills name what he spent. So: his shoot-token box is hidden on
     // his shot, and his block-token picker becomes a read-only counter on the human's.
-  const attackerIsAI=_aiActive&&G.ap===_aiSlot;
-  const defenderIsAI=_aiActive&&G.ap!==_aiSlot;
   const showShootBox=AP().tok.shoot>0&&_iAmAttacker&&!attackerIsAI;
   document.getElementById('shoot-tok-ctrl').style.display=showShootBox?'block':'none';
   document.getElementById('shoot-tok-head').style.display=showShootBox?'block':'none';
@@ -2329,9 +2330,10 @@ function openCombat(){
   // 2_147: combat-info summary removed (attacker total, tutorial, defender bonus all duplicated elsewhere)
   renderAtkDice();
   const bsel=document.getElementById('bsel-dice');bsel.innerHTML='';
-  // Add Commit All Defenders button if any defend dice available (not for the online shooter — 2_21)
+  // Add Commit All Defenders button if any defend dice available (not for the online shooter — 2_21;
+  // not for Coach in Vs AI — 3_13: he auto-commits, the button is his call, not the human's)
   const defendDice=OPP().z.defend;
-  if(defendDice.length>0&&!_defViewOnly){
+  if(defendDice.length>0&&!_defViewOnly&&!defenderIsAI){
     const commitAllBtn=document.createElement('button');
     commitAllBtn.className='abtn sec';
     commitAllBtn.style.cssText='font-size:.75em;padding:5px 10px;margin-bottom:8px;display:block;';
@@ -2356,8 +2358,9 @@ function openCombat(){
   OPP().z.defend.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
-    if(_defViewOnly){
+    if(_defViewOnly||defenderIsAI){
       // 2_21 — shooter sees the defender's dice dimmed across the table; no clicks.
+      // 3_13 — same in Vs AI when Coach defends: visible, greyed, inert.
       db.classList.add('opp-dim');db.style.cursor='default';
     }else{
       db.style.cursor='pointer';
@@ -2434,7 +2437,9 @@ function adjBT(n){if(aiGuard()&&_aiDefPhase!=='humanDef')return;_bTok=Math.max(0
 // with zero blockers stays legal.
 function refreshBlockerNudge(){
   const isDefender=!_onlineActive||!isMyTurn();
-  const anyAvail=isDefender&&OPP().z.defend.some(d=>!G.blockSelIds.includes(d.id));
+  // 3_13: in Vs AI the human never assigns Coach's blockers — no pulse on his dice.
+  const aiDefends=_aiActive&&G.ap!==_aiSlot;
+  const anyAvail=isDefender&&!aiDefends&&OPP().z.defend.some(d=>!G.blockSelIds.includes(d.id));
   const btn=document.querySelector('#bsel-dice .abtn');
   if(btn)btn.classList.toggle('pulsing',anyAvail);
   document.querySelectorAll('#bsel-dice .die-body').forEach(b=>{
