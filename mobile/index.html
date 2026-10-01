@@ -557,7 +557,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.11</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.12</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -720,7 +720,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.11</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.12</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -934,8 +934,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div class="fo-choice" id="fo-choice" style="display:none">
       <p id="fo-choice-lbl" style="margin:0 0 10px;color:var(--gold);font-weight:700"></p>
       <div style="display:flex;gap:12px;justify-content:center">
-        <button class="btn-ov" id="fo-tok-shoot" onclick="pickFoChoice('shoot')">🏒 +1 SHOOT<br><small>shoot token</small></button>
-        <button class="btn-ov" id="fo-tok-block" onclick="pickFoChoice('block')">🥅 +1 BLOCK<br><small>block token</small></button>
+        <button class="btn-ov" id="fo-tok-shoot" onclick="pickFoChoice('shoot')">🎯 +1 SHOOT<br><small>shoot token</small></button>
+        <button class="btn-ov" id="fo-tok-block" onclick="pickFoChoice('block')">🛡️ +1 BLOCK<br><small>block token</small></button>
       </div>
     </div>
     <p id="fo-wait" style="display:none;margin:8px 0;color:var(--gold);font-weight:700"></p>
@@ -1474,7 +1474,7 @@ function renderFoChoiceState(){
   const w=fo.w;
   // 3_07: once the prize token is chosen, the result line names it — the Vs AI
   // player sees which token Coach took without having to catch the step pill.
-  if(fo.choice)document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! Takes ODD minutes +1 ${fo.choice==='shoot'?'🏒 Shoot':'🥅 Block'} token.`;
+  if(fo.choice)document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! Takes ODD minutes +1 ${fo.choice==='shoot'?'🎯 Shoot':'🛡️ Block'} token.`;
   const iAmWinner=!_onlineActive||_mySlot===w;
   const iAmHost=!_onlineActive||_mySlot===0;
   const choiceDiv=document.getElementById('fo-choice');
@@ -1496,7 +1496,7 @@ function renderFoChoiceState(){
     btn.style.display='';btn.disabled=false;btn.textContent='Begin Period';
     btn.onclick=beginPeriodAfterFo;
   }else{
-    waitEl.textContent=`${G.players[w].name} takes ODD minutes +1 ${fo.choice==='shoot'?'🏒 Shoot':'🥅 Block'} token. Waiting for host to begin…`;
+    waitEl.textContent=`${G.players[w].name} takes ODD minutes +1 ${fo.choice==='shoot'?'🎯 Shoot':'🛡️ Block'} token. Waiting for host to begin…`;
     waitEl.style.display='block';
   }
 }
@@ -1510,7 +1510,7 @@ function pickFoChoice(c){
   if(_onlineActive&&_mySlot!==fo.w)return; // only the winner picks
   fo.choice=c;
   G.players[fo.w].tok[c]+=1;
-  addLog(`${G.players[fo.w].name} takes +1 ${c==='shoot'?'🏒 Shoot':'🥅 Block'} token.`,'imp');
+  addLog(`${G.players[fo.w].name} takes +1 ${c==='shoot'?'🎯 Shoot':'🛡️ Block'} token.`,'imp');
   if(_onlineActive)pushState(); // sync the pick so both sides see it live
   renderFoChoiceState();
   return true; // 2_48
@@ -2122,12 +2122,12 @@ let _tradeCardIdx=-1;
 function awardBuyBonus(ap,card){
   if(card.key[0]==='G'){
     ap.tok.block++;
-    toast(`${ap.name} gains 1 Block 🥅 Token (goalie purchase)!`);
+    toast(`${ap.name} gains 1 Block 🛡️ Token (goalie purchase)!`);
     addLog(`${ap.name}: Goalie purchase → +1 Block Token (${ap.tok.block} total).`,'imp');
   }else if(!card.left){
     const tokType=card.key[0]==='F'?'shoot':'block';
     ap.tok[tokType]++;
-    toast(`${card.key} sold out! ${ap.name} gains 1 ${tokType==='shoot'?'Shoot 🏒':'Block 🥅'} Token!`);
+    toast(`${card.key} sold out! ${ap.name} gains 1 ${tokType==='shoot'?'Shoot 🎯':'Block 🛡️'} Token!`);
     addLog(`${ap.name}: ${card.key} sold out! Gained 1 ${tokType==='shoot'?'Shoot':'Block'} Token.`,'imp');
   }
 }
@@ -2870,11 +2870,11 @@ function openShop(){if(aiGuard())return;
     <div style="display:flex;gap:8px;width:100%;margin-top:6px">
       <button class="btn-buy" style="flex:1;background:rgba(26,109,212,.25);border-color:#4488dd;font-size:.82em;padding:8px 6px"
         onclick="buyTok('shoot')" ${avail>=3?'':'disabled'}>
-        🏒 Buy Shoot Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.shoot}</span>
+        🎯 Buy Shoot Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.shoot}</span>
       </button>
       <button class="btn-buy" style="flex:1;background:rgba(180,30,30,.25);border-color:#cc4444;font-size:.82em;padding:8px 6px"
         onclick="buyTok('block')" ${avail>=3?'':'disabled'}>
-        🥅 Buy Block Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.block}</span>
+        🛡️ Buy Block Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.block}</span>
       </button>
     </div>`;
   document.getElementById('shop-panel').classList.add('show');
@@ -3183,8 +3183,8 @@ function renderBoard(){
     ?`${ap.z.shoot.length} die/dice → ${totalSCD} combat dice`:'';
   const ts=document.getElementById('tstrip');ts.innerHTML='';
   // 2_27: always show both token pills (even at 0) — prominent blue=shoot / red=block
-  ts.innerHTML+=`<span class="tok-pill tp-shoot${tokPopCls(G.ap,'s',ap.tok.shoot)}">🏒 <span class="tp-n">${ap.tok.shoot}</span> SHOOT</span>`;
-  ts.innerHTML+=`<span class="tok-pill tp-block${tokPopCls(G.ap,'b',ap.tok.block)}">🥅 <span class="tp-n">${ap.tok.block}</span> BLOCK</span>`;
+  ts.innerHTML+=`<span class="tok-pill tp-shoot${tokPopCls(G.ap,'s',ap.tok.shoot)}">🎯 <span class="tp-n">${ap.tok.shoot}</span> SHOOT</span>`;
+  ts.innerHTML+=`<span class="tok-pill tp-block${tokPopCls(G.ap,'b',ap.tok.block)}">🛡️ <span class="tp-n">${ap.tok.block}</span> BLOCK</span>`;
   const ep=totalE();
   if(ep>0||G.phase>=4)ts.innerHTML+=`<span class="epips">⚡ ${ep}E available</span>`;
 }
@@ -3202,7 +3202,7 @@ function renderOpp(){
   const o=OPP();
   document.getElementById('opplbl').textContent=`${o.teamName||o.name} (${slotLabel(1-G.ap)}) — Opponent`;
   document.getElementById('opptmr').textContent=`Clock: ${G.clock<10?'0'+G.clock:G.clock}:00  |  Penalty Pool: ${G.penaltyPool??3}`;
-  document.getElementById('opptok').innerHTML=`<span class="tok-pill tp-shoot${tokPopCls(1-G.ap,'s',o.tok.shoot)}">🏒 <span class="tp-n">${o.tok.shoot}</span></span><span class="tok-pill tp-block${tokPopCls(1-G.ap,'b',o.tok.block)}">🥅 <span class="tp-n">${o.tok.block}</span></span>`;
+  document.getElementById('opptok').innerHTML=`<span class="tok-pill tp-shoot${tokPopCls(1-G.ap,'s',o.tok.shoot)}">🎯 <span class="tp-n">${o.tok.shoot}</span></span><span class="tok-pill tp-block${tokPopCls(1-G.ap,'b',o.tok.block)}">🛡️ <span class="tp-n">${o.tok.block}</span></span>`;
   const hp=o.z.hot.length,cp=o.z.cold.length,dp=o.z.defend.length;
   // Pip totals for hot/cold/defend
   const hotPips=o.z.hot.reduce((s,d)=>s+(d.face?d.face.v:0),0);
@@ -4166,7 +4166,7 @@ function openOppBoard(){
   document.getElementById('opp-board-title').textContent=
     `${o.teamName||o.name} — Full Board`;
   document.getElementById('opp-board-sub').innerHTML=
-    `<span class="tok-pill tp-shoot">🏒 <span class="tp-n">${o.tok.shoot}</span> SHOOT</span> <span class="tok-pill tp-block">🥅 <span class="tp-n">${o.tok.block}</span> BLOCK</span><span style="color:#888;font-size:.85em;margin-left:10px;">Bag: ${o.bag.length} dice &nbsp;|&nbsp; Clock: ${G.clock<10?'0'+G.clock:G.clock}:00</span>`;
+    `<span class="tok-pill tp-shoot">🎯 <span class="tp-n">${o.tok.shoot}</span> SHOOT</span> <span class="tok-pill tp-block">🛡️ <span class="tp-n">${o.tok.block}</span> BLOCK</span><span style="color:#888;font-size:.85em;margin-left:10px;">Bag: ${o.bag.length} dice &nbsp;|&nbsp; Clock: ${G.clock<10?'0'+G.clock:G.clock}:00</span>`;
 
   const content=document.getElementById('opp-board-content');
   content.innerHTML='';
@@ -5610,7 +5610,7 @@ function aiDoBuy(P){
         try{
           aiSpendE(3,false);
           if(Math.random()<0.5){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
-          else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🥅 bought a Block token`);}
+          else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
         }catch(e){console.error('AI token buy failed:',e);break;}
         taken.add('token');
       }else if(pick==='nextbest'){
@@ -5776,7 +5776,7 @@ async function aiDefendTurn(){
       if(d100()<=20){adjBT(1);matched++;blkPips++;}
     }
     const nb=blockers.length;
-    aiPill(matched?`🔴 commits ${nb} blockers + ${matched} 🥅`:`🔴 commits ${nb} blocker${nb===1?'':'s'}`);
+    aiPill(matched?`🔴 commits ${nb} blockers + ${matched} 🛡️`:`🔴 commits ${nb} blocker${nb===1?'':'s'}`);
     renderAll();
     await aiSleep(1000);
     resolveCombat();
@@ -5827,7 +5827,7 @@ function aiMaybeFoPick(){
     _aiSelf=true;
     try{
       if(pickFoChoice(c)){ // 2_48: only narrate/schedule when the pick actually landed
-        aiPill(`🪙 wins the faceoff, takes +1 ${c==='shoot'?'🏒 Shoot':'🥅 Block'} token`);
+        aiPill(`🪙 wins the faceoff, takes +1 ${c==='shoot'?'🎯 Shoot':'🛡️ Block'} token`);
         // 2_146: no auto-begin — the faceoff screen waits for the player to tap Begin Period
       }
     }finally{_aiSelf=false;}
