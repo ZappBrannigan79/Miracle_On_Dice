@@ -568,7 +568,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.31</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.32</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -731,7 +731,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.31</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.32</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2245,6 +2245,7 @@ function declareShot(){if(aiGuard())return;
   if(G.shotDeclared){toast('Only one shot per turn is allowed!');return;}
   if(!ap.z.shoot.length){toast('Add dice to Shoot Zone first!');return;}
   G.shotDeclared=true;
+  _shotHeldOut=new Set(); // 3_32: fresh hold-out set per shot
   G.combatResult=null; // clear any stale result from an earlier combat
   G.combatDone=false;
   _sTok=0; // fresh token commitment for this shot
@@ -2268,6 +2269,15 @@ function declareShot(){if(aiGuard())return;
 function lockShot(){if(aiGuard())return;
   if(_onlineActive&&!isMyTurn())return;
   if(G.shotLocked||!G.shotDeclared)return;
+  const ap=AP();
+  // 3_32: dice held out on the shot card go back to the Hot zone before the shot locks
+  const kept=ap.z.shoot.filter(d=>!_shotHeldOut.has(d.id));
+  if(!kept.length){toast('Keep at least one die in the shot — tap a held-out die to put it back in.');return;}
+  ap.z.shoot.filter(d=>_shotHeldOut.has(d.id)).forEach(d=>{
+    ap.z.shoot.splice(ap.z.shoot.indexOf(d),1);
+    ap.z.hot.push(d);
+  });
+  _shotHeldOut.clear();
   G.shotLocked=true;
   addLog(`${AP().name}: ✅ Shot confirmed — ${AP().z.shoot.length} die/dice + ${_sTok} shoot token(s).`,'imp');
   openCombat(); // rebuild: token steppers lock, button flips to "Waiting for defender…"
@@ -2281,6 +2291,7 @@ function lockShot(){if(aiGuard())return;
 // Result = sum of combat dice (2,2,1,1,0,0) + tokens count as automatic 1 each
 // Pips on player dice determine HOW MANY combat dice to roll — NOT added to total
 let _bTok=0,_sTok=0,_combatNonce=0,_lastCombatNonce=0;
+let _shotHeldOut=new Set(); // 3_32: shoot-zone dice the shooter held out on the shot card — back to Hot on confirm
 function adjST(n){if(aiGuard())return;
   _sTok=Math.max(0,Math.min(AP().tok.shoot,_sTok+n));
   document.getElementById('stok-count').textContent=_sTok;
@@ -2289,20 +2300,42 @@ function adjST(n){if(aiGuard())return;
   if(_onlineActive&&isMyTurn())pushState();
 }
 // At-a-glance view of what the shooter is putting up: the actual dice, total
-// pips (= combat dice), and committed tokens. Read-only for both sides.
+// pips (= combat dice), and committed tokens.
+// 3_32: the shooter can fine-tune the shot on this card before confirming —
+// chosen dice wear the selected halo; tapping one holds it out (halo off) and
+// it returns to the Hot zone on confirm; tapping again puts it back in.
+// Read-only for everyone else (defender, post-lock, AI shooter).
 function renderAtkDice(){
   const ap=AP();
   const row=document.getElementById('atk-dice');row.innerHTML='';
+  const _iAmAttacker2=!_onlineActive||isMyTurn();
+  const _attackerIsAI2=_aiActive&&G.ap===_aiSlot;
+  const canTune=G.shotDeclared&&!G.shotLocked&&_iAmAttacker2&&!_attackerIsAI2;
   ap.z.shoot.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
-    const db=w.querySelector('.die-body');if(db)db.style.cursor='default';
+    const db=w.querySelector('.die-body');
+    if(db){
+      if(canTune){
+        const heldOut=_shotHeldOut.has(d.id);
+        if(!heldOut)db.classList.add('sel');
+        db.style.cursor='pointer';
+        db.title=heldOut?'Tap → back into the shot':'Tap → hold out of the shot';
+        db.addEventListener('click',()=>{
+          if(aiGuard())return;
+          if(_shotHeldOut.has(d.id))_shotHeldOut.delete(d.id);else _shotHeldOut.add(d.id);
+          renderAtkDice();
+        });
+      }else db.style.cursor='default';
+    }
     row.appendChild(w);
   });
-  const pips=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
-  const n=ap.z.shoot.length;
+  const inShot=ap.z.shoot.filter(d=>!_shotHeldOut.has(d.id));
+  const pips=inShot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
+  const n=inShot.length;
   document.getElementById('atk-dice-sum').innerHTML=
     `<strong>${n}</strong> shooter${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} → <strong>${pips} combat dice</strong>`+
-    `<span id="atk-tok-line">${_sTok>0?` • 🎯 <strong style="color:#ffd75e">+${_sTok} token${_sTok!==1?'s':''}</strong>`:''}</span>`;
+    `<span id="atk-tok-line">${_sTok>0?` • 🎯 <strong style="color:#ffd75e">+${_sTok} token${_sTok!==1?'s':''}</strong>`:''}</span>`+
+    (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot — held-out dice return to the Hot zone on confirm</div>`:'');
 }
 
 // 2_151: mini game clock in the shot panel — white 10:00–05:00, red 04:00–01:00 (matches header badge)
