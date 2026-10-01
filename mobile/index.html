@@ -553,7 +553,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.09</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.10</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -716,7 +716,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.09</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.10</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -841,18 +841,19 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <div class="atk-dice-row" id="atk-dice"></div>
         <div id="atk-dice-sum"></div>
         <div style="border-top:1px solid rgba(255,255,255,.1);margin:10px 0;"></div>
-        <h3 style="color:#88aaff;margin-bottom:6px">🏒 Attacker — commit Shoot Tokens (optional)</h3>
+        <h3 style="color:#88aaff;margin-bottom:6px" id="shoot-tok-head">🏒 Attacker — commit Shoot Tokens (optional)</h3>
         <div class="tok-ctrl" id="shoot-tok-ctrl">🎯 <strong>Shoot Tokens</strong> to add: <span id="stok-count" class="tok-count">0</span>
           <button onclick="adjST(1)">+</button><button onclick="adjST(-1)">–</button>
           <span class="tok-note">(you have <span id="ap-stok">0</span>) — each token = automatic +1 to your combat total</span>
         </div>
-        <div style="border-top:1px solid rgba(255,255,255,.1);margin:10px 0;"></div>
+        <div style="border-top:1px solid rgba(255,255,255,.1);margin:10px 0;" id="shoot-tok-div"></div>
         <h3 id="bsel-heading">🥅 Defender — click your Defensive Zone dice to block with</h3>
         <div class="block-sel-dice" id="bsel-dice"></div>
         <div class="tok-ctrl" id="block-tok-ctrl">🛡️ <strong>Block Tokens</strong> to use: <span id="btok-count" class="tok-count">0</span>
           <button onclick="adjBT(1)">+</button><button onclick="adjBT(-1)">–</button>
           <span class="tok-note">(you have <span id="opp-btok">0</span>) — each token = automatic +1 to your block total</span>
         </div>
+        <div class="tok-ctrl" id="block-tok-counter" style="display:none">🛡️ <span class="tok-note" id="block-tok-counter-txt"></span></div>
         <button class="abtn prim" style="width:100%;margin-top:6px" onclick="resolveCombat()">Roll Combat Dice!</button>
       </div>
     </div>
@@ -2305,7 +2306,16 @@ function openCombat(){
   document.getElementById('bsel-heading').textContent=_defViewOnly
     ?'🥅 Defender\u2019s Defensive Zone dice'
     :'🥅 Defender — click your Defensive Zone dice to block with';
-  document.getElementById('shoot-tok-ctrl').style.display=(AP().tok.shoot>0&&_iAmAttacker)?'block':'none';
+  // 3_10: in Vs AI the human never touches Coach's tokens — he auto-commits (shoot:
+    // 50%/token at declaration, block: auto to shooter+1 then 20% each to +2), and the
+    // declaration line / pills name what he spent. So: his shoot-token box is hidden on
+    // his shot, and his block-token picker becomes a read-only counter on the human's.
+  const attackerIsAI=_aiActive&&G.ap===_aiSlot;
+  const defenderIsAI=_aiActive&&G.ap!==_aiSlot;
+  const showShootBox=AP().tok.shoot>0&&_iAmAttacker&&!attackerIsAI;
+  document.getElementById('shoot-tok-ctrl').style.display=showShootBox?'block':'none';
+  document.getElementById('shoot-tok-head').style.display=showShootBox?'block':'none';
+  document.getElementById('shoot-tok-div').style.display=showShootBox?'block':'none';
   const ap=AP();
   // 2_147: combat-info summary removed (attacker total, tutorial, defender bonus all duplicated elsewhere)
   renderAtkDice();
@@ -2391,7 +2401,18 @@ function openCombat(){
   // 2_21 — the online shooter's client never touches the defender's Block Token steppers.
   document.querySelectorAll('#block-tok-ctrl button').forEach(b=>{b.disabled=_defViewOnly;});
   // 2_22 — the shooter doesn't need the defender's Block Token picker at all.
-  document.getElementById('block-tok-ctrl').style.display=_defViewOnly?'none':'block';
+  const blockCtr=document.getElementById('block-tok-counter');
+  if(_defViewOnly){
+    document.getElementById('block-tok-ctrl').style.display='none';blockCtr.style.display='none';
+  }else if(defenderIsAI){
+    // 3_10: Coach's block tokens are his own call — counter, not picker
+    document.getElementById('block-tok-ctrl').style.display='none';
+    const P=aiP(),n=OPP().tok.block;
+    document.getElementById('block-tok-counter-txt').innerHTML=`${P.icon} ${P.name} has <b>${n}</b> Block token${n===1?'':'s'} available`;
+    blockCtr.style.display='block';
+  }else{
+    document.getElementById('block-tok-ctrl').style.display='block';blockCtr.style.display='none';
+  }
   // Gentle pulse so the shooter's token row isn't missed at decision time.
   // (The defender's token row stays static and prominent — the pulse now lives
   // on the blocker-assignment controls instead.)
