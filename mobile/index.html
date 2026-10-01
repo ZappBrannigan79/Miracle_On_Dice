@@ -568,7 +568,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.33</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.36</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -731,7 +731,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.33</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.36</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1133,7 +1133,7 @@ function posName(k){return{F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach'
 
 // ═══════════════════ STATE ═══════════════════
 let G={},_id=0,_rrMode=false,_rrDieId=null;
-function mkDie(k){return{id:_id++,key:k,pos:posOf(k),tier:tierOf(k),face:null,sel:false,energyPending:false};}
+function mkDie(k){return{id:_id++,key:k,pos:posOf(k),tier:tierOf(k),face:null,sel:false,energyPending:false,spun:false};} // 3_36: spun = die was spun down for energy — cannot be rerolled
 function mkBag(extra=[]){const b=[];for(let i=0;i<15;i++)b.push(mkDie('Rookie'));return b;} // extra param kept for API compat but ignored — all 15 start as Rookies
 function mkLineup(arr){return arr.map(k=>({key:k,left:3}));}
 function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC'),bag:mkBag(bagExtra),
@@ -1572,13 +1572,13 @@ function rollAll(){if(aiGuard())return;
     const hcDie=ap.hcDie; // persistent HC die, not in bag
     const hcFaces=DEFS['HC'];
     hcDie.face=hcFaces[Math.floor(Math.random()*hcFaces.length)];
-    hcDie.sel=false;hcDie.energyPending=false;
+    hcDie.sel=false;hcDie.energyPending=false;hcDie.spun=false; // 3_36: fresh draw clears the spun flag
     ap.z.rs.push(hcDie);
   }
   ap.z.rs.push(...fromBench,...drawn);
   ap.z.rs.forEach(d=>{
     if(d.key!=='HC'){const f=DEFS[d.key]||DEFS.Penalty;d.face=f[Math.floor(Math.random()*f.length)];}
-    d.sel=false;d.energyPending=false;
+    d.sel=false;d.energyPending=false;d.spun=false; // 3_36: fresh draw clears the spun flag
   });
   // Penalty dice return to shared pool immediately after being rolled — they don't stay
   const penDrawn=ap.z.rs.filter(d=>d.key==='Penalty');
@@ -1624,7 +1624,7 @@ function enterRRFaceMode(dieId){if(aiGuard())return;
 
 function confirmRRSel(){if(aiGuard())return;
   const ap=AP();
-  const sel=ap.z.rs.filter(d=>d.sel);
+  const sel=ap.z.rs.filter(d=>d.sel&&!d.spun); // 3_36: spun-down dice are spent — never rerolled
   if(!sel.length){
     // No dice selected — offer skip or go back
     if(confirm('No dice selected.\n\nOK = Skip Reroll (reroll none)\nCancel = Go back and select dice')){
@@ -2102,7 +2102,7 @@ function spendE(amt,skipCommitted){
       d.energyPending=false;
     }else{
       const change=d.face.v-rem;rem=0;
-      d.face={t:'E',v:change};d.energyPending=false;
+      d.face={t:'E',v:change};d.energyPending=false;d.spun=true; // 3_36: spun down — cannot be rerolled
       // Only send to iced if fully spent AND not HC
       if(d.face.v<=0&&!isHC){ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);}
       else if(d.face.v>0)addLog(`${ap.name}: Spun down energy die to ${change}E change.`);
@@ -2119,7 +2119,7 @@ function spendE(amt,skipCommitted){
       const ri=ap.z.reserve.indexOf(rv);ap.z.reserve.splice(ri,1);ap.z.iced.push(rv);
     }else{
       const change=rv.face.v-rem;rem=0;
-      rv.face={t:'E',v:change};
+      rv.face={t:'E',v:change};rv.spun=true; // 3_36: spun down — cannot be rerolled
       addLog(`${ap.name}: Spun down reserve die to ${change}E change.`);
     }
   }
@@ -2615,6 +2615,7 @@ function refreshBenchPhase(){
       if(_onlineActive&&!iAmShooter){cbtn.disabled=true;cbtn.textContent='Waiting for shooter…';}
       else{cbtn.disabled=false;cbtn.textContent='Continue';}
     }
+    renderCombatPill(); // 3_35: hide the Chuck-benching bar once the pick lands
     return;
   }
   const loserName=G.players[bp.loser].name;
@@ -2635,6 +2636,7 @@ function refreshBenchPhase(){
     }
     if(cbtn){cbtn.disabled=true;cbtn.textContent=`Waiting for ${loserName}…`;}
   }
+  renderCombatPill(); // 3_35: show the Chuck-benching bar while his pick is pending
 }
 function renderBenchPickDice(){
   const bp=G.benchPick;if(!bp||bp.done)return;
@@ -3098,8 +3100,15 @@ function renderZone(zid,arr,opts={}){
     const locked=spectating(); // spectators can look, not touch
     if(!locked&&_rrMode&&opts.inRS){
       if(die.id!==_rrDieId){
-        body.style.cursor='pointer';
-        body.addEventListener('click',()=>{die.sel=!die.sel;body.classList.toggle('sel-rr',die.sel);});
+        if(die.spun){
+          // 3_36: spun down for energy — spent, cannot be rerolled (matches the physical game)
+          body.style.cursor='not-allowed';body.style.opacity='.4';
+          body.title='Spun down for energy — cannot be rerolled';
+          body.addEventListener('click',()=>toast('Spun down for energy — that die can\'t be rerolled.'));
+        }else{
+          body.style.cursor='pointer';
+          body.addEventListener('click',()=>{die.sel=!die.sel;body.classList.toggle('sel-rr',die.sel);});
+        }
       }else{body.style.cursor='not-allowed';body.style.opacity='.4';}
     }else if(!locked&&opts.inRS&&G.phase===3){
       body.style.cursor='pointer';
@@ -3368,7 +3377,11 @@ function renderActions(){
     const shopBtn=mk('Open Shop 🛒',openShop,hasE?'prim':'sec',false,hasE);
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
-      if(ap.z.hot.length)mk('⚡ Commit All Hot',()=>{[...ap.z.hot].forEach(d=>moveToShoot(d.id));renderAll();},'sec');
+      if(ap.z.hot.length){
+        // 3_34: shot taken — dead button, greyed like the hot dice (no second shot)
+        if(G.shotDeclared)mk('⚡ Commit All Hot',()=>{},'sec',true);
+        else mk('⚡ Commit All Hot',()=>{[...ap.z.hot].forEach(d=>moveToShoot(d.id));renderAll();},'sec');
+      }
       if(ap.z.shoot.length)mk('🚨 Declare Shot!',declareShot,'prim');
       else if(!ap.z.hot.length)mk('Move dice to Shoot Zone first',()=>{},'sec',true);
     }
@@ -5012,17 +5025,23 @@ function aiPillShow(msg,ms){
 }
 // 3_27: slim combat pill — ONLY the human's shot, ONLY AI Chuck's pre-shot defend beats
 // (👀 studies your shot… / 🔴 commits N blockers + M 🛡️). Hidden the moment the shot
-// resolves (combat-result shown), never on his shot, never for bench. (Tim:
-// "less than before but more than nothing")
+// resolves (combat-result shown), never on his shot. (Tim: "less than before but more
+// than nothing")
+// 3_35: + the bench beat — when YOU score and Chuck is choosing bench dice, the same
+// bar reads "🪑 benching dice…" until his pick lands. Nothing else uses it. (Tim)
 function renderCombatPill(){
   const el=document.getElementById('combat-ai-pill');
   if(!el)return;
   const resEl=document.getElementById('combat-result');
   const resolved=resEl&&resEl.style.display==='block';
-  const show=_aiActive&&_aiDefPhase==='aiDef'&&!resolved&&!!_aiStepMsg;
+  const bp=G.benchPick;
+  // 3_35: Chuck benching after YOUR goal — G.ap is still the shooter, so
+  // G.ap!==_aiSlot means your shot. (His own blocked shot stays as-is: no bar.)
+  const aiBenching=_aiActive&&resolved&&bp&&!bp.done&&bp.loser===_aiSlot&&G.ap!==_aiSlot;
+  const show=_aiActive&&((!resolved&&_aiDefPhase==='aiDef'&&!!_aiStepMsg)||aiBenching);
   if(!show){el.style.display='none';return;}
   const P=aiP();
-  el.innerHTML=`${P.icon} <b>${P.name}</b> — ${_aiStepMsg}`;
+  el.innerHTML=`${P.icon} <b>${P.name}</b> — ${aiBenching?'🪑 benching dice…':_aiStepMsg}`;
   el.style.display='block';
 }
 // 2_48: mid-turn recap — auto-dismissing pill at every speed
@@ -5252,7 +5271,7 @@ function aiRerollTable(){
   const ap=AP();
   const d100=()=>Math.floor(Math.random()*100)+1;
   const picked=new Set(), keepE=new Set();
-  const rs=ap.z.rs;
+  const rs=ap.z.rs.filter(d=>!d.spun); // 3_36: spun-down dice are spent — Chuck never rerolls them
   // 2_123: 01:00 — Coach's last turn: aggressively reroll for shoot sides.
   // Everything non-shoot goes back in; wilds stay (guaranteed shooters);
   // HC holds RR so he gets another reroll shot at shooters.
