@@ -441,6 +441,10 @@ body:has(#game.screen.active){height:100%;overflow:hidden;margin:0;}
 #m-top .period-label{font-size:.58em;color:#8b94a7;letter-spacing:1px;}
 #m-top .period-val{font-size:1.1em;font-weight:900;color:#d4a94e;}
 #m-top #timerbox{margin:0;}
+/* 3_28: clock + quit share one row — the old Buy/Lineup/Reset button row is gone on phones */
+#m-clockrow{display:flex;align-items:center;justify-content:center;gap:8px;margin:0;}
+#m-clockrow .btn-sm.danger{padding:7px 10px;font-size:.85em;border-radius:10px;line-height:1;}
+#m-top .bar-right{display:none!important;}
 #m-top #room-code-chip{margin-left:8px;}
 #pbar{display:flex;align-items:center;justify-content:center;gap:3px;max-width:100%;overflow-x:auto;padding:2px;}
 #pbar .ph{font-size:.6em;font-weight:800;letter-spacing:.3px;padding:5px 7px;border-radius:8px;
@@ -448,8 +452,6 @@ body:has(#game.screen.active){height:100%;overflow:hidden;margin:0;}
 #pbar .ph.done{color:#7fd67f;border-color:#2c5a2c;}
 #pbar .ph.active{color:#111;background:#d4a94e;border-color:#d4a94e;}
 #pbar .ph-arr{color:#3a4a6a;font-size:.7em;flex-shrink:0;}
-#m-top .bar-right{display:flex;gap:6px;}
-#m-top .bar-right .btn-sm{padding:7px 12px;font-size:.72em;}
 #m-top #final-turn-banner{width:100%;justify-content:center;box-sizing:border-box;}
 
 /* ---- turn header ---- */
@@ -564,7 +566,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.27</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.28</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -727,7 +729,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.27</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.28</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -6043,9 +6045,19 @@ window.addEventListener('DOMContentLoaded', () => {
   const topbar = game.querySelector('.top-bar');
   move(topbar.querySelector('.game-title'), top);
   move(topbar.querySelector('.scoreboard'), top);
-  move($('timerbox'), top);
+  // 3_28: clock + quit share a row; Buy/Lineup buttons are gone on phones (Tim) —
+  // Buy is covered by the bottom bar's Open Shop, Lineup lives on the opponent board view
+  const clockRow = document.createElement('div'); clockRow.id = 'm-clockrow';
+  top.appendChild(clockRow);
+  move($('timerbox'), clockRow);
+  const resetBtn = topbar.querySelector('.bar-right .btn-sm.danger');
+  if (resetBtn) {
+    resetBtn.textContent = '↩';
+    resetBtn.title = 'Quit to menu (new game)';
+    resetBtn.setAttribute('aria-label', 'Quit to menu — new game');
+    clockRow.appendChild(resetBtn);
+  }
   move($('pbar'), top);
-  move(topbar.querySelector('.bar-right'), top);
   move($('final-turn-banner'), top);
 
   // — turn header (label + token strip) —
