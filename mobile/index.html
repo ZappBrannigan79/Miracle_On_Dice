@@ -252,11 +252,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 
 /* OPPONENT */
 .opp-area{background:rgba(0,0,0,.3);border-top:1px solid rgba(255,255,255,.1);padding:6px 12px;flex-shrink:0;}
-.opp-header{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
-.opp-lbl{font-size:.75em;color:#888;text-transform:uppercase;letter-spacing:1px;}
-.opp-tmr{font-size:.75em;color:#aaa;}
-.opp-zones{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-.opp-zone{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:3px 9px;font-size:.7em;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:56px;position:relative;cursor:default;}
+.opp-title{font-size:.75em;color:#888;text-transform:uppercase;letter-spacing:1px;text-align:center;margin-bottom:3px;}
+.opp-sub{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 5px;}
+#opptokS .tok-pill,#opptokB .tok-pill{font-size:.78em;padding:2px 9px;border-width:1px;gap:4px;}
+.opp-zones{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch;}
+.opp-zone{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:3px 6px;font-size:.7em;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex:1 1 0;min-width:58px;position:relative;cursor:default;}
+.opp-unit{font-size:.55em;opacity:.7;font-weight:400;}
 .opp-zone.has-tip{cursor:pointer;}
 .opp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a2d45;border:1px solid var(--gold);border-radius:8px;padding:8px 10px;min-width:180px;max-width:260px;z-index:999;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.8);}
 .opp-zone.has-tip:hover .opp-tip{display:block;}
@@ -300,6 +301,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 
 /* TOKEN STRIP */
 .tok-strip{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+#tstrip{flex-wrap:nowrap;gap:4px;} /* 3_51: all three pills fit one row */
+#tstrip .tok-pill{font-size:.78em;padding:3px 8px;}
+#tstrip .epips{font-size:.78em;padding:3px 8px;}
 .tok{display:inline-flex;align-items:center;gap:3px;background:rgba(255,255,255,.08);border-radius:10px;padding:2px 7px;font-size:.7em;font-weight:700;border:1px solid rgba(255,255,255,.15);}
 .tok.st{color:#88aaff;border-color:#4466cc;}.tok.bt{color:#ffaaaa;border-color:#cc4444;}
 /* 2_27 — prominent color-coded token pills (blue=shoot, red=block) */
@@ -307,7 +311,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .tok-pill.tp-shoot{color:#a9c6ff;border-color:#3c78ff;background:rgba(60,120,255,.16);}
 .tok-pill.tp-block{color:#ffa3a3;border-color:#ff4646;background:rgba(255,70,70,.14);}
 .tok-pill .tp-n{font-size:1.2em;min-width:1em;text-align:center;}
-.epips{font-size:.78em;color:var(--gold);background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.3);padding:3px 9px;border-radius:10px;font-weight:700;}
+.epips{display:inline-flex;align-items:center;gap:6px;font-size:.95em;font-weight:800;border-radius:10px;padding:4px 12px;border:2px solid;letter-spacing:.5px;line-height:1.2;color:#ffd97a;border-color:#c8a84b;background:rgba(200,168,75,.16);} /* 3_50: full gold pill treatment, matches tok-pill metrics */
 
 /* COMBAT */
 .combat-box{background:#0a1820;border:2px solid var(--gold);border-radius:12px;padding:18px;max-width:720px;width:100%;max-height:92vh;overflow-y:auto;} /* 2_147: scrollable so tall content never clips */
@@ -458,8 +462,9 @@ body:has(#game.screen.active){height:100%;overflow:hidden;margin:0;}
 #m-top #final-turn-banner{width:100%;justify-content:center;box-sizing:border-box;}
 
 /* ---- turn header ---- */
+#m-turnhead{text-align:center;} /* 3_41: center the turn label + token pills (Tim) */
 #m-turnhead .active-label{font-size:.92em;}
-#m-turnhead .tok-strip{margin-top:6px;}
+#m-turnhead .tok-strip{margin-top:6px;justify-content:center;}
 
 /* ---- zone cards ---- */
 #m-scroll .zone{flex:none!important;width:100%!important;min-height:0!important;
@@ -559,6 +564,19 @@ button{min-height:44px;}
 input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 /* 2_45 AI pills: clear the bottom action bar like the toast does */
 #ai-pill{bottom:calc(90px + env(safe-area-inset-bottom))!important;}
+
+/* 3_39: opponent summary box — mirrors the reset button, left of the clock.
+   Revert: delete this block + the boot-script creation + the renderOpp hook. */
+#m-oppsummary{position:absolute;left:2px;top:50%;transform:translateY(-50%);
+  background:rgba(0,0,0,.45);border:1px solid rgba(140,160,200,.35);border-radius:10px;
+  padding:4px 8px;font-size:.68em;line-height:1.4;color:#cdd6ea;text-align:center;min-width:66px;}
+#m-oppsummary .m-os-title{font-weight:700;color:#fff;letter-spacing:.05em;}
+#m-oppsummary .m-os-line{white-space:nowrap;}
+#m-oppsummary .m-os-chip{display:inline-block;vertical-align:top;background:rgba(255,255,255,.07);border:1px solid rgba(140,160,200,.4);border-radius:6px;padding:1px 7px;margin:1px;min-width:44px;}
+#m-oppsummary .m-os-chip b{display:block;font-size:1.15em;color:#fff;line-height:1.1;}
+#m-oppsummary .m-os-chip small{display:block;font-size:.62em;color:#8b96b0;line-height:1.2;}
+#m-oppsummary .m-os-off{background:rgba(30,60,160,.4);border-color:rgba(80,120,255,.55);}
+#m-oppsummary .m-os-def2{background:rgba(120,20,20,.4);border-color:rgba(200,50,50,.55);}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -569,7 +587,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.38</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.51</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -732,7 +750,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.38</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.51</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -787,13 +805,9 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <div class="zone z-bench"><div class="zone-lbl">🪑 Bench (max 2)</div><div class="zone-dice" id="z-bench"></div></div>
         <div class="zone z-reserve"><div class="zone-lbl">💾 Reserve (max 2)</div><div class="zone-dice" id="z-reserve"></div></div>
         <!-- SWAPPED: opp-area moved here where qa-box used to be -->
-        <div class="opp-area" style="border-top:none;background:rgba(0,0,0,.15);border-radius:8px;padding:6px;display:flex;flex-direction:column;justify-content:center;">
-          <div class="opp-header" style="margin-bottom:2px;">
-            <div class="opp-lbl" id="opplbl">Opponent</div>
-            <div class="opp-tmr" id="opptmr"></div>
-            <div style="margin-left:auto;display:flex;gap:6px;align-items:center"><span id="opptok" style="display:flex;gap:6px;"></span></div>
-            <button onclick="openOppBoard()" style="margin-left:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#aaa;font-size:.72em;padding:3px 8px;cursor:pointer;">👁 View Board</button>
-          </div>
+        <div class="opp-area" style="border:2px solid rgba(175,200,240,.7);box-shadow:0 0 10px rgba(140,170,220,.18),inset 0 0 12px rgba(140,170,220,.06);background:rgba(0,0,0,.15) url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120' viewBox='0 0 200 120'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.07'%3E%3Cline x1='100' y1='0' x2='100' y2='120' stroke-width='3'/%3E%3Ccircle cx='100' cy='60' r='26' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E&quot;) center/contain no-repeat;border-radius:8px;padding:6px;display:flex;flex-direction:column;justify-content:center;">
+          <div class="opp-title" id="opplbl">Opponent</div>
+          <div class="opp-sub"><span id="opptokS" style="display:flex;"></span><button onclick="openOppLineup()" style="flex:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#aaa;font-size:.72em;padding:3px 8px;cursor:pointer;">👁 View Lineup</button><span id="opptokB" style="display:flex;"></span></div>
           <div class="opp-zones" id="oppzones"></div>
         </div>
       </div>
@@ -1546,7 +1560,7 @@ function beginPeriodAfterFo(){if(aiGuard())return;
 
 // ═══════════════════ TURN ENGINE ═══════════════════
 function startTurn(){
-  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;
+  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;
   _rrMode=false;_rrDieId=null;
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();phase0();
@@ -1656,6 +1670,7 @@ function cancelRRSel(){if(aiGuard())return;
 
 // ═══════════════════ AUTO-ASSIGN ═══════════════════
 function autoAssignSB(){if(aiGuard())return;
+  G.aaDone=true; // 3_49: pressed — the button goes away for the rest of the turn
   const ap=AP();
   // Separate free faces (advance immediately) from costed faces (need picker)
   const toProcess=[...ap.z.rs];
@@ -3263,14 +3278,17 @@ function renderBoard(){
   const ts=document.getElementById('tstrip');ts.innerHTML='';
   // 2_27: always show both token pills (even at 0) — prominent blue=shoot / red=block
   ts.innerHTML+=`<span class="tok-pill tp-shoot${tokPopCls(G.ap,'s',ap.tok.shoot)}">🎯 <span class="tp-n">${ap.tok.shoot}</span> SHOOT</span>`;
-  ts.innerHTML+=`<span class="tok-pill tp-block${tokPopCls(G.ap,'b',ap.tok.block)}">🛡️ <span class="tp-n">${ap.tok.block}</span> BLOCK</span>`;
   const ep=totalE();
-  if(ep>0||G.phase>=4)ts.innerHTML+=`<span class="epips">⚡ ${ep}E available</span>`;
+  if(ep>0||G.phase>=4)ts.innerHTML+=`<span class="epips">⚡ ${ep}E available</span>`; // 3_47: energy sits center, tokens flank it (Tim)
+  ts.innerHTML+=`<span class="tok-pill tp-block${tokPopCls(G.ap,'b',ap.tok.block)}">🛡️ <span class="tp-n">${ap.tok.block}</span> BLOCK</span>`;
 }
 function renderRSActions(){
   const ra=document.getElementById('rs-actions');ra.innerHTML='';
   if(spectating())return; // spectators get no auto-assign buttons
-  if(G.phase===4&&!_rrMode){
+  if(_aiActive&&G.ap===_aiSlot)return; // 3_49: AI Chuck assigns behind the scenes — no button
+  if(G.phase===4&&!_rrMode&&!G.aaDone){
+    const ap=AP();
+    if(!ap.z.rs.some(d=>d.face&&(d.face.t==='S'||d.face.t==='B')))return; // 3_49: nothing to assign — no button
     const b1=document.createElement('button');
     b1.className='rs-act-btn auto-sb';b1.textContent='⚡ Auto-Assign Shoot & Block';
     b1.addEventListener('click',autoAssignSB);ra.appendChild(b1);
@@ -3279,22 +3297,23 @@ function renderRSActions(){
 }
 function renderOpp(){
   const o=OPP();
-  document.getElementById('opplbl').textContent=`${o.teamName||o.name} (${slotLabel(1-G.ap)}) — Opponent`;
-  document.getElementById('opptmr').textContent=`Clock: ${G.clock<10?'0'+G.clock:G.clock}:00  |  Penalty Pool: ${G.penaltyPool??3}`;
-  document.getElementById('opptok').innerHTML=`<span class="tok-pill tp-shoot${tokPopCls(1-G.ap,'s',o.tok.shoot)}">🎯 <span class="tp-n">${o.tok.shoot}</span></span><span class="tok-pill tp-block${tokPopCls(1-G.ap,'b',o.tok.block)}">🛡️ <span class="tp-n">${o.tok.block}</span></span>`;
+  document.getElementById('opplbl').textContent=`${slotLabel(1-G.ap)}'s Board`;
+  document.getElementById('opptokS').innerHTML=`<span class="tok-pill tp-shoot${tokPopCls(1-G.ap,'s',o.tok.shoot)}">🎯 <span class="tp-n">${o.tok.shoot}</span></span>`;
+  document.getElementById('opptokB').innerHTML=`<span class="tok-pill tp-block${tokPopCls(1-G.ap,'b',o.tok.block)}">🛡️ <span class="tp-n">${o.tok.block}</span></span>`;
   const hp=o.z.hot.length,cp=o.z.cold.length,dp=o.z.defend.length;
   // Pip totals for hot/cold/defend
   const hotPips=o.z.hot.reduce((s,d)=>s+(d.face?d.face.v:0),0);
   const coldPips=o.z.cold.reduce((s,d)=>s+(d.face?d.face.v:0),0);
   const defPips=o.z.defend.reduce((s,d)=>s+(d.face?d.face.v:0),0);
+  const dieWord=n=>n===1?'1 die':n+' dice'; // 3_42: uniform chips
   const oppZoneData=[
-    {l:'Hot',v:hotPips,d:`${hp} dice`,bg:'rgba(30,60,160,.35)',bc:'rgba(80,120,255,.5)',tipDice:o.z.hot},
-    {l:'Cold',v:coldPips,d:`${cp} dice`,bg:'rgba(15,40,100,.3)',bc:'rgba(60,100,200,.4)',tipDice:o.z.cold},
-    {l:'Def',v:defPips,d:`${dp} dice`,bg:'rgba(120,20,20,.3)',bc:'rgba(200,50,50,.5)',tipDice:o.z.defend},
-    {l:'Bench',v:o.z.bench.length,d:'',bg:'',bc:'',tipDice:null},
-    {l:'Reserve',v:o.z.reserve.length,d:'',bg:'',bc:'',tipDice:null},
-    {l:'Iced',v:o.z.iced.length,d:'',bg:'',bc:'',tipDice:null},
-    {l:'Bag',v:o.bag.length,d:'',bg:'',bc:'',tipDice:null},
+    {l:'Hot',v:hotPips,unit:'pip',d:dieWord(hp),bg:'rgba(30,60,160,.35)',bc:'rgba(80,120,255,.5)',tipDice:o.z.hot},
+    {l:'Cold',v:coldPips,unit:'pip',d:dieWord(cp),bg:'rgba(15,40,100,.3)',bc:'rgba(60,100,200,.4)',tipDice:o.z.cold},
+    {l:'Def',v:defPips,unit:'pip',d:dieWord(dp),bg:'rgba(120,20,20,.3)',bc:'rgba(200,50,50,.5)',tipDice:o.z.defend},
+    {l:'Bench',v:o.z.bench.length,unit:'',d:dieWord(o.z.bench.length),bg:'',bc:'',tipDice:null},
+    {l:'Reserve',v:o.z.reserve.length,unit:'',d:dieWord(o.z.reserve.length),bg:'',bc:'',tipDice:null},
+    {l:'Iced',v:o.z.iced.length,unit:'',d:dieWord(o.z.iced.length),bg:'',bc:'',tipDice:null},
+    {l:'Bag',v:o.bag.length,unit:'',d:dieWord(o.bag.length),bg:'',bc:'',tipDice:null},
   ];
   // Build zone HTML with tooltips for Hot, Cold, Def
   const zoneHtml=oppZoneData.map(z=>{
@@ -3308,12 +3327,17 @@ function renderOpp(){
     }</div>`:'';
     return`<div class="opp-zone${hasTip?' has-tip':''}" style="${z.bg?`background:${z.bg};border-color:${z.bc};`:''}">
       <div class="opp-zone-l">${z.l}</div>
-      <div class="opp-zone-v">${z.v}${z.bg?'<span style="font-size:.5em;opacity:.7">pip</span>':''}</div>
-      ${z.d?`<div class="opp-zone-d">${z.d}</div>`:''}
+      <div class="opp-zone-v">${z.v}${z.unit?'<span class="opp-unit">pip</span>':''}</div>
+      <div class="opp-zone-d">${z.d}</div>
       ${tipContent}
     </div>`;
   }).join('');
   document.getElementById('oppzones').innerHTML=zoneHtml;
+  // 3_39: mobile header opponent-summary box (the node only exists in the mobile shell — no-op on desktop)
+  // 3_40: offense = Hot+Cold pips (cold advances by their turn), defense = Def pips; tokens dropped (strip below covers them)
+  const offPips=hotPips+coldPips, offDice=hp+cp;
+  const osb=document.getElementById('m-oppsummary');
+  if(osb){osb.innerHTML=`<div class="m-os-title">${whoEmoji(1-G.ap)} OPP</div><div class="m-os-line"><span class="m-os-chip m-os-off"><b>🏒 ${offPips}</b><small>${offDice} dice</small></span><span class="m-os-chip m-os-def2"><b>🥅 ${defPips}</b><small>${dp} dice</small></span></div>`;}
 }
 function renderScore(){
   document.getElementById('sg1').textContent=G.players[0].goals;
@@ -3323,13 +3347,13 @@ function renderScore(){
 function renderActions(){
   const row=document.getElementById('arow');row.innerHTML='';
   // Spectators get no action buttons — just a watching pill plus a one-tap
-  // peek at their own board (openOppBoard shows OPP(), which is YOU while spectating).
+  // peek at their own board (openOppLineup shows OPP(), which is YOU while spectating).
   if(spectating()){
     const ap=AP();
     row.innerHTML=`<div class="watch-pill">⏳ <b>Watching ${ap.name}'s turn live</b></div>`;
     const vb=document.createElement('button');
     vb.className='abtn sec';vb.textContent='👁 View My Board';
-    vb.addEventListener('click',openOppBoard);row.appendChild(vb);
+    vb.addEventListener('click',openOppLineup);row.appendChild(vb);
     return;
   }
   // 2_45: Vs AI — the human watches; speed toggle included
@@ -4241,96 +4265,33 @@ function randomSOTeam(playerIdx){
 }
 
 // ═══════════════════ OPPONENT BOARD VIEWER ═══════════════════
-function openOppBoard(){
+// 3_48: lineup-only popup (was the full board — the strip below already shows the whole board).
+// Just positions + how many bought, enlarged for the popup. (Tim)
+function openOppLineup(){
   const o=OPP();
   const panel=document.getElementById('opp-board-panel');
-  document.getElementById('opp-board-title').textContent=
-    `${o.teamName||o.name} — Full Board`;
-  document.getElementById('opp-board-sub').innerHTML=
-    `<span class="tok-pill tp-shoot">🎯 <span class="tp-n">${o.tok.shoot}</span> SHOOT</span> <span class="tok-pill tp-block">🛡️ <span class="tp-n">${o.tok.block}</span> BLOCK</span><span style="color:#888;font-size:.85em;margin-left:10px;">Bag: ${o.bag.length} dice &nbsp;|&nbsp; Clock: ${G.clock<10?'0'+G.clock:G.clock}:00</span>`;
-
+  document.getElementById('opp-board-title').textContent=`${slotLabel(1-G.ap)}'s Lineup`;
+  document.getElementById('opp-board-sub').innerHTML='';
   const content=document.getElementById('opp-board-content');
   content.innerHTML='';
-
-  // Helper to build a zone section
-  const makeZone=(key,label,bg,bc)=>{
-    const dice=o.z[key];
-    const sec=document.createElement('div');
-    sec.style.cssText=`border-radius:8px;border:1px solid ${bc};background:${bg};padding:8px 10px;flex:1;min-width:0;`;
-    const hdr=document.createElement('div');
-    hdr.style.cssText='font-size:.72em;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;';
-    hdr.textContent=`${label} (${dice.length})`;
-    sec.appendChild(hdr);
-    if(!dice.length){
-      const e=document.createElement('div');
-      e.style.cssText='font-size:.7em;color:#444;font-style:italic;';
-      e.textContent='Empty';
-      sec.appendChild(e);
-    }else{
-      const row=document.createElement('div');
-      row.style.cssText='display:flex;flex-wrap:wrap;gap:5px;';
-      dice.forEach(d=>{
-        const w=document.createElement('div');
-        w.innerHTML=dieWrapHTML(d,false,false,false);
-        // Scale dice down slightly for compact view
-        const dieBody=w.querySelector('.die-body');
-        const dieWrap=w.querySelector('.die-wrap');
-        if(dieWrap)dieWrap.style.cssText+='transform:scale(.85);transform-origin:top left;';
-        row.appendChild(w);
-      });
-      sec.appendChild(row);
-    }
-    return sec;
-  };
-
-  // Row 1: Hot | Cold | Defensive (combat zones — can grow vertically)
-  const row1=document.createElement('div');
-  row1.style.cssText='display:flex;gap:8px;margin-bottom:8px;';
-  row1.appendChild(makeZone('hot',   '🔥 Hot',      'rgba(30,60,160,.2)', 'rgba(80,120,255,.4)'));
-  row1.appendChild(makeZone('cold',  '❄️ Cold',     'rgba(15,40,100,.15)','rgba(60,100,200,.3)'));
-  row1.appendChild(makeZone('defend','🛡️ Defensive','rgba(120,20,20,.2)', 'rgba(200,50,50,.4)'));
-  content.appendChild(row1);
-
-  // Row 2: Bench | Reserve | Lineup Cards — all compact, fixed height
-  const row2=document.createElement('div');
-  row2.style.cssText='display:flex;gap:8px;margin-bottom:0;align-items:stretch;';
-
-  // Bench (small, max 2 dice)
-  row2.appendChild(makeZone('bench','🪑 Bench','rgba(60,60,60,.15)','rgba(120,120,120,.3)'));
-
-  // Reserve (small, max 2 dice)
-  row2.appendChild(makeZone('reserve','💰 Reserve','rgba(180,140,20,.15)','rgba(200,168,75,.4)'));
-
-  // Lineup cards inline
-  const cardSec=document.createElement('div');
-  cardSec.style.cssText='flex:2;border-radius:8px;border:1px solid rgba(200,168,75,.3);background:rgba(200,168,75,.06);padding:8px 10px;min-width:0;';
-  const cardHdr=document.createElement('div');
-  cardHdr.style.cssText='font-size:.72em;font-weight:700;color:#c8a84b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;';
-  cardHdr.textContent='📋 Lineup';
-  cardSec.appendChild(cardHdr);
-  const cardRow=document.createElement('div');
-  cardRow.style.cssText='display:flex;flex-wrap:wrap;gap:5px;';
+  const grid=document.createElement('div');
+  grid.style.cssText='display:flex;flex-wrap:wrap;gap:10px;justify-content:center;';
   o.lineup.forEach(card=>{
     if(card.key==='HC')return;
-    const posColors={F:'#1a6dd4',D:'#c82020',G:'#888'};
+    const posColors={F:'#4d94ff',D:'#ff5b5b',G:'#aaa'};
     const col=posColors[card.key[0]]||'#aaa';
     const used=3-card.left;
     const dots=Array.from({length:3},(_,i)=>
-      `<span style="color:${i<used?col:'#333'};font-size:.85em;">●</span>`
+      `<span style="color:${i<used?col:'#333'};font-size:1.3em;">●</span>`
     ).join('');
     const cEl=document.createElement('div');
-    cEl.style.cssText=`background:rgba(255,255,255,.05);border:1px solid ${col}44;border-radius:6px;padding:4px 7px;text-align:center;min-width:46px;`;
-    cEl.innerHTML=`<div style="font-size:.75em;font-weight:900;color:${col}">${card.key}</div>
-      <div style="margin:1px 0">${dots}</div>
-      <div style="font-size:.6em;color:#666">${card.left} left</div>`;
-    cardRow.appendChild(cEl);
+    cEl.style.cssText=`background:rgba(255,255,255,.05);border:1px solid ${col}66;border-radius:10px;padding:12px 14px;text-align:center;min-width:84px;`;
+    cEl.innerHTML=`<div style="font-size:1.25em;font-weight:900;color:${col};letter-spacing:1px;">${card.key}</div>
+      <div style="margin:6px 0">${dots}</div>
+      <div style="font-size:.72em;color:#888">${card.left} left</div>`;
+    grid.appendChild(cEl);
   });
-  cardSec.appendChild(cardRow);
-  row2.appendChild(cardSec);
-  content.appendChild(row2);
-
-
-
+  content.appendChild(grid);
   panel.classList.add('show');
 }
 
@@ -6117,6 +6078,9 @@ window.addEventListener('DOMContentLoaded', () => {
   top.appendChild(clockRow);
   move($('timerbox'), clockRow);
   const resetBtn = topbar.querySelector('.bar-right .btn-sm.danger');
+  // 3_39: opponent summary box, left of the clock (mirrors the reset button).
+  // Revert: delete this block + its CSS in mobile-overrides.css + the renderOpp hook in the sim.
+  const oppBox = document.createElement('div'); oppBox.id = 'm-oppsummary'; clockRow.prepend(oppBox);
   if (resetBtn) {
     resetBtn.innerHTML = '&#8617; RESET GAME';
     resetBtn.title = 'Quit to menu (new game)';
