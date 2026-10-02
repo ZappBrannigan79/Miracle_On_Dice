@@ -587,7 +587,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.51</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.52</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -685,9 +685,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 
     <!-- QUICK START: 5 teams, filterable -->
     <div class="team-builder" id="qs-panel">
-      <div style="font-size:.83em;color:#aaa;text-align:center;margin-bottom:10px">
-        Select your team below, then face the AI across the table. Starting bag: 15 Rookies.
-      </div>
+      <!-- 3_52: intro line removed (Tim) -->
       <!-- 2_51: division filters removed — all 24 teams always listed -->
       <div class="builder-grid">
         <div class="builder-player">
@@ -707,9 +705,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <button class="qs-filter-btn ai-speed-pulse" style="flex:1;padding:10px;font-size:.85em" onclick="aiPickSpeed(2,this)">Fast</button>
         </div>
       </div>
-      <div style="display:flex;justify-content:center;margin-top:10px">
-        <div id="qs-sel-summary" style="font-size:.78em;color:#aaa;text-align:center">No teams selected yet.</div>
-      </div>
+      <!-- 3_52: team summary line removed (Tim) — updateQSSummary no-ops via its guard -->
       <div style="margin-top:8px">
         <button class="btn-start" style="width:100%;padding:12px" onclick="startQS()">Start Game →</button>
       </div>
@@ -750,7 +746,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.51</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.52</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
