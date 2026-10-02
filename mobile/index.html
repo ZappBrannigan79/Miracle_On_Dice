@@ -152,7 +152,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .final-turn-flashing{animation:finalflash 0.8s ease-in-out infinite!important;}
 
 /* RS Zone pulse for reroll phase */
-.z-rs.rr-pulse{animation:nudgePulse 1.4s ease-in-out infinite;border-width:2px;}
+.z-rs.rs-attn{animation:nudgePulse 1.4s ease-in-out infinite;border-width:2px;} /* 3_53: was rr-pulse, now whenever actionable dice sit in RS */
 
 /* Button pulse */
 .abtn.pulsing{animation:nudgePulse 1.4s ease-in-out infinite;}
@@ -453,12 +453,12 @@ body:has(#game.screen.active){height:100%;overflow:hidden;margin:0;}
   line-height:1.2;white-space:nowrap;}
 #m-top .bar-right{display:none!important;}
 #m-top #room-code-chip{margin-left:8px;}
-#pbar{display:flex;align-items:center;justify-content:center;gap:3px;max-width:100%;overflow-x:auto;padding:2px;}
-#pbar .ph{font-size:.6em;font-weight:800;letter-spacing:.3px;padding:5px 7px;border-radius:8px;
+#pbar{display:flex;align-items:center;justify-content:center;gap:2px;max-width:100%;overflow:hidden;padding:2px;} /* 3_54: condensed — fits without h-scroll (Tim) */
+#pbar .ph{font-size:.55em;font-weight:800;letter-spacing:0;padding:4px 5px;border-radius:8px;
   background:#131f38;color:#8b94a7;border:1px solid #22314f;white-space:nowrap;flex-shrink:0;}
 #pbar .ph.done{color:#7fd67f;border-color:#2c5a2c;}
 #pbar .ph.active{color:#111;background:#d4a94e;border-color:#d4a94e;}
-#pbar .ph-arr{color:#3a4a6a;font-size:.7em;flex-shrink:0;}
+#pbar .ph-arr{color:#3a4a6a;font-size:.6em;flex-shrink:0;}
 #m-top #final-turn-banner{width:100%;justify-content:center;box-sizing:border-box;}
 
 /* ---- turn header ---- */
@@ -587,7 +587,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.52</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.54</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -746,7 +746,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.52</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.54</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3254,11 +3254,11 @@ function renderBoard(){
     if(G.phase===4&&ap.z.hot.length>0&&!G.shotDeclared)hotZoneEl.classList.add('shoot-ready');
     else hotZoneEl.classList.remove('shoot-ready');
   }
-  // Pulse RS Zone during reroll phase
+  // 3_53: pulse the RS zone the whole time any actionable (non-blank) dice sit there (Tim)
   const rsZoneEl=document.getElementById('z-rs').closest('.zone');
   if(rsZoneEl){
-    if(G.phase===3&&_rrMode)rsZoneEl.classList.add('rr-pulse');
-    else rsZoneEl.classList.remove('rr-pulse');
+    if(ap.z.rs.some(d=>d.face&&d.face.t!=='BLANK'))rsZoneEl.classList.add('rs-attn');
+    else rsZoneEl.classList.remove('rs-attn');
   }
   renderZone('z-cold',ap.z.cold,{advPending:G.advPending});
   renderZone('z-defend',ap.z.defend);
