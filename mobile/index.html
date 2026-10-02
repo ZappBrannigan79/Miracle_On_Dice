@@ -519,6 +519,9 @@ div[class$="-overlay"]>div{width:100%!important;max-width:560px;max-height:88vh;
 
 /* ---- setup screen: full-width buttons ---- */
 #setup .setup-box{width:100%;max-width:480px;margin:0 auto;padding:24px 16px;box-sizing:border-box;}
+/* 3_64: dynamic viewport height — plain 100vh can exceed the visible area on mobile
+   (browser chrome), leaving the menu slightly scrollable */
+#setup.screen.active{min-height:100vh;min-height:100dvh;}
 #setup .setup-btns{display:flex;flex-direction:column;gap:10px;align-items:stretch;}
 #setup .btn-mode{width:100%;box-sizing:border-box;}
 #setup .team-builder{max-width:480px;margin:0 auto;}
@@ -588,7 +591,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.63</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.64</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -747,7 +750,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.63</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.64</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4219,11 +4222,10 @@ function soShowFinal(){
   renderSOScoreboard();
   // 2_153: title AFTER the scoreboard render — renderSOScoreboard() recomputes the
   // title from _so.round, which was already incremented past maxRounds before
-  // soCheckWinner() ran (hence the awkward "Round 4 of 3"). Sudden-death endings
-  // keep the "Sudden Death Round N" phrasing Tim liked.
-  document.getElementById('so-title').textContent = _so.suddenDeath
-    ? `🥅 Shootout — Sudden Death Round ${_so.round}`
-    : '🥅 Shootout Complete';
+  // soCheckWinner() ran (hence the awkward "Round 4 of 3").
+  // 3_64: final always reads "Shootout Complete" — even after sudden death (Tim).
+  // The old sudden-death phrasing showed the *next* round number ("Round 10") on a decided shootout.
+  document.getElementById('so-title').textContent = '🥅 Shootout Complete';
   // 2_155: a decided real-game shootout ends the game — purge the autosave so the
   // menu doesn't offer to resume a finished game. Practice mini-games never wrote
   // a save; the tied→shootout path never reaches a winner here, so overtime is safe.
