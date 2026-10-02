@@ -587,7 +587,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.58</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.59</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -746,7 +746,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.58</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.59</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3856,7 +3856,7 @@ function startShootout(practice){
   // Set scoreboard names
   [0,1].forEach(i=>{
     const nameEl = document.getElementById('so-name-'+i);
-    if(nameEl) nameEl.textContent = (_so.players[i].teamName||_so.players[i].name).toUpperCase();
+    if(nameEl) nameEl.textContent = soTeamLabel(i).toUpperCase();
   });
 
   document.getElementById('so-overlay').classList.add('show');
@@ -3887,6 +3887,9 @@ function restartShootout(){
 }
 
 // ── SCOREBOARD ──
+// 3_59: who-emoji on shootout teams — 🤖 AI, 🧑 human (Tim)
+function soWhoEmoji(si){return (_so.vsAI&&si===_aiSlot)?'🤖':'🧑';}
+function soTeamLabel(si){const p=_so.players[si];return `${p.teamName||p.name} (${soWhoEmoji(si)})`;}
 function renderSOScoreboard(){
   // Expand columns if sudden death needs more
   const maxShots = Math.max(3, _so.round + (_so.suddenDeath?1:0));
@@ -3957,7 +3960,7 @@ function soStartShooterTurn(){
   const iAmShooter = soIAmShooter();
   document.getElementById('so-shooter-label').textContent = iAmShooter
     ? (_so.suddenDeath?'Sudden death — your shooter was drawn:':'Choose a shooter (F or D):')
-    : `Waiting for ${sp.teamName||sp.name} to shoot…`;
+    : `Waiting for ${soTeamLabel(si)} to shoot…`;
 
   const choices = document.getElementById('so-forward-choices');
   choices.innerHTML = '';
@@ -4220,10 +4223,10 @@ function soShowFinal(){
   document.getElementById('so-final-area').style.display='block';
   document.getElementById('so-turn-info').innerHTML=''; // 2_142: no flash on the final screen
   const [s0,s1]=_so.scores;
-  const winner=s0>s1?(_so.players[0].teamName||_so.players[0].name):(_so.players[1].teamName||_so.players[1].name);
+  const winner=s0>s1?soTeamLabel(0):soTeamLabel(1);
   document.getElementById('so-final-msg').innerHTML=
     `🏆 ${winner} wins the Shootout!<br>
-    <span style="font-size:.7em;color:#aaa">${_so.players[0].teamName||_so.players[0].name} ${s0} – ${s1} ${_so.players[1].teamName||_so.players[1].name}</span>`;
+    <span style="font-size:.7em;color:#aaa">${soTeamLabel(0)} ${s0} – ${s1} ${soTeamLabel(1)}</span>`;
   renderSOScoreboard();
   // 2_153: title AFTER the scoreboard render — renderSOScoreboard() recomputes the
   // title from _so.round, which was already incremented past maxRounds before
