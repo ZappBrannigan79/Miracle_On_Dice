@@ -63,8 +63,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .qs-filter-btn.active{background:var(--gold);color:#111;border-color:var(--gold);}
 /* 2_121: subtle pulse on AI speed buttons to draw the eye — stops once one is picked */
 /* 2_128: brightened per Tim — stronger glow + background swell */
-@keyframes aiSpeedPulse{0%,100%{box-shadow:0 0 0 0 rgba(248,189,85,0);background:rgba(255,255,255,.06);}50%{box-shadow:0 0 14px 4px rgba(248,189,85,.8);background:rgba(248,189,85,.16);}}
-.ai-speed-pulse{animation:aiSpeedPulse 2s ease-in-out infinite;}
+
+.ai-speed-pulse{animation:nudgePulse 1.4s ease-in-out infinite;}
 .ai-speed-pulse.active{animation:none;}
 /* Energy picker modal */
 .epicker-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:250;align-items:center;justify-content:center;}
@@ -118,6 +118,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .timer-val.hot{color:#ff6666;}
 .block-bonus{font-size:.68em;font-weight:800;letter-spacing:1px;color:#ff9999;line-height:1.3;}
 .timer-box.hotzone{border-color:#ff3b3b;animation:clockpulse 1.6s ease-in-out infinite;}
+@keyframes nudgePulse{0%,100%{box-shadow:0 0 4px 1px rgba(255,214,110,.25);}50%{box-shadow:0 0 14px 3px rgba(255,214,110,.6);}} /* 3_38: one shared nudge pulse */
 @keyframes clockpulse{0%,100%{box-shadow:0 0 3px rgba(255,60,60,.35);}50%{box-shadow:0 0 16px rgba(255,60,60,.9);}}
 .action-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
 .abtn{padding:6px 13px;font-size:.8em;font-weight:700;border-radius:7px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;}
@@ -146,21 +147,21 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .z-rs{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);color:white;overflow:visible;}
 .z-cold{background:rgba(26,58,139,.2);border:1px solid rgba(26,58,139,.5);color:#aac4ff;}
 .z-hot{background:rgba(26,58,139,.35);border:1px solid rgba(100,140,255,.6);color:#ccddff;}
-.z-hot.shoot-ready{animation:hotpulse 1.4s ease-in-out infinite;border-width:2px;}
+.z-hot.shoot-ready{animation:nudgePulse 1.4s ease-in-out infinite;border-width:2px;}
 @keyframes finalflash{0%,100%{background:rgba(255,100,50,.15);color:#ff8855;border-color:#ff6633;box-shadow:none;}50%{background:rgba(255,100,50,.45);color:#fff;border-color:#ff4400;box-shadow:0 0 18px rgba(255,80,0,.7);}}
 .final-turn-flashing{animation:finalflash 0.8s ease-in-out infinite!important;}
-@keyframes hotpulse{0%,100%{border-color:rgba(100,140,255,.5);box-shadow:none;}50%{border-color:#ffdd44;box-shadow:0 0 12px rgba(255,220,68,.5);}}
+
 /* RS Zone pulse for reroll phase */
-.z-rs.rr-pulse{animation:rrpulse 1.2s ease-in-out infinite;border-width:2px;}
-@keyframes rrpulse{0%,100%{border-color:rgba(255,255,255,.2);box-shadow:none;}50%{border-color:#dd7722;box-shadow:0 0 14px rgba(221,119,34,.5);}}
+.z-rs.rr-pulse{animation:nudgePulse 1.4s ease-in-out infinite;border-width:2px;}
+
 /* Button pulse */
-.abtn.pulsing{animation:btnpulse 1.2s ease-in-out infinite;}
-@keyframes btnpulse{0%,100%{opacity:1;box-shadow:none;}50%{opacity:.75;box-shadow:0 0 10px rgba(200,168,75,.7);}}
+.abtn.pulsing{animation:nudgePulse 1.4s ease-in-out infinite;}
+
 /* 2_142: your-turn flash — plain text, gentle opacity pulse, never button-like */
 .so-yourturn{display:inline-block;font-size:1.05em;font-weight:800;letter-spacing:3px;color:var(--gold);animation:soTurnPulse 1.8s ease-in-out infinite;}
 @keyframes soTurnPulse{0%,100%{opacity:1;}50%{opacity:.5;}}
-.abtn.pulsing-orange{animation:btnpulse-o 1.2s ease-in-out infinite;}
-@keyframes btnpulse-o{0%,100%{opacity:1;box-shadow:none;}50%{opacity:.75;box-shadow:0 0 10px rgba(221,119,34,.7);}}
+.abtn.pulsing-orange{animation:nudgePulse 1.4s ease-in-out infinite;}
+
 .z-shoot{background:rgba(26,58,139,.25);border:1px solid rgba(26,58,139,.5);color:#aac4ff;}
 .z-bench{background:rgba(42,74,42,.3);border:1px solid rgba(42,74,42,.6);color:#aaffaa;}
 .z-reserve{background:rgba(100,80,20,.3);border:1px solid rgba(200,168,75,.4);color:var(--gold-light);}
@@ -189,11 +190,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .die-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;flex-shrink:0;cursor:default;}
 .die-body{width:54px;height:54px;border-radius:12px; /* 2_42: rounded squares, like the faceoff dice */display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.4);transition:all .15s;position:relative;flex-shrink:0;user-select:none;}
 .die-body:hover{transform:scale(1.07);}
-.die-body.sel{box-shadow:0 0 0 4px #ffff00,0 0 14px #ffff00!important;transform:scale(1.1);border-color:#ffff00!important;}
-.die-body.sel-rr{box-shadow:0 0 0 4px #dd7722,0 0 14px #dd7722!important;border-color:#dd7722!important;transform:scale(1.08);}
+.die-body.sel{box-shadow:0 0 0 2px rgba(255,214,110,.9),0 0 8px rgba(255,214,110,.5)!important;transform:scale(1.1);border-color:#ffd66e!important;} /* 3_38: thinner, softer halo */
+.die-body.sel-rr{box-shadow:0 0 0 2px rgba(221,119,34,.9),0 0 8px rgba(221,119,34,.5)!important;border-color:#dd7722!important;transform:scale(1.08);} /* 3_38: thinner, softer halo */
 /* Costed die selected — ensure ring still visible over gold border */
-.die-body.has-cost.sel{border-color:#ffff00!important;box-shadow:0 0 0 4px #ffff00,0 0 14px #ffff00!important;}
-.die-body.has-cost.sel-rr{border-color:#dd7722!important;box-shadow:0 0 0 4px #dd7722,0 0 14px #dd7722!important;}
+.die-body.has-cost.sel{border-color:#ffd66e!important;box-shadow:0 0 0 2px rgba(255,214,110,.9),0 0 8px rgba(255,214,110,.5)!important;} /* 3_38 */
+.die-body.has-cost.sel-rr{border-color:#dd7722!important;box-shadow:0 0 0 2px rgba(221,119,34,.9),0 0 8px rgba(221,119,34,.5)!important;} /* 3_38 */
 .pos-F .die-body{background:radial-gradient(circle at 35% 35%,#2a4aaa,#0d1f55);border-color:#4466cc;}
 .pos-D .die-body{background:radial-gradient(circle at 35% 35%,#aa2a2a,#550d0d);border-color:#cc4444;}
 .pos-G .die-body{background:radial-gradient(circle at 35% 35%,#666,#333);border-color:#888;}
@@ -344,16 +345,16 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .tok-count{font-size:1.9em;font-weight:800;color:#ffd75e;min-width:1.6em;display:inline-block;text-align:center;}
 .tok-hint{text-align:center;color:#cdb87a;font-size:.82em;}
 .tok-ctrl.tok-empty{opacity:.55;} /* 3_16/3_17: 0 tokens — picker visible but inert */
-@keyframes tokPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,200,60,.0);}50%{box-shadow:0 0 14px 2px rgba(255,200,60,.55);}}
-.tok-ctrl.attn{animation:tokPulse 1.6s ease-in-out infinite;border-color:#ffd75e;}
+
+.tok-ctrl.attn{animation:nudgePulse 1.4s ease-in-out infinite;border-color:#ffd75e;}
 /* Blocker-assignment nudge: pulse the Commit All button + available dice while
    any defender die is still unassigned (a reminder, not a gate — rolling with
    zero blockers stays legal). */
-@keyframes blkPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,0,0);}50%{box-shadow:0 0 16px 3px rgba(255,215,0,.65);}}
-#bsel-dice .die-body.avail-pulse{animation:blkPulse 1.6s ease-in-out infinite;border-color:#ffd75e;}
+
+#bsel-dice .die-body.avail-pulse{animation:nudgePulse 1.4s ease-in-out infinite;border-color:#ffd75e;}
 /* 2_23 — ADV pending: cold-zone dice glow brightly until one is chosen */
-@keyframes advPulse{0%,100%{box-shadow:0 0 6px 2px rgba(255,215,0,.35);border-color:#ffd75e;}50%{box-shadow:0 0 24px 7px rgba(255,215,0,.9);border-color:#fff3b0;}}
-.die-body.adv-pulse{animation:advPulse 1.1s ease-in-out infinite;border-color:#ffd75e;cursor:pointer;}
+
+.die-body.adv-pulse{animation:nudgePulse 1.4s ease-in-out infinite;border-color:#ffd75e;cursor:pointer;}
 
 /* OVERLAYS */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:none;align-items:center;justify-content:center;}
@@ -568,7 +569,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.37</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.38</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -731,7 +732,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.37</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.38</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
