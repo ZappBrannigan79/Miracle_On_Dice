@@ -587,7 +587,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.56</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.58</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -746,7 +746,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.56</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.58</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1132,7 +1132,7 @@ const DEFS={
   Penalty:[{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0}],
 };
 const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,F7:7,F8:8,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,D7:7,D8:8,G3:3,G4:4,G5:5,G6:6};
-const CF=[2,2,1,1,0,0];
+const CF=[3,2,1,1,0,0]; // 3_58: combat die trial (Tim) — was [2,2,1,1,0,0]
 const FWD=['F1','F2','F3','F4','F5','F6','F7','F8'];
 const DEF=['D1','D2','D3','D4','D5','D6','D7','D8'];
 const GOA=['G3','G4','G5','G6'];
@@ -2300,7 +2300,7 @@ function lockShot(){if(aiGuard())return;
 
 // ═══════════════════ COMBAT ═══════════════════
 // CORRECT: num dice to roll = num attacking dice + tokens
-// Result = sum of combat dice (2,2,1,1,0,0) + tokens count as automatic 1 each
+// Result = sum of combat dice (3,2,1,1,0,0 — 3_58 trial) + tokens count as automatic 1 each
 // Pips on player dice determine HOW MANY combat dice to roll — NOT added to total
 let _bTok=0,_sTok=0,_combatNonce=0,_lastCombatNonce=0;
 let _shotHeldOut=new Set(); // 3_32: shoot-zone dice the shooter held out on the shot card — back to Hot on confirm
@@ -5411,8 +5411,8 @@ function aiDoAssign(P){
   // 2_145: one bullet per zone instead of a combined "X · Y" line
   if(nS)aiPill(`🔵 assigned ${nS} ${dieWord(nS)} to offensive (${zone}) zone`);
   if(nB)aiPill(`🔴 assigned ${nB} ${dieWord(nB)} to defensive zone`);
-  // 2_52b: no "X iced" in the summary — blanks/unused energy don't matter to the player
-  if(!nS&&!nB)aiPill(`✋ holds its roll`);
+  // 3_57: a held roll stays in the background (game log only) — no summary card, no bar icon (Tim)
+  if(!nS&&!nB)addLog(`${ap.name} holds its roll.`);
 }
 // 2_52: AI spends the HC die FIRST — it can't go to reserve, so leftover HC energy is wasted
 // 2_95: AI energy spend. forTrade=true: HC → rookie → largest tier first (rookies to iced as fodder).
