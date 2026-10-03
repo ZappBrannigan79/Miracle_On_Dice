@@ -26,12 +26,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 
 /* SETUP */
 #setup{align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#0d1f33,#1a3a5c);}
-.setup-box{background:rgba(255,255,255,.05);border:1px solid var(--gold);border-radius:12px;padding:32px;max-width:880px;width:100%;}
+.setup-box{background:rgba(255,255,255,.05);border:1px solid var(--gold);border-radius:12px;padding:26px 32px;max-width:880px;width:100%;} /* 3_90: condensed (Tim) */
 .setup-title{text-align:center;font-size:2.2em;font-weight:900;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;}
-.setup-sub{text-align:center;color:#aaa;margin-bottom:28px;font-size:.95em;}
+.setup-sub{text-align:center;color:#aaa;margin-bottom:20px;font-size:.95em;}
 .setup-btns{display:flex;gap:16px;justify-content:center;margin-bottom:28px;}
 .btn-mode{padding:14px 32px;font-size:1em;font-weight:700;border-radius:8px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;transition:all .2s;}
-.btn-qs{background:var(--gold);color:#111;border:2px solid var(--gold);}.btn-qs:hover{background:#e8c86b;}
+.btn-qs{background:rgba(106,169,255,.10);color:#6aa9ff;border:2px solid #6aa9ff;}.btn-qs:hover{background:rgba(106,169,255,.22);}
 .btn-cb{background:transparent;color:var(--gold);border:2px solid var(--gold);}.btn-cb:hover{background:rgba(200,168,75,.15);}
 .team-builder{display:none;}.team-builder.show{display:block;}.pts-badge{font-size:.75em;}
 .builder-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
@@ -159,8 +159,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .abtn.pulsing{animation:nudgePulse 1.4s ease-in-out infinite;}
 
 /* 2_142: your-turn flash — plain text, gentle opacity pulse, never button-like */
-.so-yourturn{display:inline-block;font-size:1.05em;font-weight:800;letter-spacing:3px;color:var(--gold);animation:soTurnPulse 1.8s ease-in-out infinite;}
-@keyframes soTurnPulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+.so-yourturn{display:inline-block;font-size:1.12em;font-weight:900;letter-spacing:3px;color:#0a0f1e;background:linear-gradient(180deg,#ffd75e,#f8bd55);border-radius:999px;padding:7px 24px;animation:soTurnPulse 1.6s ease-in-out infinite;}
+@keyframes soTurnPulse{0%,100%{box-shadow:0 0 0 0 rgba(248,189,85,.45);transform:scale(1);}50%{box-shadow:0 0 20px 5px rgba(248,189,85,.55);transform:scale(1.045);}}
 .abtn.pulsing-orange{animation:nudgePulse 1.4s ease-in-out infinite;}
 
 .z-shoot{background:rgba(26,58,139,.25);border:1px solid rgba(26,58,139,.5);color:#aac4ff;}
@@ -541,7 +541,7 @@ div[class$="-overlay"]>div{width:100%!important;max-width:560px;max-height:88vh;
 .card-grid{display:grid!important;grid-template-columns:1fr 1fr;gap:10px;}
 
 /* ---- setup screen: full-width buttons ---- */
-#setup .setup-box{width:100%;max-width:480px;margin:0 auto;padding:24px 16px;box-sizing:border-box;}
+#setup .setup-box{width:100%;max-width:480px;margin:0 auto;padding:18px 16px;box-sizing:border-box;} /* 3_90: condensed */
 /* 3_64: dynamic viewport height — plain 100vh can exceed the visible area on mobile
    (browser chrome), leaving the menu slightly scrollable */
 #setup.screen.active{min-height:100vh;min-height:100dvh;}
@@ -617,7 +617,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.84</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.92</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -628,14 +628,14 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <!-- 2_140: labeled Discard button — the old ✕ was 10px, grey-on-navy, ~14px tap target -->
       <button onclick="discardSave()" style="margin-top:8px;background:transparent;border:1px solid #6e5555;color:#c99292;border-radius:8px;padding:9px 22px;font-size:.8em;font-weight:700;cursor:pointer;">Discard saved game</button>
     </div>
-    <div class="setup-btns" id="mode-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 28px;">
+    <div class="setup-btns" id="mode-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 20px;">
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
       <button class="btn-mode" style="background:transparent;color:#c85500;border:2px solid #c85500;" onclick="showShootoutSetup()">🥅 Shootout Mini Game</button>
       <button class="btn-mode" style="background:rgba(100,200,100,.12);color:#66cc66;border:2px solid #66cc66;" onclick="showOnlineSetup()">🌐 Play Online vs Friend</button>
     </div>
     <!-- 2_120: slim mode header — replaces the three buttons once a mode is chosen -->
     <!-- 2_120: tapping the banner goes back to the mode list (no separate Back button) -->
-    <div id="mode-header" style="display:none;max-width:320px;margin:0 auto 20px;">
+    <div id="mode-header" style="display:none;max-width:320px;margin:0 auto 12px;">
       <div id="mode-header-banner" style="cursor:pointer;" onclick="backToModes()" title="Back to game modes"></div>
       <!-- 2_143: hint that the banner is the back button -->
       <div style="text-align:center;font-size:.7em;color:#777;margin-top:6px;">↑ tap the title above to go back</div>
@@ -776,7 +776,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.84</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.92</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1009,7 +1009,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 
 <!-- SHOOTOUT OVERLAY -->
 <div class="overlay" id="so-overlay" style="align-items:flex-start;padding:20px;overflow-y:auto">
-  <div id="so-first-card" style="display:none;position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);z-index:9999;background:#0e1626;border:2px solid #f8bd55;border-radius:14px;padding:16px 26px;font-size:1.1em;font-weight:800;color:#fff;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.65);pointer-events:none;max-width:86vw"></div>
+  <div id="so-first-card" style="display:none;position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);z-index:9999;background:#0e1626;border:2px solid #f8bd55;border-radius:999px;padding:16px 26px;font-size:1.1em;font-weight:800;color:#fff;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.65);pointer-events:none;max-width:86vw"></div>
   <div class="ov-box" style="max-width:720px;width:100%;margin:auto;padding:20px">
 
     <!-- Header -->
@@ -3404,7 +3404,10 @@ function renderAll(){
   saveGame(); // 2_121: debounced autosave (skips mid-AI-turn)
 }
 function renderPbar(){
-  const d=PHASEMAP[G.phase]; // 2_37: roll/reroll/assign/buy all display as Roll & Assign
+  let d=PHASEMAP[G.phase]; // 2_37: roll/reroll/assign/buy all display as Roll & Assign
+  // 3_92: shot resolved — roll/assign AND shoot are done, so the stepper moves to
+  // End Turn (Tim). Buying still works; this is display-only, phase stays 4.
+  if(G.phase===4&&G.combatDone)d=4;
   document.getElementById('pbar').innerHTML=PHASES.map((n,i)=>{
     const c=i<d?'done':i===d?'active':'';
     return`<span class="ph ${c}">${i<d?'✓':(i+1)+'. '}${n}</span>${i<PHASES.length-1?'<span class="ph-arr">›</span>':''}`
@@ -4082,17 +4085,27 @@ function startShootout(practice){
   document.getElementById('so-overlay').classList.add('show');
   renderSOScoreboard();
   // 3_82: brief "who shoots first" card (Tim) — the practice order is a coin flip,
-  // so announce it. Auto-dismisses after ~2.5s, then the first turn begins.
+  // so announce it. 3_85: sits above the shootout panel (not overlapping it) and
+  // stays ~4s (one more beat — Tim), then the first turn begins.
   const _fcGen=(_soCardGen=(typeof _soCardGen==='undefined'?0:_soCardGen)+1);
   const _fc=document.getElementById('so-first-card');
   _fc.innerHTML=(practice?'🪙 Coin flip<br>':'🥅 ')+'<span style="color:#f8bd55">'+soTeamLabel(_so.firstShooter)+'</span> shoots first!';
+  const _fbox=document.querySelector('#so-overlay .ov-box');
+  const _ftop=_fbox?_fbox.getBoundingClientRect().top:0;
+  if(_ftop>170){ // 3_87: card sits directly on top of the shootout panel (Tim)
+    // 3_88: drop the -50% Y shift (it was re-adding half a card of gap — Tim's screenshot)
+    _fc.style.top='auto';_fc.style.transform='translate(-50%,0)';
+    _fc.style.bottom=Math.max(8,window.innerHeight-_ftop+2)+'px';
+  }else{ // panel fills the screen — overlap near the top as before
+    _fc.style.bottom='auto';_fc.style.top='12%';_fc.style.transform='translate(-50%,-50%)';
+  }
   _fc.style.display='block';
   setTimeout(()=>{
     if(_fcGen!==_soCardGen)return; // a newer shootout started
     _fc.style.display='none';
     if(!document.getElementById('so-overlay').classList.contains('show'))return; // user bailed
     soStartShooterTurn();
-  },2500);
+  },4000);
   // Online real-game shootout: publish the drawn shooters so both sides
   // share the same pools, dice, and turn order. (Practice stays local —
   // unless it's an online shootout-only session, which always publishes.)
@@ -6144,8 +6157,8 @@ async function aiShootoutTurn(){
   const si=_so.shooterIdx,P=aiP();
   try{
     // 2_86: shootout has its own quick pacing (not the full-game aiPace)
-    // 2_87: 750ms choosing + 750ms highlight beat = 1.5s total
-    await new Promise(r=>setTimeout(r,750));
+    // 3_86: 1.5x — 1125ms choosing + 1125ms highlight beat = ~2.25s total (Tim: felt a tad quick)
+    await new Promise(r=>setTimeout(r,1125));
     _aiSelf=true;
     if(!_so.suddenDeath){
       const used=_so.usedFwds[si];
@@ -6158,7 +6171,7 @@ async function aiShootoutTurn(){
         const lbl=b.querySelector('.face-badge');
         if(lbl&&lbl.textContent.trim()===_so.selectedFwd)b.classList.add('sel');
       });
-      await new Promise(r=>setTimeout(r,750)); // brief beat to register the highlight, then roll
+      await new Promise(r=>setTimeout(r,1125)); // brief beat to register the highlight, then roll
     }
     // 2_86: sudden death — die is drawn, not chosen: no highlight, no extra pause
     soRollShot();
@@ -6167,7 +6180,7 @@ async function aiShootoutTurn(){
 }
 function aiMaybeShootoutAdvance(r){
   if(!(_aiActive&&r&&r.playerIdx===_aiSlot))return;
-  setTimeout(()=>{_aiSelf=true;try{soAdvance();aiShowSummary();}finally{_aiSelf=false;}},900); // 2_86: quick shootout pacing
+  setTimeout(()=>{_aiSelf=true;try{soAdvance();aiShowSummary();}finally{_aiSelf=false;}},1350); // 3_86: 1.5x (was 900)
 }
 
 // 2_121: solo / Vs AI autosave + Resume. Game state is plain data (dice are
