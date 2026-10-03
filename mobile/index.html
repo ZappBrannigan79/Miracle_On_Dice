@@ -607,6 +607,12 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 #m-oppsummary .m-os-chip small{display:block;font-size:.62em;color:#8b96b0;line-height:1.2;}
 #m-oppsummary .m-os-off{background:rgba(30,60,160,.4);border-color:rgba(80,120,255,.55);}
 #m-oppsummary .m-os-def2{background:rgba(120,20,20,.4);border-color:rgba(200,50,50,.55);}
+
+/* 3_96: small dialogs opt out of the bottom-sheet → centered capsules (Tim).
+   Shootout / bag viewer keep the sheet; they need the room. */
+.overlay.overlay-center{align-items:center!important;justify-content:center!important;}
+.overlay.overlay-center>div{width:auto!important;max-width:min(92vw,430px)!important;
+  margin:auto!important;border-radius:999px!important;}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -617,7 +623,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.94</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.97</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -776,7 +782,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.94</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.97</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -790,7 +796,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div class="bar-right">
       <button class="btn-sm" onclick="openShop()">🛒 Buy</button>
       <button class="btn-sm" onclick="openLineup()">📋 Lineup</button>
-      <button class="btn-sm danger" onclick="if(confirm('New game?'))location.reload()">↩ Reset</button>
+      <button class="btn-sm danger" onclick="appConfirm({title:'Start a new game?',msg:'Your current game will be abandoned.',yes:'New game',no:'Keep playing'}).then(ok=>{if(ok)location.reload();})">↩ Reset</button>
     </div>
   </div>
   <div class="phase-bar" id="pbar"></div>
@@ -973,7 +979,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 </div>
 
 <!-- FACEOFF -->
-<div class="overlay" id="fo-overlay">
+<div class="overlay overlay-center" id="fo-overlay">
   <div class="ov-box">
     <h2>⚡ Faceoff</h2><p id="fo-plbl">Period 1 — roll to determine who goes first.</p>
     <div class="fo-rolls">
@@ -993,11 +999,11 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
   </div>
 </div>
 <!-- PERIOD END -->
-<div class="overlay" id="pe-overlay">
+<div class="overlay overlay-center" id="pe-overlay">
   <div class="ov-box"><h2 id="pe-title">Period Over</h2><div class="ov-score" id="pe-score">0–0</div><p id="pe-msg"></p><button class="btn-ov" id="pe-btn">Next →</button></div>
 </div>
 <!-- GAME OVER -->
-<div class="overlay" id="go-overlay">
+<div class="overlay overlay-center" id="go-overlay">
   <div class="ov-box">
     <h2>Game Over</h2>
     <div class="ov-winner" id="go-win"></div>
@@ -1106,7 +1112,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 </div>
 
 <!-- ONLINE CONNECTING OVERLAY -->
-<div class="overlay" id="online-connecting-overlay">
+<div class="overlay overlay-center" id="online-connecting-overlay">
   <div class="ov-box" style="text-align:center">
     <h2 style="color:var(--gold)">🌐 Connecting...</h2>
     <div id="online-connecting-msg" style="font-size:.9em;color:#aaa;margin:12px 0">
@@ -1418,16 +1424,20 @@ function startCustom(){
   if(pts(l2)>25){toast(`Player 2 lineup is ${pts(l2)}pts — exceeds 25pt limit.`);return;}
   // Get bag extras
   initG(l1,l2,[],[]);
-  // Sub-25pt bonus tokens for custom builds
-  [[l1,0],[l2,1]].forEach(([lineup,i])=>{
-    const total=lineup.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0);
-    const diff=25-total;
-    if(diff>0){
-      const ch=confirm(`${G.players[i].name}: Your ${total}pt build earns ${diff} starting token${diff>1?'s':''}!\nPress OK for Shoot Token${diff>1?'s':''} or Cancel for Block Token${diff>1?'s':''}`);
-      if(ch)G.players[i].tok.shoot+=diff;else G.players[i].tok.block+=diff;
+  // Sub-25pt bonus tokens for custom builds (3_97: styled confirm, sequential)
+  (async()=>{
+    for(const [lineup,i] of [[l1,0],[l2,1]]){
+      const total=lineup.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0);
+      const diff=25-total;
+      if(diff>0){
+        const ch=await appConfirm({title:`${G.players[i].name}: ${diff} bonus token${diff>1?'s':''}!`,
+          msg:`Your ${total}pt build earns ${diff} starting token${diff>1?'s':''} — shoot or block?`,
+          yes:'Shoot',no:'Block'});
+        if(ch)G.players[i].tok.shoot+=diff;else G.players[i].tok.block+=diff;
+      }
     }
-  });
-  beginGame();
+    beginGame();
+  })();
 }
 function beginGame(){
   clearSave(); // 2_121: new game replaces any saved one
@@ -1663,10 +1673,9 @@ function confirmRRSel(){if(aiGuard())return;
   const sel=ap.z.rs.filter(d=>d.sel&&!d.spun); // 3_36: spun-down dice are spent — never rerolled
   if(!sel.length){
     // No dice selected — offer skip or go back
-    if(confirm('No dice selected.\n\nOK = Skip Reroll (reroll none)\nCancel = Go back and select dice')){
-      skipRR();
-    }
-    // cancel just returns, player can select dice
+    appConfirm({title:'No dice selected',msg:'Skip the reroll, or go back and select dice?',yes:'Skip reroll',no:'Go back'})
+      .then(ok=>{if(ok)skipRR();});
+    // no = just returns, player can select dice
     return;
   }
   sel.forEach(d=>{
@@ -2585,24 +2594,36 @@ function humanResolveCombat(){
   if(!committed&&avail){confirmEmptyBlock(()=>resolveCombat());return;}
   resolveCombat();
 }
+// 3_97: one styled in-app confirm for the whole app (Tim — the bright white
+// native confirm() doesn't fit the app). Resolves true = primary (right) button.
+function appConfirm(o){
+  return new Promise(res=>{
+    closeMenus();
+    const m=document.createElement('div');
+    m.id='appconfirm-modal';
+    m.style.cssText='position:fixed;inset:0;z-index:10002;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:20px;';
+    m.innerHTML=`<div style="width:100%;max-width:340px;background:#0e1626;border:2px solid #f8bd55;border-radius:999px;padding:26px 30px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.65)">`
+      +`<div style="font-size:1.05em;font-weight:900;margin-bottom:${o.msg?8:18}px">${o.title||'Are you sure?'}</div>`
+      +(o.msg?`<div style="font-size:.88em;color:#aaa;margin-bottom:18px">${o.msg}</div>`:'')
+      +`<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">`
+      +`<button class="abtn sec" id="acf-no">${o.no||'Cancel'}</button>`
+      +`<button class="abtn prim" id="acf-yes">${o.yes||'OK'}</button>`
+      +`</div></div>`;
+    document.body.appendChild(m);
+    const done=v=>{m.remove();res(v);};
+    document.getElementById('acf-yes').onclick=()=>done(true);
+    document.getElementById('acf-no').onclick=()=>done(false);
+    m.addEventListener('click',e=>{if(e.target===m)done(false);}); // tap outside = no
+  });
+}
 function confirmEmptyBlock(proceed){
-  closeMenus();
   const opp=OPP(),nd=opp.z.defend.length,nt=opp.tok.block;
   const parts=[];
   if(nd>0)parts.push(`<b>${nd}</b> ${nd===1?'defend die':'defend dice'}`);
   if(nt>0)parts.push(`<b>${nt}</b> block token${nt!==1?'s':''}`);
-  const m=document.createElement('div');
-  m.id='nbc-modal';m.className='overlay show';m.style.zIndex='10001';
-  m.innerHTML=`<div class="ov-box" style="max-width:340px;padding:24px 28px">`
-    +`<div style="font-size:1.05em;font-weight:900;margin-bottom:8px">🛡️ Roll with no blockers?</div>`
-    +`<div style="font-size:.88em;color:#aaa;margin-bottom:18px">You have ${parts.join(' and ')} available but committed nothing.</div>`
-    +`<div style="display:flex;gap:10px;justify-content:center">`
-    +`<button class="abtn prim" id="nbc-back">Keep choosing</button>`
-    +`<button class="abtn sec" id="nbc-go">Roll anyway</button>`
-    +`</div></div>`;
-  document.body.appendChild(m);
-  document.getElementById('nbc-back').onclick=()=>m.remove();
-  document.getElementById('nbc-go').onclick=()=>{m.remove();proceed();};
+  appConfirm({title:'🛡️ Roll with no blockers?',
+    msg:`You have ${parts.join(' and ')} available but committed nothing.`,
+    yes:'Roll anyway',no:'Keep choosing'}).then(ok=>{if(ok)proceed();});
 }
 function resolveCombat(){
   if(_combatResolving)return; // already resolving this shot
@@ -2879,7 +2900,9 @@ function confirmEndTurn(){if(aiGuard())return;
     const hcE=rsWarn.some(d=>d.key==='HC');
     let msg=`You still have ${n} ${n===1?'die':'dice'} in the Roll & Sort Zone — they'll be sent to Iced.`;
     if(hcE)msg+=` (HC energy can't be saved to Reserve.)`;
-    if(!confirm(msg+` End your turn anyway?`))return;
+    appConfirm({title:'End your turn?',msg:msg+` End your turn anyway?`,yes:'End turn',no:'Keep playing'})
+      .then(ok=>{if(ok)confirmSkipShot();});
+    return;
   }
   confirmSkipShot();
 }
@@ -2889,7 +2912,9 @@ function confirmSkipShot(){
   if(G.shotDeclared){endTurn();return;}
   const hasShootable=ap.z.shoot.length>0||ap.z.hot.length>0;
   if(hasShootable){
-    if(!confirm(`You have dice in the Hot/Shoot Zone. Skip your shot?`))return;
+    appConfirm({title:'Skip your shot?',msg:`You have dice in the Hot/Shoot Zone.`,yes:'Skip shot',no:'Keep shooting'})
+      .then(ok=>{if(ok)endTurn();});
+    return;
   }
   endTurn();
 }
@@ -5425,20 +5450,26 @@ function startAIGame(){
   G.players[0].teamName=p1.name;
   G.players[1].teamName=p2.name;
   G.players[1].name=`${P.icon} ${P.name}`;
-  [p1,p2].forEach((p,i)=>{
-    const diff=25-p.pts;
-    if(diff>0){
-      let ch;
-      if(i===1){ch=aiEffShooters()>=0.5;G.players[i].tok[ch?'shoot':'block']+=diff;} // 2_73: shooter commitment decides token type
-      else{
-        ch=confirm(`${G.players[i].name} (${p.name}): ${p.pts}pt build earns ${diff} starting token${diff>1?'s':''}!\nOK = Shoot | Cancel = Block`);
-        if(ch)G.players[i].tok.shoot+=diff;else G.players[i].tok.block+=diff;
+  // 3_97: styled confirm, sequential (human choice is async)
+  (async()=>{
+    for(let i=0;i<2;i++){
+      const p=[p1,p2][i];
+      const diff=25-p.pts;
+      if(diff>0){
+        let ch;
+        if(i===1){ch=aiEffShooters()>=0.5;G.players[i].tok[ch?'shoot':'block']+=diff;} // 2_73: shooter commitment decides token type
+        else{
+          ch=await appConfirm({title:`${G.players[i].name} (${p.name}): ${diff} bonus token${diff>1?'s':''}!`,
+            msg:`${p.pts}pt build earns ${diff} starting token${diff>1?'s':''} — shoot or block?`,
+            yes:'Shoot',no:'Block'});
+          if(ch)G.players[i].tok.shoot+=diff;else G.players[i].tok.block+=diff;
+        }
+        addLog(`${G.players[i].name}: Sub-25pt build — gained ${diff} ${ch?'Shoot':'Block'} token${diff>1?'s':''}.`,'imp');
       }
-      addLog(`${G.players[i].name}: Sub-25pt build — gained ${diff} ${ch?'Shoot':'Block'} token${diff>1?'s':''}.`,'imp');
     }
-  });
-  addLog(`🤖 Vs AI Chuck: ${P.icon} ${P.name} (${P.tag}) sits across the table with ${p2.name}.`,'imp');
-  beginGame();
+    addLog(`🤖 Vs AI Chuck: ${P.icon} ${P.name} (${P.tag}) sits across the table with ${p2.name}.`,'imp');
+    beginGame();
+  })();
 }
 
 // ── Turn driver ──
@@ -6263,10 +6294,9 @@ function updateResumeBtn(){
   }
 }
 function discardSave(){
-  if(confirm('Discard the saved game?')){
-    clearSave();
-    toast('Saved game discarded');
-  }
+  appConfirm({title:'Discard saved game?',yes:'Discard',no:'Keep it'}).then(ok=>{
+    if(ok){clearSave();toast('Saved game discarded');}
+  });
 }
 function resumeGame(){
   const d=getSave();
@@ -6317,9 +6347,9 @@ function resumeGame(){
     if(inGame){
       // Stay in the app; ask before abandoning the game
       history.pushState({modApp:true},'');
-      if(confirm('Leave this game and return to the main menu?')){
-        try{resetAIFlags();showScreen('setup');}catch(e){}
-      }
+      appConfirm({title:'Leave this game?',msg:'Return to the main menu?',yes:'Leave',no:'Stay'}).then(ok=>{
+        if(ok){try{resetAIFlags();showScreen('setup');}catch(e){}}
+      });
     }else{
       if(backArmed){
         // Second press within the window: let the browser exit (don't re-push)
