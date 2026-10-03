@@ -617,7 +617,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.92</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.93</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -776,7 +776,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.92</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.93</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -912,7 +912,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <div class="tok-slim-top"><span class="tok-slim-label">🛡️ <strong>Block Tokens</strong></span><span class="tok-avail"><b id="block-tok-counter-n">0</b> available</span></div>
           <div class="tok-hint" id="block-tok-counter-txt"></div>
         </div>
-        <button class="abtn prim" style="width:100%;margin-top:6px" onclick="resolveCombat()">Roll Combat Dice!</button>
+        <button class="abtn prim" style="width:100%;margin-top:6px" onclick="humanResolveCombat()">Roll Combat Dice!</button>
       </div>
     </div>
     <div id="combat-result" style="display:none">
@@ -2474,7 +2474,7 @@ function openCombat(){
   // a later combat where this client defends.
   const rb=document.querySelector('#block-sel-area .abtn.prim');
   if(rb){
-    rb.disabled=false;rb.textContent='Roll Combat Dice!';rb.onclick=resolveCombat;
+    rb.disabled=false;rb.textContent='Roll Combat Dice!';rb.onclick=humanResolveCombat;
     // 2_121: in Vs AI, when Coach defends the human's shot he auto-rolls —
     // hide the button so the human isn't offered a duplicate roll.
     if(_aiActive&&_aiDefPhase){rb.style.display='none';}
@@ -2573,6 +2573,35 @@ function renderBselInfo(){
 }
 
 let _combatResolving=false; // 2_121: prevent double-resolution of the same shot
+// 3_93: safety net (Tim) — the defender tapped confirm with blockers/tokens available
+// but committed nothing. Nudge, not a gate: one extra tap rolls anyway.
+function humanResolveCombat(){
+  if(aiGuard())return;
+  const opp=OPP();
+  const committed=G.blockSelIds.length>0||_bTok>0;
+  const avail=opp.z.defend.length>0||opp.tok.block>0;
+  if(!committed&&avail){confirmEmptyBlock(()=>resolveCombat());return;}
+  resolveCombat();
+}
+function confirmEmptyBlock(proceed){
+  closeMenus();
+  const opp=OPP(),nd=opp.z.defend.length,nt=opp.tok.block;
+  const parts=[];
+  if(nd>0)parts.push(`<b>${nd}</b> ${nd===1?'defend die':'defend dice'}`);
+  if(nt>0)parts.push(`<b>${nt}</b> block token${nt!==1?'s':''}`);
+  const m=document.createElement('div');
+  m.id='nbc-modal';m.className='overlay show';m.style.zIndex='10001';
+  m.innerHTML=`<div class="ov-box" style="max-width:340px;padding:24px 28px">`
+    +`<div style="font-size:1.05em;font-weight:900;margin-bottom:8px">🛡️ Roll with no blockers?</div>`
+    +`<div style="font-size:.88em;color:#aaa;margin-bottom:18px">You have ${parts.join(' and ')} available but committed nothing.</div>`
+    +`<div style="display:flex;gap:10px;justify-content:center">`
+    +`<button class="abtn prim" id="nbc-back">Keep choosing</button>`
+    +`<button class="abtn sec" id="nbc-go">Roll anyway</button>`
+    +`</div></div>`;
+  document.body.appendChild(m);
+  document.getElementById('nbc-back').onclick=()=>m.remove();
+  document.getElementById('nbc-go').onclick=()=>{m.remove();proceed();};
+}
 function resolveCombat(){
   if(_combatResolving)return; // already resolving this shot
   _combatResolving=true;
