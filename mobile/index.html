@@ -617,7 +617,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.80</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.82</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -776,7 +776,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.80</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.82</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1009,6 +1009,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 
 <!-- SHOOTOUT OVERLAY -->
 <div class="overlay" id="so-overlay" style="align-items:flex-start;padding:20px;overflow-y:auto">
+  <div id="so-first-card" style="display:none;position:fixed;left:50%;top:34%;transform:translate(-50%,-50%);z-index:9999;background:#0e1626;border:2px solid #f8bd55;border-radius:14px;padding:16px 26px;font-size:1.1em;font-weight:800;color:#fff;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.65);pointer-events:none;max-width:86vw"></div>
   <div class="ov-box" style="max-width:720px;width:100%;margin:auto;padding:20px">
 
     <!-- Header -->
@@ -2379,7 +2380,7 @@ function renderAtkDice(){
   const pips=inShot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
   const n=inShot.length;
   document.getElementById('atk-dice-sum').innerHTML=
-    `<strong>${n}</strong> shooter${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} → <strong>${pips} combat ${pips!==1?'dice':'die'}</strong>`+
+    `<strong>${n}</strong> shooter${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} → <strong>${pips} combat ${cDiceWord(pips)}</strong>`+
     `<span id="atk-tok-line">${_sTok>0?` • 🎯 <strong style="color:#ffd75e">+${_sTok} token${_sTok!==1?'s':''}</strong>`:''}</span>`+
     (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot</div>`:'');
 }
@@ -2540,12 +2541,34 @@ function refreshBlockerNudge(){
 // 3_77: defender's running total — the blocker's equivalent of the attacker's
 // "N shooters • N pips → N combat dice" line (Tim). Live on every commit + token.
 // 3_78: + the clock's automatic block bonus (Tim) — it adds combat dice, per resolveCombat.
+// 3_81: Easter egg (Tim) — tap the version badge 5x within 3s to toggle "combat diece" mode
+let _dieceMode=false;
+function cDiceWord(n){return _dieceMode?'diece':(n!==1?'dice':'die');}
+let _badgeTaps=[];
+function armDieceEgg(){
+  document.querySelectorAll('.ver-badge').forEach(b=>{
+    b.style.cursor='pointer';
+    b.addEventListener('click',()=>{
+      const now=Date.now();
+      _badgeTaps=_badgeTaps.filter(t=>now-t<3000);_badgeTaps.push(now);
+      if(_badgeTaps.length>=5){
+        _badgeTaps=[];_dieceMode=!_dieceMode;
+        toast(_dieceMode?'🥚 diece mode engaged':'🥚 diece mode off');
+        try{
+          renderAtkDice();renderBselInfo();
+          const sp=document.getElementById('shoot-pip');
+          if(sp&&sp.textContent)sp.textContent=sp.textContent.replace(/combat dic?e/,'combat '+cDiceWord(2));
+        }catch(e){}
+      }
+    });
+  });
+}
 function clockBlockBonus(){return G.clock>=5?1:(G.clock>=2?2:(G.clock===1?3:0));}
 function renderBselInfo(){
   const el=document.getElementById('bsel-info');if(!el)return;
   const sel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
   const n=sel.length,pips=sel.reduce((s,d)=>s+(d.face?d.face.v:0),0),bonus=clockBlockBonus();
-  el.innerHTML=`<strong>${n}</strong> blocker${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} + <strong>${bonus}</strong> clock → <strong>${pips+bonus} combat ${(pips+bonus)!==1?'dice':'die'}</strong>`+
+  el.innerHTML=`<strong>${n}</strong> blocker${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} + <strong>${bonus}</strong> clock → <strong>${pips+bonus} combat ${cDiceWord(pips+bonus)}</strong>`+
     `${_bTok>0?` • 🛡️ <strong style="color:#ffd75e">+${_bTok} token${_bTok!==1?'s':''}</strong>`:''}`;
 }
 
@@ -2585,8 +2608,8 @@ function resolveCombat(){
   // The full result travels to the other client so the shooter sees the same
   // GOAL!/BLOCKED reveal (combat dice are rolled once, by the defender).
   const result={sr,br,sTotal,bTotal,isGoal,sTok:shootTokensUsed,bTok:blockTokensUsed,
-    sBreak:`${shootBreakdown||'0 dice'} → ${numShootDice} combat dice [${sr.join(',')}] +${shootTokensUsed}tok`,
-    bBreak:`${blockBreakdown||'0 dice'} → ${numBlockDice} combat dice [${br.join(',')}] +${bonus}bonus +${blockTokensUsed}tok`};
+    sBreak:`${shootBreakdown||'0 dice'} → ${numShootDice} combat ${cDiceWord(numShootDice)} [${sr.join(',')}] +${shootTokensUsed}tok`,
+    bBreak:`${blockBreakdown||'0 dice'} → ${numBlockDice} combat ${cDiceWord(numBlockDice)} [${br.join(',')}] +${bonus}bonus +${blockTokensUsed}tok`};
   if(result.isGoal){
     addLog(`🚨 GOAL! ${ap.name} scores! (${sTotal} vs ${bTotal})`,'goal');
     ap.goals++;
@@ -3459,7 +3482,7 @@ function renderBoard(){
   const sp=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:0),0);
   const totalSCD=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
   document.getElementById('shoot-pip').textContent=ap.z.shoot.length
-    ?`${ap.z.shoot.length} die/dice → ${totalSCD} combat dice`:'';
+    ?`${ap.z.shoot.length} die/dice → ${totalSCD} combat ${cDiceWord(totalSCD)}`:'';
   const ts=document.getElementById('tstrip');ts.innerHTML='';
   // 2_27: always show both token pills (even at 0) — prominent blue=shoot / red=block
   ts.innerHTML+=`<span class="tok-pill tp-shoot${tokPopCls(G.ap,'s',ap.tok.shoot)}">🎯 <span class="tp-n">${ap.tok.shoot}</span> SHOOT</span>`;
@@ -4048,11 +4071,23 @@ function startShootout(practice){
 
   document.getElementById('so-overlay').classList.add('show');
   renderSOScoreboard();
+  // 3_82: brief "who shoots first" card (Tim) — the practice order is a coin flip,
+  // so announce it. Auto-dismisses after ~2.5s, then the first turn begins.
+  const _fcGen=(_soCardGen=(typeof _soCardGen==='undefined'?0:_soCardGen)+1);
+  const _fc=document.getElementById('so-first-card');
+  _fc.innerHTML=(practice?'🪙 Coin flip<br>':'🥅 ')+'<span style="color:#f8bd55">'+soTeamLabel(_so.firstShooter)+'</span> shoots first!';
+  _fc.style.display='block';
+  setTimeout(()=>{
+    if(_fcGen!==_soCardGen)return; // a newer shootout started
+    _fc.style.display='none';
+    if(!document.getElementById('so-overlay').classList.contains('show'))return; // user bailed
+    soStartShooterTurn();
+  },2500);
   // Online real-game shootout: publish the drawn shooters so both sides
   // share the same pools, dice, and turn order. (Practice stays local —
   // unless it's an online shootout-only session, which always publishes.)
   if(_onlineActive && (!practice||_soOnly)){ soSyncPush(); }
-  soStartShooterTurn();
+  // (first turn now starts when the who-shoots-first card dismisses)
 }
 
 // 3_65: back to the menu without location.reload() — the reload left the menu
@@ -6247,6 +6282,7 @@ function resumeGame(){
     }
   });
 })();
+armDieceEgg();
 
 </script>
 
