@@ -617,7 +617,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.82</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.84</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -776,7 +776,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.82</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.84</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3256,6 +3256,16 @@ function getHumanOpts(die){
     const iceOpt={l:die.key==='HC'?'Set Aside':'Ice it',a:'iced'};
     if(G.clock===10)return[{l:'ADV — unavailable on 10:00 turn',a:'adv-blocked',dis:true},iceOpt];
     return[{l:'No dice in Cold Zone to advance',a:'adv-empty',dis:true},iceOpt];
+  }
+  // 3_84: dead-end costed tap pops the Ice option (Tim) — was a toast-only dead end.
+  // Affordable costed faces still one-click via getOpts below; auto-assign untouched.
+  if(f.c&&(f.t==='S'||f.t==='B')&&!hasEnergy1()){
+    return[{l:`${f.t==='S'?'Shoot':'Block'} — need 1\u26a1 (none available)`,a:'no-energy',dis:true},
+           {l:'Ice it',a:'iced'}];
+  }
+  if(f.t==='SO'&&!hasEnergy1()){
+    return[{l:'Shutout — need 1\u26a1 (none available)',a:'no-energy',dis:true},
+           {l:'Ice it',a:'iced'}];
   }
   // Single-option faces: reuse getOpts (handles costed/blocked/empty states) — one click.
   const o=getOpts(die);
@@ -6200,11 +6210,10 @@ function updateResumeBtn(){
   const d=getSave();
   if(d){
     wrap.style.display='block';
-    const mins=String(Math.floor(d.G.clock/60)).padStart(2,'0');
-    const secs=String(d.G.clock%60).padStart(2,'0');
+    const clk=(d.G.clock<10?'0':'')+d.G.clock+':00'; // 3_83: clock is minutes, not seconds (was showing 00:02 for 02:00)
     const info=document.getElementById('resume-info');
     if(info)info.textContent=(d.mode==='vsai'?'🤖 Vs AI Chuck':'👥 Solo')+
-      ` · Period ${d.G.period} · ${mins}:${secs} · ${d.G.players[d.G.ap]?d.G.players[d.G.ap].name:''}`;
+      ` · Period ${d.G.period} · ${clk} · ${d.G.players[d.G.ap]?d.G.players[d.G.ap].name:''}`;
   }else{
     wrap.style.display='none';
   }
