@@ -65,8 +65,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* 2_121: subtle pulse on AI speed buttons to draw the eye — stops once one is picked */
 /* 2_128: brightened per Tim — stronger glow + background swell */
 
-.ai-speed-pulse{animation:nudgePulse 1.4s ease-in-out infinite;}
-.ai-speed-pulse.active{animation:none;}
+/* 3_72: the Start Game button pulses instead of the speed buttons (Tim) — Normal is preselected */
+#qs-start-btn{animation:nudgePulse 1.4s ease-in-out infinite;}
 /* Energy picker modal */
 .epicker-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:250;align-items:center;justify-content:center;}
 .epicker-overlay.show{display:flex;}
@@ -241,10 +241,18 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .spindown-badge{position:absolute;top:-5px;left:-5px;background:#cc6600;color:#fff;font-size:.55em;font-weight:900;border-radius:6px;padding:1px 4px;pointer-events:none;}
 
 /* Die context menu — opens to right, flips left if needed */
-.die-menu{position:absolute;z-index:9999;background:#1a2d45;border:1px solid var(--gold);border-radius:8px;padding:5px;min-width:215px;box-shadow:0 4px 20px rgba(0,0,0,.8);top:0;left:calc(100% + 10px);}
-.die-menu.flip-left{left:auto;right:calc(100% + 10px);}
-.die-menu button{display:block;width:100%;text-align:left;background:none;border:none;color:white;padding:6px 10px;cursor:pointer;border-radius:4px;font-size:.8em;transition:background .1s;}
-.die-menu button:hover{background:rgba(200,168,75,.2);color:var(--gold);}
+/* 3_68: die-anchored option popover (Tim) — small uniform card directly over the die,
+   replaces the old side-popup .die-menu on all platforms. Sized for the 3-button
+   Energy case; 2-button cases (Wild, HC Energy) use the same box. */
+.die-pop{position:fixed;z-index:10000;width:210px;background:#1a2d45;border:1px solid var(--gold);border-radius:10px;padding:8px;box-shadow:0 6px 24px rgba(0,0,0,.85);display:flex;flex-direction:column;gap:6px;}
+.die-pop button{min-height:44px;border-radius:7px;border:1px solid rgba(200,168,75,.45);background:rgba(200,168,75,.13);color:#fff;font-weight:700;font-size:.85em;cursor:pointer;}
+.die-pop button:active{background:rgba(200,168,75,.32);}
+.die-pop button:disabled{opacity:.38;cursor:default;}
+/* 3_68: blanks flash-fade to the Iced Zone once assignment starts (Tim) */
+.die-wrap.blank-fade{transition:opacity .45s ease,transform .45s ease;opacity:0;transform:scale(.5);}
+/* 3_69: slower dissolve + glide (Tim) — the zones below slide up in sync via FLIP */
+.zone.z-rs.rs-flash{box-shadow:0 0 14px 3px var(--gold);transition:box-shadow .3s;}
+.zone.z-rs.rs-done{opacity:0;max-height:0!important;min-height:0!important;margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;overflow:hidden!important;border-width:0;transition:opacity .75s ease-in-out,max-height .75s ease-in-out,margin .75s ease-in-out,padding .75s ease-in-out;}
 
 /* RR mode banner */
 .rr-mode-banner{background:rgba(221,119,34,.15);border:1px solid #dd7722;border-radius:6px;padding:5px 10px;font-size:.78em;color:#dd9944;display:none;flex-shrink:0;align-items:center;gap:8px;}
@@ -315,7 +323,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .epips{display:inline-flex;align-items:center;gap:6px;font-size:.95em;font-weight:800;border-radius:10px;padding:4px 12px;border:2px solid;letter-spacing:.5px;line-height:1.2;color:#ffd97a;border-color:#c8a84b;background:rgba(200,168,75,.16);} /* 3_50: full gold pill treatment, matches tok-pill metrics */
 
 /* COMBAT */
-.combat-box{background:#0a1820;border:2px solid var(--gold);border-radius:12px;padding:18px;max-width:720px;width:100%;max-height:92vh;overflow-y:auto;} /* 2_147: scrollable so tall content never clips */
+.combat-box{background:#0a1820;border:2px solid var(--gold);border-radius:12px;padding:14px;max-width:720px;width:100%;max-height:92vh;overflow-y:auto;} /* 2_147: scrollable so tall content never clips; 3_66: padding 18→14 */
 .combat-title{font-size:1.2em;font-weight:900;color:var(--gold);text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:2px;}
 .combat-clock{font-size:.68em;font-weight:900;letter-spacing:1px;color:#fff;border:2px solid #fff;border-radius:8px;padding:2px 9px;margin-left:6px;vertical-align:middle;white-space:nowrap;} /* 2_151: mini clock — white 10:00–05:00 */
 .combat-clock.hot{color:#ff6666;border-color:#ff3b3b;} /* 2_151: red 04:00–01:00, matches header */
@@ -349,6 +357,20 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .tok-step button:disabled{opacity:.35;cursor:default;}
 .tok-count{font-size:1.9em;font-weight:800;color:#ffd75e;min-width:1.6em;display:inline-block;text-align:center;}
 .tok-hint{text-align:center;color:#cdb87a;font-size:.82em;}
+/* 3_66: slim single-row token pickers for the Shot on Goal panel (Tim) — the old
+   3-line box (label / stepper / hint) couldn't fit with two dice rows per side */
+/* 3_67: single row didn't fit at phone widths (avail badge clipped) — compact two-line instead */
+.tok-ctrl.tok-slim{display:block;padding:8px 12px;}
+.tok-ctrl.tok-slim .tok-slim-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.tok-ctrl.tok-slim .tok-slim-label{white-space:nowrap;}
+.tok-ctrl.tok-slim .tok-opt{color:#cdb87a;font-size:.85em;}
+.tok-ctrl.tok-slim .tok-step{margin:0;gap:12px;}
+.tok-ctrl.tok-slim .tok-step button{padding:5px 20px;min-width:56px;min-height:44px;font-size:1.25em;}
+.tok-ctrl.tok-slim .tok-count{font-size:1.4em;min-width:1.1em;}
+.tok-ctrl.tok-slim .tok-hint{margin:2px 0 0;text-align:left;font-size:.78em;}
+/* 3_67: combat-panel dice slightly smaller with no tier labels — two rows per side must fit */
+.combat-box #atk-dice .die-body,.combat-box #bsel-dice .die-body{width:50px;height:50px;}
+.combat-box #atk-dice .die-tier-lbl,.combat-box #bsel-dice .die-tier-lbl{display:none;}
 .tok-ctrl.tok-empty{opacity:.55;} /* 3_16/3_17: 0 tokens — picker visible but inert */
 
 .tok-ctrl.attn{animation:nudgePulse 1.4s ease-in-out infinite;border-color:#ffd75e;}
@@ -381,7 +403,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .btn-ov:disabled{opacity:.45;cursor:default;}
 .atk-dice-row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px;}
 .atk-dice-row .die-body{cursor:default;}
-#atk-dice-sum{font-size:.85em;color:#cfe0ff;margin-bottom:6px;}
+#atk-dice-sum{font-size:.92em;color:#cfe0ff;margin:2px 0 8px;padding:7px 10px;background:rgba(80,140,255,.12);border:1px solid rgba(80,140,255,.35);border-radius:8px;} /* 3_79: summary bar — glanceable (Tim) */
+#bsel-info{font-size:.92em;color:#ffd9d9;margin:2px 0 8px;padding:7px 10px;background:rgba(255,90,90,.10);border:1px solid rgba(255,90,90,.35);border-radius:8px;} /* 3_77: defender's running total — mirrors atk-dice-sum */
 
 /* LOG */
 .log-panel{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.08);padding:5px 12px;flex-shrink:0;max-height:64px;overflow-y:auto;}
@@ -522,6 +545,9 @@ div[class$="-overlay"]>div{width:100%!important;max-width:560px;max-height:88vh;
 /* 3_64: dynamic viewport height — plain 100vh can exceed the visible area on mobile
    (browser chrome), leaving the menu slightly scrollable */
 #setup.screen.active{min-height:100vh;min-height:100dvh;}
+/* 3_65: body tracks the dynamic viewport too — the 3_64 setup-only fix missed it,
+   and body{min-height:100vh} alone can exceed the visible area on mobile */
+body{min-height:100vh;min-height:100dvh;}
 #setup .setup-btns{display:flex;flex-direction:column;gap:10px;align-items:stretch;}
 #setup .btn-mode{width:100%;box-sizing:border-box;}
 #setup .team-builder{max-width:480px;margin:0 auto;}
@@ -591,7 +617,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.64</span></div>
+    <div class="setup-title">Miracle on Dice <span style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.80</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -705,13 +731,13 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div style="margin-top:10px;padding:10px 12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.15);border-radius:8px">
         <div style="font-size:.78em;color:#aaa;">AI speed <span style="color:#666">(how fast it plays its turn)</span>:</div>
         <div id="ai-speed-btns" style="display:flex;gap:8px;margin-top:8px;">
-          <button class="qs-filter-btn ai-speed-pulse" style="flex:1;padding:10px;font-size:.85em" onclick="aiPickSpeed(1,this)">Normal</button>
-          <button class="qs-filter-btn ai-speed-pulse" style="flex:1;padding:10px;font-size:.85em" onclick="aiPickSpeed(2,this)">Fast</button>
+          <button class="qs-filter-btn active" style="flex:1;padding:10px;font-size:.85em" onclick="aiPickSpeed(1,this)">Normal</button>
+          <button class="qs-filter-btn" style="flex:1;padding:10px;font-size:.85em" onclick="aiPickSpeed(2,this)">Fast</button>
         </div>
       </div>
       <!-- 3_52: team summary line removed (Tim) — updateQSSummary no-ops via its guard -->
       <div style="margin-top:8px">
-        <button class="btn-start" style="width:100%;padding:12px" onclick="startQS()">Start Game →</button>
+        <button class="btn-start" id="qs-start-btn" style="width:100%;padding:12px" onclick="startQS()">Start Game →</button>
       </div>
     </div>
 
@@ -750,7 +776,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.64</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.80</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -870,23 +896,20 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <h3 style="color:#88aaff;margin-bottom:6px">🏒 Attacker's shot</h3>
         <div class="atk-dice-row" id="atk-dice"></div>
         <div id="atk-dice-sum"></div>
-        <div style="border-top:1px solid rgba(255,255,255,.1);margin:10px 0;"></div>
-        <h3 style="color:#88aaff;margin-bottom:6px" id="shoot-tok-head">🏒 Attacker — commit Shoot Tokens (optional)</h3>
-        <div class="tok-ctrl" id="shoot-tok-ctrl">
-          <div class="tok-top"><span>🎯 <strong>Shoot Tokens</strong></span><span class="tok-avail"><b id="ap-stok">0</b> available</span></div>
+        <div style="border-top:1px solid rgba(255,255,255,.1);margin:6px 0;"></div>
+        <div class="tok-ctrl tok-slim" id="shoot-tok-ctrl">
+          <div class="tok-slim-top"><span class="tok-slim-label">🎯 <strong>Shoot Tokens</strong> <span class="tok-opt">(optional)</span></span><span class="tok-avail"><b id="ap-stok">0</b> available</span></div>
           <div class="tok-step"><button onclick="adjST(-1)">−</button><span id="stok-count" class="tok-count">0</span><button onclick="adjST(1)">+</button></div>
-          <div class="tok-hint">each token = +1 to your combat total</div>
         </div>
-        <div style="border-top:1px solid rgba(255,255,255,.1);margin:10px 0;" id="shoot-tok-div"></div>
         <h3 id="bsel-heading">🥅 Defender — click your Defensive Zone dice to block with</h3>
         <div class="block-sel-dice" id="bsel-dice"></div>
-        <div class="tok-ctrl" id="block-tok-ctrl">
-          <div class="tok-top"><span>🛡️ <strong>Block Tokens</strong></span><span class="tok-avail"><b id="opp-btok">0</b> available</span></div>
+        <div id="bsel-info"></div>
+        <div class="tok-ctrl tok-slim" id="block-tok-ctrl">
+          <div class="tok-slim-top"><span class="tok-slim-label">🛡️ <strong>Block Tokens</strong></span><span class="tok-avail"><b id="opp-btok">0</b> available</span></div>
           <div class="tok-step"><button onclick="adjBT(-1)">−</button><span id="btok-count" class="tok-count">0</span><button onclick="adjBT(1)">+</button></div>
-          <div class="tok-hint">each token = +1 to your block total</div>
         </div>
-        <div class="tok-ctrl" id="block-tok-counter" style="display:none">
-          <div class="tok-top"><span>🛡️ <strong>Block Tokens</strong></span><span class="tok-avail"><b id="block-tok-counter-n">0</b> available</span></div>
+        <div class="tok-ctrl tok-slim" id="block-tok-counter" style="display:none">
+          <div class="tok-slim-top"><span class="tok-slim-label">🛡️ <strong>Block Tokens</strong></span><span class="tok-avail"><b id="block-tok-counter-n">0</b> available</span></div>
           <div class="tok-hint" id="block-tok-counter-txt"></div>
         </div>
         <button class="abtn prim" style="width:100%;margin-top:6px" onclick="resolveCombat()">Roll Combat Dice!</button>
@@ -1067,7 +1090,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div id="so-final-area" style="display:none;text-align:center;margin-top:16px">
       <div id="so-final-msg" style="font-size:1.3em;font-weight:900;color:var(--gold);margin-bottom:14px"></div>
       <button class="btn-ov" onclick="restartShootout()">🔄 Shootout Again</button>
-      <button class="btn-ov" onclick="document.getElementById('so-overlay').classList.remove('show');location.reload()">New Game</button>
+      <button class="btn-ov" onclick="soNewGame()">New Game</button>
     </div>
   </div>
 </div>
@@ -1144,7 +1167,7 @@ function tierOf(k){const m=k.match(/\d+/);return m?+m[0]:0;}
 function posName(k){return{F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach',R:'Rookie',P:'Penalty'}[posOf(k)]||k;}
 
 // ═══════════════════ STATE ═══════════════════
-let G={},_id=0,_rrMode=false,_rrDieId=null;
+let G={},_id=0,_rrMode=false,_rrDieId=null,_rsWasEmpty=false,_rsCollapseGen=0; // 3_71: gen invalidates a collapse whose timers outlive the turn
 function mkDie(k){return{id:_id++,key:k,pos:posOf(k),tier:tierOf(k),face:null,sel:false,energyPending:false,spun:false};} // 3_36: spun = die was spun down for energy — cannot be rerolled
 function mkBag(extra=[]){const b=[];for(let i=0;i<15;i++)b.push(mkDie('Rookie'));return b;} // extra param kept for API compat but ignored — all 15 start as Rookies
 function mkLineup(arr){return arr.map(k=>({key:k,left:3}));}
@@ -1668,6 +1691,8 @@ function cancelRRSel(){if(aiGuard())return;
 // ═══════════════════ AUTO-ASSIGN ═══════════════════
 function autoAssignSB(){if(aiGuard())return;
   G.aaDone=true; // 3_49: pressed — the button goes away for the rest of the turn
+  // 3_68: auto-assigning counts as starting assignment — reroll chances are over, blanks ice
+  if(!G.assignmentStarted)G.assignmentStarted=true;
   const ap=AP();
   // Separate free faces (advance immediately) from costed faces (need picker)
   const toProcess=[...ap.z.rs];
@@ -1798,8 +1823,7 @@ function getOpts(die){
     o.push({l:`Wild as Shoot → ${z} Zone (${f.v} pip)`,a:'shoot'});
     o.push({l:`Wild as Block → Defensive Zone (${f.v} pip)`,a:'block'});
   }else if(f.t==='RR'){
-    if(!G.assignmentStarted)o.push({l:'Spend Reroll → pick any R&S dice to reroll',a:'rr'}); // 2_149: "pick any" — it opens a picker, not an auto-reroll-all
-    else o.push({l:'Reroll face (cannot use after assigning — goes to Iced)',a:'iced'});
+    o.push({l:'Spend Reroll → pick any R&S dice to reroll',a:'rr'}); // 3_73: HC RR stays live even after assigning (Tim) — the picker excludes spun dice; "choose none" spends it without rerolling
   }else if(f.t==='SO'){
     if(canPay)o.push({l:`Shutout → gain ${f.v} Block Token(s) — costs 1⚡`,a:'shutout-cost'});
     // 2_36: broke shutout is NOT offered — the die just sits in R&S and falls to Iced at end of turn
@@ -1816,7 +1840,7 @@ function getOpts(die){
       else o.push({l:'ADV — no dice in Cold Zone',a:'adv-empty'});
     }
   }else if(f.t==='BLANK'){
-    // 2_24: blanks are individually clickable — send to Iced (auto-send button removed)
+    // 2_24: blanks are individually clickable — one-click 'iced' (the HC guard lives in assignDie)
     o.push({l:'Send to Iced',a:'iced'});
   }
   return o;
@@ -1870,11 +1894,17 @@ function assignDie(die,action){
     toast('Need 1⚡ Energy in RS or Reserve to advance this costed face.');
     renderAll();return;
   }else if(action==='iced'){
-    ap.z.rs.splice(idx,1);ap.z.iced.push(die);
-    addLog(`${ap.name}: ${dLbl(die)}→Iced Zone.`);
+    ap.z.rs.splice(idx,1);
+    if(die.key==='HC'){addLog(`${ap.name}: ${dLbl(die)} → set aside.`);} // 3_74: HC is never iced (Tim)
+    else{ap.z.iced.push(die);addLog(`${ap.name}: ${dLbl(die)}→Iced Zone.`);}
     renderAll();return;
   }else if(action==='hc-energy-info'){
     toast('HC Energy is available for purchasing this turn. It will be set aside automatically at end of turn.');
+    renderAll();return;
+  }else if(action==='hc-set-aside'){
+    // 3_68: HC Energy die set aside early (Tim) — same as end-of-turn, just now
+    ap.z.rs.splice(idx,1); // HC die leaves RS — re-dealt next turn via player.hcDie
+    addLog(`${ap.name}: HC Energy die set aside.`);
     renderAll();return;
   }else if(action==='pen-pool-empty'){
     toast('Penalty pool is empty — all 3 penalty dice are in play.');
@@ -2166,7 +2196,7 @@ function buyCard(cardIdx,trade){if(aiGuard())return;
     // Pay full trade cost first, then choose die to trash
     openEPicker(cost, `full trade cost for ${card.key} (includes +2 surcharge)`, ()=>{
       // After full cost paid, open trash picker — iced now includes spent energy dice
-      if(!AP().z.iced.length){toast('No dice in Iced Zone to trash.');return;}
+      if(!AP().z.iced.some(d=>d.key!=='HC')){toast('No dice in Iced Zone to trash.');return;} // 3_74: HC excluded
       _tradeCardIdx=cardIdx;
       openTrashPicker(card.key,cost);
     });
@@ -2189,10 +2219,11 @@ function openTrashPicker(cardKey, totalCost){
     `Select one die below to permanently trash. This includes energy dice just spent for this purchase.`;
   const grid=document.getElementById('trash-grid');
   grid.innerHTML='';
-  if(!ap.z.iced.length){
+  const trashable=ap.z.iced.filter(d=>d.key!=='HC'); // 3_74: the Head Coach can never be trashed (Tim)
+  if(!trashable.length){
     grid.innerHTML='<div style="color:#888;font-size:.85em">No dice in Iced Zone to trash.</div>';
   }else{
-    ap.z.iced.forEach(die=>{
+    trashable.forEach(die=>{
       const btn=document.createElement('div');
       btn.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;';
       // Iced dice always show grey "?" — use dieWrapHTML with inIced=true
@@ -2216,7 +2247,9 @@ function completeTrade(trashDieId){
   if(!card){document.getElementById('trash-panel').classList.remove('show');return;}
   const ti=ap.z.iced.findIndex(d=>d.id===trashDieId);
   if(ti!==-1){
-    const tr=ap.z.iced.splice(ti,1)[0];
+    const tr=ap.z.iced[ti];
+    if(tr.key==='HC'){toast('The Head Coach cannot be trashed.');return;} // 3_74: belt-and-suspenders (Tim)
+    ap.z.iced.splice(ti,1);
     addLog(`${ap.name}: Trashed ${tr.key} (Trade Cost).`);
   }
   document.getElementById('trash-panel').classList.remove('show');
@@ -2346,9 +2379,9 @@ function renderAtkDice(){
   const pips=inShot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
   const n=inShot.length;
   document.getElementById('atk-dice-sum').innerHTML=
-    `<strong>${n}</strong> shooter${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} → <strong>${pips} combat dice</strong>`+
+    `<strong>${n}</strong> shooter${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} → <strong>${pips} combat ${pips!==1?'dice':'die'}</strong>`+
     `<span id="atk-tok-line">${_sTok>0?` • 🎯 <strong style="color:#ffd75e">+${_sTok} token${_sTok!==1?'s':''}</strong>`:''}</span>`+
-    (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot — held-out dice return to the Hot zone on confirm</div>`:'');
+    (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot</div>`:'');
 }
 
 // 2_151: mini game clock in the shot panel — white 10:00–05:00, red 04:00–01:00 (matches header badge)
@@ -2381,9 +2414,7 @@ function openCombat(){
     // declaration line / pills name what he spent. So: his shoot-token box is hidden on
     // his shot, and his block-token picker becomes a read-only counter on the human's.
   const showShootBox=_iAmAttacker&&!attackerIsAI; // 3_16: shown even at 0 tokens — greyed out, confirm still required
-  document.getElementById('shoot-tok-ctrl').style.display=showShootBox?'block':'none';
-  document.getElementById('shoot-tok-head').style.display=showShootBox?'block':'none';
-  document.getElementById('shoot-tok-div').style.display=showShootBox?'block':'none';
+  document.getElementById('shoot-tok-ctrl').style.display=showShootBox?'':'none'; // 3_66: '' lets the tok-slim flex row apply
   const ap=AP();
   // 2_147: combat-info summary removed (attacker total, tutorial, defender bonus all duplicated elsewhere)
   renderAtkDice();
@@ -2405,10 +2436,7 @@ function openCombat(){
         b.classList.add('sel');
       });
       // Update the block count display
-      const alreadySel=OPP().z.defend.filter(x=>G.blockSelIds.includes(x.id));
-      const totalPips=alreadySel.reduce((s,d)=>s+(d.face?d.face.v:0),0);
-      const binfo=document.getElementById('bsel-info');
-      if(binfo)binfo.textContent=`${alreadySel.length} dice committed (${totalPips} block pips → ${totalPips} combat dice)`;
+      renderBselInfo();
       refreshBlockerNudge();
     });
     bsel.appendChild(commitAllBtn);
@@ -2430,13 +2458,13 @@ function openCombat(){
         const i=G.blockSelIds.indexOf(d.id);
         if(i===-1){G.blockSelIds.push(d.id);db.classList.add('sel');}
         else{G.blockSelIds.splice(i,1);db.classList.remove('sel');}
-        refreshBlockerNudge();
+        refreshBlockerNudge();renderBselInfo();
       });
     }
     bsel.appendChild(w);
   });
   if(!OPP().z.defend.length)bsel.innerHTML='<div style="color:#888;font-size:.85em">No dice in Defensive Zone</div>';
-  refreshBlockerNudge();
+  refreshBlockerNudge();renderBselInfo();
   document.getElementById('combat-result').style.display='none';
   document.getElementById('block-sel-area').style.display='block';
   document.getElementById('combat-panel').classList.add('show');
@@ -2485,16 +2513,16 @@ function openCombat(){
     const P=aiP(),n=OPP().tok.block;
     document.getElementById('block-tok-counter-n').textContent=n;
     document.getElementById('block-tok-counter-txt').textContent=`${P.icon} ${P.name} commits ${n===1?'it':'them'} himself`;
-    blockCtr.style.display='block';
+    blockCtr.style.display='';
   }else{
-    document.getElementById('block-tok-ctrl').style.display='block';blockCtr.style.display='none';
+    document.getElementById('block-tok-ctrl').style.display='';blockCtr.style.display='none';
   }
   // Gentle pulse so the shooter's token row isn't missed at decision time.
   // (The defender's token row stays static and prominent — the pulse now lives
   // on the blocker-assignment controls instead.)
   document.getElementById('shoot-tok-ctrl').classList.toggle('attn',_onlineActive&&isMyTurn()&&!G.shotLocked&&AP().tok.shoot>0);
 }
-function adjBT(n){if(aiGuard()&&_aiDefPhase!=='humanDef')return;_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;}
+function adjBT(n){if(aiGuard()&&_aiDefPhase!=='humanDef')return;_bTok=Math.max(0,Math.min(OPP().tok.block,_bTok+n));document.getElementById('btok-count').textContent=_bTok;renderBselInfo();}
 // Pulse the blocker-assignment controls (Commit All button + available dice)
 // while any defender die is still unassigned. A nudge, not a gate: rolling
 // with zero blockers stays legal.
@@ -2508,6 +2536,17 @@ function refreshBlockerNudge(){
   document.querySelectorAll('#bsel-dice .die-body').forEach(b=>{
     b.classList.toggle('avail-pulse',anyAvail&&!b.classList.contains('sel'));
   });
+}
+// 3_77: defender's running total — the blocker's equivalent of the attacker's
+// "N shooters • N pips → N combat dice" line (Tim). Live on every commit + token.
+// 3_78: + the clock's automatic block bonus (Tim) — it adds combat dice, per resolveCombat.
+function clockBlockBonus(){return G.clock>=5?1:(G.clock>=2?2:(G.clock===1?3:0));}
+function renderBselInfo(){
+  const el=document.getElementById('bsel-info');if(!el)return;
+  const sel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
+  const n=sel.length,pips=sel.reduce((s,d)=>s+(d.face?d.face.v:0),0),bonus=clockBlockBonus();
+  el.innerHTML=`<strong>${n}</strong> blocker${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} + <strong>${bonus}</strong> clock → <strong>${pips+bonus} combat ${(pips+bonus)!==1?'dice':'die'}</strong>`+
+    `${_bTok>0?` • 🛡️ <strong style="color:#ffd75e">+${_bTok} token${_bTok!==1?'s':''}</strong>`:''}`;
 }
 
 let _combatResolving=false; // 2_121: prevent double-resolution of the same shot
@@ -3127,16 +3166,18 @@ function renderZone(zid,arr,opts={}){
       body.style.cursor='pointer';
       body.addEventListener('click',()=>{die.sel=!die.sel;body.classList.toggle('sel',die.sel);});
     }else if(!locked&&opts.inRS&&G.phase>=4){
-      const menuOpts=getOpts(die);
-      if(menuOpts.length){
+      // 3_68: one-click for single-decision faces, die-anchored popover for real choices (Tim)
+      const hopts=getHumanOpts(die);
+      if(hopts&&hopts.length){
         body.style.cursor='pointer';
-        body.addEventListener('click',e=>{e.stopPropagation();showMenu(die,wrap);});
+        if(hopts.length===1){
+          const a=hopts[0].a;
+          body.addEventListener('click',e=>{e.stopPropagation();if(aiGuard())return;assignDie(die,a);});
+        }else{
+          body.addEventListener('click',e=>{e.stopPropagation();showDiePopover(die,wrap,hopts);});
+        }
       }else if(die.face&&die.face.t==='BLANK'){
         body.style.cursor='default';body.style.opacity='.5';
-      }else if(die.face&&die.face.t==='E'&&!die.energyPending){
-        // Energy in RS — click to see reserve option
-        body.style.cursor='pointer';
-        body.addEventListener('click',e=>{e.stopPropagation();showMenu(die,wrap);});
       }
     }else if(!locked&&opts.advPending){
       // ADV pending — clicking a cold zone die advances it to Hot (2_23: bright pulse until chosen)
@@ -3171,28 +3212,162 @@ function renderZone(zid,arr,opts={}){
   });
 }
 
-let _menu=null;
-function closeMenus(){document.querySelectorAll('.die-menu').forEach(m=>m.remove());_menu=null;}
-function showMenu(die,wrapEl){if(aiGuard())return;
-  closeMenus();
-  const opts=getOpts(die);if(!opts.length)return;
-  const m=document.createElement('div');m.className='die-menu';
+// 3_68: human tap options for RS dice (Tim's cleanup). Single-decision faces are
+// one-click (the tap handler calls assignDie directly); real choices (E/W/HC-E)
+// get the die-anchored popover. The AI never uses this — it calls assignDie directly.
+function getHumanOpts(die){
+  const f=die.face,ap=AP();
+  if(!f||aiGuard())return null;
+  if(f.t==='E'){
+    if(die.key==='HC')return[{l:'Spend',a:'open-shop'},{l:'Set Aside',a:'hc-set-aside'}];
+    const full=ap.z.reserve.length>=2;
+    return[{l:'Spend',a:'open-shop'},{l:full?'Reserve (full)':'Reserve',a:'reserve',dis:full},{l:'Ice',a:'iced'}];
+  }
+  if(f.t==='W'){
+    const z=G.clock>4?'Cold':'Hot';
+    return[{l:`As Shoot → ${z}`,a:'shoot'},{l:'As Block → Def',a:'block'}];
+  }
+  if(f.t==='ADV'&&(G.clock===10||ap.z.cold.length===0)){
+    // 3_76: dead-end ADV pops Ice/Set Aside (Tim) — a stranded ADV die kept the
+    // RS zone from fading + collapsing. Live ADV still one-clicks via getOpts below.
+    const iceOpt={l:die.key==='HC'?'Set Aside':'Ice it',a:'iced'};
+    if(G.clock===10)return[{l:'ADV — unavailable on 10:00 turn',a:'adv-blocked',dis:true},iceOpt];
+    return[{l:'No dice in Cold Zone to advance',a:'adv-empty',dis:true},iceOpt];
+  }
+  // Single-option faces: reuse getOpts (handles costed/blocked/empty states) — one click.
+  const o=getOpts(die);
+  if(o.length)return[{a:o[0].a}];
+  return null;
+}
+let _dpop=null;
+function closeDiePopover(){if(_dpop){_dpop.remove();_dpop=null;}}
+function closeMenus(){closeDiePopover();}
+// 3_68: small uniform option card directly over the die (Tim) — the thumb is already there.
+function showDiePopover(die,anchorEl,opts){
+  if(aiGuard())return;
+  closeDiePopover();
+  const r=anchorEl.getBoundingClientRect();
+  const p=document.createElement('div');p.className='die-pop';
   opts.forEach(o=>{
     const b=document.createElement('button');b.textContent=o.l;
-    b.addEventListener('click',e=>{e.stopPropagation();assignDie(die,o.a);});
-    m.appendChild(b);
+    if(o.dis)b.disabled=true;
+    b.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(o.a==='open-shop'){closeDiePopover();openShop();return;} // deep link — not an assignment
+      assignDie(die,o.a); // assignDie closes the popover via closeMenus
+    });
+    p.appendChild(b);
   });
-  wrapEl.style.position='relative';wrapEl.appendChild(m);
-  setTimeout(()=>{try{const mr=m.getBoundingClientRect();if(mr.right>window.innerWidth-10)m.classList.add('flip-left');}catch(e){}},0);
-  _menu=m;
-  setTimeout(()=>document.addEventListener('click',closeMenus,{once:true}),10);
+  document.body.appendChild(p);
+  // Uniform box, centered over the die, clamped to the viewport.
+  const pw=210,ph=p.offsetHeight||170;
+  let x=r.left+r.width/2-pw/2,y=r.top+r.height/2-ph/2;
+  x=Math.max(8,Math.min(window.innerWidth-pw-8,x));
+  y=Math.max(8,Math.min(window.innerHeight-ph-8,y));
+  p.style.left=x+'px';p.style.top=y+'px';
+  _dpop=p;
+  setTimeout(()=>document.addEventListener('click',closeDiePopover,{once:true}),10);
 }
 
+// 3_68: blanks flash-fade to the Iced Zone once the last reroll chance has passed (Tim).
+// That instant is observable, no mind-reading: assignment started && no reroll picker open
+// && no live HC reroll face (3_73: the HC RR survives assignment now).
+let _blankIceT=null;
+// 3_73: the HC reroll stays live even after assigning (Tim) — blanks wait while it could still reroll them
+function hcRRAvailable(ap){
+  return ap.z.rs.some(d=>d.key==='HC'&&d.face&&d.face.t==='RR');
+}
+function maybeIceBlanks(){
+  if(!G.assignmentStarted||_rrMode||_blankIceT)return;
+  if(spectating())return; // online: only the assigner's client ices; the other side syncs
+  const ap=AP();
+  if(!ap||!ap.z.rs.some(d=>d.face&&d.face.t==='BLANK'))return;
+  if(hcRRAvailable(ap))return; // 3_73: RR still live — those blanks might get rerolled
+  if(_aiActive){
+    // AI Chuck: no animation — move immediately so his pacing loop sees a clean RS
+    let n=0,hc=false;
+    [...ap.z.rs].forEach(d=>{if(d.face&&d.face.t==='BLANK'){ap.z.rs.splice(ap.z.rs.indexOf(d),1);if(d.key==='HC')hc=true;else{ap.z.iced.push(d);n++;}}});
+    if(n)addLog(`${ap.name}: ${n} blank${n>1?'s':''} → Iced Zone.`);
+    if(hc)addLog(`${ap.name}: Head Coach blank → set aside.`); // 3_74: HC is never iced (Tim)
+    return;
+  }
+  _blankIceT=setTimeout(()=>{
+    _blankIceT=null;
+    // Fade the freshly-rendered dice first, then move them
+    document.querySelectorAll('#z-rs .die-wrap').forEach(w=>{
+      const d=AP().z.rs.find(x=>x.id===w.dataset.id);
+      if(d&&d.face&&d.face.t==='BLANK')w.classList.add('blank-fade');
+    });
+    setTimeout(()=>{
+      const ap2=AP();let n=0,hc=false;
+      [...ap2.z.rs].forEach(d=>{if(d.face&&d.face.t==='BLANK'){ap2.z.rs.splice(ap2.z.rs.indexOf(d),1);if(d.key==='HC')hc=true;else{ap2.z.iced.push(d);n++;}}});
+      if(n||hc){
+        if(n)addLog(`${ap2.name}: ${n} blank${n>1?'s':''} → Iced Zone.`);
+        if(hc)addLog(`${ap2.name}: Head Coach blank → set aside.`); // 3_74: HC is never iced (Tim)
+        renderAll();
+      }
+    },480);
+  },60);
+}
+// 3_69: RS zone resolves away — slow dissolve + FLIP glide (Tim). The zones below
+// slide up in sync instead of teleporting: measure where they sit, snap the zone
+// shut behind the scenes to find where they land, then glide each one there.
+function collapseRSZone(zoneEl){
+  const gen=++_rsCollapseGen; // 3_71: stale timers (e.g. armed during the end-turn handoff render) abort
+  zoneEl.classList.add('rs-flash');
+  setTimeout(()=>{
+    if(gen!==_rsCollapseGen)return;
+    zoneEl.classList.remove('rs-flash');
+    // — measure: every outermost element sitting below the zone —
+    const zTop=zoneEl.getBoundingClientRect().top;
+    const all=[...document.querySelectorAll('body *')].filter(el=>{
+      if(el===zoneEl||zoneEl.contains(el))return false;
+      const r=el.getBoundingClientRect();
+      return r.height>0&&r.top>zTop+10;
+    });
+    const followers=all.filter(el=>!all.some(o=>o!==el&&o.contains(el)));
+    const before=new Map(followers.map(el=>[el,el.getBoundingClientRect().top]));
+    // — final positions: collapse instantly with transitions off, measure, revert —
+    zoneEl.style.transition='none';
+    zoneEl.style.maxHeight='0px';
+    zoneEl.classList.add('rs-done');
+    const dys=followers.map(el=>{
+      const dy=before.get(el)-el.getBoundingClientRect().top;
+      return{el,dy:Math.abs(dy)>1?dy:0};
+    });
+    zoneEl.classList.remove('rs-done');
+    zoneEl.style.maxHeight='';
+    zoneEl.style.transition='';
+    void zoneEl.offsetHeight; // reflow back to expanded before the animated pass
+    // — animated pass: dissolve the zone, glide the followers home —
+    zoneEl.style.maxHeight=zoneEl.scrollHeight+'px';
+    setTimeout(()=>{
+      if(gen!==_rsCollapseGen)return; // 3_71
+      zoneEl.classList.add('rs-done');
+      dys.forEach(({el,dy})=>{
+        if(!dy)return;
+        el.style.transition='none';
+        el.style.transform=`translateY(${dy}px)`;
+      });
+      void document.body.offsetHeight;
+      setTimeout(()=>{
+        if(gen!==_rsCollapseGen)return; // 3_71
+        dys.forEach(({el,dy})=>{
+          if(!dy)return;
+          el.style.transition='transform .75s ease-in-out';
+          el.style.transform='';
+        });
+      },30);
+      setTimeout(()=>{dys.forEach(({el})=>{el.style.transition='';el.style.transform='';});},850);
+    },30);
+  },300);
+}
 function renderAll(){
   // If the turn just passed to the opponent, a shop left open on this client
   // would let the new spectator keep buying — shut it.
   if(spectating())closeShop();
   renderPbar();renderBoard();renderOpp();renderScore();renderActions();renderQA();renderRSActions();renderLog();
+  maybeIceBlanks(); // 3_68: blanks fade to iced once assignment starts (no-op until then)
   saveGame(); // 2_121: debounced autosave (skips mid-AI-turn)
 }
 function renderPbar(){
@@ -3262,6 +3437,17 @@ function renderBoard(){
   if(rsZoneEl){
     if(rsHasActionable)rsZoneEl.classList.add('rs-attn');
     else rsZoneEl.classList.remove('rs-attn');
+    // 3_68: RS fully resolved → flash gold, then slow dissolve + glide; zones below move up (Tim)
+    const rsEmpty=G.phase>=4&&G.assignmentStarted&&ap.z.rs.length===0;
+    if(rsEmpty&&!_rsWasEmpty){
+      _rsWasEmpty=true;
+      collapseRSZone(rsZoneEl); // 3_69: FLIP glide
+    }else if(!rsEmpty&&_rsWasEmpty){
+      _rsWasEmpty=false;
+      _rsCollapseGen++; // 3_71: cancel any collapse whose timers are still in flight
+      rsZoneEl.classList.remove('rs-done','rs-flash');
+      rsZoneEl.style.maxHeight='';
+    }
   }
   renderZone('z-cold',ap.z.cold,{advPending:G.advPending});
   renderZone('z-defend',ap.z.defend);
@@ -3452,7 +3638,7 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-document.addEventListener('click',e=>{if(_menu&&!_menu.contains(e.target))closeMenus();});
+document.addEventListener('click',e=>{if(_dpop&&!_dpop.contains(e.target))closeDiePopover();});
 
 // ═══════════════════ ENERGY PICKER ═══════════════════
 // State for the energy picker modal
@@ -3869,6 +4055,18 @@ function startShootout(practice){
   soStartShooterTurn();
 }
 
+// 3_65: back to the menu without location.reload() — the reload left the menu
+// slightly scrolled (scroll restoration against the 100vh body). This rebuilds
+// the exact fresh-menu state: drop online listeners, clear AI flags, hide all
+// setup panels, hide the shootout overlay, back on the setup screen at top.
+function soNewGame(){
+  teardownOnline();
+  resetAIFlags();
+  backToModes();
+  document.getElementById('so-overlay').classList.remove('show');
+  showScreen('setup');
+  window.scrollTo(0,0);
+}
 function restartShootout(){
   _so.scores=[0,0]; _so.round=1; _so.maxRounds=3;
   _so.shooterIdx=_so.firstShooter||0; _so.results=[]; _so.suddenDeath=false; _so.selectedFwd=null;
@@ -4870,7 +5068,7 @@ let _aiActive=false,_aiSlot=1,_aiPersona='balanced',_aiBusy=false,_aiSelf=false,
 // non-AI entry point clears these, so Coach can't hijack a human's turns
 // (solo P2, or slot 1 in an online room) after a Vs AI game.
 function resetAIFlags(){_aiActive=false;_aiBusy=false;_aiSelf=false;_aiDefPhase=null;}
-let _aiPersonaSel='coach',_aiTeamIdx=null,_aiSpeedSel=null; // 2_88: Coach is the only AI — auto-selected
+let _aiPersonaSel='coach',_aiTeamIdx=null,_aiSpeedSel=1; // 3_72: Normal is the preselected speed (Tim) — Fast stays one tap away
 let _aiManualPick=false; // 2_121: true once the user hand-picks the AI's team
 let _aiReserveBanked=0; // 2_121: dice sent to reserve this buy phase (single summary line)
 
@@ -5385,11 +5583,14 @@ function aiDoAssign(P){
       }
     });
     // 4. ADV → most-pips cold die to hot (10:00 or empty cold: ice it)
+    // 3_70: narrate the advance — Chuck bar pill + turn summary (Tim; was game-log only)
+    let nAdv=0;
     [...ap.z.rs].forEach(d=>{
       const f=d.face;if(!f||f.t!=='ADV')return;
-      if(G.clock!==10&&ap.z.cold.length){assignDie(d,'adv');aiResolveAdv();}
+      if(G.clock!==10&&ap.z.cold.length){assignDie(d,'adv');aiResolveAdv();nAdv++;}
       else{assignDie(d,"iced");}
     });
+    if(nAdv)aiPill(`🔼 advanced ${nAdv} ${nAdv===1?'die':'dice'} Cold → Hot`);
     // 5. PEN — handled above (pool empty → sits, ices at end of turn)
     // 6. WILD → zone with fewest pips (offensive = cold+hot vs defensive; tie → offensive)
     [...ap.z.rs].forEach(d=>{
@@ -5771,7 +5972,8 @@ async function aiDefendTurn(){
   _aiStripIcons=[]; // 3_09: defend response is its own sequence
   try{
     aiPill(`👀 studies your shot…`, 30000); // 3_30: no auto-expiry — the commits pill below replaces it directly, no flicker (Tim)
-    await aiSleep(1100);
+    // 3_75: one beat only (Tim) — the studies pill used to cover two beats (~5s on Normal),
+    // twice the commits pill's pause. Dice highlights land with the pill now.
     _aiSelf=true;
     const atk=G.players[G.ap];
     const d100=()=>Math.floor(Math.random()*100)+1;
@@ -5811,9 +6013,7 @@ async function aiDefendTurn(){
       document.querySelectorAll('#bsel-dice .die-body').forEach(b=>{
         if(G.blockSelIds.includes(b.dataset.id))b.classList.add('sel');
       });
-      const totalPips=blockers.reduce((s,d)=>s+(d.face?d.face.v:0),0);
-      const binfo=document.getElementById('bsel-info');
-      if(binfo)binfo.textContent=`${blockers.length} dice committed (${totalPips} block pips → ${totalPips} combat dice)`;
+      renderBselInfo(); // 3_77: defender's running total (replaces the old binfo text line)
     }catch(e){}
     renderAll();
     await aiSleep(900);
