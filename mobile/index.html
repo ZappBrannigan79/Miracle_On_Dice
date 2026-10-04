@@ -384,6 +384,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
    zero blockers stays legal). */
 
 #bsel-dice .die-body.avail-pulse{animation:nudgePulse 1.4s ease-in-out infinite;border-color:#ffd75e;}
+/* 4_03: shootout victory — big trophy pill up top (Tim) */
+.so-trophy-pill{font-size:3em;width:104px;height:104px;line-height:104px;margin:0 auto 14px;
+  background:rgba(200,168,75,.12);border:3px solid var(--gold);border-radius:999px;
+  box-shadow:0 0 26px rgba(200,168,75,.35);}
+.so-trophy-pill.tpop{animation:trophyPop .45s ease-out;}
+@keyframes trophyPop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
 /* 2_23 — ADV pending: cold-zone dice glow brightly until one is chosen */
 
 .die-body.adv-pulse{animation:nudgePulse 1.4s ease-in-out infinite;border-color:#ffd75e;cursor:pointer;}
@@ -631,7 +637,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.01</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.06</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -790,7 +796,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.01</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.06</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1100,6 +1106,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 
     <!-- Final result -->
     <div id="so-final-area" style="display:none;text-align:center;margin-top:16px">
+      <div id="so-trophy-pill" class="so-trophy-pill">🏆</div>
       <div id="so-final-msg" style="font-size:1.3em;font-weight:900;color:var(--gold);margin-bottom:14px"></div>
       <button class="btn-ov" onclick="restartShootout()">🔄 Shootout Again</button>
       <button class="btn-ov" onclick="soNewGame()">New Game</button>
@@ -1596,7 +1603,7 @@ function beginPeriodAfterFo(){if(aiGuard())return;
 
 // ═══════════════════ TURN ENGINE ═══════════════════
 function startTurn(){
-  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;
+  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;G.combatDone=false; // 4_06
   _rrMode=false;_rrDieId=null;
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();phase0();
@@ -3481,6 +3488,10 @@ function renderPbar(){
 function slotLabel(i){const n=G.players[i]&&G.players[i].name;return (n&&!/^Player [12]$/.test(n))?n:('P'+(i+1));}
 // 3_23: scoreboard header shows team name + who-emoji only — 🧑 human, 🤖 AI Chuck (Tim)
 function whoEmoji(i){return (_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)?'🤖':'🧑';}
+// 4_05: team emoji lives only in the team picker (Tim) — everywhere else the
+// controller emoji leads: "🤖 Gargoyles"
+function bareName(n){return String(n||'').replace(/^[\p{Extended_Pictographic}\uFE0F\u200D]+\s*/u,'').trim()||String(n||'');}
+function teamLbl(i){const p=G.players[i];return `${whoEmoji(i)} ${bareName(p.teamName||p.name||('Player '+(i+1)))}`;}
 function renderBoard(){
   const ap=AP();
   // 2_26: show the room code next to the title while online (for drop/rejoin)
@@ -3489,15 +3500,15 @@ function renderBoard(){
     if(_roomCode){rcChip.style.display='';rcChip.textContent='ROOM '+_roomCode;}
     else rcChip.style.display='none';
   }
-  const teamLabel = (ap.teamName||ap.name) + ' (' + whoEmoji(G.ap) + ')'; // 3_23
+  const tLbl = teamLbl(G.ap); // 4_05: "🤖 Gargoyles"
   const myTurnIndicator = _onlineActive && !isMyTurn() ? ' ⏳' : _onlineActive ? ' ✅' : '';
-  document.getElementById('aplbl').textContent=`${teamLabel}'s Turn${myTurnIndicator}`;
+  document.getElementById('aplbl').textContent=`${tLbl}'s Turn${myTurnIndicator}`;
   // Update scoreboard names with team names if available
   const sn1=document.getElementById('sn1');
   const sn2=document.getElementById('sn2');
   // 3_23: team name + who-emoji — no more (P1)/(P2) in the scoreboard header
-  if(sn1) sn1.textContent=(G.players[0].teamName||'Player 1')+' ('+whoEmoji(0)+')';
-  if(sn2) sn2.textContent=(G.players[1].teamName||'Player 2')+' ('+whoEmoji(1)+')';
+  if(sn1) sn1.textContent=teamLbl(0); // 4_05
+  if(sn2) sn2.textContent=teamLbl(1);
   const tv=document.getElementById('tmr');
   const clkStr=(G.clock<10?'0':'')+G.clock+':00';
   tv.textContent=clkStr;
@@ -3517,7 +3528,7 @@ function renderBoard(){
     if(showBanner){
       ftBanner.classList.add('final-turn-flashing');
       const ftTxt=document.getElementById('ftb-text');
-      if(ftTxt)ftTxt.textContent=`${(G.players[G.ap].teamName||('Player '+(G.ap+1)))} (${whoEmoji(G.ap)})'s LAST TURN OF PERIOD`; // 3_23
+      if(ftTxt)ftTxt.textContent=`${teamLbl(G.ap)}'s LAST TURN OF PERIOD`; // 4_05
     }
     else ftBanner.classList.remove('final-turn-flashing');
   }
@@ -4126,7 +4137,7 @@ function startShootout(practice){
   // Set scoreboard names
   [0,1].forEach(i=>{
     const nameEl = document.getElementById('so-name-'+i);
-    if(nameEl) nameEl.textContent = soTeamLabel(i).toUpperCase();
+    if(nameEl) nameEl.textContent = soTeamLabel(i).toUpperCase(); // 4_05: plain text again
   });
 
   document.getElementById('so-overlay').classList.add('show');
@@ -4194,7 +4205,8 @@ function restartShootout(){
 // 3_59: who-emoji on shootout teams — 🤖 AI, 🧑 human (Tim)
 // 3_63: keyed on _aiActive like the main scoreboard — real-game overtime shootouts set _so.vsAI=false
 function soWhoEmoji(si){return (_aiActive&&typeof _aiSlot!=='undefined'&&si===_aiSlot)?'🤖':'🧑';}
-function soTeamLabel(si){const p=_so.players[si];return `${p.teamName||p.name} (${soWhoEmoji(si)})`;}
+function soTeamLabel(si){const p=_so.players[si]; // 4_05: "🤖 Gargoyles" — no team emoji (Tim)
+  return `${soWhoEmoji(si)} ${bareName(p.teamName||p.name)}`;}
 function renderSOScoreboard(){
   // 3_62: one SD column — blank until a sudden-death shootout is decided, then winner ● / loser X (Tim)
   const sdHead=document.getElementById('so-h-sd');
@@ -4519,9 +4531,15 @@ function soShowFinal(){
   document.getElementById('so-turn-info').innerHTML=''; // 2_142: no flash on the final screen
   const [s0,s1]=_so.scores;
   const winner=s0>s1?soTeamLabel(0):soTeamLabel(1);
-  document.getElementById('so-final-msg').innerHTML=
-    `🏆 ${winner} wins the Shootout!<br>
-    <span style="font-size:.7em;color:#aaa">${soTeamLabel(0)} ${s0} – ${s1} ${soTeamLabel(1)}</span>`;
+  // 4_03: cleaned victory line (Tim) — no trophy emoji here (it has its own pill),
+  // no score restatement (the scoreboard shows it); SD names the deciding round.
+  // _so.round was already incremented past the last played round (see 2_153).
+  const endedRound=_so.round-1;
+  document.getElementById('so-final-msg').textContent=_so.suddenDeath
+    ? `${winner} wins the Shootout in Round ${endedRound}!`
+    : `${winner} wins the Shootout!`;
+  const _tp=document.getElementById('so-trophy-pill');
+  _tp.classList.remove('tpop');void _tp.offsetWidth;_tp.classList.add('tpop');
   renderSOScoreboard();
   // 2_153: title AFTER the scoreboard render — renderSOScoreboard() recomputes the
   // title from _so.round, which was already incremented past maxRounds before
@@ -5135,7 +5153,7 @@ function pullState(remote){
     const opp=G.players[G.ap];
     const aplblEl=document.getElementById('aplbl');
     if(aplblEl) aplblEl.textContent=
-      `⏳ ${(opp.teamName||opp.name)} (${slotLabel(G.ap)})'s Turn — watching live`;
+      `⏳ ${bareName(opp.teamName||opp.name)} (${slotLabel(G.ap)})'s Turn — watching live`; // 4_05
   }
 }
 
@@ -5853,7 +5871,7 @@ function aiBuyTier(k){
   const allTiers=aiTopTiers(0); // all, highest first
   // trade2/draft2 start from the 2nd-highest tier
   const pool=(k==='trade2'||k==='draft2')?allTiers.slice(1):allTiers;
-  const t=aiAffordableTier(pool,isTrade);
+  const t=isTrade?aiTradePick(pool):aiAffordableTier(pool,false); // 4_02: sellout brain on trades (Tim)
   if(!t)return false;
   const cost=(COSTS[t.key]||99)+(isTrade?2:0);
   if(isTrade){
@@ -5876,7 +5894,8 @@ function aiBuyTier(k){
 }
 // 2_94: "next best" — TRADE if possible, else DRAFT
 // 2_121: cascades to highest affordable tier
-function aiBuyNextBest(){
+// 4_02: noDraft=true (P3) — trade only, draft is dead
+function aiBuyNextBest(noDraft){
   const ap=AP();
   const allTiers=aiTopTiers(0);
   const t=aiAffordableTier(allTiers,true);
@@ -5894,7 +5913,7 @@ function aiBuyNextBest(){
       return true;
     }
   }
-  const td=aiAffordableTier(allTiers,false);
+  const td=noDraft?null:aiAffordableTier(allTiers,false);
   if(td){
     const draftCost=COSTS[td.key]||99;
     aiSpendE(draftCost,false);
@@ -5943,7 +5962,13 @@ function aiDoBuy(P){
     if(aiTotalE()<1)return;
     // 2_94: Coach buy table (Tim's d100). Each category fires once per buy phase;
     // a taken category's weight splits evenly among the remaining ones.
-    const W={trade1:46,trade2:6,draft1:18,draft2:6,token:18,nextbest:6};
+    // 4_02: period-aware (Tim) — tokens ramp late, trade beats draft late, draft is dead in P3.
+    const WTABLE={
+      1:{trade1:46,trade2:6,draft1:18,draft2:6,token:18,nextbest:6},
+      2:{trade1:50,trade2:8,draft1:10,draft2:4,token:22,nextbest:6},
+      3:{trade1:46,trade2:10,draft1:0,draft2:0,token:38,nextbest:6},
+    };
+    const W=WTABLE[G.period]||WTABLE[1];
     const taken=new Set();
     while(true){
       const remaining=Object.keys(W).filter(k=>!taken.has(k));
@@ -5962,11 +5987,33 @@ function aiDoBuy(P){
       if(pick==='token'){
         try{
           aiSpendE(3,false);
-          if(Math.random()<0.5){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
+          const tt=aiPickTokenType(); // 4_02: brains, not a coin flip (Tim)
+          if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
           else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
         }catch(e){console.error('AI token buy failed:',e);break;}
         taken.add('token');
       }else if(pick==='nextbest'){
+        if(G.period>=3){
+          // 4_02 P3: token first (Tim), then trade, then bank — draft is dead
+          if(aiTotalE()>=3){
+            aiSpendE(3,false);
+            const tt=aiPickTokenType();
+            if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
+            else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
+          }else{
+            let ok=false;
+            try{ok=aiBuyNextBest(true);}catch(e){console.error('AI nextbest buy failed:',e);}
+            if(ok){taken.add('nextbest');break;}
+            const e=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&d.face.t==='E')
+              .sort((a,b)=>b.face.v-a.face.v)[0];
+            if(e&&ap.z.reserve.length<2){
+              e.committed=true;assignDie(e,'reserve');
+              _aiReserveBanked++; // 2_121: counted toward the combined "reserved x dice" summary line
+            }
+          }
+          taken.add('nextbest');
+          break;
+        }
         if(Math.random()<0.5){
           let ok=false;
           try{ok=aiBuyNextBest();}catch(e){console.error('AI nextbest buy failed:',e);}
@@ -6015,6 +6062,52 @@ function aiDoBuy(P){
     // 2_121: single combined reserve line for the summary ("reserved x dice")
     if(_aiReserveBanked>0)aiPill(`🏦 reserved ${_aiReserveBanked} ${_aiReserveBanked===1?'die':'dice'}`);
   }
+}
+// 4_02: smart token need (Tim) — which token type does Chuck need more?
+// shootNeed = what he's shooting into (clock autos + opp defend pips + opp
+//   block tokens) minus his own punch (hot+cold shooter pips + shoot tokens)
+// blockNeed = the threat he's facing (opp shooter pips + opp shoot tokens)
+//   minus his own wall (clock autos + defend pips + block tokens)
+function aiTokenNeed(){
+  const ap=AP(),opp=OPP();
+  const clkBonus=G.clock===1?3:G.clock>4?1:2;
+  const pips=(arr,t)=>arr.reduce((s,d)=>s+(d.face&&t.includes(d.face.t)?d.face.v:0),0);
+  const myOff=pips([...ap.z.hot,...ap.z.cold],['S','W']);
+  const myDef=pips(ap.z.defend,['B','W']);
+  const oppOff=pips([...opp.z.hot,...opp.z.cold],['S','W']);
+  const oppDef=pips(opp.z.defend,['B','W']);
+  return {
+    shootNeed:(clkBonus+oppDef+opp.tok.block)-(myOff+ap.tok.shoot),
+    blockNeed:(oppOff+opp.tok.shoot)-(clkBonus+myDef+ap.tok.block)
+  };
+}
+function aiPickTokenType(){
+  const ap=AP(),{shootNeed,blockNeed}=aiTokenNeed();
+  if(shootNeed>blockNeed)return 'shoot';
+  if(blockNeed>shootNeed)return 'block';
+  return ap.tok.shoot<=ap.tok.block?'shoot':'block'; // tie → lighter pool
+}
+// 4_02: sellout brain (Tim) — when trading, prefer the card whose bonus token
+// matches the token need. F sellout (1 left) → shoot token; D sellout → block
+// token; every goalie buy pays a block token, so goalies always count for block.
+function aiTradePick(pool){
+  const ap=AP(),E=aiTotalE();
+  const affordable=pool.filter(t=>E>=(COSTS[t.key]||99)+2);
+  if(!affordable.length)return null;
+  const {shootNeed,blockNeed}=aiTokenNeed();
+  const wantShoot=shootNeed>=blockNeed;
+  const scored=affordable.map(t=>{
+    const card=ap.lineup[t.idx],isG=t.key[0]==='G';
+    let pri=0;
+    if(wantShoot){
+      if(!isG&&t.key[0]==='F'&&card.left===1)pri=2;
+    }else{
+      if(isG||(t.key[0]==='D'&&card.left===1))pri=2;
+    }
+    return {t,pri};
+  });
+  scored.sort((a,b)=>(b.pri-a.pri)||(b.t.tier-a.t.tier));
+  return scored[0].t;
 }
 async function aiDoShoot(P){
   const ap=AP();
