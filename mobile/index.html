@@ -637,7 +637,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.06</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.08</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -796,7 +796,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.06</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.08</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1038,29 +1038,29 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <thead>
           <tr id="so-head-row">
             <th style="text-align:left;padding:6px 10px;background:#0d1f33;color:white;width:140px">SHOOTOUT</th>
-            <th style="padding:6px 4px;background:#0d1f33;color:#c8a84b;font-weight:900;width:28px">T</th>
             <th id="so-h1" style="padding:6px 4px;background:#0d1f33;color:white;width:28px">1</th>
             <th id="so-h2" style="padding:6px 4px;background:#0d1f33;color:white;width:28px">2</th>
             <th id="so-h3" style="padding:6px 4px;background:#0d1f33;color:white;width:28px">3</th>
             <th id="so-h-sd" style="padding:6px 4px;background:#0d1f33;color:#555;width:32px">SD</th>
+            <th style="padding:6px 4px;background:#0d1f33;color:#c8a84b;font-weight:900;width:28px">T</th><!-- 4_08: total far right -->
           </tr>
         </thead>
         <tbody>
           <tr id="so-row-0">
             <td id="so-name-0" style="padding:6px 10px;background:#1a3a5c;color:white;font-weight:900"></td>
-            <td id="so-total-0" style="padding:6px 4px;background:#1a3a5c;color:#c8a84b;font-weight:900;text-align:center"></td>
             <td id="so-cell-0-0" style="padding:6px 4px;background:#1a3a5c;text-align:center"></td>
             <td id="so-cell-0-1" style="padding:6px 4px;background:#1a3a5c;text-align:center"></td>
             <td id="so-cell-0-2" style="padding:6px 4px;background:#1a3a5c;text-align:center"></td>
             <td id="so-cell-0-sd" style="padding:6px 4px;background:#1a3a5c;text-align:center"></td>
+            <td id="so-total-0" style="padding:6px 4px;background:#1a3a5c;color:#c8a84b;font-weight:900;text-align:center"></td>
           </tr>
           <tr id="so-row-1">
             <td id="so-name-1" style="padding:6px 10px;background:#5a1010;color:white;font-weight:900"></td>
-            <td id="so-total-1" style="padding:6px 4px;background:#5a1010;color:#c8a84b;font-weight:900;text-align:center"></td>
             <td id="so-cell-1-0" style="padding:6px 4px;background:#5a1010;text-align:center"></td>
             <td id="so-cell-1-1" style="padding:6px 4px;background:#5a1010;text-align:center"></td>
             <td id="so-cell-1-2" style="padding:6px 4px;background:#5a1010;text-align:center"></td>
             <td id="so-cell-1-sd" style="padding:6px 4px;background:#5a1010;text-align:center"></td>
+            <td id="so-total-1" style="padding:6px 4px;background:#5a1010;color:#c8a84b;font-weight:900;text-align:center"></td>
           </tr>
         </tbody>
       </table>
@@ -4227,7 +4227,8 @@ function renderSOScoreboard(){
     for(let r=1;r<=3;r++){
       const cell=document.getElementById(`so-cell-${pi}-${r-1}`);
       const hit=_so.results.find(x=>x.playerIdx===pi&&x.round===r);
-      if(cell)cell.innerHTML=hit?(hit.goal?goalMark:missMark):'';
+      // 4_07: a decided shootout marks unplayed frames with – (Tim)
+      if(cell)cell.innerHTML=hit?(hit.goal?goalMark:missMark):(_so.phase==='final'?'<span style="color:#555;font-weight:700">–</span>':'');
     }
     // SD cell: decided only at final — the deciding round is always winner-scores/loser-misses
     const sdCell=document.getElementById(`so-cell-${pi}-sd`);
@@ -4461,9 +4462,22 @@ function soIsLastShot(){
          (_so.suddenDeath && _so.shooterIdx===secondShooter);
 }
 
+// 4_07: NHL rule — the shootout ends the moment the trailer can't catch the
+// leader with their remaining shots (Tim). Sudden-death rounds always play out.
+function soClinch(){
+  if(!_so||!_so.scores||_so.suddenDeath) return false;
+  const [s0,s1]=_so.scores;
+  if(s0===s1) return false;
+  const lead=s0>s1?0:1, trail=1-lead;
+  const justShot=_so.shooterIdx, first=_so.firstShooter;
+  const shotThisRound=i=>i===justShot||(justShot!==first&&i===first);
+  const rem=i=>_so.maxRounds-((_so.round-1)+(shotThisRound(i)?1:0));
+  return _so.scores[lead]>_so.scores[trail]+rem(trail);
+}
 function soAdvance(){if(aiGuard())return;
   // Online: only the player who just shot advances the shootout.
   if(_onlineActive && _mySlot!==_so.shooterIdx){toast('⏳ Wait for your turn.');return;}
+  if(soClinch()){ soCheckWinner(); return; } // 4_07: mathematically over — end it now
   if(_so.shooterIdx===_so.firstShooter){
     // first shooter just shot — other's turn same round
     _so.shooterIdx=1-_so.firstShooter;
