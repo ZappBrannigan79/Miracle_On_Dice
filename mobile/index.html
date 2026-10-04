@@ -260,8 +260,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* 3_68: blanks flash-fade to the Iced Zone once assignment starts (Tim) */
 .die-wrap.blank-fade{transition:opacity .45s ease,transform .45s ease;opacity:0;transform:scale(.5);}
 /* 3_69: slower dissolve + glide (Tim) — the zones below slide up in sync via FLIP */
-.zone.z-rs.rs-flash{box-shadow:0 0 14px 3px var(--gold);transition:box-shadow .3s;}
-.zone.z-rs.rs-done{opacity:0;max-height:0!important;min-height:0!important;margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;overflow:hidden!important;border-width:0;transition:opacity .75s ease-in-out,max-height .75s ease-in-out,margin .75s ease-in-out,padding .75s ease-in-out;}
+.zone.z-rs.rs-done{opacity:0;max-height:0!important;min-height:0!important;margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;overflow:hidden!important;border-width:0;transition:opacity 1.5s ease-in-out,max-height 1.5s ease-in-out,margin 1.5s ease-in-out,padding 1.5s ease-in-out;} /* 4_33: 1.5s melt (Tim) */
 
 /* RR mode banner */
 .rr-mode-banner{background:rgba(221,119,34,.15);border:1px solid #dd7722;border-radius:6px;padding:5px 10px;font-size:.78em;color:#dd9944;display:none;flex-shrink:0;align-items:center;gap:8px;}
@@ -649,7 +648,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.30</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.33</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -809,7 +808,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.30</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.33</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3431,58 +3430,53 @@ function maybeIceBlanks(){
     },480);
   },60);
 }
-// 3_69: RS zone resolves away — slow dissolve + FLIP glide (Tim). The zones below
-// slide up in sync instead of teleporting: measure where they sit, snap the zone
-// shut behind the scenes to find where they land, then glide each one there.
+// 4_32: RS zone just melts when empty (Tim) — no flash, no beat. Zones below
+// glide up in sync over a full second. FLIP: measure, snap shut to find landing
+// spots, revert, then animate on the next frame.
 function collapseRSZone(zoneEl){
   const gen=++_rsCollapseGen; // 3_71: stale timers (e.g. armed during the end-turn handoff render) abort
-  zoneEl.classList.add('rs-flash');
-  setTimeout(()=>{
-    if(gen!==_rsCollapseGen)return;
-    zoneEl.classList.remove('rs-flash');
-    // — measure: every outermost element sitting below the zone —
-    const zTop=zoneEl.getBoundingClientRect().top;
-    const all=[...document.querySelectorAll('body *')].filter(el=>{
-      if(el===zoneEl||zoneEl.contains(el))return false;
-      const r=el.getBoundingClientRect();
-      return r.height>0&&r.top>zTop+10;
+  // — measure: every outermost element sitting below the zone (sync; no paint) —
+  const zTop=zoneEl.getBoundingClientRect().top;
+  const all=[...document.querySelectorAll('body *')].filter(el=>{
+    if(el===zoneEl||zoneEl.contains(el))return false;
+    const r=el.getBoundingClientRect();
+    return r.height>0&&r.top>zTop+10;
+  });
+  const followers=all.filter(el=>!all.some(o=>o!==el&&o.contains(el)));
+  const before=new Map(followers.map(el=>[el,el.getBoundingClientRect().top]));
+  // — final positions: collapse instantly with transitions off, measure, revert —
+  zoneEl.style.transition='none';
+  zoneEl.style.maxHeight='0px';
+  zoneEl.classList.add('rs-done');
+  const dys=followers.map(el=>{
+    const dy=before.get(el)-el.getBoundingClientRect().top;
+    return{el,dy:Math.abs(dy)>1?dy:0};
+  });
+  zoneEl.classList.remove('rs-done');
+  zoneEl.style.maxHeight='';
+  zoneEl.style.transition='';
+  void zoneEl.offsetHeight; // reflow back to expanded before the animated pass
+  // — animated pass: dissolve + glide, straight away —
+  zoneEl.style.maxHeight=zoneEl.scrollHeight+'px';
+  requestAnimationFrame(()=>{
+    if(gen!==_rsCollapseGen)return; // 3_71
+    zoneEl.classList.add('rs-done'); // 1s dissolve
+    dys.forEach(({el,dy})=>{
+      if(!dy)return;
+      el.style.transition='none';
+      el.style.transform=`translateY(${dy}px)`;
     });
-    const followers=all.filter(el=>!all.some(o=>o!==el&&o.contains(el)));
-    const before=new Map(followers.map(el=>[el,el.getBoundingClientRect().top]));
-    // — final positions: collapse instantly with transitions off, measure, revert —
-    zoneEl.style.transition='none';
-    zoneEl.style.maxHeight='0px';
-    zoneEl.classList.add('rs-done');
-    const dys=followers.map(el=>{
-      const dy=before.get(el)-el.getBoundingClientRect().top;
-      return{el,dy:Math.abs(dy)>1?dy:0};
-    });
-    zoneEl.classList.remove('rs-done');
-    zoneEl.style.maxHeight='';
-    zoneEl.style.transition='';
-    void zoneEl.offsetHeight; // reflow back to expanded before the animated pass
-    // — animated pass: dissolve the zone, glide the followers home —
-    zoneEl.style.maxHeight=zoneEl.scrollHeight+'px';
+    void document.body.offsetHeight;
     setTimeout(()=>{
       if(gen!==_rsCollapseGen)return; // 3_71
-      zoneEl.classList.add('rs-done');
       dys.forEach(({el,dy})=>{
         if(!dy)return;
-        el.style.transition='none';
-        el.style.transform=`translateY(${dy}px)`;
+        el.style.transition='transform 1.5s ease-in-out';
+        el.style.transform='';
       });
-      void document.body.offsetHeight;
-      setTimeout(()=>{
-        if(gen!==_rsCollapseGen)return; // 3_71
-        dys.forEach(({el,dy})=>{
-          if(!dy)return;
-          el.style.transition='transform .75s ease-in-out';
-          el.style.transform='';
-        });
-      },30);
-      setTimeout(()=>{dys.forEach(({el})=>{el.style.transition='';el.style.transform='';});},850);
     },30);
-  },300);
+    setTimeout(()=>{dys.forEach(({el})=>{el.style.transition='';el.style.transform='';});},1600);
+  });
 }
 // 4_19: reroll nudge pill — visible while dice can be picked for reroll (Tim).
 // Covers the free reroll AND the HC RR face mode; hides the moment the reroll
