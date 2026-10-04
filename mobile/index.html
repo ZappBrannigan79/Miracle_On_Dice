@@ -160,6 +160,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 
 /* 2_142: your-turn flash — plain text, gentle opacity pulse, never button-like */
 .so-yourturn{display:inline-block;font-size:1.12em;font-weight:900;letter-spacing:3px;color:#0a0f1e;background:linear-gradient(180deg,#ffd75e,#f8bd55);border-radius:999px;padding:7px 24px;animation:soTurnPulse 1.6s ease-in-out infinite;}
+.so-aiturn{display:inline-block;font-size:1.12em;font-weight:900;letter-spacing:3px;color:#8fa3bf;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 24px;} /* 4_16: Chuck's turn — same pill, no flash (Tim) */
 @keyframes soTurnPulse{0%,100%{box-shadow:0 0 0 0 rgba(248,189,85,.45);transform:scale(1);}50%{box-shadow:0 0 20px 5px rgba(248,189,85,.55);transform:scale(1.045);}}
 .abtn.pulsing-orange{animation:nudgePulse 1.4s ease-in-out infinite;}
 
@@ -265,6 +266,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* RR mode banner */
 .rr-mode-banner{background:rgba(221,119,34,.15);border:1px solid #dd7722;border-radius:6px;padding:5px 10px;font-size:.78em;color:#dd9944;display:none;flex-shrink:0;align-items:center;gap:8px;}
 .rr-mode-banner.show{display:flex;}
+/* 4_19: gentle reroll nudge pill at the bottom of the RS zone (Tim) — soft opacity
+   pulse only, so it never reads as a selection halo */
+#rr-nudge{display:none;text-align:center;margin-top:10px;}
+#rr-nudge.show{display:block;}
+#rr-nudge span{display:inline-block;font-size:.8em;font-weight:800;letter-spacing:1px;color:#ffd75e;background:rgba(255,215,94,.07);border:1px solid rgba(255,215,94,.35);border-radius:999px;padding:6px 18px;animation:rrNudgeSoft 1.8s ease-in-out infinite;}
+@keyframes rrNudgeSoft{0%,100%{opacity:.6;}50%{opacity:1;}}
 .rr-confirm-btn{padding:3px 9px;font-size:.85em;background:#dd7722;color:#111;border:none;border-radius:5px;cursor:pointer;font-weight:700;}
 
 /* OPPONENT */
@@ -386,7 +393,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
    any defender die is still unassigned (a reminder, not a gate — rolling with
    zero blockers stays legal). */
 
-#bsel-dice .die-body.avail-pulse{animation:nudgePulse 1.4s ease-in-out infinite;border-color:#ffd75e;}
+/* 4_18: avail-pulse retired — dice selection is halo-or-plain now */
 /* 4_03: shootout victory — big trophy pill up top (Tim) */
 .so-trophy-pill{font-size:3em;width:104px;height:104px;line-height:104px;margin:0 auto 14px;
   background:rgba(200,168,75,.12);border:3px solid var(--gold);border-radius:999px;
@@ -640,7 +647,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.15</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.20</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -800,7 +807,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.15</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.20</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -840,6 +847,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
             <div class="zone-lbl">🎲 Roll &amp; Sort Zone</div>
             <div class="rs-actions" id="rs-actions"></div>
             <div class="zone-dice" id="z-rs" style="overflow:visible"></div>
+            <div id="rr-nudge"><span>👆 Choose dice to reroll</span></div>
           </div>
           <div class="off-split">
             <div class="zone z-hot"><div class="zone-lbl">🔥 Hot Zone</div><div class="zone-dice" id="z-hot"></div></div>
@@ -1190,7 +1198,8 @@ function tierOf(k){const m=k.match(/\d+/);return m?+m[0]:0;}
 function posName(k){return{F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach',R:'Rookie',P:'Penalty'}[posOf(k)]||k;}
 
 // ═══════════════════ STATE ═══════════════════
-let G={},_id=0,_rrMode=false,_rrDieId=null,_rsWasEmpty=false,_rsCollapseGen=0; // 3_71: gen invalidates a collapse whose timers outlive the turn
+let G={},_id=0,_rrMode=false,_rrDieId=null,_aiRrNudge=false,_rsWasEmpty=false,_rsCollapseGen=0; // 3_71: gen invalidates a collapse whose timers outlive the turn
+// 4_20: _aiRrNudge — Chuck's "choosing reroll" beat (Tim)
 function mkDie(k){return{id:_id++,key:k,pos:posOf(k),tier:tierOf(k),face:null,sel:false,energyPending:false,spun:false};} // 3_36: spun = die was spun down for energy — cannot be rerolled
 function mkBag(extra=[]){const b=[];for(let i=0;i<15;i++)b.push(mkDie('Rookie'));return b;} // extra param kept for API compat but ignored — all 15 start as Rookies
 function mkLineup(arr){return arr.map(k=>({key:k,left:3}));}
@@ -1483,7 +1492,8 @@ function showFaceoff(){
   // _foReadonly — because showFaceoffReadonly calls this first, then flips it).
   if(!_aiActive&&(!_onlineActive||_mySlot===0)){
     document.getElementById('fo-win').textContent='🎲 Rolling…';
-    setTimeout(()=>{if(document.getElementById('fo-overlay').classList.contains('show'))doFaceoff();},900);
+    // 4_17: no blank-card beat — straight into the roll (Tim)
+    setTimeout(()=>{if(document.getElementById('fo-overlay').classList.contains('show'))doFaceoff();},150);
   }
   aiMaybeAutoFaceoff(); // 2_45: Vs AI hook
 }
@@ -1608,7 +1618,7 @@ function beginPeriodAfterFo(){if(aiGuard())return;
 // ═══════════════════ TURN ENGINE ═══════════════════
 function startTurn(){
   G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;G.combatDone=false; // 4_06
-  _rrMode=false;_rrDieId=null;
+  _rrMode=false;_rrDieId=null;_aiRrNudge=false; // 4_20
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();phase0();
 }
@@ -2559,8 +2569,10 @@ function refreshBlockerNudge(){
   const anyAvail=isDefender&&!aiDefends&&OPP().z.defend.some(d=>!G.blockSelIds.includes(d.id));
   const btn=document.querySelector('#bsel-dice .abtn');
   if(btn)btn.classList.toggle('pulsing',anyAvail);
+  // 4_18: dice no longer pulse — the Commit All button keeps the nudge, dice are
+  // halo (chosen) or plain (not). The pulse glow mimicked selection (Tim).
   document.querySelectorAll('#bsel-dice .die-body').forEach(b=>{
-    b.classList.toggle('avail-pulse',anyAvail&&!b.classList.contains('sel'));
+    b.classList.remove('avail-pulse');
   });
 }
 // 3_77: defender's running total — the blocker's equivalent of the attacker's
@@ -3469,11 +3481,23 @@ function collapseRSZone(zoneEl){
     },30);
   },300);
 }
+// 4_19: reroll nudge pill — visible while dice can be picked for reroll (Tim).
+// Covers the free reroll AND the HC RR face mode; hides the moment the reroll
+// is confirmed, skipped, or cancelled (all of those clear _rrMode + renderAll).
+function updateRRNudge(){
+  const el=document.getElementById('rr-nudge');
+  if(!el)return;
+  const sp=el.querySelector('span');
+  // 4_20: Chuck gets his own wording — the player isn't choosing (Tim)
+  if(_aiRrNudge){ if(sp)sp.innerHTML='🤖 AI choosing reroll…'; el.classList.add('show'); }
+  else if(_rrMode){ if(sp)sp.innerHTML='👆 Choose dice to reroll'; el.classList.add('show'); }
+  else el.classList.remove('show');
+}
 function renderAll(){
   // If the turn just passed to the opponent, a shop left open on this client
   // would let the new spectator keep buying — shut it.
   if(spectating())closeShop();
-  renderPbar();renderBoard();renderOpp();renderScore();renderActions();renderRSActions();renderLog();
+  renderPbar();renderBoard();renderOpp();renderScore();renderActions();renderRSActions();renderLog();updateRRNudge();
   maybeIceBlanks(); // 3_68: blanks fade to iced once assignment starts (no-op until then)
   saveGame(); // 2_121: debounced autosave (skips mid-AI-turn)
 }
@@ -4273,8 +4297,11 @@ function soStartShooterTurn(){
 
   // 2_142: narration eliminated — this line is now the your-turn flash (text only, not a button)
   const _ti=document.getElementById('so-turn-info');
-  const _humanTurn=!((_so.vsAI&&si===_aiSlot)||!soIAmShooter());
-  _ti.innerHTML=_humanTurn?'<span class="so-yourturn">YOUR TURN</span>':'';
+  const _isAITurn=_so.vsAI&&si===_aiSlot;
+  const _humanTurn=!(_isAITurn||!soIAmShooter());
+  // 4_16: Chuck's turn gets a quiet pill — no flash (Tim)
+  _ti.innerHTML=_humanTurn?'<span class="so-yourturn">YOUR TURN</span>'
+    :(_isAITurn?'<span class="so-aiturn">🤖 AI CHUCK&rsquo;S TURN</span>':'');
   // 2_68: vs-AI practice — the player takes their turn directly (no "Take Your Shot" gate)
   _so.playerTurnGo=false;
   // 2_51: no Roll Shot button on the AI's turn — it rolls automatically
@@ -5534,8 +5561,10 @@ async function aiTurnMain(){
   try{
     await aiSleep(900);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48: never hold the board when the turn moved on
     _aiSelf=true;try{rollAll();}finally{_aiSelf=false;}
-    await aiSleep(1100);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
+    _aiRrNudge=true;renderAll(); // 4_20: "AI choosing reroll" during the pause (Tim)
+    await aiSleep(1100);if(!aiIsTurn()){_aiBusy=false;_aiRrNudge=false;renderAll();return;} // 2_48
     aiDoReroll(P);
+    _aiRrNudge=false;renderAll();
     await aiSleep(800);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
     // 2_150: HC reroll gets its own visible beat — pause so the player sees the
     // dice reroll (animation + pill) before assignment continues
@@ -6314,7 +6343,8 @@ function aiMaybeBench(){
 function aiMaybeAutoFaceoff(){
   if(!_aiActive)return;
   const _fb=document.getElementById('fo-btn');if(_fb)_fb.style.display='none'; // 2_48: AI rolls — no tap target, no double roll
-  aiLater(()=>{_aiSelf=true;try{doFaceoff();}finally{_aiSelf=false;}},900);
+  // 4_17: no blank-card beat — straight into the roll, bypassing aiPace (Tim)
+  setTimeout(()=>{_aiSelf=true;try{doFaceoff();}finally{_aiSelf=false;}},150);
 }
 function aiMaybeFoPick(){
   if(!(_aiActive&&G.fo&&G.fo.w===_aiSlot))return;
