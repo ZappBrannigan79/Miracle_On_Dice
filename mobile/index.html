@@ -193,11 +193,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* 2_24: .auto-bl styles removed with the button */
 
 /* DICE */
-.die-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;flex-shrink:0;cursor:default;}
+.die-wrap{display:flex;flex-direction:column;align-items:center;gap:9px;position:relative;flex-shrink:0;cursor:default;} /* 4_15: label rides low full-time so the halo never shifts it */
 .die-body{width:54px;height:54px;border-radius:12px; /* 2_42: rounded squares, like the faceoff dice */display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.4);transition:all .15s;position:relative;flex-shrink:0;user-select:none;}
 .die-body:hover{transform:scale(1.07);}
-.die-body.sel{box-shadow:0 0 0 2px rgba(255,214,110,.9),0 0 8px rgba(255,214,110,.5)!important;transform:scale(1.1);border-color:#ffd66e!important;margin-bottom:6px;} /* 3_38: thinner, softer halo; 4_14: halo clears the tier label */
-.die-body.sel-rr{box-shadow:0 0 0 2px rgba(221,119,34,.9),0 0 8px rgba(221,119,34,.5)!important;border-color:#dd7722!important;transform:scale(1.08);margin-bottom:6px;} /* 3_38: thinner, softer halo; 4_14: halo clears the tier label */
+.die-body.sel{box-shadow:0 0 0 2px rgba(255,214,110,.9),0 0 8px rgba(255,214,110,.5)!important;transform:scale(1.1);border-color:#ffd66e!important;} /* 3_38: thinner, softer halo */
+.die-body.sel-rr{box-shadow:0 0 0 2px rgba(221,119,34,.9),0 0 8px rgba(221,119,34,.5)!important;border-color:#dd7722!important;transform:scale(1.08);} /* 3_38: thinner, softer halo */
 /* Costed die selected — ensure ring still visible over gold border */
 .die-body.has-cost.sel{border-color:#ffd66e!important;box-shadow:0 0 0 2px rgba(255,214,110,.9),0 0 8px rgba(255,214,110,.5)!important;} /* 3_38 */
 .die-body.has-cost.sel-rr{border-color:#dd7722!important;box-shadow:0 0 0 2px rgba(221,119,34,.9),0 0 8px rgba(221,119,34,.5)!important;} /* 3_38 */
@@ -640,7 +640,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.14</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.15</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -800,7 +800,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.14</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.15</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
