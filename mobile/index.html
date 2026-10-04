@@ -430,7 +430,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 #bsel-info{font-size:.92em;color:#ffd9d9;margin:2px 0 8px;padding:7px 10px;background:rgba(255,90,90,.10);border:1px solid rgba(255,90,90,.35);border-radius:8px;} /* 3_77: defender's running total — mirrors atk-dice-sum */
 
 /* LOG */
-.log-panel{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.08);padding:5px 12px;flex-shrink:0;max-height:64px;overflow-y:auto;}
+.log-panel{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.08);padding:5px 12px;flex-shrink:0;max-height:42vh;overflow-y:auto;} /* 4_30: room to scroll ~30 lines (Tim) */
 .log-e{font-size:.7em;color:#888;line-height:1.6;}
 .log-e.imp{color:var(--gold);}.log-e.goal{color:#88aaff;font-weight:700;}.log-e.blk{color:#ff8888;}
 .toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:#1a3a5c;border:1px solid var(--gold);color:white;padding:9px 18px;border-radius:18px;font-size:.83em;z-index:500;pointer-events:none;opacity:0;transition:opacity .3s;}
@@ -649,7 +649,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.27</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.30</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -809,7 +809,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.27</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.30</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3745,7 +3745,10 @@ function renderActions(){
     }
   } else if(G.phase===4){
     // Combined assign + buy phase — no "Done Assigning" needed
-    const shopBtn=mk('Open Shop 🛒',openShop,hasE?'prim':'sec',false,hasE);
+    // 4_28 (Tim): turn winding down (shot taken, or no shot available w/ RS clear) —
+    // End Turn becomes the pulsing gold primary; shop stays tappable but goes quiet.
+    const windingDown=G.combatDone||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length);
+    const shopBtn=mk('Open Shop 🛒',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown);
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
       if(ap.z.hot.length){
@@ -3756,7 +3759,7 @@ function renderActions(){
       if(ap.z.shoot.length)mk('🚨 Declare Shot!',declareShot,'prim');
       else if(!ap.z.hot.length)mk('Move dice to Shoot Zone first',()=>{},'sec',true);
     }
-    mk(G.shotDeclared?'End Turn':'End Turn / Skip Shot',confirmEndTurn,'sec');
+    mk(G.shotDeclared?'End Turn':'End Turn / Skip Shot',confirmEndTurn,windingDown?'prim':'sec',false,windingDown);
   }
   renderCombatPill(); // 3_27: slim popup pill (AI defend beats only)
 }
@@ -3770,11 +3773,12 @@ function toggleGameLog(){
   if(_glogOpen)renderLog();
 }
 function renderLog(){
-  document.getElementById('logpanel').innerHTML=G.log.slice(-8).reverse().map(e=>`<div class="log-e ${e.c||''}">${e.m}</div>`).join('');
+  // 4_30 (Tim): keep 30 scrollable lines when open (was 8) — closed still collapses via display:none
+  document.getElementById('logpanel').innerHTML=G.log.slice(-30).reverse().map(e=>`<div class="log-e ${e.c||''}">${e.m}</div>`).join('');
 }
 
 // ═══════════════════ UTILS ═══════════════════
-function addLog(m,c=''){G.log.push({m,c});renderLog();}
+function addLog(m,c=''){G.log.push({m,c});if(G.log.length>30)G.log.splice(0,G.log.length-30);renderLog();} // 4_30: cap at 30 (Tim)
 function toast(msg,ms=2600){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),ms);
@@ -5815,8 +5819,11 @@ function aiDoAssign(P){
     if(nAdv)aiPill(`🔼 advanced ${nAdv} ${nAdv===1?'die':'dice'} Cold → Hot`);
     // 5. PEN — handled above (pool empty → sits, ices at end of turn)
     // 6. WILD → zone with fewest pips (offensive = cold+hot vs defensive; tie → offensive)
+    // 4_29 (Tim): on his 01:00 offensive turn, Wilds ALWAYS shoot — last chance for goals.
+    // 02:00 keeps normal logic (he'll be defending your 01:00).
     [...ap.z.rs].forEach(d=>{
       const f=d.face;if(!f||f.t!=='W')return;
+      if(G.clock===1){assignDie(d,'shoot');nS++;return;}
       const off=[...ap.z.cold,...ap.z.hot].reduce((s,x)=>s+((x.face&&x.face.t==='S')?x.face.v:0),0);
       const def=ap.z.defend.reduce((s,x)=>s+((x.face&&x.face.t==='B')?x.face.v:0),0);
       if(off<=def){assignDie(d,'shoot');nS++;}else{assignDie(d,'block');nB++;}
