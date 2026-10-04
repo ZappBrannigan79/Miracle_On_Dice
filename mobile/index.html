@@ -210,6 +210,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 @keyframes dicewob{0%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}50%{transform:translate(-50%,-50%) rotate(12deg) scale(1.14);}100%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}}
 @keyframes dicewob2{0%{transform:rotate(-12deg) scale(1.12);}50%{transform:rotate(12deg) scale(1.18);}100%{transform:rotate(-12deg) scale(1.12);}}
 .cdie.rolling,.fo-die.rolling,.die-body.rolling{animation:dicewob2 .13s linear infinite;} /* 2_42: main dice shake like faceoff dice */
+/* 4_11: shootout coin flip (Tim) — spins like a tossed coin, then lands */
+@keyframes socoinflip{0%{transform:rotateY(0deg) translateY(0) scale(1);}18%{transform:rotateY(630deg) translateY(-18px) scale(1.08);}38%{transform:rotateY(1260deg) translateY(3px) scale(1);}62%{transform:rotateY(1800deg) translateY(-10px) scale(1.05);}82%{transform:rotateY(2070deg) translateY(1px) scale(1);}100%{transform:rotateY(2160deg) translateY(0) scale(1);}}
+#so-coin{display:inline-block;font-size:2.4em;animation:socoinflip 1.7s cubic-bezier(.3,.6,.4,1);}
 /* 2_41: goal celebration + token pop */
 @keyframes goalpop{0%{transform:scale(.5);opacity:0;}45%{transform:scale(1.18);opacity:1;}75%{transform:scale(.94);}100%{transform:scale(1);}}
 .goalpop{animation:goalpop .65s ease-out;}
@@ -637,7 +640,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.09</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.13</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -756,7 +759,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         </div>
       </div>
       <!-- 3_52: team summary line removed (Tim) — updateQSSummary no-ops via its guard -->
-      <div style="margin-top:8px">
+      <!-- 4_13: 16px gap — uniform with the other card spacing (Tim) -->
+      <div style="margin-top:16px">
         <button class="btn-start" id="qs-start-btn" style="width:100%;padding:12px" onclick="startQS()">Start Game →</button>
       </div>
     </div>
@@ -796,7 +800,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.09</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.13</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4012,7 +4016,7 @@ function renderSOPresets(){
   const el = document.getElementById('so-p1');
   el.innerHTML = '';
   // 2_63: Random Team is the default — pre-pick one so Start works immediately
-  if(_so.sel1==null){_so.sel1=Math.floor(Math.random()*PRESETS.length);}
+  if(_so.sel1==null){_so.sel1=randTeamExcept(_so.aiIdx);} // 4_10
   const sel=document.createElement('select');
   sel.style.cssText='width:100%;background:#1a2d45;color:white;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px;font-size:.9em;cursor:pointer;';
   const randOpt=document.createElement('option');
@@ -4038,7 +4042,7 @@ function renderSOPresets(){
   const infoWrap=document.createElement('div');
   infoWrap.innerHTML=teamInfoHTML(PRESETS[_so.sel1], !_soManualPick);
   el.appendChild(infoWrap);
-  if(_so.aiIdx===null||_so.aiIdx===undefined)_so.aiIdx=Math.floor(Math.random()*PRESETS.length);
+  if(_so.aiIdx===null||_so.aiIdx===undefined)_so.aiIdx=randTeamExcept(_so.sel1); // 4_10
   renderSOAITeam();
 }
 function renderSOAITeam(){
@@ -4046,7 +4050,7 @@ function renderSOAITeam(){
   const el=document.getElementById('so-ai');
   if(!el)return;
   el.innerHTML='';
-  if(_so.aiIdx==null)_so.aiIdx=Math.floor(Math.random()*PRESETS.length);
+  if(_so.aiIdx==null)_so.aiIdx=randTeamExcept(_so.sel1); // 4_10
   const sel=document.createElement('select');
   sel.style.cssText='width:100%;background:#1a2d45;color:white;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px;font-size:.9em;cursor:pointer;';
   const randOpt=document.createElement('option');
@@ -4065,7 +4069,7 @@ function renderSOAITeam(){
   });
   sel.addEventListener('change',()=>{
     const v=parseInt(sel.value,10);
-    if(v===-1){_soAiManualPick=false;_so.aiIdx=Math.floor(Math.random()*PRESETS.length);}
+    if(v===-1){_soAiManualPick=false;_so.aiIdx=randTeamExcept(_so.sel1);} // 4_10
     else{_soAiManualPick=true;_so.aiIdx=v;}
     renderSOAITeam();
   });
@@ -4076,7 +4080,7 @@ function renderSOAITeam(){
 }
 
 function launchShootoutPractice(){
-  if(_so.sel1==null)_so.sel1=Math.floor(Math.random()*PRESETS.length); // 2_63: default to random
+  if(_so.sel1==null)_so.sel1=randTeamExcept(_so.aiIdx); // 4_10: was pure random
   const p1=PRESETS[_so.sel1], p2=PRESETS[_so.aiIdx||0];
   // 2_51: shootout practice is a vs-AI mini-game — the AI drives player 2
   _aiActive=true;_aiSlot=1;_aiPersona='coach';_aiSpeed=1;_aiBusy=false;_aiSelf=false;_aiDefPhase=null;
@@ -4147,7 +4151,19 @@ function startShootout(practice){
   // stays ~4s (one more beat — Tim), then the first turn begins.
   const _fcGen=(_soCardGen=(typeof _soCardGen==='undefined'?0:_soCardGen)+1);
   const _fc=document.getElementById('so-first-card');
-  _fc.innerHTML=(practice?'🪙 Coin flip<br>':'🥅 ')+'<span style="color:#f8bd55">'+soTeamLabel(_so.firstShooter)+'</span> shoots first!';
+  // 4_11: practice coin flip — the coin spins, lands, then the result pops in (Tim)
+  if(practice){
+    _fc.innerHTML='<div id="so-coin-wrap"><div id="so-coin">🪙</div><div style="font-size:.8em;color:#8fa3bf;font-weight:700">flipping…</div></div>'
+      +'<div id="so-flip-result" style="display:none">🪙 Coin flip<br><span style="color:#f8bd55">'+soTeamLabel(_so.firstShooter)+'</span> shoots first!</div>';
+    setTimeout(()=>{
+      if(_fcGen!==_soCardGen)return;
+      const _cw=document.getElementById('so-coin-wrap'),_fr=document.getElementById('so-flip-result');
+      if(_cw)_cw.style.display='none';
+      if(_fr){_fr.style.display='block';_fr.classList.add('goalpop');}
+    },1750);
+  }else{
+    _fc.innerHTML='🥅 <span style="color:#f8bd55">'+soTeamLabel(_so.firstShooter)+'</span> shoots first!';
+  }
   const _fbox=document.querySelector('#so-overlay .ov-box');
   const _ftop=_fbox?_fbox.getBoundingClientRect().top:0;
   if(_ftop>170){ // 3_87: card sits directly on top of the shootout panel (Tim)
@@ -4521,7 +4537,7 @@ function soCheckWinner(){
     _so.maxRounds=_so.round;
     _so.phase='shoot';
     soDrawSuddenDeathShooters(); // 2_35: single random shooter per player
-    toast('Still tied! Sudden death begins.');
+    // 4_12: toast removed — the SD header/lighting already says it (Tim)
     if(_onlineActive){ soSyncPush(); }
     renderSOScoreboard();
     soStartShooterTurn();
@@ -4583,11 +4599,16 @@ function randomTeam(playerIdx){
   toast(`P${playerIdx+1}: ${PRESETS[pick].name} selected!`);
 }
 
+// 4_10: random team draws never duplicate the other side (Tim) —
+// manual picks may still match deliberately.
+function randTeamExcept(other){
+  let pick,guard=0;
+  do{ pick=Math.floor(Math.random()*PRESETS.length); guard++; }
+  while(pick===other&&PRESETS.length>1&&guard<60);
+  return pick;
+}
 function randomSOTeam(playerIdx){
-  const other = _so['sel'+(2-playerIdx)];
-  let pick;
-  do { pick = Math.floor(Math.random()*PRESETS.length); }
-  while(pick === other && PRESETS.length > 1);
+  const pick=randTeamExcept(_so.aiIdx); // 4_10: was guarding a stale sel2 key
   _so['sel'+(playerIdx+1)] = pick;
   renderSOPresets();
   toast(`P${playerIdx+1}: ${PRESETS[pick].name} selected!`);
@@ -5376,7 +5397,7 @@ function aiPickPersona(k){
   renderAIPanelTeam();
   renderPersonaLab(); // 2_73: show dials for the selected persona
 }
-function aiRerollTeam(){_aiManualPick=false;_aiTeamIdx=Math.floor(Math.random()*PRESETS.length);renderAIPanelTeam();updateQSSummary();}
+function aiRerollTeam(){_aiManualPick=false;_aiTeamIdx=randTeamExcept(_qsSel[0]);renderAIPanelTeam();updateQSSummary();} // 4_10
 function aiPickTeam(idx){_aiManualPick=true;_aiTeamIdx=idx;renderAIPanelTeam();updateQSSummary();}
 // 2_73: Persona Lab — slider UI for tuning AI dials
 const PERSONA_DIAL_INFO={
