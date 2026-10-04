@@ -173,6 +173,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .right-col{display:flex;flex-direction:column;gap:6px;min-height:0;}
 /* BIGGER bench/reserve */
 .bottom-strip{display:grid;grid-template-columns:160px 160px 1fr;gap:6px;flex-shrink:0;height:96px;}
+/* 4_00: game-log toggle — purple, deliberately not the gold action-button language (Tim) */
+.glog-toggle{margin:0 12px 8px 12px;padding:10px;background:rgba(150,110,220,.10);
+  border:2px solid rgba(170,130,255,.55);border-radius:10px;color:#c9a8ff;font-weight:800;
+  font-size:.85em;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.glog-toggle.open{background:rgba(150,110,220,.28);box-shadow:0 0 14px rgba(170,130,255,.30);color:#e2ccff;}
 .qa-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 9px;display:flex;flex-direction:column;gap:4px;}
 .qa-lbl{font-size:.62em;color:#777;text-transform:uppercase;letter-spacing:1px;}
 .qa-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
@@ -613,6 +618,9 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 .overlay.overlay-center{align-items:center!important;justify-content:center!important;}
 .overlay.overlay-center>div{width:auto!important;max-width:min(92vw,430px)!important;
   margin:auto!important;border-radius:999px!important;}
+
+/* 4_00: game-log toggle — full-bleed strip on phones like the old QA bar */
+#m-scroll .glog-toggle{margin:0!important;width:100%;border-radius:0;border-left:none;border-right:none;}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -623,7 +631,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.97</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.01</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -782,7 +790,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v3.97</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.01</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -844,13 +852,10 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         </div>
       </div>
     </div>
-    <!-- SWAPPED: qa-box moved here where opp-area used to be -->
-    <div class="qa-box" style="margin: 0 12px 8px 12px;">
-      <div class="qa-lbl">Quick Actions</div>
-      <div class="qa-row" id="qarow"></div>
-    </div>
+    <!-- 4_00: QA bar replaced by a game-log toggle (Tim) — log starts closed -->
+    <button class="glog-toggle" id="glog-toggle" onclick="toggleGameLog()">📜 Game Log</button>
   </div>
-  <div class="log-panel" id="logpanel"></div>
+  <div class="log-panel" id="logpanel" style="display:none"></div>
   <div style="display:none"><div id="z-block"></div></div>
 </div>
 
@@ -3101,7 +3106,7 @@ function fbClass(t,cost=false){
 function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
   const pc=posClass(die.pos);
   let fbCls,faceHTML,isCost=false;
-  // Iced zone: always show grey "?" — face doesn't matter for gameplay
+  // Iced zone (and benched — 3_99): always show grey "?" — face doesn't matter for gameplay
   if(inIced){
     fbCls='fb-UNK';faceHTML='?';
   } else if(!die.face){
@@ -3220,7 +3225,9 @@ function animNumbers(cells,finals,done){
 
 function renderZone(zid,arr,opts={}){
   const el=document.getElementById(zid);if(!el)return;el.innerHTML='';
-  const inIced=(zid==='z-iced');
+  // 3_99: benched dice render exactly like iced (Tim — uniform "?"; the 3_98
+  // faded tier-badge look is gone)
+  const inIced=(zid==='z-iced'||zid==='z-bench');
   // 3_19: the HC die always takes the last R&S slot (Tim) — it's the only die with
   // an RR side, so spending it never makes the other dice shuffle left. Display-only
   // (stable for everything else), so game logic and dice ids are untouched.
@@ -3455,7 +3462,7 @@ function renderAll(){
   // If the turn just passed to the opponent, a shop left open on this client
   // would let the new spectator keep buying — shut it.
   if(spectating())closeShop();
-  renderPbar();renderBoard();renderOpp();renderScore();renderActions();renderQA();renderRSActions();renderLog();
+  renderPbar();renderBoard();renderOpp();renderScore();renderActions();renderRSActions();renderLog();
   maybeIceBlanks(); // 3_68: blanks fade to iced once assignment starts (no-op until then)
   saveGame(); // 2_121: debounced autosave (skips mid-AI-turn)
 }
@@ -3691,30 +3698,14 @@ function renderActions(){
   }
   renderCombatPill(); // 3_27: slim popup pill (AI defend beats only)
 }
-function renderQA(){
-  const qa=document.getElementById('qarow');qa.innerHTML='';
-  if(spectating()){qa.innerHTML='<span class="hint">⏳ Watching live — sit tight, your turn is next.</span>';return;}
-  const ap=AP();
-  const hasE=totalE()>0;
-  // Face-spend RR mode (phase 4) — show selection hint
-  if(_rrMode&&_rrDieId!==null){
-    const selCount=ap.z.rs.filter(d=>d.sel).length;
-    qa.innerHTML=selCount>0
-      ?`<span class="hint" style="color:#dd9944">${selCount} dice selected — click Reroll Selected Dice</span>`
-      :'<span class="hint" style="color:#dd9944">Reroll face spent — click RS dice to select which to reroll</span>';
-    return;
-  }
-  if(G.phase===3){
-    const selCount=ap.z.rs.filter(d=>d.sel).length;
-    qa.innerHTML=selCount>0
-      ?`<span class="hint" style="color:#dd9944">${selCount} dice selected — click Reroll Selected Dice to reroll them</span>`
-      :'<span class="hint" style="color:#dd9944">Click dice in the Roll &amp; Sort Zone to select them for rerolling</span>';
-    return;
-  }
-  if(G.phase===4){
-    if(hasE)qa.innerHTML='<span class="hint">Click RS dice to assign • <span style="color:#c8a84b">⚡ Energy available — Open Shop to buy</span> • Yellow-striped faces cost 1⚡</span>';
-    else qa.innerHTML='<span class="hint">Click RS dice to assign • Click Hot Zone dice → Shoot Zone to set up shot</span>';
-  }
+let _glogOpen=false; // 4_00: game log starts closed (Tim)
+function toggleGameLog(){
+  _glogOpen=!_glogOpen;
+  const lp=document.getElementById('logpanel');
+  const btn=document.getElementById('glog-toggle');
+  lp.style.display=_glogOpen?'':'none';
+  btn.classList.toggle('open',_glogOpen);
+  if(_glogOpen)renderLog();
 }
 function renderLog(){
   document.getElementById('logpanel').innerHTML=G.log.slice(-8).reverse().map(e=>`<div class="log-e ${e.c||''}">${e.m}</div>`).join('');
@@ -6444,7 +6435,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // — opponent, quick actions, log —
   move(game.querySelector('.opp-area'), scroll);
-  move(game.querySelector('.qa-box'), scroll);
+  move(game.querySelector('#glog-toggle'), scroll); // 4_01: was .qa-box
   move($('logpanel'), scroll);
 
   // — contextual action buttons -> sticky bottom bar —
