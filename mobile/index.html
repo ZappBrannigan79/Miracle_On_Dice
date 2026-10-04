@@ -270,7 +270,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
    pulse only, so it never reads as a selection halo */
 #rr-nudge{display:none;text-align:center;margin-top:10px;}
 #rr-nudge.show{display:block;}
-#rr-nudge span{display:inline-block;font-size:.8em;font-weight:800;letter-spacing:1px;color:#ffd75e;background:rgba(255,215,94,.07);border:1px solid rgba(255,215,94,.35);border-radius:999px;padding:6px 18px;animation:rrNudgeSoft 1.8s ease-in-out infinite;}
+#rr-nudge .rr-pill{display:inline-block;font-size:.8em;font-weight:800;letter-spacing:1px;color:#ffd75e;background:rgba(255,215,94,.07);border:1px solid rgba(255,215,94,.35);border-radius:999px;padding:6px 18px;animation:rrNudgeSoft 1.8s ease-in-out infinite;}
+#rr-nudge .rr-choose{font-size:.8em;font-weight:800;letter-spacing:1px;color:#ffd75e;margin-bottom:8px;} /* 4_22: static label — the button pulses */
+#rr-nudge .rr-confirm{width:100%;padding:13px;font-size:.95em;} /* 4_22: in-zone confirm — thumb's already here */
 @keyframes rrNudgeSoft{0%,100%{opacity:.6;}50%{opacity:1;}}
 .rr-confirm-btn{padding:3px 9px;font-size:.85em;background:#dd7722;color:#111;border:none;border-radius:5px;cursor:pointer;font-weight:700;}
 
@@ -647,7 +649,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.20</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.22</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -807,7 +809,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.20</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.22</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -847,7 +849,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
             <div class="zone-lbl">🎲 Roll &amp; Sort Zone</div>
             <div class="rs-actions" id="rs-actions"></div>
             <div class="zone-dice" id="z-rs" style="overflow:visible"></div>
-            <div id="rr-nudge"><span>👆 Choose dice to reroll</span></div>
+            <div id="rr-nudge"></div><!-- 4_22: populated by updateRRNudge -->
           </div>
           <div class="off-split">
             <div class="zone z-hot"><div class="zone-lbl">🔥 Hot Zone</div><div class="zone-dice" id="z-hot"></div></div>
@@ -1207,7 +1209,7 @@ function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC')
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
 function initG(l1,l2,bag1=[],bag2=[]){
-  G={period:1,ap:0,phase:0,rrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,shotLocked:false,combatResult:null,combatDone:false,fo:null,so:null,gameOver:null,benchPick:null,pe:null,
+  G={period:1,ap:0,phase:0,rrUsed:false,hcRrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,shotLocked:false,combatResult:null,combatDone:false,fo:null,so:null,gameOver:null,benchPick:null,pe:null,
      assignmentStarted:false,
      advPending:false,
      periodFirstPlayer:0,
@@ -1617,7 +1619,7 @@ function beginPeriodAfterFo(){if(aiGuard())return;
 
 // ═══════════════════ TURN ENGINE ═══════════════════
 function startTurn(){
-  G.phase=0;G.rrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;G.combatDone=false; // 4_06
+  G.phase=0;G.rrUsed=false;G.hcRrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;G.combatDone=false; // 4_06
   _rrMode=false;_rrDieId=null;_aiRrNudge=false; // 4_20
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();phase0();
@@ -1713,7 +1715,7 @@ function confirmRRSel(){if(aiGuard())return;
   addLog(`${ap.name}: Rerolled ${sel.length} dice.`);
   const wasFreeReroll=(_rrDieId===null);
   _rrMode=false;_rrDieId=null;
-  if(wasFreeReroll){G.rrUsed=true;G.phase=4;}
+  if(wasFreeReroll){G.rrUsed=true;G.phase=4;}else{G.hcRrUsed=true;} // 4_21: blank auto-ice trigger
   renderAll();
   animGameDice(sel); // 2_40: reroll animation
 }
@@ -3397,7 +3399,8 @@ function hcRRAvailable(ap){
   return ap.z.rs.some(d=>d.key==='HC'&&d.face&&d.face.t==='RR');
 }
 function maybeIceBlanks(){
-  if(!G.assignmentStarted||_rrMode||_blankIceT)return;
+  // 4_21 (Tim): blanks auto-ice only after a reroll was used (free or HC) and no HC RR sits in RS
+  if(!(G.rrUsed||G.hcRrUsed)||_rrMode||_blankIceT)return;
   if(spectating())return; // online: only the assigner's client ices; the other side syncs
   const ap=AP();
   if(!ap||!ap.z.rs.some(d=>d.face&&d.face.t==='BLANK'))return;
@@ -3487,11 +3490,20 @@ function collapseRSZone(zoneEl){
 function updateRRNudge(){
   const el=document.getElementById('rr-nudge');
   if(!el)return;
-  const sp=el.querySelector('span');
-  // 4_20: Chuck gets his own wording — the player isn't choosing (Tim)
-  if(_aiRrNudge){ if(sp)sp.innerHTML='🤖 AI choosing reroll…'; el.classList.add('show'); }
-  else if(_rrMode){ if(sp)sp.innerHTML='👆 Choose dice to reroll'; el.classList.add('show'); }
-  else el.classList.remove('show');
+  // 4_22 (Tim): reroll confirm moved into the RS zone — the thumb's already there.
+  // Human gets static text + a pulsing Reroll Selected button; Chuck keeps his pill.
+  if(_aiRrNudge){
+    el.innerHTML='<span class="rr-pill">🤖 AI choosing reroll…</span>';
+    el.classList.add('show');
+  }else if(_rrMode){
+    el.innerHTML='<div class="rr-choose">👆 Choose dice to reroll</div>';
+    const b=document.createElement('button');
+    b.className='abtn prim pulsing-orange rr-confirm';
+    b.textContent='Reroll Selected Dice 🎲';
+    b.addEventListener('click',confirmRRSel);
+    el.appendChild(b);
+    el.classList.add('show');
+  }else{ el.classList.remove('show'); el.innerHTML=''; }
 }
 function renderAll(){
   // If the turn just passed to the opponent, a shop left open on this client
@@ -3701,9 +3713,7 @@ function renderActions(){
 
   // ── RR face-spend mode (phase 4) — show reroll confirm buttons ──
   if(_rrMode&&_rrDieId!==null){
-    const selCount=ap.z.rs.filter(d=>d.sel).length;
-    const rrBtn=mk('Reroll Selected Dice 🎲',confirmRRSel,'prim',false,false);
-    rrBtn.classList.add('pulsing-orange');
+    // 4_22: confirm lives in the RS zone now — bottom keeps just Cancel
     mk('Cancel Reroll',cancelRRSel,'sec');
     return;
   }
@@ -3712,8 +3722,7 @@ function renderActions(){
     mk('Roll Dice 🎲',rollAll,'prim');
   } else if(G.phase===3){
     if(!G.assignmentStarted){
-      const rrBtn=mk('Reroll Selected Dice 🎲',confirmRRSel,'prim',false,false);
-      rrBtn.classList.add('pulsing-orange');
+      // 4_22: confirm lives in the RS zone now — bottom keeps just Reroll None
       mk('Reroll None →',skipRR,'sec');
     } else {
       // Assignment already started — reroll no longer available
@@ -5737,6 +5746,8 @@ function aiDoHcReroll(P){
         aiPill(`🎲 HC reroll: ${rrpicks.length} ${rrpicks.length===1?'die':'dice'}`); // 2_121: visible step + summary blurb
         return true;
       }
+      // 4_21 (Tim): not using it — set aside so RS clears and blanks can melt
+      assignDie(rrd,'iced');
     }
   }finally{_aiSelf=false;}
   return false;
@@ -5754,28 +5765,30 @@ function aiDoAssign(P){
     if(nPen)aiPill(`⛔ sent ${nPen} Penalty ${nPen===1?'die':'dice'} to your bag`);
     // 2_92: Coach assignment order (Tim's spec) —
     // 1. shoot → 2. block → 3. shutout → 4. ADV → 5. PEN → 6. wild → 7. energy (next)
-    // 1. SHOOT faces → cold/hot (costed: pay if able, else leave sitting for end-of-turn ice)
+    // 1. SHOOT faces → cold/hot (costed: pay if able, else ice immediately — 4_21, Tim)
     [...ap.z.rs].forEach(d=>{
       const f=d.face;if(!f||f.t!=='S')return;
       if(f.c){
         if(aiTotalE()>=1){aiSpendE(1,false);aiAdvance(d,'S');nS++;}
+        else{assignDie(d,'iced');}
       }else{assignDie(d,'shoot');nS++;}
     });
-    // 2. BLOCK faces → defend (costed: pay if able, else leave sitting)
+    // 2. BLOCK faces → defend (costed: pay if able, else ice immediately — 4_21, Tim)
     [...ap.z.rs].forEach(d=>{
       const f=d.face;if(!f||f.t!=='B')return;
       if(f.c){
         if(aiTotalE()>=1){aiSpendE(1,false);aiAdvance(d,'B');nB++;}
+        else{assignDie(d,'iced');}
       }else{assignDie(d,'block');nB++;}
     });
-    // 3. SHUTOUT → pay 1e, gain block tokens (else leave sitting)
+    // 3. SHUTOUT → pay 1e, gain block tokens (else ice immediately — 4_21, Tim)
     [...ap.z.rs].forEach(d=>{
       const f=d.face;if(!f||f.t!=='SO')return;
       if(aiTotalE()>=1){
         aiSpendE(1,false);ap.tok.block+=f.v;
         ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);
         addLog(`${ap.name}: Shutout → +${f.v} Block Tokens (1⚡ paid, ${ap.tok.block} total).`,'imp');
-      }
+      }else{assignDie(d,'iced');}
     });
     // 4. ADV → most-pips cold die to hot (10:00 or empty cold: ice it)
     // 3_70: narrate the advance — Chuck bar pill + turn summary (Tim; was game-log only)
