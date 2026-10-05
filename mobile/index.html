@@ -194,7 +194,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* 2_24: .auto-bl styles removed with the button */
 
 /* DICE */
-.die-wrap{display:flex;flex-direction:column;align-items:center;gap:9px;position:relative;flex-shrink:0;cursor:default;} /* 4_15: label rides low full-time so the halo never shifts it */
+.die-wrap{display:flex;flex-direction:column;align-items:center;gap:9px;position:relative;flex-shrink:0;cursor:default;} /* 4_41: tier label is an absolute corner badge now — no layout shift, halo-safe (Tim) */
 .die-body{width:54px;height:54px;border-radius:12px; /* 2_42: rounded squares, like the faceoff dice */display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.4);transition:all .15s;position:relative;flex-shrink:0;user-select:none;}
 .die-body:hover{transform:scale(1.07);}
 .die-body.sel{box-shadow:0 0 0 2px rgba(255,214,110,.9),0 0 8px rgba(255,214,110,.5)!important;transform:scale(1.1);border-color:#ffd66e!important;} /* 3_38: thinner, softer halo */
@@ -244,8 +244,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .energy-inuse{position:absolute;top:-5px;right:-5px;background:var(--gold);color:#111;font-size:.58em;font-weight:900;border-radius:8px;padding:1px 4px;pointer-events:none;line-height:1.3;}
 /* Reserved badge */
 .reserved-badge{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#8B6914;color:#fff;font-size:.55em;font-weight:900;border-radius:4px;padding:1px 4px;pointer-events:none;white-space:nowrap;}
-.die-tier-lbl{font-size:.6em;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:.5px;text-align:center;line-height:1;}
-.pos-R .die-tier-lbl{color:#bbb;}.pos-P .die-tier-lbl{color:#555;}
+.die-tier-lbl{position:absolute;bottom:-3px;right:-3px;font-size:.62em;font-weight:800;color:#fff;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:1px 4px;line-height:1.3;letter-spacing:.3px;opacity:.8;}
 /* Spindown badge */
 .spindown-badge{position:absolute;top:-5px;left:-5px;background:#cc6600;color:#fff;font-size:.55em;font-weight:900;border-radius:6px;padding:1px 4px;pointer-events:none;}
 
@@ -258,7 +257,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .die-pop button:active{background:rgba(200,168,75,.32);}
 .die-pop button:disabled{opacity:.38;cursor:default;}
 /* 3_68: blanks flash-fade to the Iced Zone once assignment starts (Tim) */
-.die-wrap.blank-fade{transition:opacity .45s ease,transform .45s ease;opacity:0;transform:scale(.5);}
+.die-wrap.blank-pop{transition:transform .16s ease;transform:scale(1.25);}
+.die-wrap.blank-fade{transition:opacity .6s ease,transform .6s ease;opacity:0;transform:scale(.5);}
 /* 3_69: slower dissolve + glide (Tim) — the zones below slide up in sync via FLIP */
 .zone.z-rs.rs-done{opacity:0;max-height:0!important;min-height:0!important;margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;overflow:hidden!important;border-width:0;transition:opacity 1.5s ease-in-out,max-height 1.5s ease-in-out,margin 1.5s ease-in-out,padding 1.5s ease-in-out;} /* 4_33: 1.5s melt (Tim) */
 
@@ -384,9 +384,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .tok-ctrl.tok-slim .tok-step button{padding:5px 20px;min-width:56px;min-height:44px;font-size:1.25em;}
 .tok-ctrl.tok-slim .tok-count{font-size:1.4em;min-width:1.1em;}
 .tok-ctrl.tok-slim .tok-hint{margin:2px 0 0;text-align:left;font-size:.78em;}
-/* 3_67: combat-panel dice slightly smaller with no tier labels — two rows per side must fit */
+/* 3_67: combat-panel dice slightly smaller — two rows per side must fit */
+/* 3_67: combat-panel dice slightly smaller — two rows per side must fit */
+/* 4_40/4_41 (Tim): tier labels are corner badges app-wide (see .die-tier-lbl) */
 .combat-box #atk-dice .die-body,.combat-box #bsel-dice .die-body{width:50px;height:50px;}
-.combat-box #atk-dice .die-tier-lbl,.combat-box #bsel-dice .die-tier-lbl{display:none;}
 .tok-ctrl.tok-empty{opacity:.55;} /* 3_16/3_17: 0 tokens — picker visible but inert */
 
 .tok-ctrl.attn{animation:nudgePulse 1.4s ease-in-out infinite;border-color:#ffd75e;}
@@ -574,6 +575,11 @@ body{min-height:100vh;min-height:100dvh;}
 #setup .btn-mode{width:100%;box-sizing:border-box;}
 #setup .team-builder{max-width:480px;margin:0 auto;}
 
+/* ---- final bag viewer: centered card, not a bottom sheet (Tim, 4_37) ---- */
+#bag-overlay{align-items:center!important;justify-content:center!important;padding:14px!important;}
+#bag-overlay .panel-box{width:100%!important;max-width:560px!important;max-height:86vh;max-height:86dvh;
+  overflow-y:auto;margin:auto!important;border-radius:12px!important;}
+
 /* ---- shootout overlay: bigger, centered phone presentation ---- */
 #so-overlay{align-items:center!important;justify-content:center!important;padding:10px!important;}
 #so-overlay .ov-box{width:100%!important;max-width:96vw!important;margin:auto!important;
@@ -648,7 +654,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.36</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.41</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -808,7 +814,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.36</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.41</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3415,20 +3421,25 @@ function maybeIceBlanks(){
   }
   _blankIceT=setTimeout(()=>{
     _blankIceT=null;
-    // Fade the freshly-rendered dice first, then move them
+    // 4_38 (Tim): pop real quick, then fade away over a beat
     document.querySelectorAll('#z-rs .die-wrap').forEach(w=>{
       const d=AP().z.rs.find(x=>x.id===w.dataset.id);
-      if(d&&d.face&&d.face.t==='BLANK')w.classList.add('blank-fade');
+      if(d&&d.face&&d.face.t==='BLANK')w.classList.add('blank-pop');
     });
     setTimeout(()=>{
-      const ap2=AP();let n=0,hc=false;
-      [...ap2.z.rs].forEach(d=>{if(d.face&&d.face.t==='BLANK'){ap2.z.rs.splice(ap2.z.rs.indexOf(d),1);if(d.key==='HC')hc=true;else{ap2.z.iced.push(d);n++;}}});
-      if(n||hc){
-        if(n)addLog(`${ap2.name}: ${n} blank${n>1?'s':''} → Iced Zone.`);
-        if(hc)addLog(`${ap2.name}: Head Coach blank → set aside.`); // 3_74: HC is never iced (Tim)
-        renderAll();
-      }
-    },480);
+      document.querySelectorAll('#z-rs .die-wrap.blank-pop').forEach(w=>{
+        w.classList.remove('blank-pop');w.classList.add('blank-fade');
+      });
+      setTimeout(()=>{
+        const ap2=AP();let n=0,hc=false;
+        [...ap2.z.rs].forEach(d=>{if(d.face&&d.face.t==='BLANK'){ap2.z.rs.splice(ap2.z.rs.indexOf(d),1);if(d.key==='HC')hc=true;else{ap2.z.iced.push(d);n++;}}});
+        if(n||hc){
+          if(n)addLog(`${ap2.name}: ${n} blank${n>1?'s':''} → Iced Zone.`);
+          if(hc)addLog(`${ap2.name}: Head Coach blank → set aside.`); // 3_74: HC is never iced (Tim)
+          renderAll();
+        }
+      },650);
+    },170);
   },60);
 }
 // 4_32: RS zone just melts when empty (Tim) — no flash, no beat. Zones below
@@ -6310,13 +6321,8 @@ async function aiDefendTurn(){
         blockers.push(d);blkPips+=d.face.v; // 2_132: automatic commit to +1, no d100
       }
     }
-    G.blockSelIds=blockers.map(d=>d.id);
-    try{
-      document.querySelectorAll('#bsel-dice .die-body').forEach(b=>{
-        if(G.blockSelIds.includes(b.dataset.id))b.classList.add('sel');
-      });
-      renderBselInfo(); // 3_77: defender's running total (replaces the old binfo text line)
-    }catch(e){}
+    // 4_38 (Tim): choice stays hidden while Chuck "studies" — G.blockSelIds is
+    // the visual source of truth, so it's set at the reveal with the commits pill.
     renderAll();
     await aiSleep(900);
     // token phase — each token is worth 1 combat pip
@@ -6334,6 +6340,18 @@ async function aiDefendTurn(){
       }
     }
     const dicePips=blockers.reduce((s,d)=>s+(d.face?d.face.v:0),0); // 3_31: report pips (= blocking combat dice), not dice count
+    // 4_38: the reveal — highlights + running total land WITH the commits pill (Tim)
+    G.blockSelIds=blockers.map(d=>d.id);
+    try{
+      // 4_39: data-id lives on .die-wrap (dieWrapHTML) — the old .die-body query
+      // never matched, so Chuck's committed dice never highlighted (Tim's catch)
+      document.querySelectorAll('#bsel-dice .die-wrap').forEach(w=>{
+        if(G.blockSelIds.includes(w.dataset.id)){
+          const b=w.querySelector('.die-body');if(b)b.classList.add('sel');
+        }
+      });
+      renderBselInfo(); // 3_77: defender's running total
+    }catch(e){}
     aiPill(matched?`🔴 commits ${dicePips} blockers + ${matched} 🛡️`:`🔴 commits ${dicePips} blocker${dicePips===1?'':'s'}`);
     renderAll();
     await aiSleep(1000);
