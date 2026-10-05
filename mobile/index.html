@@ -206,6 +206,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .pos-D .die-body{background:radial-gradient(circle at 35% 35%,#aa2a2a,#550d0d);border-color:#cc4444;}
 .pos-G .die-body{background:radial-gradient(circle at 35% 35%,#666,#333);border-color:#888;}
 .pos-HC .die-body{background:radial-gradient(circle at 35% 35%,#c8a84b,#6b5422);border-color:#e8c86b;}
+.pos-GN .die-body{background:radial-gradient(circle at 35% 35%,#3fae3f,#1c5c1c);border-color:#7bdb7b;} /* 4_44: goon green (Tim) */
 .pos-R .die-body{background:radial-gradient(circle at 35% 35%,#ddd,#aaa);border-color:#ccc;}
 .pos-P .die-body{background:radial-gradient(circle at 35% 35%,#222,#111);border-color:#444;}
 @keyframes dicewob{0%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}50%{transform:translate(-50%,-50%) rotate(12deg) scale(1.14);}100%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}}
@@ -244,6 +245,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .energy-inuse{position:absolute;top:-5px;right:-5px;background:var(--gold);color:#111;font-size:.58em;font-weight:900;border-radius:8px;padding:1px 4px;pointer-events:none;line-height:1.3;}
 /* Reserved badge */
 .reserved-badge{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#8B6914;color:#fff;font-size:.55em;font-weight:900;border-radius:4px;padding:1px 4px;pointer-events:none;white-space:nowrap;}
+#so-forward-choices .die-tier-lbl{display:none;}
 .die-tier-lbl{position:absolute;bottom:-3px;right:-3px;font-size:.62em;font-weight:800;color:#fff;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:1px 4px;line-height:1.3;letter-spacing:.3px;opacity:.8;}
 /* Spindown badge */
 .spindown-badge{position:absolute;top:-5px;left:-5px;background:#cc6600;color:#fff;font-size:.55em;font-weight:900;border-radius:6px;padding:1px 4px;pointer-events:none;}
@@ -654,7 +656,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.42</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.45</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -814,7 +816,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.42</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.45</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1164,6 +1166,22 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div id="bag-viewer-content"></div>
   </div>
 </div>
+<!-- 4_44: GOON FIGHT panel (Tim) -->
+<div class="panel-overlay" id="goon-panel">
+  <div class="panel-box" style="max-width:560px">
+    <div class="panel-title">🥊 Goon Fight!</div>
+    <div class="panel-sub">Pick a target from the opponent's zones. Goon rolls 3 fight dice, target rolls 2 (ties lose). Win: target iced. Lose: penalty die to your bag. Goon ices either way.</div>
+    <div id="goon-pick">
+      <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap" id="goon-targets"></div>
+      <button class="abtn prim" id="goon-commit" onclick="goonResolveFight()" disabled>Fight! →</button>
+      <button class="abtn sec" onclick="goonCancelFight()" style="margin-left:8px">Cancel</button>
+    </div>
+    <div id="goon-result" style="display:none;margin-top:10px">
+      <div class="combat-info" id="goon-result-text" style="background:rgba(255,255,255,.05);border-radius:6px;padding:10px;font-size:.85em;line-height:1.7"></div>
+      <button class="abtn prim" style="width:100%;margin-top:10px" onclick="goonCloseFight()">Continue</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1171,6 +1189,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 const DEFS={
   // c:true = costs 1 Energy to advance to its zone
   Rookie:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'S',v:1},{t:'B',v:1},{t:'BLANK',v:0}],
+  Goon:[{t:'E',v:1},{t:'E',v:1},{t:'FT',v:0},{t:'FT',v:0},{t:'FT',v:0},{t:'BLANK',v:0}], // 4_44: goon (Tim)
   F1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:1,c:true},{t:'W',v:1}],
   F2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:2,c:true},{t:'W',v:1}],
   F3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:2},{t:'S',v:2,c:true},{t:'W',v:1}],
@@ -1202,17 +1221,17 @@ const DEF=['D1','D2','D3','D4','D5','D6','D7','D8'];
 const GOA=['G3','G4','G5','G6'];
 const PHASES=['Advance','Draw','Roll & Assign','Shoot','End Turn'];
 const PHASEMAP=[0,1,2,2,2,3,4]; // 2_37: internal phase -> condensed 5-step display
-function posOf(k){return k.startsWith('F')?'F':k.startsWith('D')?'D':k.startsWith('G')?'G':k==='HC'?'HC':k==='Penalty'?'P':'R';}
+function posOf(k){return k==='Goon'?'GN':k.startsWith('F')?'F':k.startsWith('D')?'D':k.startsWith('G')?'G':k==='HC'?'HC':k==='Penalty'?'P':'R';} // 4_44: Goon
 function tierOf(k){const m=k.match(/\d+/);return m?+m[0]:0;}
-function posName(k){return{F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach',R:'Rookie',P:'Penalty'}[posOf(k)]||k;}
+function posName(k){return{F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach',GN:'Goon',R:'Rookie',P:'Penalty'}[posOf(k)]||k;} // 4_44: Goon
 
 // ═══════════════════ STATE ═══════════════════
 let G={},_id=0,_rrMode=false,_rrDieId=null,_aiRrNudge=false,_rsWasEmpty=false,_rsCollapseGen=0; // 3_71: gen invalidates a collapse whose timers outlive the turn
 // 4_20: _aiRrNudge — Chuck's "choosing reroll" beat (Tim)
 function mkDie(k){return{id:_id++,key:k,pos:posOf(k),tier:tierOf(k),face:null,sel:false,energyPending:false,spun:false};} // 3_36: spun = die was spun down for energy — cannot be rerolled
-function mkBag(extra=[]){const b=[];for(let i=0;i<15;i++)b.push(mkDie('Rookie'));return b;} // extra param kept for API compat but ignored — all 15 start as Rookies
+function mkBag(extra=[]){const b=[];for(let i=0;i<14;i++)b.push(mkDie('Rookie'));b.push(mkDie('Goon'));return b;} // 4_44: 14 Rookie + 1 Goon (Tim)
 function mkLineup(arr){return arr.map(k=>({key:k,left:3}));}
-function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC'),bag:mkBag(bagExtra),
+function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC'),goonAside:null,bag:mkBag(bagExtra),
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
 function initG(l1,l2,bag1=[],bag2=[]){
@@ -1628,7 +1647,7 @@ function beginPeriodAfterFo(){if(aiGuard())return;
 
 // ═══════════════════ TURN ENGINE ═══════════════════
 function startTurn(){
-  G.phase=0;G.rrUsed=false;G.hcRrUsed=false;G.shotDeclared=false;G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;G.combatDone=false; // 4_06
+  G.phase=0;G.rrUsed=false;G.hcRrUsed=false;_goonFightUsed=false;G.shotDeclared=false; // 4_44: goon fight resetsG.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;G.combatDone=false; // 4_06
   _rrMode=false;_rrDieId=null;_aiRrNudge=false; // 4_20
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();phase0();
@@ -1940,6 +1959,14 @@ function assignDie(die,action){
   }else if(action==='no-energy'){
     toast('Need 1⚡ Energy in RS or Reserve to advance this costed face.');
     renderAll();return;
+  }else if(action==='goon-used'){
+    toast('The goon already fought this turn.');
+    renderAll();return;
+  }else if(action==='goon-fight'){
+    // 4_44: goon fight — pick a target from opponent's Cold/Defensive/Hot (Tim)
+    closeMenus();
+    goonStartFight(die);
+    return;
   }else if(action==='iced'){
     ap.z.rs.splice(idx,1);
     if(die.key==='HC'){addLog(`${ap.name}: ${dLbl(die)} → set aside.`);} // 3_74: HC is never iced (Tim)
@@ -2069,6 +2096,7 @@ function dLbl(d){if(!d.face)return d.key;return`${d.key}[${d.face.t}${d.face.v||
 // ═══════════════════ FIGHT ═══════════════════
 // Fight state
 let _fight={zone:null,atkDie:null,defDie:null};
+let _goonFightUsed=false; // 4_44: one goon fight per turn (Tim)
 
 function doFight(){
   const ap=AP(),opp=OPP();
@@ -2159,6 +2187,76 @@ function fightCommitDefender(){
 }
 function cancelFight(){document.getElementById('fight-panel').classList.remove('show');renderAll();}
 function closeFight(){document.getElementById('fight-panel').classList.remove('show');renderAll();}
+
+// ═══════════════════ 4_44: GOON FIGHT (Tim) ═══════════════════
+// Goon (green die, 1E/1E/FT×3/BLANK) rolls FT → may challenge one opponent die
+// from Cold/Defensive/Hot. 3v2 shoot combat dice. Win: target iced, goon set
+// aside until next period. Lose (ties lose): goon iced + penalty die to own bag.
+let _goonDie=null;
+function goonStartFight(die){
+  const opp=OPP();
+  const targets=[];
+  [['cold','Cold'],['defend','Defensive'],['hot','Hot']].forEach(([zn,label])=>{
+    opp.z[zn].forEach(d=>targets.push({die:d,zone:zn,label}));
+  });
+  if(!targets.length){toast('No targets — opponent has no dice in Cold/Defensive/Hot.');renderAll();return;}
+  _goonDie=die;
+  const el=document.getElementById('goon-targets');el.innerHTML='';
+  let lastZone=null;
+  targets.forEach(t=>{
+    if(t.label!==lastZone){
+      lastZone=t.label;
+      const h=document.createElement('div');
+      h.style.cssText='width:100%;font-size:.75em;color:#888;font-weight:700;margin:6px 0 2px';
+      h.textContent=t.label+' Zone';
+      el.appendChild(h);
+    }
+    const w=document.createElement('div');w.innerHTML=dieWrapHTML(t.die,false,true,false);
+    w.querySelector('.die-body').style.cursor='pointer';
+    w.addEventListener('click',()=>{
+      el.querySelectorAll('.die-body').forEach(b=>b.classList.remove('sel'));
+      w.querySelector('.die-body').classList.add('sel');
+      document.getElementById('goon-commit').disabled=false;
+      _goonTarget=t;
+    });
+    el.appendChild(w);
+  });
+  document.getElementById('goon-commit').disabled=true;
+  document.getElementById('goon-result').style.display='none';
+  document.getElementById('goon-pick').style.display='block';
+  document.getElementById('goon-panel').classList.add('show');
+}
+let _goonTarget=null;
+function goonCancelFight(){document.getElementById('goon-panel').classList.remove('show');_goonDie=null;_goonTarget=null;renderAll();}
+function goonResolveFight(){
+  const goonDie=_goonDie,t=_goonTarget;
+  if(!goonDie||!t){toast('Pick a target first.');return;}
+  const ap=AP(),opp=OPP();
+  const gi=ap.z.rs.indexOf(goonDie);if(gi!==-1)ap.z.rs.splice(gi,1);
+  const gr=[rcfS(),rcfS(),rcfS()],tr=[rcfS(),rcfS()];
+  const gTot=gr.reduce((a,b)=>a+b,0),tTot=tr.reduce((a,b)=>a+b,0);
+  const won=gTot>tTot; // ties go to the target (defender)
+  let html=`🥊 Goon [${gr.join(',')}=${gTot}] vs ${t.die.key} [${tr.join(',')}=${tTot}]<br>`;
+  // 4_45 (Tim): no set-aside — goon cycles with everyone else (iced win or lose).
+  // goonAside kept in mkPlayer + period reset for a possible return later.
+  ap.z.iced.push(goonDie);
+  if(won){
+    const ti=opp.z[t.zone].indexOf(t.die);if(ti!==-1)opp.z[t.zone].splice(ti,1);
+    opp.z.iced.push(t.die);
+    html+=`<strong style="color:#7bdb7b">Goon wins!</strong> ${t.die.key} → Iced. Goon → Iced.`;
+    addLog(`🥊 Goon wins ${gTot}-${tTot}! ${t.die.key} iced, goon iced.`,'imp');
+  }else{
+    ap.bag.push(mkDie('Penalty'));
+    html+=`<strong style="color:#ff8888">Goon loses ${gTot}-${tTot}.</strong> Goon → Iced, penalty die added to your bag.`;
+    addLog(`🥊 Goon loses ${gTot}-${tTot}. Goon iced, penalty die to bag.`,'imp');
+  }
+  _goonFightUsed=true;
+  document.getElementById('goon-pick').style.display='none';
+  document.getElementById('goon-result-text').innerHTML=html;
+  document.getElementById('goon-result').style.display='block';
+  renderAll();
+}
+function goonCloseFight(){document.getElementById('goon-panel').classList.remove('show');_goonDie=null;_goonTarget=null;renderAll();}
 function sendBench(p,d){if(p.z.bench.length>=2)p.z.iced.push(d);else p.z.bench.push(d);}
 
 // ═══════════════════ ECONOMY (spin-down) ═══════════════════
@@ -3033,6 +3131,8 @@ function startNextPeriod(){
   G.pe=null;
   G.period++;
   G.players.forEach(p=>{
+    // 4_44: set-aside goon returns to the bag for the new period (Tim)
+    if(p.goonAside){p.bag.push(p.goonAside);p.goonAside=null;}
     // Reserve dice persist between periods — save them first
     const savedReserve=[...p.z.reserve];
     // Collect all other zone dice except reserve and HC die
@@ -3131,7 +3231,7 @@ function openLineup(){
 
 // ═══════════════════ RENDERING ═══════════════════
 // fbClass now defined above dieWrapHTML
-function posClass(p){return{F:'pos-F',D:'pos-D',G:'pos-G',HC:'pos-HC',R:'pos-R',P:'pos-P'}[p]||'pos-R';}
+function posClass(p){return{F:'pos-F',D:'pos-D',G:'pos-G',HC:'pos-HC',GN:'pos-GN',R:'pos-R',P:'pos-P'}[p]||'pos-R';} // 4_44: Goon
 
 function fbClass(t,cost=false){
   if(cost){return{S:'fb-SC',B:'fb-BC',W:'fb-WC',SO:'fb-SOC'}[t]||('fb-'+t);}
@@ -3150,6 +3250,7 @@ function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
     isCost=!!f.c;
     fbCls=fbClass(f.t,isCost);
     if(f.t==='BLANK')faceHTML='—';
+    else if(f.t==='FT')faceHTML='FT'; // 4_45: goon fight face reads FT (Tim, like ADV/RR)
     else if(f.t==='SO')faceHTML=`SO<br>${f.v}`;
     else faceHTML=`${f.t}${f.v?'<br>'+f.v:''}`;
   }
@@ -3346,6 +3447,10 @@ function getHumanOpts(die){
   if(f.t==='W'){
     const z=G.clock>4?'Cold':'Hot';
     return[{l:`As Shoot → ${z}`,a:'shoot'},{l:'As Block → Def',a:'block'}];
+  }
+  if(f.t==='FT'){ // 4_44: goon fight (Tim)
+    if(_goonFightUsed)return[{l:'🥊 Fight used this turn',a:'goon-used',dis:true},{l:'Ice it',a:'iced'}];
+    return[{l:'🥊 Start Fight',a:'goon-fight'},{l:'Ice it',a:'iced'}];
   }
   if(f.t==='ADV'&&(G.clock===10||ap.z.cold.length===0)){
     // 3_76: dead-end ADV pops Ice/Set Aside (Tim) — a stranded ADV die kept the
@@ -3856,7 +3961,7 @@ function renderEPicker() {
   cont.innerHTML = '';
   _epick.sources.forEach((src, idx) => {
     if (src.currentV <= 0) return;
-    const pc = { F: 'pos-F', D: 'pos-D', G: 'pos-G', HC: 'pos-HC', R: 'pos-R', P: 'pos-P' }[src.die.pos] || 'pos-R';
+    const pc = { F: 'pos-F', D: 'pos-D', G: 'pos-G', HC: 'pos-HC', GN: 'pos-GN', R: 'pos-R', P: 'pos-P' }[src.die.pos] || 'pos-R';
     const wrapper = document.createElement('div');
     wrapper.className = 'epicker-die';
     wrapper.innerHTML = `
@@ -3879,7 +3984,7 @@ function renderEPicker() {
     wrapper.className = 'epicker-die';
     wrapper.style.opacity = '.4';
     wrapper.innerHTML = `
-      <div class="die-wrap ${({F:'pos-F',D:'pos-D',G:'pos-G',HC:'pos-HC',R:'pos-R',P:'pos-P'}[src.die.pos]||'pos-R')}">
+      <div class="die-wrap ${({F:'pos-F',D:'pos-D',G:'pos-G',HC:'pos-HC',GN:'pos-GN',R:'pos-R',P:'pos-P'}[src.die.pos]||'pos-R')}">
         <div class="die-body">
           <div class="face-badge fb-BLANK">—</div>
         </div>
@@ -3969,8 +4074,8 @@ function showBagViewer(){
       return ta-tb;
     });
     const total=allDice.length;
-    const posColors={F:'#4466cc',D:'#cc4444',G:'#888',HC:'#c8a84b',Rookie:'#ccc',Penalty:'#555'};
-    const posNames={F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach',Rookie:'Rookie',Penalty:'Penalty'};
+    const posColors={F:'#4466cc',D:'#cc4444',G:'#888',HC:'#c8a84b',GN:'#3fae3f',Rookie:'#ccc',Penalty:'#555'}; // 4_44: Goon
+    const posNames={F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach',GN:'Goon',Rookie:'Rookie',Penalty:'Penalty'}; // 4_44: Goon
     let html=`<div style="margin-bottom:20px;">
       <h3 style="color:var(--gold);font-size:.95em;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">
         ${p.name} — ${total} total dice &nbsp;
@@ -5676,13 +5781,15 @@ function aiRerollTable(){
   rs.forEach(d=>{
     const f=d.face;if(!f||f.t!=='E')return;
     let p;
+    if(d.key==='Goon')return; // 4_44: Chuck keeps goon energy 100% (Tim)
     if(d.key==='HC')p=75;
     else if(d.key==='Rookie')p=f.v===1?80:20;
     else p=f.v===1?100:f.v===2?80:60; // F/D
     if(d100()<=p)picked.add(d);else keepE.add(d);
   });
   // ── 2. BLANK ── always reroll
-  rs.forEach(d=>{if(d.face&&d.face.t==='BLANK')picked.add(d);});
+  // 4_44: Chuck rerolls goon FIGHT faces 100% too (Tim) — he never fights
+  rs.forEach(d=>{if(d.face&&(d.face.t==='BLANK'||d.face.t==='FT'))picked.add(d);});
   // ── 3. HC non-energy (RR/ADV/PEN) ──
   rs.forEach(d=>{
     if(d.key!=='HC'||picked.has(d))return;
@@ -6438,8 +6545,12 @@ async function aiShootoutTurn(){
         if(lbl&&lbl.textContent.trim()===_so.selectedFwd)b.classList.add('sel');
       });
       await new Promise(r=>setTimeout(r,1125)); // brief beat to register the highlight, then roll
+    }else{
+      // 4_43 (Tim): sudden death gets the same beat as regulation — the drawn
+      // die is already haloed; this is the contemplation pause. (Was: no pause.)
+      _so.selectedFwd=_so.players[si].forwards[0];
+      await new Promise(r=>setTimeout(r,1125));
     }
-    // 2_86: sudden death — die is drawn, not chosen: no highlight, no extra pause
     soRollShot();
   }finally{_aiSelf=false;}
   // result settle → the player taps "Your Turn →" to continue (no auto-advance)
