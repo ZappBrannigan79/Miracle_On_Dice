@@ -654,7 +654,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.41</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.42</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -814,7 +814,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.41</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.42</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1195,7 +1195,8 @@ const DEFS={
   Penalty:[{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0}],
 };
 const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,F7:7,F8:8,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,D7:7,D8:8,G3:3,G4:4,G5:5,G6:6};
-const CF=[3,2,1,1,0,0]; // 3_58: combat die trial (Tim) — was [2,2,1,1,0,0]
+const CF_S=[3,2,1,0,0,0]; // 4_42: shoot combat die (Tim) — varied, swingy
+const CF_B=[3,1,1,1,0,0]; // 4_42: block combat die (Tim) — reliable, steady
 const FWD=['F1','F2','F3','F4','F5','F6','F7','F8'];
 const DEF=['D1','D2','D3','D4','D5','D6','D7','D8'];
 const GOA=['G3','G4','G5','G6'];
@@ -1505,7 +1506,9 @@ function showFaceoff(){
   }
   aiMaybeAutoFaceoff(); // 2_45: Vs AI hook
 }
-function rcf(){return CF[Math.floor(Math.random()*6)];}
+function rcfS(){return CF_S[Math.floor(Math.random()*6)];}
+function rcfB(){return CF_B[Math.floor(Math.random()*6)];}
+function rcf(){return rcfS();} // faceoff roll-off — neutral, either die works
 // Joiner-side (or non-rolling side) mirror of the host's faceoff: same overlay,
 // button greyed out — rolling/beginning stays with the game creator.
 function showFaceoffReadonly(){
@@ -2132,8 +2135,8 @@ function fightCommitDefender(){
   if(!_fight.defDie){toast('Select a defender first.');return;}
   const ap=AP(),opp=OPP();
   const atkF=_fight.atkDie,defF=_fight.defDie;
-  const at=Array.from({length:Math.max(atkF.tier,1)},()=>rcf()).reduce((a,b)=>a+b,0);
-  const dt=Array.from({length:Math.max(defF.tier,1)},()=>rcf()).reduce((a,b)=>a+b,0);
+  const at=Array.from({length:Math.max(atkF.tier,1)},()=>rcfS()).reduce((a,b)=>a+b,0);
+  const dt=Array.from({length:Math.max(defF.tier,1)},()=>rcfB()).reduce((a,b)=>a+b,0);
   const apW=at>=dt; // ties go to attacker/initiator
   const[win,los,wF,lF,wP,lP]=apW?[ap,opp,atkF,defF,ap.z[_fight.zone],opp.z[_fight.zone]]
                                    :[opp,ap,defF,atkF,opp.z[_fight.zone],ap.z[_fight.zone]];
@@ -2682,8 +2685,8 @@ function resolveCombat(){
   // Build breakdown labels for attacker
   const shootBreakdown=ap.z.shoot.map(d=>`${d.key}(${d.face?d.face.v:1}cd)`).join('+');
   const blockBreakdown=bDice.map(d=>`${d.key}(${d.face?d.face.v:1}cd)`).join('+');
-  const sr=Array.from({length:numShootDice},()=>rcf());
-  const br=Array.from({length:numBlockDice},()=>rcf());
+  const sr=Array.from({length:numShootDice},()=>rcfS());
+  const br=Array.from({length:numBlockDice},()=>rcfB());
   const sTotal=sr.reduce((a,b)=>a+b,0)+shootTokensUsed;
   const bTotal=br.reduce((a,b)=>a+b,0)+blockTokensUsed;
   const isGoal=sTotal>bTotal;
@@ -4423,8 +4426,8 @@ function soRollShot(){if(aiGuard())return;
   const saveLabel = `${goalieFace.t}${goalieFace.v||''} → ${savePips} block combat die${savePips!==1?'s':''}`
 
   // Roll combat dice equal to pip values (same as main game)
-  const shotRolls  = shotPips  > 0 ? Array.from({length:shotPips}, ()=>rcf()) : [];
-  const saveRolls  = savePips  > 0 ? Array.from({length:savePips}, ()=>rcf()) : [];
+  const shotRolls  = shotPips  > 0 ? Array.from({length:shotPips}, ()=>rcfS()) : [];
+  const saveRolls  = savePips  > 0 ? Array.from({length:savePips}, ()=>rcfB()) : [];
   const shotTotal  = shotRolls.reduce((a,b)=>a+b, 0);
   const saveTotal  = saveRolls.reduce((a,b)=>a+b, 0);
 
