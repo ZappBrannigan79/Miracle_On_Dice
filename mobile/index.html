@@ -648,7 +648,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.33</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.36</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -808,7 +808,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.33</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.36</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1121,7 +1121,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div id="so-final-area" style="display:none;text-align:center;margin-top:16px">
       <div id="so-trophy-pill" class="so-trophy-pill">🏆</div>
       <div id="so-final-msg" style="font-size:1.3em;font-weight:900;color:var(--gold);margin-bottom:14px"></div>
-      <button class="btn-ov" onclick="restartShootout()">🔄 Shootout Again</button>
+      <button class="btn-ov" id="so-again-btn" onclick="restartShootout()">🔄 Shootout Again</button>
+      <button class="btn-ov" id="so-bags-btn" onclick="showBagViewer()" style="display:none">🎒 View Final Bags</button>
       <button class="btn-ov" onclick="soNewGame()">New Game</button>
     </div>
   </div>
@@ -3727,7 +3728,7 @@ function renderActions(){
   }
 
   if(G.phase<=2){
-    mk('Roll Dice 🎲',rollAll,'prim');
+    mk('Roll Dice 🎲',rollAll,'prim',false,true); // 4_34: gentle pulse — it's the primary action (Tim)
   } else if(G.phase===3){
     if(!G.assignmentStarted){
       // 4_22: confirm lives in the RS zone now — bottom keeps just Reroll None
@@ -4148,10 +4149,10 @@ function startShootout(practice){
   _so.scores = [0,0];
   _so.round = 1;
   _so.maxRounds = 3;
-  // 2_32: real game — the player who took the last turn of the game defends
-  // first. At game over G.ap has already flipped to the next player, so the
-  // last-turn player is 1-G.ap and the first shooter is G.ap. Practice: P1.
-  _so.firstShooter = (!practice && typeof G!=='undefined' && G.players) ? G.ap : (Math.random()<0.5?0:1); // 2_67: mini-game coinflip for first shooter
+  // 4_36: real coinflip for first shooter in ALL shootouts (Tim overturned
+  // the 2_32 last-turn rule — the player who didn't take the last turn no
+  // longer shoots first automatically).
+  _so.firstShooter = Math.random()<0.5?0:1;
   _so.shooterIdx = _so.firstShooter;
   _so.results = [];
   _so.suddenDeath = false;
@@ -4196,19 +4197,16 @@ function startShootout(practice){
   // stays ~4s (one more beat — Tim), then the first turn begins.
   const _fcGen=(_soCardGen=(typeof _soCardGen==='undefined'?0:_soCardGen)+1);
   const _fc=document.getElementById('so-first-card');
-  // 4_11: practice coin flip — the coin spins, lands, then the result pops in (Tim)
-  if(practice){
-    _fc.innerHTML='<div id="so-coin-wrap"><div id="so-coin">🪙</div><div style="font-size:.8em;color:#8fa3bf;font-weight:700">flipping…</div></div>'
-      +'<div id="so-flip-result" style="display:none">🪙 Coin flip<br><span style="color:#f8bd55">'+soTeamLabel(_so.firstShooter)+'</span> shoots first!</div>';
-    setTimeout(()=>{
-      if(_fcGen!==_soCardGen)return;
-      const _cw=document.getElementById('so-coin-wrap'),_fr=document.getElementById('so-flip-result');
-      if(_cw)_cw.style.display='none';
-      if(_fr){_fr.style.display='block';_fr.classList.add('goalpop');}
-    },1750);
-  }else{
-    _fc.innerHTML='🥅 <span style="color:#f8bd55">'+soTeamLabel(_so.firstShooter)+'</span> shoots first!';
-  }
+  // 4_11: coin flip — the coin spins, lands, then the result pops in (Tim).
+  // 4_36: now fires in overtime too (real flip, rule overturned).
+  _fc.innerHTML='<div id="so-coin-wrap"><div id="so-coin">🪙</div><div style="font-size:.8em;color:#8fa3bf;font-weight:700">flipping…</div></div>'
+    +'<div id="so-flip-result" style="display:none">🪙 Coin flip<br><span style="color:#f8bd55">'+soTeamLabel(_so.firstShooter)+'</span> shoots first!</div>';
+  setTimeout(()=>{
+    if(_fcGen!==_soCardGen)return;
+    const _cw=document.getElementById('so-coin-wrap'),_fr=document.getElementById('so-flip-result');
+    if(_cw)_cw.style.display='none';
+    if(_fr){_fr.style.display='block';_fr.classList.add('goalpop');}
+  },1750);
   const _fbox=document.querySelector('#so-overlay .ov-box');
   const _ftop=_fbox?_fbox.getBoundingClientRect().top:0;
   if(_ftop>170){ // 3_87: card sits directly on top of the shootout panel (Tim)
@@ -4615,9 +4613,15 @@ function soShowFinal(){
   // no score restatement (the scoreboard shows it); SD names the deciding round.
   // _so.round was already incremented past the last played round (see 2_153).
   const endedRound=_so.round-1;
-  document.getElementById('so-final-msg').textContent=_so.suddenDeath
-    ? `${winner} wins the Shootout in Round ${endedRound}!`
-    : `${winner} wins the Shootout!`;
+  // 4_35 (Tim): overtime outro — game-winner framing + final bags (practice keeps shootout framing)
+  const _isOT=!_so.practice;
+  document.getElementById('so-final-msg').textContent=_isOT
+    ? `${winner} wins the game!`
+    : (_so.suddenDeath
+        ? `${winner} wins the Shootout in Round ${endedRound}!`
+        : `${winner} wins the Shootout!`);
+  document.getElementById('so-again-btn').style.display=_isOT?'none':'';
+  document.getElementById('so-bags-btn').style.display=_isOT?'':'none';
   const _tp=document.getElementById('so-trophy-pill');
   _tp.classList.remove('tpop');void _tp.offsetWidth;_tp.classList.add('tpop');
   renderSOScoreboard();
@@ -4626,7 +4630,7 @@ function soShowFinal(){
   // soCheckWinner() ran (hence the awkward "Round 4 of 3").
   // 3_64: final always reads "Shootout Complete" — even after sudden death (Tim).
   // The old sudden-death phrasing showed the *next* round number ("Round 10") on a decided shootout.
-  document.getElementById('so-title').textContent = '🥅 Shootout Complete';
+  document.getElementById('so-title').textContent = _isOT ? '🏆 Game Complete' : '🥅 Shootout Complete';
   // 2_155: a decided real-game shootout ends the game — purge the autosave so the
   // menu doesn't offer to resume a finished game. Practice mini-games never wrote
   // a save; the tied→shootout path never reaches a winner here, so overtime is safe.
