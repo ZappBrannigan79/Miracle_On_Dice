@@ -667,7 +667,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.72</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.75</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -827,7 +827,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.72</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.75</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -6230,6 +6230,7 @@ function aiDoBuy(P){
       3:{trade1:46,trade2:10,draft1:0,draft2:0,token:38,nextbest:6},
     };
     const W=WTABLE[G.period]||WTABLE[1];
+    for(let buyPass=0;buyPass<2;buyPass++){ // 4_75: two passes (Tim)
     const taken=new Set();
     while(true){
       const remaining=Object.keys(W).filter(k=>!taken.has(k));
@@ -6295,6 +6296,23 @@ function aiDoBuy(P){
         }catch(e){console.error('AI tier buy failed:',e);break;}
         taken.add(pick);
       }
+      renderAll();
+    }
+    if(buyPass===0){ // 4_75: mid-point reserve check between passes (Tim)
+      const rsE=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&d.face.t==='E').sort((a,b)=>b.face.v-a.face.v);
+      const sp=2-ap.z.reserve.length;
+      for(let i=0;i<Math.min(sp,rsE.length);i++){
+        const d=rsE[i];const idx=ap.z.rs.indexOf(d);
+        if(idx!==-1&&ap.z.reserve.length<2){ap.z.rs.splice(idx,1);d.committed=true;ap.z.reserve.push(d);_aiReserveBanked++;}
+      }
+    }
+    } // end buyPass loop
+    // 4_74: cleanup — spend ALL leftover energy on tokens until broke (Tim)
+    while(aiTotalE()>=3){
+      try{aiSpendE(3,false);}catch(e){break;}
+      const tt=aiPickTokenType();
+      if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E, cleanup).`,'imp');aiPill(`🎯 bought a Shoot token`);}
+      else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E, cleanup).`,'imp');aiPill(`🛡️ bought a Block token`);}
       renderAll();
     }
     // 2_93: post-buy sweep — leftover R&S energy fills remaining reserve slots, biggest first
