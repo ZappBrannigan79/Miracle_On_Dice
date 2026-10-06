@@ -121,6 +121,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .timer-box.hotzone{border-color:#ff3b3b;animation:clockpulse 1.6s ease-in-out infinite;}
 @keyframes nudgePulse{0%,100%{box-shadow:0 0 4px 1px rgba(255,214,110,.25);}50%{box-shadow:0 0 14px 3px rgba(255,214,110,.6);}} /* 3_38: one shared nudge pulse */
 @keyframes clockpulse{0%,100%{box-shadow:0 0 3px rgba(255,60,60,.35);}50%{box-shadow:0 0 16px rgba(255,60,60,.9);}}
+.timer-box.finalturn{border-color:#ff2222;border-width:3px;animation:clockpulse-loud 1s ease-in-out infinite;} /* 4_59: louder for 02:00/01:00 (Tim) */
+@keyframes clockpulse-loud{0%,100%{box-shadow:0 0 5px rgba(255,40,40,.5);}50%{box-shadow:0 0 24px rgba(255,40,40,1);}}
 .action-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
 .abtn{padding:6px 13px;font-size:.8em;font-weight:700;border-radius:7px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;}
 .abtn.prim{background:var(--gold);color:#111;}.abtn.prim:hover{background:#e8c86b;}
@@ -199,9 +201,17 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .die-body:hover{transform:scale(1.07);}
 .die-body.sel{box-shadow:0 0 0 2px rgba(255,214,110,.9),0 0 8px rgba(255,214,110,.5)!important;transform:scale(1.1);border-color:#ffd66e!important;} /* 3_38: thinner, softer halo */
 .die-body.sel-rr{box-shadow:0 0 0 2px rgba(221,119,34,.9),0 0 8px rgba(221,119,34,.5)!important;border-color:#dd7722!important;transform:scale(1.08);} /* 3_38: thinner, softer halo */
-/* Costed die selected — ensure ring still visible over gold border */
-.die-body.has-cost.sel{border-color:#ffd66e!important;box-shadow:0 0 0 2px rgba(255,214,110,.9),0 0 8px rgba(255,214,110,.5)!important;} /* 3_38 */
-.die-body.has-cost.sel-rr{border-color:#dd7722!important;box-shadow:0 0 0 2px rgba(221,119,34,.9),0 0 8px rgba(221,119,34,.5)!important;} /* 3_38 */
+/* 4_55 (Tim): neon selection halos by die color */
+.pos-F .die-body.sel{border-color:#5599ff!important;box-shadow:0 0 0 1.4px rgba(85,153,255,.48),0 0 14px rgba(85,153,255,.4)!important;} /* 4_56: faded+thinner (Tim) */
+.pos-D .die-body.sel{border-color:#ff5555!important;box-shadow:0 0 0 1.4px rgba(255,85,85,.48),0 0 14px rgba(255,85,85,.4)!important;}
+.pos-R .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 1.4px rgba(255,255,255,.48),0 0 14px rgba(255,255,255,.4)!important;}
+.pos-HC .die-body.sel{border-color:#ffdd44!important;box-shadow:0 0 0 1.4px rgba(255,221,68,.48),0 0 14px rgba(255,221,68,.4)!important;}
+.pos-GN .die-body.sel{border-color:#55ff55!important;box-shadow:0 0 0 1.4px rgba(85,255,85,.48),0 0 14px rgba(85,255,85,.4)!important;}
+.pos-F .die-body.sel-rr{border-color:#5599ff!important;box-shadow:0 0 0 1.4px rgba(85,153,255,.48),0 0 14px rgba(85,153,255,.4)!important;}
+.pos-D .die-body.sel-rr{border-color:#ff5555!important;box-shadow:0 0 0 1.4px rgba(255,85,85,.48),0 0 14px rgba(255,85,85,.4)!important;}
+.pos-R .die-body.sel-rr{border-color:#ffffff!important;box-shadow:0 0 0 1.4px rgba(255,255,255,.48),0 0 14px rgba(255,255,255,.4)!important;}
+.pos-HC .die-body.sel-rr{border-color:#ffdd44!important;box-shadow:0 0 0 1.4px rgba(255,221,68,.48),0 0 14px rgba(255,221,68,.4)!important;}
+.pos-GN .die-body.sel-rr{border-color:#55ff55!important;box-shadow:0 0 0 1.4px rgba(85,255,85,.48),0 0 14px rgba(85,255,85,.4)!important;} /* 4_57 */
 .pos-F .die-body{background:radial-gradient(circle at 35% 35%,#2a4aaa,#0d1f55);border-color:#4466cc;}
 .pos-D .die-body{background:radial-gradient(circle at 35% 35%,#aa2a2a,#550d0d);border-color:#cc4444;}
 .pos-G .die-body{background:radial-gradient(circle at 35% 35%,#666,#333);border-color:#888;}
@@ -232,8 +242,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .fb-BLANK{background:#333;color:#555;border:1px solid #444;}
 .fb-UNK{background:rgba(255,255,255,.15);color:#888;}
 /* Cost mechanic — yellow bottom stripe on die body */
-/* has-cost: subtle gold ring instead of overlay that covers pip value */
-.die-body.has-cost{border-color:#e8c030;box-shadow:0 0 0 2px rgba(232,192,48,.4);}
+/* 4_55 (Tim): has-cost ring removed — halos only for selection now */
 /* Cost faces have a yellow tinted badge */
 .fb-SC{background:linear-gradient(135deg,var(--fc-S) 55%,#c8a84b 55%);color:#fff;}
 .fb-BC{background:linear-gradient(135deg,var(--fc-B) 55%,#c8a84b 55%);color:#fff;}
@@ -658,7 +667,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.54</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.60</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -818,7 +827,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.54</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.60</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -843,7 +852,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <div class="active-label" id="aplbl">Player 1's Turn</div>
           <div class="tok-strip" id="tstrip"></div>
         </div>
-        <div class="timer-box" id="timerbox"><div class="timer-row"><span style="font-size:.72em;color:#aaa">CLOCK</span><span class="timer-val" id="tmr">06:00</span></div><div class="block-bonus" id="blkbonus"></div></div>
+        <div class="timer-box" id="timerbox"><div class="timer-row"><span style="font-size:.72em;color:#aaa">CLOCK</span><span class="timer-val" id="tmr">06:00</span></div><div class="block-bonus" id="blkbonus"></div><div id="lastturn" style="display:none;font-size:.68em;font-weight:800;color:#ff7744;letter-spacing:1px;">⏰ LAST TURN</div></div>
         <div class="action-row" id="arow"></div>
       </div>
       <div class="rr-mode-banner" id="rr-banner" style="display:none">
@@ -3710,26 +3719,19 @@ function renderBoard(){
   const tv=document.getElementById('tmr');
   const clkStr=(G.clock<10?'0':'')+G.clock+':00';
   tv.textContent=clkStr;
-  tv.className='timer-val'+(G.clock===1?' final-turn':G.clock<=4?' hot':'');
+  tv.className='timer-val'+(G.clock<=4?' hot':''); // 4_60: red 04:00-01:00 (Tim)
   // 2_38: block bonus readout + clock border by window (white 10:00-05:00, pulsing red 04:00-01:00)
   const bb=document.getElementById('blkbonus');
   const bonus=G.clock>=5?1:(G.clock>=2?2:(G.clock===1?3:0));
   if(bb)bb.textContent=bonus>0?('+'+bonus+' BLOCK BONUS'):'';
   const tbx=document.getElementById('timerbox');
-  if(tbx)tbx.classList.toggle('hotzone',G.clock<=4&&G.clock>=1);
+  if(tbx){tbx.classList.toggle('hotzone',G.clock<=4&&G.clock>=3);tbx.classList.toggle('finalturn',G.clock<=2&&G.clock>=1);} // 4_59
   // Show which player's turn it is on the clock (even/odd per faceoff winner's pick)
-  // Final turn banner: clock<=2 — names whose last turn it is (2_25)
+  // 4_58 (Tim): last-turn warning lives on the clock now — big banner retired
   const ftBanner=document.getElementById('final-turn-banner');
-  if(ftBanner){
-    const showBanner=(G.clock<=2);
-    ftBanner.style.display=showBanner?'flex':'none';
-    if(showBanner){
-      ftBanner.classList.add('final-turn-flashing');
-      const ftTxt=document.getElementById('ftb-text');
-      if(ftTxt)ftTxt.textContent=`${teamLbl(G.ap)}'s LAST TURN OF PERIOD`; // 4_05
-    }
-    else ftBanner.classList.remove('final-turn-flashing');
-  }
+  if(ftBanner)ftBanner.style.display='none';
+  const lt=document.getElementById('lastturn');
+  if(lt)lt.style.display=(G.clock<=2)?'block':'none';
   renderZone('z-rs',ap.z.rs,{inRS:true});
   renderZone('z-hot',ap.z.hot,{fromHot:G.phase===4});
   // 3_55: one pulsing zone at a time — RS wins, the eye follows the turn order (Tim)
