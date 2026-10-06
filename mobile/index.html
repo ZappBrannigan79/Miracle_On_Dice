@@ -667,7 +667,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.68</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.71</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -827,7 +827,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.68</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.71</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2380,7 +2380,7 @@ function buyCard(cardIdx,trade){if(aiGuard())return;
     // Pay full trade cost first, then choose die to trash
     openEPicker(cost, `full trade cost for ${card.key} (includes +2 surcharge)`, ()=>{
       // After full cost paid, open trash picker — iced now includes spent energy dice
-      if(!AP().z.iced.some(d=>d.key!=='HC')){toast('No dice in Iced Zone to trash.');return;} // 3_74: HC excluded
+      if(!AP().z.iced.some(d=>d.key==='Rookie')){toast('No rookies in Iced Zone to trash.');return;} // 4_71: rookies only (Tim)
       _tradeCardIdx=cardIdx;
       openTrashPicker(card.key,cost);
     });
@@ -2400,10 +2400,10 @@ function openTrashPicker(cardKey, totalCost){
   const ap=AP();
   document.getElementById('trash-sub').innerHTML=
     `Buying <strong>${cardKey}</strong> for <strong>${totalCost}E</strong> (Trade Cost). `+
-    `Select one die below to permanently trash. This includes energy dice just spent for this purchase.`;
+    `Select one rookie below to permanently trash. This includes rookie energy dice just spent for this purchase.`;
   const grid=document.getElementById('trash-grid');
   grid.innerHTML='';
-  const trashable=ap.z.iced.filter(d=>d.key!=='HC'); // 3_74: the Head Coach can never be trashed (Tim)
+  const trashable=ap.z.iced.filter(d=>d.key==='Rookie'); // 4_71: only rookies can be trashed (Tim)
   if(!trashable.length){
     grid.innerHTML='<div style="color:#888;font-size:.85em">No dice in Iced Zone to trash.</div>';
   }else{
@@ -5818,7 +5818,7 @@ function aiRerollTable(){
     let p;
     if(d.key==='Goon')return; // 4_44: Chuck keeps goon energy 100% (Tim)
     if(d.key==='HC')p=75;
-    else if(d.key==='Rookie')p=f.v===1?90:20; // 4_67: 90% (Tim)
+    else if(d.key==='Rookie')p=f.v===1?90:10; // 4_70: 10% (Tim)
     else p=f.v===1?100:f.v===2?80:60; // F/D
     if(d100()<=p)picked.add(d);else keepE.add(d);
   });
@@ -5874,9 +5874,12 @@ function aiDoReroll(P){
   const picks=aiRerollTable();
   _aiSelf=true;
   try{
-    if(picks.length){
-      picks.forEach(x=>x.sel=true);confirmRRSel();
-      aiPill(`🎲 re-rolled ${picks.length} ${picks.length===1?'die':'dice'}`);
+    const hcRR=AP().z.rs.find(d=>d.key==='HC'&&d.face&&d.face.t==='RR'&&!d.spun); // 4_69: preserve for HC reroll (Tim)
+    let fp=picks;
+    if(hcRR){const wo=picks.filter(d=>d!==hcRR);fp=wo.length?wo:picks;}
+    if(fp.length){
+      fp.forEach(x=>x.sel=true);confirmRRSel();
+      aiPill(`🎲 re-rolled ${fp.length} ${fp.length===1?'die':'dice'}`);
     }else{skipRR();}
   }finally{
     _aiSelf=false;
