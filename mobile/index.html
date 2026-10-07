@@ -311,7 +311,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .panel-sub{font-size:.8em;color:#aaa;margin-bottom:14px;}
 .panel-close{float:right;background:none;border:none;color:#aaa;font-size:1.4em;cursor:pointer;}
 .panel-close:hover{color:white;}
-.energy-bar{background:rgba(200,168,75,.1);border:1px solid rgba(200,168,75,.3);border-radius:6px;padding:7px 13px;margin-bottom:12px;font-size:.85em;color:var(--gold-light);}
+.shop-head{display:flex;align-items:center;justify-content:center;margin-bottom:10px;} /* 4_91 */
+.shop-head .panel-title{margin:0;}
+.energy-pill{background:rgba(200,168,75,.15);border:1px solid var(--gold);border-radius:20px;padding:8px 20px;font-size:1.05em;color:var(--gold-light);font-weight:700;white-space:nowrap;animation:energyPulse 2s ease-in-out infinite;} /* 4_90: bigger (Tim) */
+@keyframes energyPulse{0%,100%{box-shadow:0 0 4px rgba(200,168,75,.3);}50%{box-shadow:0 0 12px rgba(200,168,75,.7);}}
 .energy-bar strong{color:var(--gold);font-size:1.1em;}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(195px,1fr));gap:9px;}
 .lcard{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:7px;} /* 4_82: tighter (Tim) */
@@ -670,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.88</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.93</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -830,7 +833,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.88</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.93</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -920,9 +923,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <div class="panel-overlay" id="shop-panel">
   <div class="panel-box">
     <button class="panel-close" onclick="closeShop()">✕</button>
-    <div class="panel-title" id="shop-title">Shop</div>
-    <div class="panel-sub">Purchased dice go to Iced Zone. Spin-down change returned to RS Zone.</div>
-    <div class="energy-bar" id="ebar"></div>
+    <div class="shop-head"><div class="energy-pill" id="ebar"></div></div> <!-- 4_91: centered, no title (Tim) -->
     <div class="card-grid" id="cgrid"></div>
     <div class="token-row" id="trow"></div>
   </div>
@@ -1121,7 +1122,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <div style="font-size:.72em;color:#aaa;margin-bottom:4px">🏒 SHOOTER</div>
           <div id="so-shot-key" style="font-size:.9em;font-weight:900;color:#88aaff;margin-bottom:3px"></div>
           <div id="so-shot-face-lbl" style="font-size:.75em;color:#ccc;margin-bottom:6px"></div>
-          <div id="so-shot-dice-row" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:4px;min-height:24px"></div>
+          <div id="so-shot-dice-row" style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:4px;min-height:24px"></div> <!-- 4_93: match block spacing (Tim) -->
           <div id="so-shot-total" style="font-size:1.8em;font-weight:900;color:#88aaff"></div>
           <div id="so-shot-pips-lbl" style="font-size:.68em;color:#666">combat total</div>
         </div>
@@ -3221,8 +3222,8 @@ function openShop(){if(aiGuard())return;
   if(spectating()){toast('⏳ Wait for your turn to shop.');return;}
   if(G.phase<4||_rrMode){toast('Finish rerolling first!');return;}
   const ap=AP();const avail=totalE();
-  document.getElementById('shop-title').textContent=`${ap.name} — Shop`;
-  document.getElementById('ebar').innerHTML=`Available Energy: <strong>${avail}E</strong> (RS energy dice + Reserve) — spin-down change returned to RS`;
+  // 4_92: shop-title removed (Tim) — no title to set
+  document.getElementById('ebar').innerHTML=`Available Energy: <strong>${avail}E</strong>`; // 4_89: slim (Tim)
   const grid=document.getElementById('cgrid');grid.innerHTML='';
   ap.lineup.forEach((card,idx)=>{
     const isHC=card.key==='HC';
