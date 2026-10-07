@@ -667,7 +667,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.77</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.79</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -827,7 +827,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.77</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.79</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1207,7 +1207,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 const DEFS={
   // c:true = costs 1 Energy to advance to its zone
   Rookie:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'S',v:1},{t:'B',v:1},{t:'BLANK',v:0}],
-  Goon:[{t:'E',v:1},{t:'E',v:1},{t:'FT',v:0},{t:'FT',v:0},{t:'FT',v:0},{t:'BLANK',v:0}], // 4_44: goon (Tim)
+  Goon:[{t:'E',v:1},{t:'E',v:2},{t:'FT',v:0},{t:'FT',v:0},{t:'FT',v:0},{t:'BLANK',v:0}], // 4_79: E1,E2 (Tim)
   F1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:1,c:true},{t:'W',v:1}],
   F2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:2,c:true},{t:'W',v:1}],
   F3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:2},{t:'S',v:2,c:true},{t:'W',v:1}],
@@ -1249,7 +1249,7 @@ let G={},_id=0,_rrMode=false,_rrDieId=null,_aiRrNudge=false,_rsWasEmpty=false,_r
 // 4_20: _aiRrNudge — Chuck's "choosing reroll" beat (Tim)
 function mkDie(k){return{id:_id++,key:k,pos:posOf(k),tier:tierOf(k),face:null,sel:false,energyPending:false,spun:false};} // 3_36: spun = die was spun down for energy — cannot be rerolled
 function mkBag(extra=[]){const b=[];for(let i=0;i<14;i++)b.push(mkDie('Rookie'));b.push(mkDie('Goon'));return b;} // 4_44: 14 Rookie + 1 Goon (Tim)
-function mkLineup(arr){return arr.map(k=>({key:k,left:3}));}
+function mkLineup(arr){return arr.map(k=>({key:k,left:2}));} // 4_79: 2 per card (Tim)
 function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC'),goonAside:null,bag:mkBag(bagExtra),
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
@@ -6364,6 +6364,7 @@ function aiDoBuy(P){
         const d=rsE[i];const idx=ap.z.rs.indexOf(d);
         if(idx!==-1&&ap.z.reserve.length<2){ap.z.rs.splice(idx,1);d.committed=true;ap.z.reserve.push(d);_aiReserveBanked++;}
       }
+      renderAll(); // 4_78: refresh UI after mid-point reserve (Tim)
     }
     } // end buyPass loop
     // 4_74: cleanup — spend ALL leftover energy on tokens until broke (Tim)
