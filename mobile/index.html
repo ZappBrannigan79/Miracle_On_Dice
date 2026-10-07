@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.97</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.98</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -688,11 +688,10 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
       <button class="btn-mode" style="background:transparent;color:#c85500;border:2px solid #c85500;" onclick="showShootoutSetup()">🥅 Shootout Mini Game</button>
       <button class="btn-mode" style="background:rgba(100,200,100,.12);color:#66cc66;border:2px solid #66cc66;" onclick="showOnlineSetup()">🌐 Play Online vs Friend</button>
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:4px;">
-        <button class="btn-mode" style="flex:1;background:rgba(200,168,75,.1);color:var(--gold-light);border:2px solid var(--gold);font-size:.85em;padding:10px;" onclick="openQuickRules()">⚡ Quick Rules</button>
-        <a class="btn-mode" style="flex:1;background:rgba(200,168,75,.05);color:var(--gold-light);border:2px solid rgba(200,168,75,.4);font-size:.85em;padding:10px;text-decoration:none;display:flex;align-items:center;justify-content:center;" href="MiracleOnDice_Rulebook.pdf" target="_blank">📖 Full Rulebook</a>
+      <div style="display:flex;justify-content:center;margin-top:6px;">
+        <button class="btn-mode" style="width:220px;background:rgba(200,168,75,.1);color:var(--gold-light);border:2px solid var(--gold);font-size:.85em;padding:10px 28px;" onclick="openQuickRules()">⚡ Quick Rules</button>
       </div>
-    </div> <!-- 4_97: rules buttons (Tim) -->
+    </div> <!-- 4_98: centered quick rules only (Tim) -->
     <!-- 2_120: slim mode header — replaces the three buttons once a mode is chosen -->
     <!-- 2_120: tapping the banner goes back to the mode list (no separate Back button) -->
     <div id="mode-header" style="display:none;max-width:320px;margin:0 auto 12px;">
@@ -837,7 +836,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.97</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.98</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
