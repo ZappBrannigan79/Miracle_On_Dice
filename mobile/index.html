@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.99</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.101</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -836,7 +836,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.99</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.101</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1778,6 +1778,17 @@ function enterFreeRR(){if(aiGuard())return;
   renderAll();
 }
 function skipRR(){if(aiGuard())return;
+  const ap=AP();
+  const sel=ap.z.rs.filter(d=>d.sel&&!d.spun);
+  if(sel.length){
+    // 4_100: safety net (Tim) — dice selected but Skip pressed
+    appConfirm({title:'Dice selected',msg:`You have ${sel.length} ${sel.length===1?'die':'dice'} selected to reroll. Skip the reroll anyway?`,yes:'Skip reroll',no:'Go back'})
+      .then(ok=>{
+        if(ok){sel.forEach(d=>d.sel=false);skipRR();} // confirmed: clear selections, skip
+        // no: keep selections, player continues
+      });
+    return;
+  }
   G.phase=4;
   addLog(`${AP().name}: Skipped free reroll.`);
   _rrMode=false;
@@ -1957,7 +1968,8 @@ function getOpts(die){
   }else if(f.t==='RR'){
     o.push({l:'Spend Reroll → pick any R&S dice to reroll',a:'rr'}); // 3_73: HC RR stays live even after assigning (Tim) — the picker excludes spun dice; "choose none" spends it without rerolling
   }else if(f.t==='SO'){
-    if(canPay)o.push({l:`Shutout → gain ${f.v} Block Token(s) — costs 1⚡`,a:'shutout-cost'});
+    if(!f.c)o.push({l:`Shutout → gain ${f.v} Block Token(s)`,a:'shutout'}); // 4_101: free SO (Tim)
+    else if(canPay)o.push({l:`Shutout → gain ${f.v} Block Token(s) — costs 1⚡`,a:'shutout-cost'});
     // 2_36: broke shutout is NOT offered — the die just sits in R&S and falls to Iced at end of turn
     else o.push({l:`Shutout (${f.v} Block) — BLOCKED: need 1⚡ to resolve`,a:'no-energy'});
   }else if(f.t==='PEN'){
@@ -3550,7 +3562,7 @@ function getHumanOpts(die){
     return[{l:`${f.t==='S'?'Shoot':'Block'} — need 1\u26a1 (none available)`,a:'no-energy',dis:true},
            {l:'Ice it',a:'iced'}];
   }
-  if(f.t==='SO'&&!hasEnergy1()){
+  if(f.t==='SO'&&f.c&&!hasEnergy1()){ // 4_101: free SO skips energy check (Tim)
     return[{l:'Shutout — need 1\u26a1 (none available)',a:'no-energy',dis:true},
            {l:'Ice it',a:'iced'}];
   }
@@ -6090,10 +6102,14 @@ function aiDoAssign(P){
         else{assignDie(d,'iced');}
       }else{assignDie(d,'block');nB++;}
     });
-    // 3. SHUTOUT → pay 1e, gain block tokens (else ice immediately — 4_21, Tim)
+    // 3. SHUTOUT → gain block tokens (costed: pay 1e else ice; free: just take — 4_101, Tim)
     [...ap.z.rs].forEach(d=>{
       const f=d.face;if(!f||f.t!=='SO')return;
-      if(aiTotalE()>=1){
+      if(!f.c){
+        ap.tok.block+=f.v;
+        ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);
+        addLog(`${ap.name}: Shutout → +${f.v} Block Tokens (${ap.tok.block} total).`,'imp');
+      }else if(aiTotalE()>=1){
         aiSpendE(1,false);ap.tok.block+=f.v;
         ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);
         addLog(`${ap.name}: Shutout → +${f.v} Block Tokens (1⚡ paid, ${ap.tok.block} total).`,'imp');
