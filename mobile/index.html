@@ -75,7 +75,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .epicker-sub{font-size:.8em;color:#aaa;margin-bottom:14px;}
 .epicker-needed{font-size:1.1em;font-weight:900;color:white;margin-bottom:12px;}
 .epicker-needed span{color:var(--gold);}
-.epicker-sources{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+.epicker-sources{display:flex;flex-wrap:wrap;gap:14px; /* 4_103 */margin-bottom:16px;}
 .epicker-die{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
 .epicker-die .die-body{cursor:pointer;}
 .epicker-die .die-body:hover{transform:scale(1.1);}
@@ -143,7 +143,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .playmat{display:grid;grid-template-columns:175px 1fr 180px 295px;gap:6px;flex:1;min-height:0;}
 .zone{border-radius:var(--radius);padding:6px;display:flex;flex-direction:column;gap:3px;min-height:0;position:relative;}
 .zone-lbl{font-size:.62em;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.8;flex-shrink:0;text-align:center;}
-.zone-dice{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;flex:1;min-height:0;overflow-y:auto;padding:4px;overflow:visible;}
+.zone-dice{display:flex;flex-wrap:wrap;gap:14px; /* 4_103: halo-safe (Tim) */align-content:flex-start;flex:1;min-height:0;overflow-y:auto;padding:4px;overflow:visible;}
 .zone-pip{font-size:.62em;color:rgba(255,255,255,.5);text-align:center;flex-shrink:0;}
 .z-block{background:rgba(139,26,26,.25);border:1px solid rgba(139,26,26,.5);color:#ffaaaa;}
 .z-defend{background:rgba(139,26,26,.12);border:1px solid rgba(139,26,26,.3);color:#ffdddd;}
@@ -443,7 +443,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .btn-ov{padding:11px 28px;background:var(--gold);color:#111;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:.95em;text-transform:uppercase;letter-spacing:1px;margin:4px;}
 .btn-ov:hover{background:#e8c86b;}
 .btn-ov:disabled{opacity:.45;cursor:default;}
-.atk-dice-row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px;}
+.atk-dice-row{display:flex;gap:14px; /* 4_103 */flex-wrap:wrap;margin:6px 0 4px;}
 .atk-dice-row .die-body{cursor:default;}
 #atk-dice-sum{font-size:.92em;color:#cfe0ff;margin:2px 0 8px;padding:7px 10px;background:rgba(80,140,255,.12);border:1px solid rgba(80,140,255,.35);border-radius:8px;} /* 3_79: summary bar — glanceable (Tim) */
 #bsel-info{font-size:.92em;color:#ffd9d9;margin:2px 0 8px;padding:7px 10px;background:rgba(255,90,90,.10);border:1px solid rgba(255,90,90,.35);border-radius:8px;} /* 3_77: defender's running total — mirrors atk-dice-sum */
@@ -469,7 +469,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 #adv-picker-back{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:12px}
 #adv-picker{background:rgba(20,16,8,.97);border:1px solid var(--gold);border-radius:14px;padding:14px 16px;width:min(88vw,420px);max-height:94vh;display:flex;flex-direction:column;text-align:center;color:#ffe9a8;box-shadow:0 8px 30px rgba(0,0,0,.8)}
 #adv-picker .adv-pk-head{font-size:1.02em;font-weight:800;margin-bottom:8px}
-#adv-picker .adv-pk-dice{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;overflow-y:auto;min-height:0;margin:4px 0 12px}
+#adv-picker .adv-pk-dice{display:flex;flex-wrap:wrap;gap:14px; /* 4_103 */justify-content:center;overflow-y:auto;min-height:0;margin:4px 0 12px}
 #adv-picker .adv-pk-dice .die-wrap{cursor:pointer}
 #adv-picker .adv-pk-dice .die-wrap:hover .die-body{border-color:#ffd75e}
 .persona-card{border:2px solid #444;border-radius:10px;padding:10px;cursor:pointer;text-align:center;background:rgba(255,255,255,.03);flex:1;min-width:110px}
@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.101</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.105</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -836,7 +836,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.101</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.105</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -980,7 +980,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div class="cresult" id="crbanner"></div>
       <div id="bench-pick-area" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,.12);padding-top:10px;">
         <div id="bench-pick-title" style="color:#ffd75e;font-weight:800;margin-bottom:6px;">📦 Choose bench dice</div>
-        <div id="bench-pick-dice" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;"></div>
+        <div id="bench-pick-dice" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:8px;"></div>
         <div id="bench-pick-note" style="color:#aaa;font-size:.85em;margin-bottom:8px;"></div>
         <button class="abtn prim" id="bench-pick-confirm" style="width:100%" onclick="confirmBenchPick()">Send to Bench</button>
       </div>
@@ -1011,14 +1011,14 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div class="panel-sub" id="fight-sub">Choose your fighter.</div>
     <div id="fight-step-1">
       <h3 style="color:var(--gold);font-size:.9em;margin-bottom:8px" id="fight-attacker-label">Attacker — choose a die and zone:</h3>
-      <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap" id="fight-atk-dice"></div>
+      <div style="display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap" id="fight-atk-dice"></div>
       <div style="font-size:.78em;color:#888;margin-bottom:8px">Click a die to select it as your fighter. You choose the zone — opponent must respond from same zone.</div>
       <button class="abtn prim" id="fight-commit-atk" onclick="fightCommitAttacker()" disabled>Commit Fighter →</button>
       <button class="abtn sec" onclick="cancelFight()" style="margin-left:8px">Cancel</button>
     </div>
     <div id="fight-step-2" style="display:none">
       <h3 style="color:#ff8888;font-size:.9em;margin-bottom:8px" id="fight-defender-label">Defender — choose your fighter from same zone:</h3>
-      <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap" id="fight-def-dice"></div>
+      <div style="display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap" id="fight-def-dice"></div>
       <div style="font-size:.78em;color:#888;margin-bottom:8px">You must pick from the same zone the attacker chose.</div>
       <button class="abtn prim" id="fight-commit-def" onclick="fightCommitDefender()" disabled>Commit Fighter →</button>
     </div>
@@ -1151,7 +1151,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div id="so-shooter-area">
       <div style="font-size:.82em;color:var(--gold);font-weight:700;margin-bottom:8px" id="so-shooter-label">Choose a Forward to shoot with:</div>
       <div id="so-forward-choices" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:12px"></div>
-      <div id="so-roll-row" style="display:flex;gap:8px;justify-content:center">
+      <div id="so-roll-row" style="display:flex;gap:14px;justify-content:center">
         <button class="abtn prim" id="so-roll-btn" onclick="soRollShot()" disabled style="min-width:140px">🎲 Roll Shot</button>
       </div>
     </div>
@@ -2954,6 +2954,7 @@ function setupBenchPick(loserSlot,zone,ids){
     return;
   }
   G.benchPick={loser:loserSlot,zone,ids:ids.slice(),picked:[],need,done:false};
+  _benchSel=[]; // 4_104: fresh pick, no pre-selections (Tim)
 }
 // Owns the bench-choice step of the combat result panel: the loser picks,
 // everyone else sees a brief "choosing…" line (+ a one-time toast flash).
@@ -5629,6 +5630,7 @@ function aiShowSummary(){
 // 2_48: end-of-AI-turn recap card with a Take Turn button — stays until tapped;
 // the tap runs onTake (the actual endTurn), so the human's turn starts on it.
 function aiShowTurnSummary(onTake){
+  renderAll(); // 4_102: paint final board state behind the popup (Tim)
   const P=aiP();let el=document.getElementById('ai-pill');
   if(!el){el=document.createElement('div');el.id='ai-pill';document.body.appendChild(el);}
   clearTimeout(el._t);
@@ -6095,8 +6097,10 @@ function aiDoAssign(P){
       }else{assignDie(d,'shoot');nS++;}
     });
     // 2. BLOCK faces → defend (costed: pay if able, else ice immediately — 4_21, Tim)
+    // 4_105: on 01:00 (last turn), don't advance block dice — nothing left to block (Tim)
     [...ap.z.rs].forEach(d=>{
       const f=d.face;if(!f||f.t!=='B')return;
+      if(G.clock===1){assignDie(d,'iced');return;}
       if(f.c){
         if(aiTotalE()>=1){aiSpendE(1,false);aiAdvance(d,'B');nB++;}
         else{assignDie(d,'iced');}
