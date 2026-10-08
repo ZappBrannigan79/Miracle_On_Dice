@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.19</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.20</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -836,7 +836,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.19</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.20</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2440,7 +2440,7 @@ function buyCard(cardIdx){if(aiGuard())return;
   const cost=COSTS[card.key]||0;const avail=totalE();
   if(avail<cost){toast(`Need ${cost}E, have ${avail}E.`);return;}
   // 5_05: pay first, then secure trash fodder (icing fodder can't break affordability, Tim)
-  const hasFodder=ap.z.iced.some(d=>d.key==='Rookie')||ap.z.rs.some(d=>d.key==='Rookie');
+  const hasFodder=ap.z.iced.some(d=>d.key==='Rookie')||ap.z.rs.some(d=>d.key==='Rookie')||ap.z.reserve.some(d=>d.key==='Rookie'); // 5_20: reserve counts (Tim)
   if(!hasFodder){toast('No rookies left to trash — bag fully upgraded!');return;}
   closeShop();
   openEPicker(cost, `buy ${card.key} (trash a rookie)`, ()=>{
@@ -3347,7 +3347,7 @@ function openShop(){if(aiGuard())return;
     const cost=COSTS[card.key]||0;
     const cap=card.key[0]==='F'?4:card.key[0]==='D'?3:2; // 5_01
     const canB=avail>=cost&&card.left>0;
-    const hasFodder=ap.z.iced.some(d=>d.key==='Rookie')||ap.z.rs.some(d=>d.key==='Rookie');
+    const hasFodder=ap.z.iced.some(d=>d.key==='Rookie')||ap.z.rs.some(d=>d.key==='Rookie')||ap.z.reserve.some(d=>d.key==='Rookie'); // 5_20: reserve counts (Tim)
     const faces=(DEFS[card.key]||[]).map(f=>`${f.t}${f.v||''}${f.c?'(⚡)':''}`).join(' | ');
     const pips=Array.from({length:cap},(_,i)=>`<div class="dpip ${i>=card.left?'used':''}"></div>`).join('');
     grid.innerHTML+=`<div class="lcard pos-${card.key[0]} ${card.left?'buyable':'soldout'}">
