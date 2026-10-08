@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.11</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.17</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -836,7 +836,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.11</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.17</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -5932,18 +5932,27 @@ function aiRerollTable(){
       if(f.t==='S')return;
       if(f.t==='W')return;
       if(d.key==='HC'&&f.t==='RR')return;
+      if(d.key.startsWith('G')&&f.t==='SO')return; // 5_12: 01:00 goalie holds shutout (Tim)
+      if(d.key==='Goon'&&f.t==='FT'){ // 5_12: 01:00 goon holds FT if opp has block pips (Tim)
+        const oppBlock=OPP().z.defend.some(x=>x.face&&(x.face.t==='B'||x.face.t==='W')&&(x.face.v||0)>0);
+        if(oppBlock)return;
+      }
       picked.add(d);
     });
     return [...picked];
   }
   // ── 1. ENERGY ──
+  const _goonTarget=(OPP().z.hot||[]).concat(OPP().z.defend||[]).some(d=>d.face&&(d.face.v||0)>=2); // 5_14: 2+ pip fight target (Tim)
   rs.forEach(d=>{
     const f=d.face;if(!f||f.t!=='E')return;
     let p;
-    if(d.key==='Goon')return; // 4_44: Chuck keeps goon energy 100% (Tim)
+    if(d.key==='Goon'){ // 5_14: reroll for FT if there's something worth fighting (Tim)
+      if(_goonTarget&&d100()<=(f.v===1?75:50))picked.add(d);
+      return;
+    }
     if(d.key==='HC')p=75;
     else if(d.key==='Rookie')p=f.v===1?90:10; // 4_70: 10% (Tim)
-    else p=f.v===1?100:f.v===2?80:60; // F/D
+    else p=f.v===1?100:f.v===2?90:75; // 5_12: F/D 1E 100% / 2E 90% / 3E 75% (Tim)
     if(d100()<=p)picked.add(d);else keepE.add(d);
   });
   // ── 2. BLANK ── always reroll
@@ -5974,8 +5983,8 @@ function aiRerollTable(){
     if(!isF&&!isD&&!isR)return;
     if(f.t==='W')return; // wild: always keep
     if(f.t!=='S'&&f.t!=='B')return;
-    if(isR){if(d100()<=5)picked.add(d);return;} // rookie S/B: 5%
-    if(!f.c){if(d100()<=20)picked.add(d);} // side 4 (low): 20%
+    if(isR)return; // 5_12: rookie S/B never rerolled (Tim)
+    if(!f.c){if(d100()<=10)picked.add(d);} // 5_12: side 4 (low): 10% (Tim)
     else costed.push({d,pri:isF?0:2}); // side 5 (high, costed): needs 1e
   });
   // ── 5. GOALIE ── sides 1-4 always keep; 5-6 (costed) need 1e
@@ -6339,13 +6348,16 @@ function aiSpendForTrade(cost){
   }
   if(rem>0)aiSpendE(rem,true);
 }
-// 2_94: execute a tier buy — k is trade1/trade2/draft1/draft2
+// 5_13: execute a tier buy — v5 single buy path (Tim)
 // 2_121: cascades top-down to the highest AFFORDABLE tier (not just the single top tier)
-function aiBuyTier(k){
+// 5_13: v5 has no trade/draft split — one buy path (Tim). P3 mid (10:00-07:00)
+// uses the sellout brain (aiTradePick); otherwise highest affordable tier.
+function aiBuyTier(cheapest){
   const ap=AP();
   const allTiers=aiTopTiers(0); // all, highest first
-  const pool=(k==='trade2'||k==='draft2')?allTiers.slice(1):allTiers;
-  const t=aiAffordableTier(pool,false);
+  const isMidP3=G.period===3&&G.clock>6; // 5_13: sellout priority (Tim)
+  const t=cheapest?aiAffordableTier(allTiers.slice().reverse(),true) // 5_16: cheapest available (Tim)
+    :isMidP3?aiTradePick(allTiers):aiAffordableTier(allTiers,true);
   if(!t)return false;
   const cost=(COSTS[t.key]||99);
   // 5_10: fodder must be POSSIBLE before spending (matches human buyCard check)
@@ -6368,40 +6380,22 @@ function aiBuyTier(k){
   awardBuyBonus(ap,card);
   return true;
 }
-// 2_94: "next best" — TRADE if possible, else DRAFT
-// 2_121: cascades to highest affordable tier
-// 5_10: v5 has no trade/draft split — every buy trashes a rookie (Tim)
-function aiBuyNextBest(noDraft){
-  return aiBuyTier('draft');
-}
 // 2_94: can this buy option actually be done right now?
 // 2_121: trade/draft check the cascade — any affordable tier in the pool counts
+// 5_13: v5 — only 'buy' and 'token' (Tim). No trade/draft split.
 function aiBuyPossible(k){
   const ap=AP();
   const E=aiTotalE();
-  const allTiers=aiTopTiers(0);
-  const isLateP3=G.period===3&&G.clock<=7; // 4_76
-  if(k==='trade1'||k==='trade2'){
-    const pool=k==='trade1'?allTiers:allTiers.slice(1);
+  if(k==='buy'){
     if(!aiHasTrashFodder())return false;
-    if(isLateP3){ // 4_76: sellout-only trades in late P3 (Tim)
-      return pool.some(t=>{const c=ap.lineup[t.idx];return c&&c.left===1&&E>=(COSTS[t.key]||99)+2;});
+    const allTiers=aiTopTiers(0);
+    const isLateP3=G.period===3&&G.clock<=6; // 5_13: match W table (Tim)
+    if(isLateP3){ // sellout-only buys in late P3 (Tim)
+      return allTiers.some(t=>{const c=ap.lineup[t.idx];return c&&c.left===1&&E>=(COSTS[t.key]||99)+2;});
     }
-    return !!aiAffordableTier(pool,true);
-  }
-  if(k==='draft1'||k==='draft2'){
-    const pool=k==='draft1'?allTiers:allTiers.slice(1);
-    return !!aiAffordableTier(pool,false);
+    return !!aiAffordableTier(allTiers,true);
   }
   if(k==='token')return E>=3;
-  if(k==='nextbest'){
-    const t=allTiers[0];
-    const canTrade=t&&E>=(COSTS[t.key]||99)+2&&aiHasTrashFodder();
-    const canDraft=t&&E>=(COSTS[t.key]||99);
-    const canReserve=ap.z.reserve.length<2&&
-      ap.z.rs.some(d=>d.key!=='HC'&&d.face&&d.face.t==='E');
-    return canTrade||canDraft||canReserve;
-  }
   return false;
 }
 function aiDoBuy(P){
@@ -6410,112 +6404,62 @@ function aiDoBuy(P){
   _aiReserveBanked=0; // 2_121: combined reserve count for a single summary line
   try{
     // 2_93: pre-buy banking — each energy die may go straight to reserve first
-    aiBankReserve();
+    // 5_13: skipped on P3 02:00/01:00, nothing carries to OT (Tim)
+    if(!(G.period===3&&(G.clock===2||G.clock===1)))aiBankReserve();
     if(aiTotalE()<1)return;
-    // 2_94: Coach buy table (Tim's d100). Each category fires once per buy phase;
-    // a taken category's weight splits evenly among the remaining ones.
-    // 4_02: period-aware (Tim) — tokens ramp late, trade beats draft late, draft is dead in P3.
-    const WTABLE={
-      1:{trade1:46,trade2:6,draft1:18,draft2:6,token:18,nextbest:6},
-      2:{trade1:50,trade2:8,draft1:10,draft2:4,token:22,nextbest:6},
-      3:{trade1:46,trade2:10,draft1:0,draft2:0,token:38,nextbest:6},
-    };
-    const isLateP3=G.period===3&&G.clock<=6; // 5_11: 06:00-01:00 in P3 (Tim)
-    const isMidP3=G.period===3&&G.clock>6; // 5_11: 10:00-07:00 in P3 — sellout priority (Tim)
-    const W=isLateP3?{trade1:5,trade2:5,draft1:0,draft2:0,token:100,nextbest:10}
-      :isMidP3?{trade1:60,trade2:15,draft1:0,draft2:0,token:20,nextbest:5}
-      :(WTABLE[G.period]||WTABLE[1]);
-    for(let buyPass=0;buyPass<2;buyPass++){ // 4_75: two passes (Tim)
-    const taken=new Set();
-    while(true){
-      const remaining=Object.keys(W).filter(k=>!taken.has(k));
-      if(!remaining.length)break;
-      const cur={};
-      remaining.forEach(k=>cur[k]=W[k]);
-      taken.forEach(tk=>{
-        const share=W[tk]/remaining.length;
-        remaining.forEach(k=>cur[k]+=share);
-      });
-      const possible=remaining.filter(k=>aiBuyPossible(k));
-      if(!possible.length)break;
-      const total=possible.reduce((s,k)=>s+cur[k],0);
-      let r=Math.random()*total,pick=possible[possible.length-1];
-      for(const k of possible){r-=cur[k];if(r<=0){pick=k;break;}}
+    // 5_13: simplified buy table (Tim) — no draft/trade split, just buy vs token.
+    // Chuck buys until energy is spent, reserved, or no legal buy exists.
+    const isLateP3=G.period===3&&G.clock<=6; // 06:00-01:00 in P3 — tokens first
+    const isMidP3=G.period===3&&G.clock>6; // 10:00-07:00 in P3 — sellout priority
+    const W=isLateP3?{buy:10,token:90}
+      :isMidP3?{buy:80,token:20}
+      :G.period===1?{buy:76,token:24}
+      :G.period===2?{buy:72,token:28}
+      :{buy:56,token:44}; // P3 10:00 (fallback)
+    // 5_13: open-ended buy loop (Tim) — no draft/trade split, no pass limit.
+    // Chuck buys until energy is spent, reserved by choice, or no legal buy exists.
+    let _buyGuard=0;
+    while(_buyGuard++<60){
+      const E=aiTotalE();
+      if(E<1)break;
+      ap.tokBought=ap.tokBought||{shoot:0,block:0};
+      const canBuy=aiBuyPossible('buy');
+      const canToken=E>=3&&(ap.tokBought.shoot<1||ap.tokBought.block<1); // 5_01: 1+1/turn cap
+      if(!canBuy&&!canToken)break;
+      const pool=[];
+      if(canBuy)pool.push(['buy',W.buy]);
+      if(canToken)pool.push(['token',W.token]);
+      const total=pool.reduce((s,x)=>s+x[1],0);
+      let r=Math.random()*total,pick=pool[pool.length-1][0];
+      for(const [k,w] of pool){r-=w;if(r<=0){pick=k;break;}}
       if(pick==='token'){
-        try{
-          ap.tokBought=ap.tokBought||{shoot:0,block:0};
-          const tt=aiPickTokenType(); // 4_02: brains, not a coin flip (Tim)
-          if(ap.tokBought[tt]>=1){taken.add('token');break;} // 5_01: 1+1/turn cap (Tim)
-          aiSpendE(3,false);
-          if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
-          else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
-          ap.tokBought[tt]++;
-        }catch(e){console.error('AI token buy failed:',e);break;}
-        taken.add('token');
-      }else if(pick==='nextbest'){
-        if(G.period>=3){
-          // 4_02 P3: token first (Tim), then trade, then bank — draft is dead
-          ap.tokBought=ap.tokBought||{shoot:0,block:0};
-          if(aiTotalE()>=3){
-            const tt=aiPickTokenType();
-            if(ap.tokBought[tt]<1){ // 5_01: 1+1/turn cap (Tim)
-              aiSpendE(3,false);
-              if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
-              else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
-              ap.tokBought[tt]++;
+        let tt;
+        try{tt=aiPickTokenType();}catch(e){console.error('AI token pick failed:',e);break;}
+        if(ap.tokBought[tt]>=1)tt=(tt==='shoot'?'block':'shoot'); // 5_13: try the other type
+        try{aiSpendE(3,false);}catch(e){console.error('AI token spend failed:',e);break;}
+        if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
+        else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
+        ap.tokBought[tt]++;
+      }else{
+        let ok=false;
+        try{ok=aiBuyTier();}catch(e){console.error('AI buy failed:',e);break;}
+        if(!ok){
+          // 5_17: buy failed — heads: bank largest R&S energy; tails: buy cheapest available.
+          // Either way, loop back and re-evaluate (Tim) — only the top-of-loop checks end buying.
+          if(Math.random()<0.5){
+            const e2=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&d.face.t==='E').sort((a,b)=>b.face.v-a.face.v)[0];
+            if(e2&&ap.z.reserve.length<2){
+              const ei=ap.z.rs.indexOf(e2);
+              if(ei!==-1){ap.z.rs.splice(ei,1);e2.committed=true;ap.z.reserve.push(e2);_aiReserveBanked++;}
+              renderAll();
             }
           }else{
-            let ok=false;
-            try{ok=aiBuyNextBest(true);}catch(e){console.error('AI nextbest buy failed:',e);}
-            if(ok){taken.add('nextbest');break;}
-            const e=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&d.face.t==='E')
-              .sort((a,b)=>b.face.v-a.face.v)[0];
-            if(e&&ap.z.reserve.length<2){
-              e.committed=true;assignDie(e,'reserve');
-              _aiReserveBanked++; // 2_121: counted toward the combined "reserved x dice" summary line
-            }
+            try{aiBuyTier(true);}catch(e){console.error('AI cheapest buy failed:',e);}
+            renderAll();
           }
-          taken.add('nextbest');
-          break;
+          continue;
         }
-        if(Math.random()<0.5){
-          let ok=false;
-          try{ok=aiBuyNextBest();}catch(e){console.error('AI nextbest buy failed:',e);}
-          if(!ok)break;
-        }else{
-          const e=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&d.face.t==='E')
-            .sort((a,b)=>b.face.v-a.face.v)[0];
-          if(e&&ap.z.reserve.length<2){
-            e.committed=true;assignDie(e,'reserve');
-            _aiReserveBanked++; // 2_121: counted toward the combined "reserved x dice" summary line
-          }
-          break;
-        }
-        taken.add('nextbest');
-      }else{
-        try{
-          if(!aiBuyTier(pick))break;
-        }catch(e){console.error('AI tier buy failed:',e);break;}
-        taken.add(pick);
       }
-      renderAll();
-    }
-    if(buyPass===0){ // 4_75: mid-point reserve check between passes (Tim)
-      const rsE=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&d.face.t==='E').sort((a,b)=>b.face.v-a.face.v);
-      const sp=2-ap.z.reserve.length;
-      for(let i=0;i<Math.min(sp,rsE.length);i++){
-        const d=rsE[i];const idx=ap.z.rs.indexOf(d);
-        if(idx!==-1&&ap.z.reserve.length<2){ap.z.rs.splice(idx,1);d.committed=true;ap.z.reserve.push(d);_aiReserveBanked++;}
-      }
-      renderAll(); // 4_78: refresh UI after mid-point reserve (Tim)
-    }
-    } // end buyPass loop
-    // 4_74: cleanup — spend ALL leftover energy on tokens until broke (Tim)
-    while(aiTotalE()>=3){
-      try{aiSpendE(3,false);}catch(e){break;}
-      const tt=aiPickTokenType();
-      if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E, cleanup).`,'imp');aiPill(`🎯 bought a Shoot token`);}
-      else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E, cleanup).`,'imp');aiPill(`🛡️ bought a Block token`);}
       renderAll();
     }
     // 2_93: post-buy sweep — leftover R&S energy fills remaining reserve slots, biggest first
