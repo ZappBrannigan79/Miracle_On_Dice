@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.17</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.19</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -836,7 +836,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.17</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.19</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1056,7 +1056,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div style="font-size:.82em;line-height:1.6;color:#ddd">
       <p><strong style="color:var(--gold)">🎯 Goal:</strong> Score more goals than your opponent across 3 periods (10:00 clock, 5 turns each per period).</p>
       <p><strong style="color:var(--gold)">🎲 Turn:</strong> Advance → Draw 6 → Roll & Assign → Shoot (optional) → Buy → End Turn.</p>
-      <p><strong style="color:var(--gold)">⚡ Energy:</strong> Spend E faces to draft dice, buy tokens (3E each), or pay costed (⚡) faces.</p>
+      <p><strong style="color:var(--gold)">⚡ Energy:</strong> Spend E faces to buy dice, buy tokens (3E each), or pay costed (⚡) faces.</p>
       <p><strong style="color:var(--gold)">🏒 Shooting:</strong> Commit S-dice + shoot tokens. Defender commits B-dice + block tokens + clock bonus (+1/+2/+3). Roll combat dice — most hits wins.</p>
       <p><strong style="color:var(--gold)">🛒 Buying:</strong> Pay cost + trash an iced rookie, die to Iced. Max 1 Shoot + 1 Block token per turn. Sell out a card for a bonus token. Goalies give +1 Block token per buy.</p>
       <p><strong style="color:var(--gold)">🥊 Fighting:</strong> Goon with FT can fight an opponent's die (3v2, ties lose). Win: target iced. Lose: penalty die to your bag. Goon ices either way.</p>
@@ -5728,7 +5728,7 @@ function aiRerollTeam(){_aiManualPick=false;_aiTeamIdx=randTeamExcept(_qsSel[0])
 function aiPickTeam(idx){_aiManualPick=true;_aiTeamIdx=idx;renderAIPanelTeam();updateQSSummary();}
 // 2_73: Persona Lab — slider UI for tuning AI dials
 const PERSONA_DIAL_INFO={
-  buy:{label:'Buy Aggression',desc:'0=hoard energy, 100=spend on trade→tokens→draft'},
+  buy:{label:'Buy Aggression',desc:'0=hoard energy, 100=spend on buys→tokens'},
   shooters:{label:'Shooter Commitment',desc:'0=push none, 10+=at least 1, 100=push all'},
   reroll:{label:'Reroll Eagerness',desc:'0=blanks only, 100=reroll energy faces too'},
   desperation:{label:'Desperation',desc:'How much it shifts when losing (0=ice cold)'},
@@ -6319,10 +6319,10 @@ function aiTopTiers(n){
   return tiers;
 }
 // 2_121: highest AFFORDABLE tier from a tier list (cascade top-down)
-function aiAffordableTier(tiers,isTrade){
+function aiAffordableTier(tiers){
   const E=aiTotalE();
   for(const t of tiers){
-    const cost=(COSTS[t.key]||99)+(isTrade?2:0);
+    const cost=(COSTS[t.key]||99); // 5_18: actual cost only, no +2 buffer (Tim)
     if(E>=cost)return t;
   }
   return null;
@@ -6356,8 +6356,8 @@ function aiBuyTier(cheapest){
   const ap=AP();
   const allTiers=aiTopTiers(0); // all, highest first
   const isMidP3=G.period===3&&G.clock>6; // 5_13: sellout priority (Tim)
-  const t=cheapest?aiAffordableTier(allTiers.slice().reverse(),true) // 5_16: cheapest available (Tim)
-    :isMidP3?aiTradePick(allTiers):aiAffordableTier(allTiers,true);
+  const t=cheapest?aiAffordableTier(allTiers.slice().reverse()) // 5_16: cheapest available (Tim)
+    :isMidP3?aiTradePick(allTiers):aiAffordableTier(allTiers);
   if(!t)return false;
   const cost=(COSTS[t.key]||99);
   // 5_10: fodder must be POSSIBLE before spending (matches human buyCard check)
@@ -6391,7 +6391,7 @@ function aiBuyPossible(k){
     const allTiers=aiTopTiers(0);
     const isLateP3=G.period===3&&G.clock<=6; // 5_13: match W table (Tim)
     if(isLateP3){ // sellout-only buys in late P3 (Tim)
-      return allTiers.some(t=>{const c=ap.lineup[t.idx];return c&&c.left===1&&E>=(COSTS[t.key]||99)+2;});
+      return allTiers.some(t=>{const c=ap.lineup[t.idx];return c&&c.left===1&&E>=(COSTS[t.key]||99);}); // 5_18: actual cost (Tim)
     }
     return !!aiAffordableTier(allTiers,true);
   }
