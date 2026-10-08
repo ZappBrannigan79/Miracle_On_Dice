@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.105</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.11</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -836,7 +836,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v4.105</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.11</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1058,7 +1058,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <p><strong style="color:var(--gold)">🎲 Turn:</strong> Advance → Draw 6 → Roll & Assign → Shoot (optional) → Buy → End Turn.</p>
       <p><strong style="color:var(--gold)">⚡ Energy:</strong> Spend E faces to draft dice, buy tokens (3E each), or pay costed (⚡) faces.</p>
       <p><strong style="color:var(--gold)">🏒 Shooting:</strong> Commit S-dice + shoot tokens. Defender commits B-dice + block tokens + clock bonus (+1/+2/+3). Roll combat dice — most hits wins.</p>
-      <p><strong style="color:var(--gold)">🛒 Buying:</strong> Draft (pay cost, die to Iced) or Trade (pay cost+2, trash a rookie, die to Iced). Sell out a card (2nd die) for a bonus token. Goalies give +1 Block token per buy.</p>
+      <p><strong style="color:var(--gold)">🛒 Buying:</strong> Pay cost + trash an iced rookie, die to Iced. Max 1 Shoot + 1 Block token per turn. Sell out a card for a bonus token. Goalies give +1 Block token per buy.</p>
       <p><strong style="color:var(--gold)">🥊 Fighting:</strong> Goon with FT can fight an opponent's die (3v2, ties lose). Win: target iced. Lose: penalty die to your bag. Goon ices either way.</p>
       <p><strong style="color:var(--gold)">🎲 Dice:</strong> Rookie E1/E2/S1/B1/blank/blank. Forwards shoot, Defensemen block, Goalies block + shutout (SO1 free).</p>
       <p><strong style="color:var(--gold)">⏰ Clock:</strong> 10:00→01:00. Red zone 04:00–01:00 (block bonus ramps +1→+3). Tie after 3 periods → shootout.</p>
@@ -1270,14 +1270,14 @@ const DEFS={
   D6:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'W',v:2}],
   D7:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'W',v:3}],
   D8:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'W',v:3}],
-  G3:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:1}],
-  G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:1}],
-  G5:[{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'SO',v:1}],
+  G3:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
+  G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
+  G5:[{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'SO',v:2,c:true}],
   G6:[{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4},{t:'B',v:4,c:true},{t:'SO',v:1}],
-  HC:[{t:'E',v:1},{t:'E',v:1},{t:'RR',v:0},{t:'RR',v:0},{t:'ADV',v:0},{t:'PEN',v:0}],
+  HC:[{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'RR',v:0},{t:'ADV',v:0},{t:'PEN',v:0}], // 5_01: 1E/2E (Tim)
   Penalty:[{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0}],
 };
-const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,F7:7,F8:8,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,D7:7,D8:8,G3:3,G4:4,G5:5,G6:6};
+const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,D1:1,D2:2,D3:3,D4:4,D5:5,G3:3,G4:4,G5:5}; // 5_01: slim tiers
 const CF_S=[3,2,1,0,0,0]; // 4_42: shoot combat die (Tim) — varied, swingy
 const CF_B=[3,1,1,1,0,0]; // 4_42: block combat die (Tim) — reliable, steady
 const CF_F=[2,2,1,1,0,0]; // 4_54: fight combat die (Tim) — steady, no spikes
@@ -1294,8 +1294,8 @@ function posName(k){return{F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach'
 let G={},_id=0,_rrMode=false,_rrDieId=null,_aiRrNudge=false,_rsWasEmpty=false,_rsCollapseGen=0; // 3_71: gen invalidates a collapse whose timers outlive the turn
 // 4_20: _aiRrNudge — Chuck's "choosing reroll" beat (Tim)
 function mkDie(k){return{id:_id++,key:k,pos:posOf(k),tier:tierOf(k),face:null,sel:false,energyPending:false,spun:false};} // 3_36: spun = die was spun down for energy — cannot be rerolled
-function mkBag(extra=[]){const b=[];for(let i=0;i<14;i++)b.push(mkDie('Rookie'));b.push(mkDie('Goon'));return b;} // 4_44: 14 Rookie + 1 Goon (Tim)
-function mkLineup(arr){return arr.map(k=>({key:k,left:2}));} // 4_79: 2 per card (Tim)
+function mkBag(extra=[]){const b=[];for(let i=0;i<19;i++)b.push(mkDie('Rookie'));b.push(mkDie('Goon'));return b;} // 5_01: 19 Rookie + 1 Goon (Tim)
+function mkLineup(arr){return arr.map(k=>({key:k,left:k[0]==='F'?4:k[0]==='D'?3:2}));} // 5_01: F4/D3/G2 (Tim)
 function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC'),goonAside:null,bag:mkBag(bagExtra),
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
@@ -1316,58 +1316,67 @@ function OPP(){return G.players[1-G.ap];}
 // ═══════════════════ SETUP ═══════════════════
 // ── 24 PRE-BUILT TEAMS — 4 DIVISIONS, 6 TEAMS EACH ──
 const PRESETS=[
-  // ── NORTH DIVISION (Offense Heavy) ──
-  {name:'⚔️ Cobras', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F8','F4','F3','D5','D2','G3','HC'], desc:'F8+F4+F3 | D5+D2 | G3 — Sniper offense, light defense'},
-  {name:'🦍 Gorillas', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F7','F5','F3','D4','D1','G5','HC'], desc:'F7+F5+F3 | D4+D1 | G5 — Balanced offense, strong goalie'},
-  {name:'🪖 Spartans', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F7','F6','F2','D3','D1','G6','HC'], desc:'F7+F6+F2 | D3+D1 | G6 — Elite forwards, elite goalie'},
-  {name:'🪶 Ravens', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F8','F4','F2','D5','D3','G3','HC'], desc:'F8+F4+F2 | D5+D3 | G3 — Sniper with solid defense'},
-  {name:'🦣 Mammoth', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F6','F5','F3','D4','D3','G4','HC'], desc:'F6+F5+F3 | D4+D3 | G4 — Consistent grinder offense'},
-  {name:'🐉 Dragons', division:'North', divEmoji:'🏔️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F7','F6','F1','D4','D1','G6','HC'], desc:'F7+F6+F1 | D4+D1 | G6 — High variance, elite goalie'},
-  // ── EAST DIVISION (Offense Leaning) ──
-  {name:'🐊 Crocs', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F7','F4','F2','D6','D3','G3','HC'], desc:'F7+F4+F2 | D6+D3 | G3 — Star forward, heavy D'},
-  {name:'❄️ Frost', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F6','F5','F3','D5','D2','G4','HC'], desc:'F6+F5+F3 | D5+D2 | G4 — Balanced attack, solid D'},
-  {name:'😈 Demons', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F8','F5','F1','D4','D1','G6','HC'], desc:'F8+F5+F1 | D4+D1 | G6 — Elite sniper, strong goalie'},
-  {name:'🐺 Werewolves', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F6','F4','F2','D7','D3','G3','HC'], desc:'F6+F4+F2 | D7+D3 | G3 — Mid offense, elite defender'},
-  {name:'🦅 Griffins', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F7','F5','F1','D5','D2','G5','HC'], desc:'F7+F5+F1 | D5+D2 | G5 — Star forward, strong goalie'},
-  {name:'☄️ Comets', division:'East', divEmoji:'🌅', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F8','F3','F2','D5','D1','G6','HC'], desc:'F8+F3+F2 | D5+D1 | G6 — Elite sniper, elite goalie'},
-  // ── SOUTH DIVISION (Defense Leaning) ──
-  {name:'🦂 Scorpions', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F4','F2','D7','D3','G4','HC'], desc:'F5+F4+F2 | D7+D3 | G4 — Balanced F, elite defender'},
-  {name:'👁️ Cyclops', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F6','F3','F2','D5','D4','G5','HC'], desc:'F6+F3+F2 | D5+D4 | G5 — Solid defense, one strong F'},
-  {name:'🧙 Wizards', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F7','F3','F1','D6','D5','G3','HC'], desc:'F7+F3+F1 | D6+D5 | G3 — Star forward, heavy D'},
-  {name:'🐴 Stallions', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F4','F2','D7','D3','G4','HC'], desc:'F5+F4+F2 | D7+D3 | G4 — Physical defense, steady offense'},
-  {name:'🗿 Gargoyles', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F6','F3','F2','D8','D1','G5','HC'], desc:'F6+F3+F2 | D8+D1 | G5 — Elite defender, solid goalie'},
-  {name:'🚀 Rockets', division:'South', divEmoji:'🏝️', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F7','F3','F1','D6','D2','G6','HC'], desc:'F7+F3+F1 | D6+D2 | G6 — Star forward, elite goalie'},
-  // ── WEST DIVISION (Defense Heavy) ──
-  {name:'🦬 Bison', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F3','F2','D7','D6','G3','HC'], desc:'F4+F3+F2 | D7+D6 | G3 — Elite D pair, light offense'},
-  {name:'🐝 Hornets', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F3','F1','D8','D4','G4','HC'], desc:'F5+F3+F1 | D8+D4 | G4 — Max defense, one strong F'},
-  {name:'🥊 Brawlers', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F6','F2','F1','D7','D3','G6','HC'], desc:'F6+F2+F1 | D7+D3 | G6 — One elite F, elite goalie'},
-  {name:'🦏 Rhinos', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F3','F2','D8','D5','G3','HC'], desc:'F4+F3+F2 | D8+D5 | G3 — Fortress defense, cheap G'},
-  {name:'🐻 Grizzlies', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F2','F1','D7','D6','G4','HC'], desc:'F5+F2+F1 | D7+D6 | G4 — Elite D pair, sacrificed offense'},
-  {name:'☠️ Bandits', division:'West', divEmoji:'🌄', pts:25, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F6','F2','F1','D8','D3','G5','HC'], desc:'F6+F2+F1 | D8+D3 | G5 — Elite D, one scoring threat'},
+  // ── 5_01: 30 prebuilt teams, 20pts each, F1-5/D1-5/G3-5 (Tim) ──
+  {name:'⛰️ Mountains', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F2','F1','D5','D4','G4','HC'], desc:'F4+F2+F1 | D5+D4 | G4 — The wall'},
+  {name:'❄️ Frost', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F2','F1','D5','D3','G5','HC'], desc:'F4+F2+F1 | D5+D3 | G5 — Wall + elite goalie'},
+  {name:'🦏 Rhinos', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F2','F1','D5','D4','G3','HC'], desc:'F5+F2+F1 | D5+D4 | G3 — Heavy D, budget goalie'},
+  {name:'🦬 Bison', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F3','F1','D5','D4','G3','HC'], desc:'F4+F3+F1 | D5+D4 | G3 — Heavy D, budget goalie'},
+  {name:'⚓ Anchors', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F2','F1','D5','D3','G4','HC'], desc:'F5+F2+F1 | D5+D3 | G4 — Even split'},
+  {name:'🐴 Stallions', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F3','F1','D5','D3','G4','HC'], desc:'F4+F3+F1 | D5+D3 | G4 — Even split'},
+  {name:'🧙 Wizards', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F2','F1','D5','D2','G5','HC'], desc:'F5+F2+F1 | D5+D2 | G5 — G5 covers all'},
+  {name:'👁️ Cyclops', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F2','F1','D4','D3','G5','HC'], desc:'F5+F2+F1 | D4+D3 | G5 — G5 covers all'},
+  {name:'🦉 Owls', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F3','F1','D5','D2','G5','HC'], desc:'F4+F3+F1 | D5+D2 | G5 — G5 covers all'},
+  {name:'🪶 Ravens', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F3','F1','D4','D3','G5','HC'], desc:'F4+F3+F1 | D4+D3 | G5 — Steadiest of the bunch'},
+  {name:'😈 Demons', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F3','F1','D5','D3','G3','HC'], desc:'F5+F3+F1 | D5+D3 | G3 — Scores in bunches'},
+  {name:'🐝 Hornets', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F3','F2','D5','D3','G3','HC'], desc:'F4+F3+F2 | D5+D3 | G3 — Balanced, thin goalie'},
+  {name:'☠️ Bandits', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F3','F1','D5','D2','G4','HC'], desc:'F5+F3+F1 | D5+D2 | G4 — Steals games'},
+  {name:'🦂 Scorpions', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F3','F1','D4','D3','G4','HC'], desc:'F5+F3+F1 | D4+D3 | G4 — Strikes fast'},
+  {name:'🐺 Werewolves', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F3','F2','D5','D2','G4','HC'], desc:'F4+F3+F2 | D5+D2 | G4 — Hunts in packs'},
+  {name:'🦍 Gorillas', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F3','F2','D4','D3','G4','HC'], desc:'F4+F3+F2 | D4+D3 | G4 — Bullies down low'},
+  {name:'🌪️ Twisters', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F3','F1','D5','D1','G5','HC'], desc:'F5+F3+F1 | D5+D1 | G5 — Chaos with a safety net'},
+  {name:'🐊 Crocs', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F3','F1','D4','D2','G5','HC'], desc:'F5+F3+F1 | D4+D2 | G5 — Lurks, then bites'},
+  {name:'☄️ Comets', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F4','F1','D5','D2','G3','HC'], desc:'F5+F4+F1 | D5+D2 | G3 — Spectacular, no net'},
+  {name:'🚀 Rockets', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F4','F1','D4','D3','G3','HC'], desc:'F5+F4+F1 | D4+D3 | G3 — All gas, no brakes'},
+  {name:'🦅 Griffins', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F3','F2','D5','D1','G5','HC'], desc:'F4+F3+F2 | D5+D1 | G5 — Boom or bust D'},
+  {name:'🐻 Grizzlies', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F3','F2','D4','D2','G5','HC'], desc:'F4+F3+F2 | D4+D2 | G5 — Mauls, G5 cleans up'},
+  {name:'🕷️ Spiders', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F3','F2','D5','D2','G3','HC'], desc:'F5+F3+F2 | D5+D2 | G3 — Venomous, exposed'},
+  {name:'🐍 Vipers', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F3','F2','D4','D3','G3','HC'], desc:'F5+F3+F2 | D4+D3 | G3 — Venom, steadier D'},
+  {name:'🐉 Dragons', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F4','F1','D5','D1','G4','HC'], desc:'F5+F4+F1 | D5+D1 | G4 — Stars and scrubs'},
+  {name:'🔥 Inferno', division:'Central', divEmoji:'⚡', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F4','F1','D4','D2','G4','HC'], desc:'F5+F4+F1 | D4+D2 | G4 — Burns bright'},
+  {name:'🦈 Sharks', division:'Central', divEmoji:'⚡', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F3','F2','D5','D1','G4','HC'], desc:'F5+F3+F2 | D5+D1 | G4 — Blood in the water'},
+  {name:'🌋 Volcanos', division:'Central', divEmoji:'⚡', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F3','F2','D4','D2','G4','HC'], desc:'F5+F3+F2 | D4+D2 | G4 — Apex, thin blue line'},
+  {name:'🥊 Brawlers', division:'Central', divEmoji:'⚡', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F4','F2','D5','D1','G3','HC'], desc:'F5+F4+F2 | D5+D1 | G3 — Swings for the fences'},
+  {name:'🦣 Mammoth', division:'Central', divEmoji:'⚡', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F5','F4','F2','D4','D2','G3','HC'], desc:'F5+F4+F2 | D4+D2 | G3 — Biggest guns, thinnest D'},
 ];
 let _qsSel=[null,null]; // selected preset index per player
 let _qsManualPick=false; // 2_121: true once the user hand-picks a team (dropdown shows Random placeholder until then)
@@ -1542,20 +1551,7 @@ function startCustom(){
   if(pts(l2)>25){toast(`Player 2 lineup is ${pts(l2)}pts — exceeds 25pt limit.`);return;}
   // Get bag extras
   initG(l1,l2,[],[]);
-  // Sub-25pt bonus tokens for custom builds (3_97: styled confirm, sequential)
-  (async()=>{
-    for(const [lineup,i] of [[l1,0],[l2,1]]){
-      const total=lineup.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0);
-      const diff=25-total;
-      if(diff>0){
-        const ch=await appConfirm({title:`${G.players[i].name}: ${diff} bonus token${diff>1?'s':''}!`,
-          msg:`Your ${total}pt build earns ${diff} starting token${diff>1?'s':''} — shoot or block?`,
-          yes:'Shoot',no:'Block'});
-        if(ch)G.players[i].tok.shoot+=diff;else G.players[i].tok.block+=diff;
-      }
-    }
-    beginGame();
-  })();
+  beginGame(); // 5_03: no bonus tokens — all teams exactly 20pts (Tim)
 }
 function beginGame(){
   clearSave(); // 2_121: new game replaces any saved one
@@ -1713,7 +1709,10 @@ function beginPeriodAfterFo(){if(aiGuard())return;
 
 // ═══════════════════ TURN ENGINE ═══════════════════
 function startTurn(){
-  G.phase=0;G.rrUsed=false;G.hcRrUsed=false;_goonFightUsed=false;G.shotDeclared=false; // 4_44: goon fight resetsif(!G.shotDeclared)G.combatDone=false; // 4_48: stale guardG.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;G.combatDone=false; // 4_06
+  G.phase=0;G.rrUsed=false;G.hcRrUsed=false;_goonFightUsed=false;G.shotDeclared=false; // 5_10: restored 4_44 resets (v5.01 comment swallowed them)
+  G.players.forEach(p=>p.tokBought={shoot:0,block:0}); // 5_01: token cap reset
+  if(!G.shotDeclared)G.combatDone=false; // 4_48: stale guard
+  G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;G.combatDone=false; // 4_06
   _rrMode=false;_rrDieId=null;_aiRrNudge=false; // 4_20
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();phase0();
@@ -1968,7 +1967,7 @@ function getOpts(die){
   }else if(f.t==='RR'){
     o.push({l:'Spend Reroll → pick any R&S dice to reroll',a:'rr'}); // 3_73: HC RR stays live even after assigning (Tim) — the picker excludes spun dice; "choose none" spends it without rerolling
   }else if(f.t==='SO'){
-    if(!f.c)o.push({l:`Shutout → gain ${f.v} Block Token(s)`,a:'shutout'}); // 4_101: free SO (Tim)
+    if(!f.c)o.push({l:`Shutout → gain ${f.v} Block Token(s)`,a:'shutout'}); // 5_02: SO2 costed (Tim)
     else if(canPay)o.push({l:`Shutout → gain ${f.v} Block Token(s) — costs 1⚡`,a:'shutout-cost'});
     // 2_36: broke shutout is NOT offered — the die just sits in R&S and falls to Iced at end of turn
     else o.push({l:`Shutout (${f.v} Block) — BLOCKED: need 1⚡ to resolve`,a:'no-energy'});
@@ -2071,6 +2070,14 @@ function assignDie(die,action){
     // Wild-as-energy removed from game — this action should not be reached
     toast('Wild can only be assigned as Shoot or Block.');return;
   }else if(action==='rr'){
+    // 5_11: if nothing to reroll, just set the die aside (Tim)
+    const others=ap.z.rs.filter(d=>d.id!==die.id&&!d.spun);
+    if(!others.length){
+      ap.z.rs.splice(idx,1);
+      if(die.key!=='HC'){ap.z.iced.push(die);}
+      addLog(`${ap.name}: No dice to reroll — ${die.key==='HC'?'HC':'die'} set aside.`);
+      renderAll();return;
+    }
     // Remove from RS — HC returns to set-aside, others go to iced
     ap.z.rs.splice(idx,1);
     if(die.key!=='HC'){ap.z.iced.push(die);}
@@ -2427,33 +2434,84 @@ function awardBuyBonus(ap,card){
     addLog(`${ap.name}: ${card.key} sold out! Gained 1 ${tokType==='shoot'?'Shoot':'Block'} Token.`,'imp');
   }
 }
-function buyCard(cardIdx,trade){if(aiGuard())return;
+function buyCard(cardIdx){if(aiGuard())return;
   const ap=AP();const card=ap.lineup[cardIdx];
-  if(!card.left){toast('No dice left!');return;}
-  const cost=COSTS[card.key]+(trade?2:0);const avail=totalE();
-  if(trade&&card.key==='HC'){toast('Head Coach cannot be traded.');return;}
+  if(!card||!card.left){toast('No dice left!');return;}
+  const cost=COSTS[card.key]||0;const avail=totalE();
   if(avail<cost){toast(`Need ${cost}E, have ${avail}E.`);return;}
+  // 5_05: pay first, then secure trash fodder (icing fodder can't break affordability, Tim)
+  const hasFodder=ap.z.iced.some(d=>d.key==='Rookie')||ap.z.rs.some(d=>d.key==='Rookie');
+  if(!hasFodder){toast('No rookies left to trash — bag fully upgraded!');return;}
   closeShop();
-  if(trade){
-    // Pay full trade cost first, then choose die to trash
-    openEPicker(cost, `full trade cost for ${card.key} (includes +2 surcharge)`, ()=>{
-      // After full cost paid, open trash picker — iced now includes spent energy dice
-      if(!AP().z.iced.some(d=>d.key==='Rookie')){toast('No rookies in Iced Zone to trash.');return;} // 4_71: rookies only (Tim)
-      _tradeCardIdx=cardIdx;
-      openTrashPicker(card.key,cost);
-    });
+  openEPicker(cost, `buy ${card.key} (trash a rookie)`, ()=>{
+    const ap2=AP();
+    if(ap2.z.iced.some(d=>d.key==='Rookie')){openBuyTrashPicker(cardIdx,cost);}
+    else{openFodderPicker(cardIdx,cost);} // payment iced no rookie — force one now
+  });
+}
+// 5_01: force-ice a rookie from RS so the buy can proceed
+function openFodderPicker(cardIdx,cost){
+  const ap=AP();closeShop();
+  document.getElementById('trash-sub').innerHTML=
+    `Buying <strong>${ap.lineup[cardIdx].key}</strong> for <strong>${cost}E</strong>. `+
+    `No rookie in Iced — pick one to ice as trash fodder for this buy.`;
+  const grid=document.getElementById('trash-grid');grid.innerHTML='';
+  ap.z.rs.filter(d=>d.key==='Rookie').forEach(die=>{
+    const btn=document.createElement('div');
+    btn.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;';
+    btn.innerHTML=dieWrapHTML(die,false,false);
+    const db=btn.querySelector('.die-body');
+    if(db){db.style.cursor='pointer';
+      btn.addEventListener('click',()=>{
+        const ap2=AP();const i=ap2.z.rs.findIndex(d=>d.id===die.id);
+        if(i!==-1){ap2.z.iced.push(ap2.z.rs.splice(i,1)[0]);}
+        document.getElementById('trash-panel').classList.remove('show');
+        addLog(`${ap2.name}: Iced a rookie (buy fodder).`);
+        openBuyTrashPicker(cardIdx,cost); // 5_06: payment done — straight to trash (Tim)
+      });
+    }
+    grid.appendChild(btn);
+  });
+  document.getElementById('trash-panel').classList.add('show');
+}
+// 5_01: pick an iced rookie to trash, completing the buy
+function openBuyTrashPicker(cardIdx,cost){
+  const ap=AP();const card=ap.lineup[cardIdx];
+  document.getElementById('trash-sub').innerHTML=
+    `Buying <strong>${card.key}</strong> for <strong>${cost}E</strong>. `+
+    `Select one rookie below to permanently trash.`;
+  const grid=document.getElementById('trash-grid');grid.innerHTML='';
+  const trashable=ap.z.iced.filter(d=>d.key==='Rookie');
+  if(!trashable.length){
+    grid.innerHTML='<div style="color:#888;font-size:.85em">No rookies in Iced to trash.</div>';
   }else{
-    openEPicker(cost, `purchase ${card.key}`, ()=>{
-      const ap2=AP();const card2=ap2.lineup[cardIdx];
-      card2.left--;
-      ap2.z.iced.push(mkDie(card2.key));
-      addLog(`${ap2.name}: Bought ${card2.key} for ${cost}E → Iced Zone.`,'imp');
-      awardBuyBonus(ap2,card2);
-      renderAll();
+    trashable.forEach(die=>{
+      const btn=document.createElement('div');
+      btn.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;';
+      btn.innerHTML=dieWrapHTML(die,false,true,true);
+      const db=btn.querySelector('.die-body');
+      if(db){db.style.cursor='pointer';
+        btn.addEventListener('click',()=>completeBuy(cardIdx,die.id));
+        btn.addEventListener('mouseenter',()=>db.classList.add('sel'));
+        btn.addEventListener('mouseleave',()=>db.classList.remove('sel'));
+      }
+      grid.appendChild(btn);
     });
   }
+  document.getElementById('trash-panel').classList.add('show');
 }
-
+function completeBuy(cardIdx,trashDieId){
+  const ap=AP();const card=ap.lineup[cardIdx];
+  if(!card){document.getElementById('trash-panel').classList.remove('show');return;}
+  const ti=ap.z.iced.findIndex(d=>d.id===trashDieId);
+  if(ti!==-1){const tr=ap.z.iced.splice(ti,1)[0];addLog(`${ap.name}: Trashed rookie (buy cost).`);}
+  document.getElementById('trash-panel').classList.remove('show');
+  card.left--;
+  ap.z.iced.push(mkDie(card.key));
+  addLog(`${ap.name}: Bought ${card.key} → Iced Zone.`,'imp');
+  awardBuyBonus(ap,card);
+  renderAll();
+}
 function openTrashPicker(cardKey, totalCost){
   const ap=AP();
   document.getElementById('trash-sub').innerHTML=
@@ -2505,11 +2563,14 @@ function completeTrade(trashDieId){
   renderAll();
 }
 function buyTok(type){if(aiGuard())return;
+  const ap0=AP();ap0.tokBought=ap0.tokBought||{shoot:0,block:0};
+  if(ap0.tokBought[type]>=1){toast('1 per turn max.');return;} // 5_01 (Tim)
   if(totalE()<3){toast('Need 3E.');return;}
   closeShop();
   openEPicker(3, `buy 1 ${type} Token`, ()=>{
-    AP().tok[type]++;
-    addLog(`${AP().name}: Bought 1 ${type} Token (3E).`);
+    const ap2=AP();ap2.tokBought=ap2.tokBought||{shoot:0,block:0};
+    ap2.tok[type]++;ap2.tokBought[type]++;
+    addLog(`${ap2.name}: Bought 1 ${type} Token (3E).`);
     renderAll();
   });
 }
@@ -3284,29 +3345,30 @@ function openShop(){if(aiGuard())return;
     const isHC=card.key==='HC';
     if(isHC)return; // HC is automatic — not purchasable
     const cost=COSTS[card.key]||0;
-    const tc=cost+2;
-    const canD=avail>=cost&&card.left>0;
-    const canT=avail>=tc&&card.left>0;
+    const cap=card.key[0]==='F'?4:card.key[0]==='D'?3:2; // 5_01
+    const canB=avail>=cost&&card.left>0;
+    const hasFodder=ap.z.iced.some(d=>d.key==='Rookie')||ap.z.rs.some(d=>d.key==='Rookie');
     const faces=(DEFS[card.key]||[]).map(f=>`${f.t}${f.v||''}${f.c?'(⚡)':''}`).join(' | ');
-    const pips=Array.from({length:2},(_,i)=>`<div class="dpip ${i>=card.left?'used':''}"></div>`).join('');
+    const pips=Array.from({length:cap},(_,i)=>`<div class="dpip ${i>=card.left?'used':''}"></div>`).join('');
     grid.innerHTML+=`<div class="lcard pos-${card.key[0]} ${card.left?'buyable':'soldout'}">
       <div class="card-pt">${card.key} <span>${posName(card.key)}</span></div>
       <div class="card-faces">${faces}</div><div class="card-pips">${pips}</div>
-      <div class="card-cost">Draft: <strong>${cost}E</strong> | Trade: <strong>${tc}E</strong></div>
+      <div class="card-cost">Buy: <strong>${cost}E</strong> <span style="color:#888">+ trash rookie</span></div>
       ${!card.left?'<div style="color:#666;font-size:.8em;text-align:center">SOLD OUT</div>':`
-      <div class="buy-row"><button class="btn-buy" onclick="buyCard(${idx},false)" ${canD?'':'disabled'}>Draft (${cost}E)</button>
-      <button class="btn-buy trade" onclick="buyCard(${idx},true)" ${canT?'':'disabled'}>Trade (${tc}E)</button></div>`}
+      <div class="buy-row"><button class="btn-buy" onclick="buyCard(${idx})" ${canB&&hasFodder?'':'disabled'}>Buy (${cost}E)</button></div>
+      ${!hasFodder?'<div style="color:#a66;font-size:.72em;text-align:center">need rookie to trash</div>':''}`}
     </div>`;
   });
+  const tb=ap.tokBought||{shoot:0,block:0}; // 5_01: 1+1/turn cap (Tim)
   document.getElementById('trow').innerHTML=`
     <div style="display:flex;gap:8px;width:100%;margin-top:6px">
       <button class="btn-buy" style="flex:1;background:rgba(26,109,212,.25);border-color:#4488dd;font-size:.82em;padding:8px 6px"
-        onclick="buyTok('shoot')" ${avail>=3?'':'disabled'}>
-        🎯 Buy Shoot Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.shoot}</span>
+        onclick="buyTok('shoot')" ${avail>=3&&tb.shoot<1?'':'disabled'}>
+        🎯 Buy Shoot Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.shoot}${tb.shoot>=1?' (max/turn)':''}</span>
       </button>
       <button class="btn-buy" style="flex:1;background:rgba(180,30,30,.25);border-color:#cc4444;font-size:.82em;padding:8px 6px"
-        onclick="buyTok('block')" ${avail>=3?'':'disabled'}>
-        🛡️ Buy Block Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.block}</span>
+        onclick="buyTok('block')" ${avail>=3&&tb.block<1?'':'disabled'}>
+        🛡️ Buy Block Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.block}${tb.block>=1?' (max/turn)':''}</span>
       </button>
     </div>`;
   document.getElementById('shop-panel').classList.add('show');
@@ -3318,10 +3380,10 @@ function openLineup(){
     lp.innerHTML+=`<h3 style="color:var(--gold);margin:12px 0 8px;font-size:.95em;text-transform:uppercase">${p.name}</h3><div style="display:flex;gap:8px;flex-wrap:wrap">`;
     lp.innerHTML+=p.lineup.map(c=>{
       const f=(DEFS[c.key]||[]).map(f=>`${f.t}${f.v||''}${f.c?'(⚡)':''}`).join(' | ');
-      const pips=Array.from({length:3},(_,i)=>`<div class="dpip ${i>=c.left?'used':''}"></div>`).join('');
+      const cap=c.key[0]==='F'?4:c.key[0]==='D'?3:2;const pips=Array.from({length:cap},(_,i)=>`<div class="dpip ${i>=c.left?'used':''}"></div>`).join(''); // 5_01
       return`<div class="lcard" style="min-width:160px"><div class="card-pt">${c.key} <span>${posName(c.key)}</span></div>
         <div class="card-faces" style="font-size:.68em">${f}</div><div class="card-pips">${pips}</div>
-        <div style="font-size:.72em;color:#aaa">${c.left}/3 remaining</div></div>`;
+        <div style="font-size:.72em;color:#aaa">${c.left}/${cap} remaining</div></div>`;
     }).join('')+'</div>';
   });
   document.getElementById('lineup-panel').classList.add('show');
@@ -4254,7 +4316,7 @@ function soRenderSynced(){
   else if(_so.phase==='result'&&_so.results.length){ soShowResult(_so.results[_so.results.length-1]); }
   else { soStartShooterTurn(); }
 }
-function soIAmShooter(){ if(_so.vsAI)return _so.shooterIdx!==_aiSlot; return !_onlineActive||_mySlot===_so.shooterIdx; } // 4_96: Vs AI fix (Tim)
+function soIAmShooter(){ if(_so.vsAI||_aiActive)return _so.shooterIdx!==_aiSlot; return !_onlineActive||_mySlot===_so.shooterIdx; } // 5_11: real-game Vs AI fix (Tim)
 
 // ── SETUP ──
 function showShootoutSetup(){
@@ -5761,26 +5823,8 @@ function startAIGame(){
   G.players[0].teamName=p1.name;
   G.players[1].teamName=p2.name;
   G.players[1].name=`${P.icon} ${P.name}`;
-  // 3_97: styled confirm, sequential (human choice is async)
-  (async()=>{
-    for(let i=0;i<2;i++){
-      const p=[p1,p2][i];
-      const diff=25-p.pts;
-      if(diff>0){
-        let ch;
-        if(i===1){ch=aiEffShooters()>=0.5;G.players[i].tok[ch?'shoot':'block']+=diff;} // 2_73: shooter commitment decides token type
-        else{
-          ch=await appConfirm({title:`${G.players[i].name} (${p.name}): ${diff} bonus token${diff>1?'s':''}!`,
-            msg:`${p.pts}pt build earns ${diff} starting token${diff>1?'s':''} — shoot or block?`,
-            yes:'Shoot',no:'Block'});
-          if(ch)G.players[i].tok.shoot+=diff;else G.players[i].tok.block+=diff;
-        }
-        addLog(`${G.players[i].name}: Sub-25pt build — gained ${diff} ${ch?'Shoot':'Block'} token${diff>1?'s':''}.`,'imp');
-      }
-    }
-    addLog(`🤖 Vs AI Chuck: ${P.icon} ${P.name} (${P.tag}) sits across the table with ${p2.name}.`,'imp');
-    beginGame();
-  })();
+  addLog(`🤖 Vs AI Chuck: ${P.icon} ${P.name} (${P.tag}) sits across the table with ${p2.name}.`,'imp');
+  beginGame(); // 5_04: no bonus tokens — all teams exactly 20pts (Tim)
 }
 
 // ── Turn driver ──
@@ -5790,6 +5834,24 @@ function aiMaybeStartTurn(){
 }
 async function aiTurnMain(){
   const P=aiP();
+  // 5_07: watchdog — if the turn hangs, force the summary so the game never strands (Tim)
+  clearTimeout(window._aiWatchdog);
+  window._aiWatchdog=setTimeout(()=>{
+    if(typeof G!=='undefined'&&G.ap===_aiSlot&&_aiBusy&&_aiDefPhase!=='humanDef'){ // 5_10: skip during human defense
+      console.error('AI watchdog: turn hung, forcing summary');
+      _aiBusy=false;_aiDefPhase=null;_aiSelf=false;G.shotDeclared=false;
+      try{aiShowTurnSummary(()=>{_aiSelf=true;try{endTurn();}finally{_aiSelf=false;if(G.ap!==_aiSlot){_aiBusy=false;}}});}
+      catch(e){console.error('watchdog summary failed:',e);}
+      // 5_08: if still hung after 10s, force endTurn outright (Tim)
+      setTimeout(()=>{
+        if(typeof G!=='undefined'&&G.ap===_aiSlot&&_aiDefPhase!=='humanDef'){ // 5_10
+          console.error('AI watchdog: forcing endTurn');
+          try{_aiSelf=true;endTurn();}catch(e2){console.error('watchdog endTurn failed:',e2);}
+          finally{_aiSelf=false;_aiBusy=false;_aiDefPhase=null;renderAll();}
+        }
+      },10000);
+    }
+  },45000);
   {const _ap=AP();if(_ap&&!_ap.z.hot.length&&!_ap.z.cold.length&&!_ap.z.defend.length&&!_ap.z.shoot.length)G.assignmentStarted=false;} // 4_66: stale guard for AI turn (Tim)
   _aiTurnNotes=[]; // 2_47
   _aiStripIcons=[]; // 3_09: fresh timeline each AI turn
@@ -5818,6 +5880,7 @@ async function aiTurnMain(){
       if(!aiIsTurn()){_aiBusy=false;renderAll();return;}
       // 2_134: summary pops immediately at end of turn — no blank-screen wait
       // 2_51: no "ends the turn" note — summary keeps only the action lines
+  clearTimeout(window._aiWatchdog);
       aiShowTurnSummary(()=>{_aiSelf=true;try{endTurn();}finally{_aiSelf=false;if(G.ap!==_aiSlot){_aiBusy=false;_aiDefPhase=null;}}}); // 2_49: tap Take Turn to end the AI turn — board released
     }
     // shot=true: driver pauses — the human defends, then closeCombat resumes the AI end turn
@@ -6280,26 +6343,26 @@ function aiSpendForTrade(cost){
 // 2_121: cascades top-down to the highest AFFORDABLE tier (not just the single top tier)
 function aiBuyTier(k){
   const ap=AP();
-  const isTrade=k.startsWith('trade');
   const allTiers=aiTopTiers(0); // all, highest first
-  // trade2/draft2 start from the 2nd-highest tier
   const pool=(k==='trade2'||k==='draft2')?allTiers.slice(1):allTiers;
-  const t=isTrade?aiTradePick(pool):aiAffordableTier(pool,false); // 4_02: sellout brain on trades (Tim)
+  const t=aiAffordableTier(pool,false);
   if(!t)return false;
-  const cost=(COSTS[t.key]||99)+(isTrade?2:0);
-  if(isTrade){
-    if(!aiHasTrashFodder())return false;
-    aiSpendForTrade(cost);
-    const rook=ap.z.iced.filter(d=>d.key==='Rookie')[0];
-    if(!rook)return false;
-    ap.z.iced.splice(ap.z.iced.indexOf(rook),1);
-    addLog(`${ap.name}: Traded ${rook.key} → ${t.key} for ${cost}E.`,'imp');
-    aiPill(`🔄 traded up to ${t.key} for ${cost}E`);
-  }else{
-    aiSpendE(cost,false);
-    addLog(`${ap.name}: Drafted ${t.key} for ${cost}E.`,'imp');
-    aiPill(`📝 drafted ${t.key} for ${cost}E`);
+  const cost=(COSTS[t.key]||99);
+  // 5_10: fodder must be POSSIBLE before spending (matches human buyCard check)
+  if(!ap.z.iced.some(d=>d.key==='Rookie')&&!ap.z.rs.some(d=>d.key==='Rookie'))return false;
+  aiSpendE(cost,false);
+  // 5_10: secure fodder AFTER payment — spent dice are in iced now (matches human v5.05 flow)
+  let rook=ap.z.iced.filter(d=>d.key==='Rookie')[0];
+  if(!rook){
+    const ri=ap.z.rs.findIndex(d=>d.key==='Rookie');
+    if(ri===-1)return false; // shouldn't happen (checked above) — abort, don't complete buy
+    ap.z.iced.push(ap.z.rs.splice(ri,1)[0]);
+    addLog(`${ap.name}: Iced a rookie (buy fodder).`);
+    rook=ap.z.iced.filter(d=>d.key==='Rookie')[0];
   }
+  if(rook)ap.z.iced.splice(ap.z.iced.indexOf(rook),1);
+  addLog(`${ap.name}: Bought ${t.key} for ${cost}E (trashed rookie).`,'imp');
+  aiPill(`📝 bought ${t.key} for ${cost}E`);
   const card=ap.lineup[t.idx];card.left--;
   ap.z.iced.push(mkDie(t.key));
   awardBuyBonus(ap,card);
@@ -6307,37 +6370,9 @@ function aiBuyTier(k){
 }
 // 2_94: "next best" — TRADE if possible, else DRAFT
 // 2_121: cascades to highest affordable tier
-// 4_02: noDraft=true (P3) — trade only, draft is dead
+// 5_10: v5 has no trade/draft split — every buy trashes a rookie (Tim)
 function aiBuyNextBest(noDraft){
-  const ap=AP();
-  const allTiers=aiTopTiers(0);
-  const t=aiAffordableTier(allTiers,true);
-  if(t&&aiHasTrashFodder()){
-    const tradeCost=(COSTS[t.key]||99)+2;
-    aiSpendForTrade(tradeCost);
-    const rook=ap.z.iced.filter(d=>d.key==='Rookie')[0];
-    if(rook){
-      ap.z.iced.splice(ap.z.iced.indexOf(rook),1);
-      const card=ap.lineup[t.idx];card.left--;
-      ap.z.iced.push(mkDie(t.key));
-      addLog(`${ap.name}: Traded ${rook.key} → ${t.key} for ${tradeCost}E.`,'imp');
-      awardBuyBonus(ap,card);
-      aiPill(`🔄 traded up to ${t.key} for ${tradeCost}E`);
-      return true;
-    }
-  }
-  const td=noDraft?null:aiAffordableTier(allTiers,false);
-  if(td){
-    const draftCost=COSTS[td.key]||99;
-    aiSpendE(draftCost,false);
-    const card=ap.lineup[td.idx];card.left--;
-    ap.z.iced.push(mkDie(td.key));
-    addLog(`${ap.name}: Drafted ${td.key} for ${draftCost}E.`,'imp');
-    awardBuyBonus(ap,card);
-    aiPill(`📝 drafted ${td.key} for ${draftCost}E`);
-    return true;
-  }
-  return false;
+  return aiBuyTier('draft');
 }
 // 2_94: can this buy option actually be done right now?
 // 2_121: trade/draft check the cascade — any affordable tier in the pool counts
@@ -6385,8 +6420,11 @@ function aiDoBuy(P){
       2:{trade1:50,trade2:8,draft1:10,draft2:4,token:22,nextbest:6},
       3:{trade1:46,trade2:10,draft1:0,draft2:0,token:38,nextbest:6},
     };
-    const isLateP3=G.period===3&&G.clock<=7; // 4_76: 07:00-01:00 in P3 (Tim)
-    const W=isLateP3?{trade1:10,trade2:5,draft1:0,draft2:0,token:70,nextbest:15}:(WTABLE[G.period]||WTABLE[1]);
+    const isLateP3=G.period===3&&G.clock<=6; // 5_11: 06:00-01:00 in P3 (Tim)
+    const isMidP3=G.period===3&&G.clock>6; // 5_11: 10:00-07:00 in P3 — sellout priority (Tim)
+    const W=isLateP3?{trade1:5,trade2:5,draft1:0,draft2:0,token:100,nextbest:10}
+      :isMidP3?{trade1:60,trade2:15,draft1:0,draft2:0,token:20,nextbest:5}
+      :(WTABLE[G.period]||WTABLE[1]);
     for(let buyPass=0;buyPass<2;buyPass++){ // 4_75: two passes (Tim)
     const taken=new Set();
     while(true){
@@ -6405,20 +6443,27 @@ function aiDoBuy(P){
       for(const k of possible){r-=cur[k];if(r<=0){pick=k;break;}}
       if(pick==='token'){
         try{
-          aiSpendE(3,false);
+          ap.tokBought=ap.tokBought||{shoot:0,block:0};
           const tt=aiPickTokenType(); // 4_02: brains, not a coin flip (Tim)
+          if(ap.tokBought[tt]>=1){taken.add('token');break;} // 5_01: 1+1/turn cap (Tim)
+          aiSpendE(3,false);
           if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
           else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
+          ap.tokBought[tt]++;
         }catch(e){console.error('AI token buy failed:',e);break;}
         taken.add('token');
       }else if(pick==='nextbest'){
         if(G.period>=3){
           // 4_02 P3: token first (Tim), then trade, then bank — draft is dead
+          ap.tokBought=ap.tokBought||{shoot:0,block:0};
           if(aiTotalE()>=3){
-            aiSpendE(3,false);
             const tt=aiPickTokenType();
-            if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
-            else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
+            if(ap.tokBought[tt]<1){ // 5_01: 1+1/turn cap (Tim)
+              aiSpendE(3,false);
+              if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
+              else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
+              ap.tokBought[tt]++;
+            }
           }else{
             let ok=false;
             try{ok=aiBuyNextBest(true);}catch(e){console.error('AI nextbest buy failed:',e);}
@@ -6548,6 +6593,7 @@ function aiTradePick(pool){
 }
 async function aiDoShoot(P){
   const ap=AP();
+  G.shotDeclared=false; // 5_08: belt-and-suspenders — stale flag strands the turn (Tim)
   // 2_96: shooters = S/W dice in hot
   const shooters=ap.z.hot.filter(d=>d.face&&(d.face.t==='S'||d.face.t==='W'));
   if(!shooters.length)return false;
@@ -6590,6 +6636,7 @@ async function aiDoShoot(P){
     lockShot();
   }finally{_aiSelf=false;}
   _aiDefPhase='humanDef';
+  clearTimeout(window._aiWatchdog); // 5_10: driver pausing for defense — watchdog stands down
   const n=ap.z.shoot.length;
   const shotMsg=`🏒 shoots with ${n} ${n===1?'die':'dice'}${_sTok?` + ${_sTok} 🎯`:''}`; // 2_162: 🏒 was freed from faceoff (now 🪙); 🔵 already means offensive assign
   if(_aiSpeed===0){aiPill(shotMsg);aiPillNow('🛡️ defending…');} // 2_47: note stashed, signal shown
