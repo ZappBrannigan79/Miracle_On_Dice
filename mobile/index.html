@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.20</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.21</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -836,7 +836,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.20</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.21</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2456,15 +2456,20 @@ function openFodderPicker(cardIdx,cost){
     `Buying <strong>${ap.lineup[cardIdx].key}</strong> for <strong>${cost}E</strong>. `+
     `No rookie in Iced — pick one to ice as trash fodder for this buy.`;
   const grid=document.getElementById('trash-grid');grid.innerHTML='';
-  ap.z.rs.filter(d=>d.key==='Rookie').forEach(die=>{
+  // 5_21: fodder can come from RS or reserve (Tim)
+  [...ap.z.rs.filter(d=>d.key==='Rookie'),...ap.z.reserve.filter(d=>d.key==='Rookie')].forEach(die=>{
+    const inReserve=ap.z.reserve.some(d=>d.id===die.id);
     const btn=document.createElement('div');
     btn.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;';
-    btn.innerHTML=dieWrapHTML(die,false,false);
+    btn.innerHTML=dieWrapHTML(die,false,false)+(inReserve?'<div style="font-size:.65em;color:#8af">reserve</div>':'');
     const db=btn.querySelector('.die-body');
     if(db){db.style.cursor='pointer';
       btn.addEventListener('click',()=>{
-        const ap2=AP();const i=ap2.z.rs.findIndex(d=>d.id===die.id);
+        const ap2=AP();
+        let i=ap2.z.rs.findIndex(d=>d.id===die.id);
         if(i!==-1){ap2.z.iced.push(ap2.z.rs.splice(i,1)[0]);}
+        else{i=ap2.z.reserve.findIndex(d=>d.id===die.id);
+          if(i!==-1){ap2.z.iced.push(ap2.z.reserve.splice(i,1)[0]);}}
         document.getElementById('trash-panel').classList.remove('show');
         addLog(`${ap2.name}: Iced a rookie (buy fodder).`);
         openBuyTrashPicker(cardIdx,cost); // 5_06: payment done — straight to trash (Tim)
