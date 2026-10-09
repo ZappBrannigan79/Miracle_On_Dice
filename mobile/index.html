@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.23</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.40</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -836,7 +836,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.23</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.40</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1060,7 +1060,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <p><strong style="color:var(--gold)">🏒 Shooting:</strong> Commit S-dice + shoot tokens. Defender commits B-dice + block tokens + clock bonus (+1/+2/+3). Roll combat dice — most hits wins.</p>
       <p><strong style="color:var(--gold)">🛒 Buying:</strong> Pay cost + trash an iced rookie, die to Iced. Max 1 Shoot + 1 Block token per turn. Sell out a card for a bonus token. Goalies give +1 Block token per buy.</p>
       <p><strong style="color:var(--gold)">🥊 Fighting:</strong> Goon with FT can fight an opponent's die (3v2, ties lose). Win: target iced. Lose: penalty die to your bag. Goon ices either way.</p>
-      <p><strong style="color:var(--gold)">🎲 Dice:</strong> Rookie E1/E2/S1/B1/blank/blank. Forwards shoot, Defensemen block, Goalies block + shutout (SO1 free).</p>
+      <p><strong style="color:var(--gold)">🎲 Dice:</strong> Rookie E1/E2/S1/B1/blank/blank. Forwards shoot, Defensemen block, Goalies block + shutout (SO2, costed).</p>
       <p><strong style="color:var(--gold)">⏰ Clock:</strong> 10:00→01:00. Red zone 04:00–01:00 (block bonus ramps +1→+3). Tie after 3 periods → shootout.</p>
       <p style="text-align:center;margin-top:10px"><a href="MiracleOnDice_Rulebook.pdf" target="_blank" style="color:var(--gold)">📖 Full Rulebook (PDF)</a></p>
     </div>
@@ -2345,10 +2345,12 @@ function goonResolveFight(){
       html+=`<strong style="color:#7bdb7b">Goon wins ${gTot}-${tTot}!</strong> ${t.die.key} → Iced. Goon → Iced.`;
       addLog(`🥊 Goon wins ${gTot}-${tTot}! ${t.die.key} iced, goon iced.`,'imp');
     }else{
-      ap.bag.push(mkDie('Penalty'));
+      // 5_27: respect the 3-die pool (Tim)
+      const _gotPen=G.penaltyPool>0;
+      if(_gotPen){ap.bag.push(mkDie('Penalty'));G.penaltyPool--;}
       document.getElementById('goon-fight-win').textContent=`${whoEmoji(1-G.ap)} ${t.die.key} wins!`;
-      html+=`<strong style="color:#ff8888">Goon loses ${gTot}-${tTot}.</strong> Goon → Iced, penalty die added to your bag.`;
-      addLog(`🥊 Goon loses ${gTot}-${tTot}. Goon iced, penalty die to bag.`,'imp');
+      html+=`<strong style="color:#ff8888">Goon loses ${gTot}-${tTot}.</strong> Goon → Iced`+(_gotPen?', penalty die added to your bag.':', pool empty — no penalty added.')+`.`;
+      addLog(`🥊 Goon loses ${gTot}-${tTot}. Goon iced`+(_gotPen?', penalty die to bag.':', pool empty, no penalty.')+'.','imp');
     }
     _goonFightUsed=true;
     document.getElementById('goon-result-text').innerHTML=html;
@@ -4628,18 +4630,25 @@ function soStartShooterTurn(){
   const used = _so.usedFwds[si];
   sp.forwards.forEach(fwdKey=>{
     const isUsed = used.includes(fwdKey);
+    const _isSD=_so.suddenDeath; // 5_40: SD die is pre-drawn, renders selected (Tim)
+    const notMine=!iAmShooter&&!_isSD; // 5_28: fade Chuck's dice so you don't try to tap them (Tim)
     const wrap = document.createElement('div');
     wrap.style.cssText = `display:flex;flex-direction:column;align-items:center;gap:4px;
-      cursor:${isUsed?'not-allowed':'pointer'};opacity:${isUsed?'.35':'1'};`;
+      cursor:${isUsed||notMine?'default':'pointer'};opacity:${isUsed?'.35':notMine?'.45':'1'};`;
     const posClass = fwdKey.startsWith('D') ? 'pos-D' : 'pos-F';
     const faceBadge = fwdKey.startsWith('D') ? 'fb-B' : 'fb-S';
+    // 5_36: fade the die parts, not the wrapper — X overlays the die at full brightness (Tim)
+    const _fade=isUsed?'.35':_isSD?(iAmShooter?'1':'.7'):notMine?'.45':'1';
+    const _selSD=_isSD?' sel':'';
+    wrap.style.opacity='1';
     wrap.innerHTML = `<div class="die-wrap ${posClass}">
-      <div class="die-body" style="cursor:${isUsed?'not-allowed':'pointer'}">
+      <div class="die-body${_selSD}" style="cursor:${isUsed||notMine?'default':'pointer'};opacity:${_fade}">
         <div class="face-badge ${faceBadge}" style="font-size:.8em;padding:2px">${fwdKey}</div>
       </div>
-      <div class="die-tier-lbl">${fwdKey}</div>
+      ${isUsed?'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:3.4em;color:#ff6666;font-weight:bold;pointer-events:none;transform:translateY(-6%);text-shadow:0 0 16px #ff5555,0 0 32px #ff2222,0 0 48px #ff2222,0 0 64px #ff1111,0 0 4px #000">✕</div>':''}
+      <div class="die-tier-lbl" style="opacity:${_fade}">${fwdKey}</div>
     </div>
-    <div style="font-size:.62em;color:${isUsed?'#666':'#aaa'};text-align:center">
+    <div style="font-size:.62em;color:${isUsed?'#666':'#aaa'};text-align:center;opacity:${_fade}">
       ${isUsed?'Used':'Available'}
     </div>`;
     if(!isUsed && iAmShooter && !_so.suddenDeath){ // 2_43: sudden-death die is display-only
@@ -6521,6 +6530,7 @@ function aiTokenNeed(){
   };
 }
 function aiPickTokenType(){
+  if(G.clock===1)return 'shoot'; // 5_26: 01:00 — shoot first, block only as fallback (Tim)
   const ap=AP(),{shootNeed,blockNeed}=aiTokenNeed();
   if(shootNeed>blockNeed)return 'shoot';
   if(blockNeed>shootNeed)return 'block';
@@ -6635,7 +6645,7 @@ async function aiDefendTurn(){
     const clkBonus=G.clock===1?3:G.clock>4?1:2;
     const blockers=[];
     let blkPips=clkBonus; // automatic block pips
-    const desperate=G.clock===1; // 5_23: every 01:00, all periods — dice all-in (Tim)
+    const desperate=G.clock===1||G.clock===2; // 5_25: every 02:00/01:00, all periods — dice all-in, last defense before sweep (Tim)
     if(desperate){
       // 5_23: 01:00 — commit ALL defend dice (tokens follow normal rules below)
       const all=[...me.z.defend]
@@ -6760,13 +6770,26 @@ async function aiShootoutTurn(){
       // 2_63: highlight the AI's pick with the yellow selection ring (regulation only)
       document.querySelectorAll('#so-forward-choices .die-body').forEach(b=>{
         const lbl=b.querySelector('.face-badge');
-        if(lbl&&lbl.textContent.trim()===_so.selectedFwd)b.classList.add('sel');
+        if(lbl&&lbl.textContent.trim()===_so.selectedFwd){
+          b.classList.add('sel');
+          const w=b.closest('div[style*="opacity"]'); // 5_29: lift the fade for Chuck's pick (Tim)
+          if(w)w.style.opacity='.7';
+        }
       });
       await new Promise(r=>setTimeout(r,1125)); // brief beat to register the highlight, then roll
     }else{
       // 4_43 (Tim): sudden death gets the same beat as regulation — the drawn
       // die is already haloed; this is the contemplation pause. (Was: no pause.)
       _so.selectedFwd=_so.players[si].forwards[0];
+      // 5_30: Chuck's SD pick gets the halo + 70% lift too (Tim)
+      document.querySelectorAll('#so-forward-choices .die-body').forEach(b=>{
+        const lbl=b.querySelector('.face-badge');
+        if(lbl&&lbl.textContent.trim()===_so.selectedFwd){
+          b.classList.add('sel');
+          const w=b.closest('div[style*="opacity"]');
+          if(w)w.style.opacity='.7';
+        }
+      });
       await new Promise(r=>setTimeout(r,1125));
     }
     soRollShot();
