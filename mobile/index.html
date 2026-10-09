@@ -673,7 +673,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.40</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.41</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -836,7 +836,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.40</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.41</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4432,6 +4432,10 @@ function launchShootoutPractice(){
 
 // ── START / RESTART ──
 function startShootout(practice){
+  // 5_41: reset UI so coin flip doesn't show stale final buttons (Tim)
+  document.getElementById('so-final-area').style.display='none';
+  document.getElementById('so-shooter-area').style.display='none';
+  document.getElementById('so-result-area').style.display='none';
   _so.practice = practice;
   if(!practice){_so.vsAI=false;} // 2_51: real-game shootouts are never vs-AI practice
   _so.playerTurnGo=false;
@@ -4614,7 +4618,10 @@ function soStartShooterTurn(){
   _so.playerTurnGo=false;
   // 2_51: no Roll Shot button on the AI's turn — it rolls automatically
   const _rr=document.getElementById('so-roll-row');
-  if(_rr)_rr.style.display=(_so.vsAI&&si===_aiSlot)?'none':'flex';
+  // 5_41: hide Roll on Chuck's turn — covers real-game overtime too (Tim)
+  // (_so.vsAI is false in real games, so check the shooter directly)
+  const _isChuckTurn=(_so.vsAI&&si===_aiSlot)||(!_so.vsAI&&!_so.practice&&_aiActive&&si===_aiSlot);
+  if(_rr)_rr.style.display=_isChuckTurn?'none':'flex';
   // Online: only the shooting player picks — the other side watches.
   const iAmShooter = soIAmShooter();
   document.getElementById('so-shooter-label').textContent = iAmShooter
