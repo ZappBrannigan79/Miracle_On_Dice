@@ -675,7 +675,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.49</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.51</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -838,7 +838,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.49</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.51</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1827,7 +1827,8 @@ function confirmRRSel(){if(aiGuard())return;
   if(wasFreeReroll){
     // 5_44: faceoff winner's bonus reroll on 10:00 (Tim) — second free reroll
     // 5_49: must re-enter reroll mode or dice aren't selectable (Tim's bug report)
-    if(G.clock===10&&G.ap===G.foWinner&&!G.bonusRRUsed){G.bonusRRUsed=true;G.rrUsed=false;enterFreeRR();return;
+    // 5_51: play animation before entering bonus reroll mode (Tim)
+    if(G.clock===10&&G.ap===G.foWinner&&!G.bonusRRUsed){G.bonusRRUsed=true;G.rrUsed=false;animGameDice(sel);enterFreeRR();return;
     }else{G.rrUsed=true;G.phase=4;}
   }else{G.hcRrUsed=true;} // 4_21: blank auto-ice trigger
   renderAll();
@@ -4966,7 +4967,11 @@ function soShowFinal(){
   const _wd=document.getElementById('so-winner-dice');
   if(_wd){
     _wd.innerHTML='';
-    const _wres=_so.results.filter(r=>r.playerIdx===_wi);
+    // 5_50: regulation 3 + final SD winner only — not every SD round (Tim)
+    const _allW=_so.results.filter(r=>r.playerIdx===_wi);
+    const _reg=_allW.filter(r=>r.round<=3);
+    const _sd=_allW.filter(r=>r.round>3);
+    const _wres=_reg.concat(_sd.slice(-1));
     _wres.forEach(r=>{
       const _d=document.createElement('div');
       _d.style.cssText='position:relative;width:64px;height:64px;';
