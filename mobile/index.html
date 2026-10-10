@@ -123,10 +123,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 @keyframes clockpulse{0%,100%{box-shadow:0 0 3px rgba(255,60,60,.35);}50%{box-shadow:0 0 16px rgba(255,60,60,.9);}}
 .timer-box.finalturn{border-color:#ff2222;border-width:3px;animation:clockpulse-loud 1s ease-in-out infinite;} /* 4_59: louder for 02:00/01:00 (Tim) */
 @keyframes clockpulse-loud{0%,100%{box-shadow:0 0 5px rgba(255,40,40,.5);}50%{box-shadow:0 0 24px rgba(255,40,40,1);}}
-.action-row{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
-.abtn{padding:6px 13px;font-size:.8em;font-weight:700;border-radius:7px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;}
+.action-row{display:flex;gap:5px;flex-wrap:wrap;align-items:stretch;} /* 5_66: uniform button height (Tim) */
+.abtn{padding:13px;font-size:.95em;font-weight:700;border-radius:7px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;} /* 5_57: standardized to rr-confirm size (Tim) */
 .abtn.prim{background:var(--gold);color:#111;}.abtn.prim:hover{background:#e8c86b;}
 .abtn.sec{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.3);}.abtn.sec:hover{background:rgba(255,255,255,.2);}
+.abtn.blue{background:rgba(77,148,255,.35);color:white;border:1px solid rgba(77,148,255,.6);} /* 5_70: blue button (Tim) */
+.abtn.blue:hover{background:rgba(77,148,255,.5);}
+.abtn.pulsing-blue{animation:bluePulse 1.4s ease-in-out infinite;} /* 5_70: matches prim pulse (Tim) */
+@keyframes bluePulse{0%,100%{box-shadow:0 0 0 0 rgba(77,148,255,.5);}50%{box-shadow:0 0 14px 3px rgba(77,148,255,.7);}}
 .abtn.succ{background:#2a7a2a;color:white;}.abtn.succ:hover{background:#3a9a3a;}
 .abtn.warn{background:#aa5500;color:white;}.abtn.warn:hover{background:#cc6600;}
 .abtn:disabled{opacity:.45;cursor:not-allowed;}
@@ -165,8 +169,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .so-aiturn{display:inline-block;font-size:1.12em;font-weight:900;letter-spacing:3px;color:#8fa3bf;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:7px 24px;} /* 4_16: Chuck's turn — same pill, no flash (Tim) */
 @keyframes soTurnPulse{0%,100%{box-shadow:0 0 0 0 rgba(248,189,85,.45);transform:scale(1);}50%{box-shadow:0 0 20px 5px rgba(248,189,85,.55);transform:scale(1.045);}}
 .abtn.pulsing-orange{animation:nudgePulse 1.4s ease-in-out infinite;}
-.abtn.pulsing-green{animation:greenPulse 1.4s ease-in-out infinite;}
-@keyframes greenPulse{0%,100%{box-shadow:0 0 0 0 rgba(80,200,120,.7);}50%{box-shadow:0 0 18px 4px rgba(80,200,120,.9);}}
+
 
 .z-shoot{background:rgba(26,58,139,.25);border:1px solid rgba(26,58,139,.5);color:#aac4ff;}
 .z-bench{background:rgba(42,74,42,.3);border:1px solid rgba(42,74,42,.6);color:#aaffaa;}
@@ -286,7 +289,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 #rr-nudge .rr-choose{font-size:.8em;font-weight:800;letter-spacing:1px;color:#ffd75e;margin-bottom:8px;} /* 4_22: static label — the button pulses */
 #rr-nudge .rr-choose.bonus-rr{animation:bonusRRPulse 1.6s ease-in-out infinite;} /* 5_48: subtle gold pulse (Tim) */
 @keyframes bonusRRPulse{0%,100%{opacity:1;}50%{opacity:.5;}}
-#rr-nudge .rr-confirm{width:100%;padding:13px;font-size:.95em;} /* 4_22: in-zone confirm — thumb's already here */
+#rr-nudge .rr-confirm{width:100%;padding:13px;font-size:.95em;}
+#rr-nudge .bonus-word{animation:bonusWordPulse 1.4s ease-in-out infinite;} /* 5_60: only Bonus flashes (Tim) */
+@keyframes bonusWordPulse{0%,100%{color:#111;}50%{color:rgba(255,255,255,.5);text-shadow:0 0 4px rgba(255,255,255,.45);}} /* 4_22: in-zone confirm — thumb's already here */
+/* 5_58: action row buttons match rr-confirm size (Tim) */
+#arow .abtn{padding:13px!important;font-size:.95em!important;font-weight:700!important;}
 @keyframes rrNudgeSoft{0%,100%{opacity:.6;}50%{opacity:1;}}
 .rr-confirm-btn{padding:3px 9px;font-size:.85em;background:#dd7722;color:#111;border:none;border-radius:5px;cursor:pointer;font-weight:700;}
 
@@ -677,7 +684,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.54</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.72</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -833,7 +840,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.54</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.72</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1282,7 +1289,7 @@ const CF_F=[2,2,1,1,0,0]; // 4_54: fight combat die (Tim) — steady, no spikes
 const FWD=['F1','F2','F3','F4','F5','F6','F7','F8'];
 const DEF=['D1','D2','D3','D4','D5','D6','D7','D8'];
 const GOA=['G3','G4','G5','G6'];
-const PHASES=['Advance','Draw','Roll & Assign','Shoot','End Turn'];
+const PHASES=['Advance','Draw','Roll & Assign','Shoot','End Turn']; // 5_72: no emoji in step bar (Tim)
 const PHASEMAP=[0,1,2,2,2,3,4]; // 2_37: internal phase -> condensed 5-step display
 function posOf(k){return k==='Goon'?'GN':k.startsWith('F')?'F':k.startsWith('D')?'D':k.startsWith('G')?'G':k==='HC'?'HC':k==='Penalty'?'P':'R';} // 4_44: Goon
 function tierOf(k){const m=k.match(/\d+/);return m?+m[0]:0;}
@@ -1823,7 +1830,8 @@ function confirmRRSel(){if(aiGuard())return;
     // 5_44: faceoff winner's bonus reroll on 10:00 (Tim) — second free reroll
     // 5_49: must re-enter reroll mode or dice aren't selectable (Tim's bug report)
     // 5_52: enter reroll mode (renders) THEN animate — reverse order killed it (Tim)
-    if(G.clock===10&&G.ap===G.foWinner&&!G.bonusRRUsed){G.bonusRRUsed=true;G.rrUsed=false;enterFreeRR();animGameDice(sel);return;
+    // 5_63: AI doesn't enter human reroll mode (Tim)
+    if(G.clock===10&&G.ap===G.foWinner&&!G.bonusRRUsed){G.bonusRRUsed=true;G.rrUsed=false;if(!_aiSelf){enterFreeRR();animGameDice(sel);return;}else{animGameDice(sel);}
     }else{G.rrUsed=true;G.phase=4;}
   }else{G.hcRrUsed=true;} // 4_21: blank auto-ice trigger
   renderAll();
@@ -2797,12 +2805,12 @@ function openCombat(){
     // which locks their tokens and is what prompts the defender to block.
     if(_onlineActive&&isMyTurn()){
       if(G.shotLocked){rb.disabled=true;rb.textContent='Waiting for defender to resolve…';}
-      else{rb.textContent='Confirm Shot →';rb.onclick=lockShot;}
+      else{rb.textContent='🎯 Confirm Shot';rb.onclick=lockShot;}
     }
     // 2_121: local Vs AI — human shooter with tokens gets a Confirm Shot step
     // before Coach defends (shot not locked yet).
     if(!_onlineActive&&_aiActive&&G.ap!==_aiSlot&&!G.shotLocked){
-      rb.textContent='Confirm Shot →';rb.onclick=lockShot;
+      rb.textContent='🎯 Confirm Shot';rb.onclick=lockShot;
     }
   }
   // Token steppers lock once the shot is confirmed (online shooter only —
@@ -3789,10 +3797,12 @@ function updateRRNudge(){
     const _isBonus=G.clock===10&&G.ap===G.foWinner&&G.bonusRRUsed&&!G.rrUsed; // 5_53: fix scope (Tim)
     el.innerHTML='<div class="rr-choose">👆 Choose dice to reroll</div>';
     const b=document.createElement('button');
-    // 5_54: bonus rerolls pulse green (Tim)
-    b.className=_isBonus?'abtn prim pulsing-green rr-confirm':'abtn prim pulsing-orange rr-confirm';
+    // 5_57: bonus reroll back to original gold pulse (Tim)
+    b.className='abtn prim pulsing-orange rr-confirm';
     // 5_52: button IS the bonus notification (Tim)
-    b.textContent=_isBonus?'🎲 Select Dice for Bonus Reroll 🎲':'Reroll Selected Dice 🎲';
+    // 5_60: only "Bonus" flashes green (Tim)
+    if(_isBonus){b.innerHTML='🎲 Select Dice for <span class="bonus-word">Bonus</span> Reroll';}
+    else{b.textContent='🎲 Reroll Selected Dice';}
     b.addEventListener('click',confirmRRSel);
     el.appendChild(b);
     el.classList.add('show');
@@ -4016,38 +4026,38 @@ function renderActions(){
   // ── RR face-spend mode (phase 4) — show reroll confirm buttons ──
   if(_rrMode&&_rrDieId!==null){
     // 4_22: confirm lives in the RS zone now — bottom keeps just Cancel
-    mk('Cancel Reroll',cancelRRSel,'sec');
+    mk('❌ Cancel Reroll',cancelRRSel,'sec');
     return;
   }
 
   if(G.phase<=2){
-    mk('Roll Dice 🎲',rollAll,'prim',false,true); // 4_34: gentle pulse — it's the primary action (Tim)
+    mk('🎲 Roll Dice',rollAll,'prim',false,true); // 4_34: gentle pulse — it's the primary action (Tim)
   } else if(G.phase===3){
     if(!G.assignmentStarted){
       // 4_22: confirm lives in the RS zone now — bottom keeps just Reroll None
-      mk('Reroll None →',skipRR,'sec');
+      mk('🚫 Reroll None',skipRR,'sec');
     } else {
       // Assignment already started — reroll no longer available
       mk('Reroll not available (dice already assigned)',()=>toast('Cannot reroll after assigning dice.'),'sec',true);
-      mk('Skip to Assign →',skipRR,'prim');
+      mk('➡️ Skip to Assign',skipRR,'prim');
     }
   } else if(G.phase===4){
     // Combined assign + buy phase — no "Done Assigning" needed
     // 4_28 (Tim): turn winding down (shot taken, or no shot available w/ RS clear) —
     // End Turn becomes the pulsing gold primary; shop stays tappable but goes quiet.
     const windingDown=(G.combatDone&&G.shotDeclared)||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length); // 4_48
-    const shopBtn=mk('Open Shop 🛒',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown);
+    const shopBtn=mk('🛒 Open Shop',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown);
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
       if(ap.z.hot.length){
         // 3_34: shot taken — dead button, greyed like the hot dice (no second shot)
-        if(G.shotDeclared)mk('⚡ Commit All Hot',()=>{},'sec',true);
-        else mk('⚡ Commit All Hot',()=>{[...ap.z.hot].forEach(d=>moveToShoot(d.id));renderAll();},'sec');
+        if(G.shotDeclared)mk('🔥 Commit All Hot',()=>{},'sec',true);
+        else mk('🔥 Commit All Hot',()=>{[...ap.z.hot].forEach(d=>moveToShoot(d.id));renderAll();},'blue pulsing-blue');
       }
-      if(ap.z.shoot.length)mk('🚨 Declare Shot!',declareShot,'prim');
+      if(ap.z.shoot.length)mk('🚨 Declare Shot!',declareShot,'blue pulsing-blue'); // 5_71: blue like Commit All Hot (Tim)
       else if(!ap.z.hot.length)mk('Move dice to Shoot Zone first',()=>{},'sec',true);
     }
-    mk(G.shotDeclared?'End Turn':'End Turn / Skip Shot',confirmEndTurn,windingDown?'prim':'sec',false,windingDown);
+    mk(G.shotDeclared?'⏭️ End Turn':'⏭️ End Turn',confirmEndTurn,windingDown?'prim':'sec',false,windingDown);
   }
   renderCombatPill(); // 3_27: slim popup pill (AI defend beats only)
 }
@@ -4136,7 +4146,7 @@ function renderEPicker() {
   const remaining = _epick.needed - _epick.paid;
   const confirmBtn = document.getElementById('epicker-confirm');
   confirmBtn.disabled = remaining !== 0;
-  confirmBtn.textContent = remaining > 0 ? `Still need ${remaining}⚡` : 'Confirm Payment ✓';
+  confirmBtn.textContent = remaining > 0 ? `Still need ${remaining}⚡` : '💰 Confirm Payment';
 
   const cont = document.getElementById('epicker-sources');
   cont.innerHTML = '';
@@ -5902,7 +5912,7 @@ function renderAIPanelTeam(){
 function startAIGame(){
   if(_qsSel[0]===null){toast('Select your team first.');return;}
   // 2_88: Coach is auto-selected (only AI) — no persona choice needed
-  if(_aiSpeedSel===null){toast('Choose the AI\'s speed first.');return;} // 2_51: no preselected speed
+  // 5_64: speed buttons removed — always normal (Tim)
   const p1=PRESETS[_qsSel[0]],p2=PRESETS[_aiTeamIdx||0];
   _aiActive=true;_aiSlot=1;_aiPersona=_aiPersonaSel;_aiBusy=false;_aiDefPhase=null;_aiSpeed=_aiSpeedSel; // 2_46
   initG(p1.lineup,p2.lineup,[],[]);
