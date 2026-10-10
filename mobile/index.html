@@ -689,7 +689,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.89</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.91</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -845,7 +845,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.89</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.91</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1134,7 +1134,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         </thead>
         <tbody>
           <tr id="so-row-0">
-            <td id="so-name-0" style="padding:6px 10px;background:#1a3a5c;color:white;font-weight:900"></td>
+            <td id="so-name-0" style="padding:6px 10px;background:#1a3a5c;color:white;font-weight:900;text-align:left"></td> <!-- 5_90: left-aligned (Tim) -->
             <td id="so-cell-0-0" style="padding:6px 4px;background:#1a3a5c;text-align:center"></td>
             <td id="so-cell-0-1" style="padding:6px 4px;background:#1a3a5c;text-align:center"></td>
             <td id="so-cell-0-2" style="padding:6px 4px;background:#1a3a5c;text-align:center"></td>
@@ -1142,7 +1142,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
             <td id="so-total-0" style="padding:6px 4px;background:#1a3a5c;color:#c8a84b;font-weight:900;text-align:center"></td>
           </tr>
           <tr id="so-row-1">
-            <td id="so-name-1" style="padding:6px 10px;background:#5a1010;color:white;font-weight:900"></td>
+            <td id="so-name-1" style="padding:6px 10px;background:#5a1010;color:white;font-weight:900;text-align:left"></td>
             <td id="so-cell-1-0" style="padding:6px 4px;background:#5a1010;text-align:center"></td>
             <td id="so-cell-1-1" style="padding:6px 4px;background:#5a1010;text-align:center"></td>
             <td id="so-cell-1-2" style="padding:6px 4px;background:#5a1010;text-align:center"></td>
@@ -1852,7 +1852,7 @@ function autoAssignSB(){if(aiGuard())return;
   freeDice.forEach(d=>{
     const i=ap.z.rs.indexOf(d);if(i===-1)return;
     ap.z.rs.splice(i,1);
-    if(d.face.t==='S'){if(G.clock>4)ap.z.cold.push(d);else ap.z.hot.push(d);}
+    if(d.face.t==='S'){if(G.clock>2)ap.z.cold.push(d);else ap.z.hot.push(d);}
     else ap.z.defend.push(d);
     moved++;
   });
@@ -1881,13 +1881,13 @@ function autoAdvanceCostQueue(queue,idx){
   if(!ap.z.rs.some(d=>d.id===dieId)){autoAdvanceCostQueue(queue,idx+1);return;}
   if(!hasEnergy1()){toast('No more energy to pay costs — remaining costed faces skipped.');renderAll();return;}
   const dd=queue[idx];
-  const label=dd.face.t==='S'?`advance ${dd.key} Shoot to ${G.clock>4?'Cold':'Hot'} Zone`:`advance ${dd.key} Block to Defensive Zone`;
+  const label=dd.face.t==='S'?`advance ${dd.key} Shoot to ${G.clock>2?'Cold':'Hot'} Zone`:`advance ${dd.key} Block to Defensive Zone`;
   openEPicker(1,label,()=>{
     const ap2=AP();
     const d=ap2.z.rs.find(x=>x.id===dieId);
     if(d){
       ap2.z.rs.splice(ap2.z.rs.indexOf(d),1);
-      if(d.face.t==='S'){if(G.clock>4)ap2.z.cold.push(d);else ap2.z.hot.push(d);}
+      if(d.face.t==='S'){if(G.clock>2)ap2.z.cold.push(d);else ap2.z.hot.push(d);}
       else ap2.z.defend.push(d);
       addLog(`${ap2.name}: Costed ${d.key} advanced (1⚡ paid).`);
     }
@@ -1945,7 +1945,7 @@ function getOpts(die){
       if(ap.z.reserve.length<2)o.push({l:`Save ${f.v}E in Reserve`,a:'reserve'});
     }
   }else if(f.t==='S'){
-    const z=G.clock>4?'Cold':'Hot';
+    const z=G.clock>2?'Cold':'Hot';
     if(!f.c){
       o.push({l:`Shoot → ${z} Zone (${f.v} pip)`,a:'shoot'});
     }else{
@@ -1960,7 +1960,7 @@ function getOpts(die){
       else o.push({l:`Block (${f.v} pip) — BLOCKED: need 1⚡ to advance`,a:'no-energy'});
     }
   }else if(f.t==='W'){
-    const z=G.clock>4?'Cold':'Hot';
+    const z=G.clock>2?'Cold':'Hot';
     o.push({l:`Wild as Shoot → ${z} Zone (${f.v} pip)`,a:'shoot'});
     o.push({l:`Wild as Block → Defensive Zone (${f.v} pip)`,a:'block'});
   }else if(f.t==='RR'){
@@ -1997,8 +1997,8 @@ function assignDie(die,action){
   G.assignmentStarted=true;
   if(action==='shoot'){
     ap.z.rs.splice(idx,1);
-    if(G.clock>4)ap.z.cold.push(die);else ap.z.hot.push(die);
-    addLog(`${ap.name}: ${dLbl(die)}→${G.clock>4?'Cold':'Hot'} Zone (clock ${G.clock<10?'0'+G.clock:G.clock}:00).`);
+    if(G.clock>2)ap.z.cold.push(die);else ap.z.hot.push(die);
+    addLog(`${ap.name}: ${dLbl(die)}→${G.clock>2?'Cold':'Hot'} Zone (clock ${G.clock<10?'0'+G.clock:G.clock}:00).`);
   }else if(action==='shoot-cost'){
     // Open energy picker — cost is 1E
     closeMenus();
@@ -2010,8 +2010,8 @@ function assignDie(die,action){
       const d2=ap2.z.rs.find(x=>x.id===dieId);
       if(!d2){toast('That die is no longer available.');renderAll();return;}
       ap2.z.rs.splice(ap2.z.rs.indexOf(d2),1);
-      if(G.clock>4)ap2.z.cold.push(d2);else ap2.z.hot.push(d2);
-      addLog(`${ap2.name}: ${dLbl(d2)}→${G.clock>4?'Cold':'Hot'} Zone (1⚡ paid).`);
+      if(G.clock>2)ap2.z.cold.push(d2);else ap2.z.hot.push(d2);
+      addLog(`${ap2.name}: ${dLbl(d2)}→${G.clock>2?'Cold':'Hot'} Zone (1⚡ paid).`);
       renderAll();
     });
     return;
@@ -2696,7 +2696,7 @@ function renderAtkDice(){
 function renderCombatClock(){
   const el=document.getElementById('combat-clock');if(!el||typeof G==='undefined')return;
   el.textContent=(G.clock<10?'0':'')+G.clock+':00';
-  el.classList.toggle('hot',G.clock<=4);
+  el.classList.toggle('hot',G.clock<=2); // 5_91 (Tim)
 }
 function openCombat(){
   renderCombatClock(); // 2_151: mini clock next to the title (white 10:00–05:00, red 04:00–01:00)
@@ -2936,7 +2936,7 @@ function resolveCombat(){
   if(_onlineActive&&!G.shotLocked){toast('Waiting for the shooter to confirm their shot…');return;}
   const ap=AP(),opp=OPP();
   const bDice=opp.z.defend.filter(d=>G.blockSelIds.includes(d.id));
-  const bonus=G.clock===1?3:G.clock>4?1:2;
+  const bonus=G.clock===1?3:G.clock===2?2:1; // 5_91 (Tim)
   // COMBAT DICE COUNT: each die grants combat dice equal to its pip value
   // Tokens = automatic +1 each (not extra dice)
   const numShootDice=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
@@ -3610,7 +3610,7 @@ function getHumanOpts(die){
     return[{l:'Open Shop',a:'open-shop'},{l:full?'Reserve (full)':'Reserve',a:'reserve',dis:full},{l:'Ice',a:'iced'}];
   }
   if(f.t==='W'){
-    const z=G.clock>4?'Cold':'Hot';
+    const z=G.clock>2?'Cold':'Hot';
     return[{l:`As Shoot → ${z}`,a:'shoot'},{l:'As Block → Def',a:'block'}];
   }
   if(f.t==='FT'){ // 4_44: goon fight (Tim)
@@ -3855,13 +3855,13 @@ function renderBoard(){
   const tv=document.getElementById('tmr');
   const clkStr=(G.clock<10?'0':'')+G.clock+':00';
   tv.textContent=clkStr;
-  tv.className='timer-val'+(G.clock<=4?' hot':''); // 4_60: red 04:00-01:00 (Tim)
+  tv.className='timer-val'+(G.clock<=2?' hot':''); // 5_91 (Tim) // 4_60: red 04:00-01:00 (Tim)
   // 2_38: block bonus readout + clock border by window (white 10:00-05:00, pulsing red 04:00-01:00)
   const bb=document.getElementById('blkbonus');
-  const bonus=G.clock>=5?1:(G.clock>=2?2:(G.clock===1?3:0));
+  const bonus=G.clock===1?3:(G.clock===2?2:1); // 5_91 (Tim)
   if(bb)bb.textContent=bonus>0?('+'+bonus+' BLOCK BONUS'):'';
   const tbx=document.getElementById('timerbox');
-  if(tbx){tbx.classList.toggle('hotzone',G.clock<=4&&G.clock>=3);tbx.classList.toggle('finalturn',G.clock<=2&&G.clock>=1);} // 4_59
+  if(tbx){tbx.classList.toggle('hotzone',G.clock===2);tbx.classList.toggle('finalturn',G.clock===1); // 5_91 (Tim)} // 4_59
   // Show which player's turn it is on the clock (even/odd per faceoff winner's pick)
   // 4_58 (Tim): last-turn warning lives on the clock now — big banner retired
   const ftBanner=document.getElementById('final-turn-banner');
@@ -6114,8 +6114,8 @@ function aiAdvance(d,which){
   const ap=AP();const i=ap.z.rs.indexOf(d);if(i===-1)return;
   ap.z.rs.splice(i,1);G.assignmentStarted=true;
   if(which==='S'){
-    if(G.clock>4)ap.z.cold.push(d);else ap.z.hot.push(d);
-    addLog(`${ap.name}: ${dLbl(d)}→${G.clock>4?'Cold':'Hot'} Zone (1⚡ paid).`);
+    if(G.clock>2)ap.z.cold.push(d);else ap.z.hot.push(d);
+    addLog(`${ap.name}: ${dLbl(d)}→${G.clock>2?'Cold':'Hot'} Zone (1⚡ paid).`);
   }else{ap.z.defend.push(d);addLog(`${ap.name}: ${dLbl(d)}→Defensive Zone (1⚡ paid).`);}
 }
 function aiResolveAdv(){
@@ -6240,7 +6240,7 @@ function aiDoHcReroll(P){
 function aiDoAssign(P){
   const ap=AP();
   let nS=0,nB=0;
-  const zone=G.clock>4?'Cold':'Hot';
+  const zone=G.clock>2?'Cold':'Hot';
   _aiSelf=true;
   try{
     // PEN faces — always use while the pool has dice
@@ -6655,7 +6655,7 @@ function aiDoBuy(P){
 //   minus his own wall (clock autos + defend pips + block tokens)
 function aiTokenNeed(){
   const ap=AP(),opp=OPP();
-  const clkBonus=G.clock===1?3:G.clock>4?1:2;
+  const clkBonus=G.clock===1?3:G.clock>2?1:2;
   const pips=(arr,t)=>arr.reduce((s,d)=>s+(d.face&&t.includes(d.face.t)?d.face.v:0),0);
   const myOff=pips([...ap.z.hot,...ap.z.cold],['S','W']);
   const myDef=pips(ap.z.defend,['B','W']);
@@ -6712,7 +6712,7 @@ async function aiDoShoot(P){
   // D = clock autos + defend-zone pips + available block tokens. Desperation
   // (losing by 2+): targets shift +1.
   const opp=OPP();
-  const clkBonus=G.clock===1?3:G.clock>4?1:2;
+  const clkBonus=G.clock===1?3:G.clock>2?1:2;
   const defPips=opp.z.defend.filter(d=>d.face&&(d.face.t==='B'||d.face.t==='W')).reduce((s,d)=>s+d.face.v,0);
   const D=clkBonus+defPips+opp.tok.block;
   const desperation=(opp.goals-ap.goals)>1;
@@ -6784,7 +6784,7 @@ async function aiDefendTurn(){
     // reset anyway): ALL defend dice in, tokens deterministic — none spent if
     // already +2 up, otherwise spent straight to +2, no d100.
     const atkPips=atk.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:0),0)+(_sTok||0);
-    const clkBonus=G.clock===1?3:G.clock>4?1:2;
+    const clkBonus=G.clock===1?3:G.clock>2?1:2;
     const blockers=[];
     let blkPips=clkBonus; // automatic block pips
     const desperate=G.clock===1||G.clock===2; // 5_25: every 02:00/01:00, all periods — dice all-in, last defense before sweep (Tim)
