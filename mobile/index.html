@@ -291,7 +291,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 @keyframes bonusRRPulse{0%,100%{opacity:1;}50%{opacity:.5;}}
 #rr-nudge .rr-confirm{width:100%;padding:13px;font-size:.95em;}
 #rr-nudge .bonus-word{animation:bonusWordPulse 1.4s ease-in-out infinite;} /* 5_60: only Bonus flashes (Tim) */
-@keyframes bonusWordPulse{0%,100%{color:#111;}50%{color:rgba(255,255,255,.5);text-shadow:0 0 4px rgba(255,255,255,.45);}} /* 4_22: in-zone confirm — thumb's already here */
+@keyframes bonusWordPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.04);}} /* 5_78: subtle, smooth (Tim) */
+#rr-nudge .bonus-word{display:inline-block;}
+.bonus-pill{display:none;position:absolute;top:6px;left:50%;transform:translateX(-50%);background:rgba(200,30,30,.94);color:#fff;font-size:.88em;font-weight:800;letter-spacing:1px;padding:6px 20px;border-radius:999px;z-index:10;animation:bonusPillPulse 1.4s ease-in-out infinite;white-space:nowrap;} /* 5_80: over label, larger (Tim) */
+.bonus-pill.show{display:inline-block;}
+@keyframes bonusPillPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,50,50,.6);}50%{box-shadow:0 0 12px 3px rgba(220,50,50,.8);}} /* 4_22: in-zone confirm — thumb's already here */
 /* 5_58: action row buttons match rr-confirm size (Tim) */
 #arow .abtn{padding:13px!important;font-size:.95em!important;font-weight:700!important;}
 @keyframes rrNudgeSoft{0%,100%{opacity:.6;}50%{opacity:1;}}
@@ -463,8 +467,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .log-panel{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.08);padding:5px 12px;flex-shrink:0;max-height:42vh;overflow-y:auto;} /* 4_30: room to scroll ~30 lines (Tim) */
 .log-e{font-size:.7em;color:#888;line-height:1.6;}
 .log-e.imp{color:var(--gold);}.log-e.goal{color:#88aaff;font-weight:700;}.log-e.blk{color:#ff8888;}
-/* 5_73: toasts uniform — top of screen, soft fade (Tim) */
-.toast{position:fixed;top:12px;left:50%;transform:translateX(-50%) translateY(-8px);width:max-content;background:rgba(26,58,92,.95);border:1px solid var(--gold);color:white;padding:10px 20px;border-radius:18px;font-size:.85em;font-weight:600;z-index:500;pointer-events:none;opacity:0;transition:opacity .4s ease,transform .4s ease;max-width:88vw;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.4);}
+/* 5_76: toasts back at bottom, soft fade, dimmed (Tim) */
+.toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(8px);width:max-content;background:rgba(26,58,92,.75);border:1px solid rgba(248,189,85,.6);color:rgba(255,255,255,.85);padding:9px 18px;border-radius:18px;font-size:.83em;z-index:500;pointer-events:none;opacity:0;transition:opacity .4s ease,transform .4s ease;max-width:88vw;text-align:center;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:rgba(0,0,0,.2);}
@@ -685,7 +689,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.75</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.85</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -841,7 +845,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.75</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.85</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -878,8 +882,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <div class="zone z-defend" style="flex:1"><div class="zone-lbl">🛡 Defensive Zone</div><div class="zone-dice" id="z-defend"></div></div>
         </div>
         <div class="center-col">
-          <div class="zone z-rs" style="min-height:90px;overflow:visible">
-            <div class="zone-lbl">🎲 Roll &amp; Sort Zone</div>
+          <div class="zone z-rs" style="min-height:90px;overflow:visible;position:relative">
+            <div class="zone-lbl">🎲 Roll &amp; Sort Zone</div><div id="bonus-pill" class="bonus-pill">🎲 bonus reroll</div> <!-- 5_79: bonus indicator (Tim) -->
             <div class="rs-actions" id="rs-actions"></div>
             <div class="zone-dice" id="z-rs" style="overflow:visible"></div>
             <div id="rr-nudge"></div><!-- 4_22: populated by updateRRNudge -->
@@ -1322,68 +1326,48 @@ function OPP(){return G.players[1-G.ap];}
 // ═══════════════════ SETUP ═══════════════════
 // ── 24 PRE-BUILT TEAMS — 4 DIVISIONS, 6 TEAMS EACH ──
 const PRESETS=[
-  // ── 5_01: 30 prebuilt teams, 20pts each, F1-5/D1-5/G3-5 (Tim) ──
-  {name:'⛰️ Mountains', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F2','F1','D5','D4','G4','HC'], desc:'F4+F2+F1 | D5+D4 | G4 — The wall'},
-  {name:'❄️ Frost', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F2','F1','D5','D3','G5','HC'], desc:'F4+F2+F1 | D5+D3 | G5 — Wall + elite goalie'},
-  {name:'🦏 Rhinos', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F2','F1','D5','D4','G3','HC'], desc:'F5+F2+F1 | D5+D4 | G3 — Heavy D, budget goalie'},
-  {name:'🦬 Bison', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F3','F1','D5','D4','G3','HC'], desc:'F4+F3+F1 | D5+D4 | G3 — Heavy D, budget goalie'},
-  {name:'⚓ Anchors', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F2','F1','D5','D3','G4','HC'], desc:'F5+F2+F1 | D5+D3 | G4 — Even split'},
-  {name:'🐴 Stallions', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F3','F1','D5','D3','G4','HC'], desc:'F4+F3+F1 | D5+D3 | G4 — Even split'},
-  {name:'🧙 Wizards', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F2','F1','D5','D2','G5','HC'], desc:'F5+F2+F1 | D5+D2 | G5 — G5 covers all'},
-  {name:'👁️ Cyclops', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F2','F1','D4','D3','G5','HC'], desc:'F5+F2+F1 | D4+D3 | G5 — G5 covers all'},
+  // ── 5_83: 20 teams, 20pts, F/D 1-6, G 4-6 (Tim) ──
+  {name:'🚀 Rockets', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F4','F6','D1','D2','G5','HC'], desc:'F2+F4+F6 | D1+D2 | G5'},
+  {name:'🔥 Inferno', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F5','F6','D1','D3','G4','HC'], desc:'F1+F5+F6 | D1+D3 | G4'},
+  {name:'☄️ Comets', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F4','F5','D1','D3','G6','HC'], desc:'F1+F4+F5 | D1+D3 | G6'},
+  {name:'☠️ Bandits', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F4','F5','D1','D4','G4','HC'], desc:'F2+F4+F5 | D1+D4 | G4'},
+  {name:'😈 Demons', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F3','F5','D2','D4','G5','HC'], desc:'F1+F3+F5 | D2+D4 | G5'},
+  {name:'🦅 Griffins', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F3','F4','D1','D6','G4','HC'], desc:'F2+F3+F4 | D1+D6 | G4'},
+  {name:'🐝 Hornets', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F6','D2','D5','G4','HC'], desc:'F1+F2+F6 | D2+D5 | G4'},
+  {name:'🐍 Vipers', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F3','F4','D1','D5','G6','HC'], desc:'F1+F3+F4 | D1+D5 | G6'},
+  {name:'🦈 Sharks', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F5','D2','D4','G6','HC'], desc:'F1+F2+F5 | D2+D4 | G6'},
+  {name:'🐺 Werewolves', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F4','D2','D5','G6','HC'], desc:'F1+F2+F4 | D2+D5 | G6'},
+  {name:'⚓ Anchors', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F4','D3','D4','G6','HC'], desc:'F1+F2+F4 | D3+D4 | G6'},
+  {name:'🦏 Rhinos', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F5','D2','D6','G4','HC'], desc:'F1+F2+F5 | D2+D6 | G4'},
   {name:'🦉 Owls', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F3','F1','D5','D2','G5','HC'], desc:'F4+F3+F1 | D5+D2 | G5 — G5 covers all'},
+   lineup:['F1','F2','F4','D2','D6','G5','HC'], desc:'F1+F2+F4 | D2+D6 | G5'},
   {name:'🪶 Ravens', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F3','F1','D4','D3','G5','HC'], desc:'F4+F3+F1 | D4+D3 | G5 — Steadiest of the bunch'},
-  {name:'😈 Demons', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F3','F1','D5','D3','G3','HC'], desc:'F5+F3+F1 | D5+D3 | G3 — Scores in bunches'},
-  {name:'🐝 Hornets', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F3','F2','D5','D3','G3','HC'], desc:'F4+F3+F2 | D5+D3 | G3 — Balanced, thin goalie'},
-  {name:'☠️ Bandits', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F3','F1','D5','D2','G4','HC'], desc:'F5+F3+F1 | D5+D2 | G4 — Steals games'},
-  {name:'🦂 Scorpions', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F3','F1','D4','D3','G4','HC'], desc:'F5+F3+F1 | D4+D3 | G4 — Strikes fast'},
-  {name:'🐺 Werewolves', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F3','F2','D5','D2','G4','HC'], desc:'F4+F3+F2 | D5+D2 | G4 — Hunts in packs'},
-  {name:'🦍 Gorillas', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F3','F2','D4','D3','G4','HC'], desc:'F4+F3+F2 | D4+D3 | G4 — Bullies down low'},
-  {name:'🌪️ Twisters', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F3','F1','D5','D1','G5','HC'], desc:'F5+F3+F1 | D5+D1 | G5 — Chaos with a safety net'},
-  {name:'🐊 Crocs', division:'East', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F3','F1','D4','D2','G5','HC'], desc:'F5+F3+F1 | D4+D2 | G5 — Lurks, then bites'},
-  {name:'☄️ Comets', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F4','F1','D5','D2','G3','HC'], desc:'F5+F4+F1 | D5+D2 | G3 — Spectacular, no net'},
-  {name:'🚀 Rockets', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F4','F1','D4','D3','G3','HC'], desc:'F5+F4+F1 | D4+D3 | G3 — All gas, no brakes'},
-  {name:'🦅 Griffins', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F3','F2','D5','D1','G5','HC'], desc:'F4+F3+F2 | D5+D1 | G5 — Boom or bust D'},
-  {name:'🐻 Grizzlies', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F4','F3','F2','D4','D2','G5','HC'], desc:'F4+F3+F2 | D4+D2 | G5 — Mauls, G5 cleans up'},
-  {name:'🕷️ Spiders', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F3','F2','D5','D2','G3','HC'], desc:'F5+F3+F2 | D5+D2 | G3 — Venomous, exposed'},
-  {name:'🐍 Vipers', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F3','F2','D4','D3','G3','HC'], desc:'F5+F3+F2 | D4+D3 | G3 — Venom, steadier D'},
-  {name:'🐉 Dragons', division:'West', divEmoji:'☀️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F4','F1','D5','D1','G4','HC'], desc:'F5+F4+F1 | D5+D1 | G4 — Stars and scrubs'},
-  {name:'🔥 Inferno', division:'Central', divEmoji:'⚡', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F4','F1','D4','D2','G4','HC'], desc:'F5+F4+F1 | D4+D2 | G4 — Burns bright'},
-  {name:'🦈 Sharks', division:'Central', divEmoji:'⚡', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F3','F2','D5','D1','G4','HC'], desc:'F5+F3+F2 | D5+D1 | G4 — Blood in the water'},
-  {name:'🌋 Volcanos', division:'Central', divEmoji:'⚡', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F3','F2','D4','D2','G4','HC'], desc:'F5+F3+F2 | D4+D2 | G4 — Apex, thin blue line'},
-  {name:'🥊 Brawlers', division:'Central', divEmoji:'⚡', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F4','F2','D5','D1','G3','HC'], desc:'F5+F4+F2 | D5+D1 | G3 — Swings for the fences'},
-  {name:'🦣 Mammoth', division:'Central', divEmoji:'⚡', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F5','F4','F2','D4','D2','G3','HC'], desc:'F5+F4+F2 | D4+D2 | G3 — Biggest guns, thinnest D'},
-];
+   lineup:['F1','F2','F4','D3','D5','G5','HC'], desc:'F1+F2+F4 | D3+D5 | G5'},
+  {name:'🕷️ Spiders', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F3','D3','D5','G6','HC'], desc:'F1+F2+F3 | D3+D5 | G6'},
+  {name:'⛰️ Mountains', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F4','D3','D6','G4','HC'], desc:'F1+F2+F4 | D3+D6 | G4'},
+  {name:'🦬 Bison', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F4','D4','D5','G4','HC'], desc:'F1+F2+F4 | D4+D5 | G4'},
+  {name:'🐻 Grizzlies', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F3','D3','D6','G5','HC'], desc:'F1+F2+F3 | D3+D6 | G5'},
+  {name:'🦣 Mammoth', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F3','D4','D5','G5','HC'], desc:'F1+F2+F3 | D4+D5 | G5'},
+  {name:'❄️ Frost'  // 5_84: kid request (Tim), division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F3','D4','D6','G4','HC'], desc:'F1+F2+F3 | D4+D6 | G4'}
+];;
 let _qsSel=[null,null]; // selected preset index per player
 let _qsManualPick=false; // 2_121: true once the user hand-picks a team (dropdown shows Random placeholder until then)
 // 2_121: structured team display — one line per element, used across all setup menus
@@ -3801,13 +3785,14 @@ function updateRRNudge(){
     // 5_57: bonus reroll back to original gold pulse (Tim)
     b.className='abtn prim pulsing-orange rr-confirm';
     // 5_52: button IS the bonus notification (Tim)
-    // 5_60: only "Bonus" flashes green (Tim)
-    if(_isBonus){b.innerHTML='🎲 Select Dice for <span class="bonus-word">Bonus</span> Reroll';}
-    else{b.textContent='🎲 Reroll Selected Dice';}
+    // 5_79: button back to normal, red pill shows bonus (Tim)
+    b.textContent=_isBonus?'🎲 Select Dice To Reroll':'🎲 Reroll Selected Dice';
+    const _bp=document.getElementById('bonus-pill');
+    if(_bp)_bp.classList.toggle('show',_isBonus);
     b.addEventListener('click',confirmRRSel);
     el.appendChild(b);
     el.classList.add('show');
-  }else{ el.classList.remove('show'); el.innerHTML=''; }
+  }else{ el.classList.remove('show'); el.innerHTML=''; const _bp=document.getElementById('bonus-pill'); if(_bp)_bp.classList.remove('show'); }
 }
 function renderAll(){
   // If the turn just passed to the opponent, a shop left open on this client
@@ -5966,7 +5951,8 @@ async function aiTurnMain(){
     _aiRrNudge=false;updateRRNudge(); // 4_24: nudge-only — preserves the reroll animation (Tim)
     await aiSleep(800);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
     // 5_44: faceoff winner bonus reroll on 10:00 (Tim)
-    if(G.clock===10&&G.ap===G.foWinner){aiDoReroll(P,true);await aiSleep(800);if(!aiIsTurn()){_aiBusy=false;renderAll();return;}}
+    // 5_82: bonus pill shows on Chuck's 10:00 too (Tim)
+    if(G.clock===10&&G.ap===G.foWinner){const _bp=document.getElementById('bonus-pill');if(_bp)_bp.classList.add('show');aiDoReroll(P,true);await aiSleep(1200);if(_bp)_bp.classList.remove('show');if(!aiIsTurn()){_aiBusy=false;renderAll();return;}}
     // 2_150: HC reroll gets its own visible beat — pause so the player sees the
     // dice reroll (animation + pill) before assignment continues
     if(aiDoHcReroll(P)){await aiSleep(900);if(!aiIsTurn()){_aiBusy=false;renderAll();return;}}
@@ -6212,7 +6198,7 @@ async function aiDoFight(){ // 4_94: fight reveal (Tim)
         `🥊 Goon [${gr.join(',')}=${gTot}] vs ${t.die.key} [${tr.join(',')}=${tTot}]<br>`+
         (won?`<strong style="color:#ff8888">Your ${t.die.key} is iced!</strong>`
             :`<strong style="color:#88ff88">Your ${t.die.key} survives!</strong> Chuck takes a penalty die.`);
-      aiPill(won?`🥊 Goon wins! ${t.die.key} iced`:`🥊 Goon loses — penalty die added`);
+      aiPill(won?`🥊 Goon wins! ${t.die.key} iced`:`🔲 Goon loses — penalty die added`); // 5_81: 🔲 for penalty (Tim)
       res();
     });
   });
