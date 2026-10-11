@@ -461,8 +461,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .btn-ov:disabled{opacity:.45;cursor:default;}
 .atk-dice-row{display:flex;gap:14px; /* 4_103 */flex-wrap:wrap;margin:6px 0 4px;}
 .atk-dice-row .die-body{cursor:default;}
-#atk-dice-sum{font-size:.92em;color:#cfe0ff;margin:2px 0 8px;padding:7px 10px;background:rgba(80,140,255,.12);border:1px solid rgba(80,140,255,.35);border-radius:8px;} /* 3_79: summary bar — glanceable (Tim) */
-#bsel-info{font-size:.92em;color:#ffd9d9;margin:2px 0 8px;padding:7px 10px;background:rgba(255,90,90,.10);border:1px solid rgba(255,90,90,.35);border-radius:8px;} /* 3_77: defender's running total — mirrors atk-dice-sum */
+.combat-pulse{display:inline-block;animation:combatPulse 1.4s ease-in-out infinite;}@keyframes combatPulse{0%,100%{opacity:1}50%{opacity:.65}}
+#atk-dice-sum{font-size:1.05em;font-weight:800;color:#cfe0ff;margin:2px 0 8px;padding:7px 10px;background:rgba(80,140,255,.12);border:1px solid rgba(80,140,255,.35);border-radius:8px;} /* 3_79: summary bar — glanceable (Tim) */
+#bsel-info{font-size:1.05em;font-weight:800;color:#ffd9d9;margin:2px 0 8px;padding:7px 10px;background:rgba(255,90,90,.10);border:1px solid rgba(255,90,90,.35);border-radius:8px;} /* 3_77: defender's running total — mirrors atk-dice-sum */
 
 /* LOG */
 .log-panel{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.08);padding:5px 12px;flex-shrink:0;max-height:42vh;overflow-y:auto;} /* 4_30: room to scroll ~30 lines (Tim) */
@@ -815,6 +816,28 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 
 /* v5.137: fix © span selector — target by position (Tim) */
 #m-top .game-title span:first-of-type{position:absolute!important;right:52px!important;top:50%!important;transform:translateY(-50%)!important;opacity:.45!important;}
+
+/* v5.143: allow RS melt when HC RR is the only die left (Tim) */
+#m-stage.hc-only .zone.z-rs.rs-done{opacity:0!important;max-height:0!important;min-height:0!important;
+  margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;
+  overflow:hidden!important;border-width:0!important;}
+
+/* v5.144: bag/iced as faded tappable pills (Tim) */
+.m-countpill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);
+  border-radius:999px;padding:4px 12px;font-size:.68em;color:#8b96b0;font-weight:700;
+  letter-spacing:.5px;opacity:.85;cursor:pointer;white-space:nowrap;}
+.m-countpill:active{transform:scale(.95);background:rgba(255,255,255,.12);}
+
+/* v5.145: iced dice popup card (Tim) */
+.m-iced-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;
+  display:flex;align-items:center;justify-content:center;padding:20px;}
+.m-iced-pop{background:#101a2e;border:2px solid #8b96b0;border-radius:16px;padding:18px;
+  max-width:340px;width:100%;max-height:70dvh;overflow-y:auto;}
+.m-iced-title{text-align:center;font-weight:800;color:#8b96b0;margin-bottom:12px;
+  letter-spacing:1px;font-size:.9em;}
+.m-iced-dice{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;}
+.m-iced-close{width:100%;padding:12px;margin-top:14px;border:none;border-radius:10px;
+  background:#8b96b0;color:#111;font-weight:800;font-size:.9em;}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -825,7 +848,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.140</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.147</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -981,7 +1004,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.140</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.147</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1379,7 +1402,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
       <button class="abtn prim" id="goon-commit" onclick="goonResolveFight()" disabled>Fight! →</button>
       <button class="abtn sec" onclick="goonCancelFight()">Cancel</button>
-      </div> <!-- v5.140: centered (Tim) -->
+      </div> <!-- v5.147: centered (Tim) -->
     </div>
     <div id="goon-fight" style="display:none;margin-top:10px">
       <div class="fo-rolls">
@@ -2477,7 +2500,7 @@ function goonStartFight(die){
   el.appendChild(mkHalf('🛡️ DEFENSIVE',defTargets,'rgba(255,80,80,.08)')); // 5_107: red (Tim)
   document.getElementById('goon-commit').disabled=true;
   document.getElementById('goon-result').style.display='none';
-  document.getElementById('goon-fight').style.display='none'; // v5.140: clear old results (Tim)
+  document.getElementById('goon-fight').style.display='none'; // v5.147: clear old results (Tim)
   document.getElementById('goon-pick').style.display='block';
   document.getElementById('goon-panel').classList.add('show');
 }
@@ -2931,9 +2954,8 @@ function renderAtkDice(){
   const pips=inShot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
   const n=inShot.length;
   document.getElementById('atk-dice-sum').innerHTML=
-    `<strong>${n}</strong> shooter${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} → <strong>${pips} combat ${cDiceWord(pips)}</strong>`+
-    `<span id="atk-tok-line">${_sTok>0?` • 🎯 <strong style="color:#ffd75e">+${_sTok} token${_sTok!==1?'s':''}</strong>`:''}</span>`+
-    (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot</div>`:'');
+    `<span class="combat-pulse"><strong>${n}</strong> shooter${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} → <strong>${pips} combat ${cDiceWord(pips)}</strong>${_sTok>0?` + <strong style="color:#ffd75e">${_sTok} Token${_sTok!==1?'s':''}</strong>`:''}</span>`+
+    (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot</div>`:''); // v5.147: pulse + tokens in flow (Tim)
 }
 
 // 2_151: mini game clock in the shot panel — white 10:00–05:00, red 04:00–01:00 (matches header badge)
@@ -3121,8 +3143,7 @@ function renderBselInfo(){
   const el=document.getElementById('bsel-info');if(!el)return;
   const sel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
   const n=sel.length,pips=sel.reduce((s,d)=>s+(d.face?d.face.v:0),0),bonus=clockBlockBonus();
-  el.innerHTML=`<strong>${n}</strong> blocker${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} + <strong>${bonus}</strong> clock → <strong>${pips+bonus} combat ${cDiceWord(pips+bonus)}</strong>`+
-    `${_bTok>0?` • 🛡️ <strong style="color:#ffd75e">+${_bTok} token${_bTok!==1?'s':''}</strong>`:''}`;
+  el.innerHTML=`<span class="combat-pulse"><strong>${n}</strong> blocker${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} + <strong>${bonus}</strong> clock → <strong>${pips+bonus} combat ${cDiceWord(pips+bonus)}</strong>${_bTok>0?` + <strong style="color:#ffd75e">${_bTok} Token${_bTok!==1?'s':''}</strong>`:''}</span>`; // v5.147: pulse + tokens in flow (Tim)
 }
 
 let _combatResolving=false; // 2_121: prevent double-resolution of the same shot
@@ -4096,8 +4117,8 @@ function whoEmoji(i){return (_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlo
 // 4_05: team emoji lives only in the team picker (Tim) — everywhere else the
 // controller emoji leads: "🤖 Gargoyles"
 function bareName(n){return String(n||'').replace(/^[\p{Extended_Pictographic}\uFE0F\u200D]+\s*/u,'').trim()||String(n||'');}
-function teamLbl(i){const p=G.players[i];const tn=p.teamName||p.name||('Player '+(i+1));return tn;} // v5.140: team emoji, no who-emoji (Tim)
-function whoLbl(i){const p=G.players[i];if(!p)return '';const nm=bareName(p.name||'');if(_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)return bareName(nm)||'AI Chuck';if(_aiActive)return 'Player 1';return nm||('Player '+(i+1));} // v5.140: Player 1 / AI Chuck / given name (Tim)
+function teamLbl(i){const p=G.players[i];const tn=p.teamName||p.name||('Player '+(i+1));return tn;} // v5.147: team emoji, no who-emoji (Tim)
+function whoLbl(i){const p=G.players[i];if(!p)return '';const nm=bareName(p.name||'');if(_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)return bareName(nm)||'AI Chuck';if(_aiActive)return 'Player 1';return nm||('Player '+(i+1));} // v5.147: Player 1 / AI Chuck / given name (Tim)
 function renderBoard(){
   const ap=AP();
   // 2_26: show the room code next to the title while online (for drop/rejoin)
@@ -4115,7 +4136,7 @@ function renderBoard(){
   // 3_23: team name + who-emoji — no more (P1)/(P2) in the scoreboard header
   if(sn1) sn1.textContent=teamLbl(0); // 4_05
   if(sn2) sn2.textContent=teamLbl(1);
-  // v5.140: who-label below team name (Tim)
+  // v5.147: who-label below team name (Tim)
   const sw1=document.getElementById('sw1'); if(sw1) sw1.textContent=whoLbl(0);
   const sw2=document.getElementById('sw2'); if(sw2) sw2.textContent=whoLbl(1);
   const tv=document.getElementById('tmr');
@@ -4236,7 +4257,7 @@ function renderOpp(){
   const offPips=hotPips+coldPips, offDice=hp+cp;
   const osb=document.getElementById('m-oppsummary');
   if(osb){osb.innerHTML=`<div class="m-os-title">${whoEmoji(1-G.ap)} OPP</div><div class="m-os-line"><span class="m-os-chip m-os-off"><b>🏒 ${offPips}</b><small>${offDice} dice</small></span><span class="m-os-chip m-os-def2"><b>🥅 ${defPips}</b><small>${dp} dice</small></span></div>`;}
-  // v5.140: split opp boxes (Tim's layout) — offense left of clock, defense right
+  // v5.147: split opp boxes (Tim's layout) — offense left of clock, defense right
   const mOff=document.getElementById('m-opp-off');
   if(mOff){mOff.innerHTML=`<div class="m-opp-lbl">🏒 OPP OFF</div><div class="m-opp-pips">${offPips} pips</div><div class="m-opp-dice">${offDice} dice</div>`;}
   const mDef=document.getElementById('m-opp-def');
@@ -4288,7 +4309,7 @@ function renderActions(){
   }
 
   if(G.phase<=2){
-    mk('ROLL DICE',rollAll,'prim',false,true); // v5.140: text only (Tim)
+    mk('ROLL DICE',rollAll,'prim',false,true); // v5.147: text only (Tim)
   } else if(G.phase===3){
     if(!G.assignmentStarted){
       // 4_22: confirm lives in the RS zone now — bottom keeps just Reroll None
@@ -4303,10 +4324,10 @@ function renderActions(){
     // 4_28 (Tim): turn winding down (shot taken, or no shot available w/ RS clear) —
     // End Turn becomes the pulsing gold primary; shop stays tappable but goes quiet.
     const windingDown=(G.combatDone&&G.shotDeclared)||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length); // 4_48
-    const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v5.140: short (Tim)
+    const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v5.147: short (Tim)
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
-      // v5.140: single Declare Shot — moves Hot->Shoot then opens card (Tim)
+      // v5.147: single Declare Shot — moves Hot->Shoot then opens card (Tim)
       // Player can hold out shooters on the card (they return to Hot)
       if(G.shotDeclared)mk('DECLARE SHOT',()=>{},'sec',true);
       else mk('SHOOT',()=>{
@@ -4314,7 +4335,7 @@ function renderActions(){
         declareShot();
       },'blue pulsing-blue');
     }
-    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v5.140: text only (Tim)
+    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v5.147: text only (Tim)
   }
   renderCombatPill(); // 3_27: slim popup pill (AI defend beats only)
 }
@@ -7417,14 +7438,74 @@ window.addEventListener('DOMContentLoaded', () => {
     const topRow = document.createElement('div');
     topRow.id = 'm-turnrow';
     topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;width:100%;padding:4px 8px;';
-    const bagSpan = document.createElement('span');
+    const bagSpan = document.createElement('button');
     bagSpan.id = 'm-bagcount';
-    bagSpan.className = 'm-headcount';
+    bagSpan.className = 'm-headcount m-countpill';
     bagSpan.textContent = 'BAG: 0';
-    const icedSpan = document.createElement('span');
+    // v5.144: tap for bag info card (Tim)
+    bagSpan.addEventListener('click', () => {
+      try {
+        const ap = AP();
+        const n = ap ? ap.bag.length : 0;
+        toast(`🎲 Bag: ${n} dice`);
+      } catch (e) {}
+    });
+    const icedSpan = document.createElement('button');
     icedSpan.id = 'm-icedcount';
-    icedSpan.className = 'm-headcount';
+    icedSpan.className = 'm-headcount m-countpill';
     icedSpan.textContent = 'ICED: 0';
+    // v5.145: tap for iced dice popup card (Tim)
+    icedSpan.addEventListener('click', () => {
+      try {
+        const ap = AP();
+        const dice = ap ? ap.z.iced : [];
+        // Build popup card
+        document.querySelectorAll('.m-iced-backdrop').forEach(s => s.remove());
+        const bd = document.createElement('div');
+        bd.className = 'm-iced-backdrop';
+        const pop = document.createElement('div');
+        pop.className = 'm-iced-pop';
+        const h = document.createElement('div');
+        h.className = 'm-iced-title';
+        h.textContent = `ICED — ${dice.length} dice`;
+        pop.appendChild(h);
+        const dr = document.createElement('div');
+        dr.className = 'm-iced-dice';
+        if (!dice.length) {
+          dr.innerHTML = '<div style="color:#555">Empty</div>';
+        } else {
+          dice.forEach(d => {
+            // v5.147: pass inIced=true — the renderer shows ? for iced dice (Tim)
+            let html = '';
+            try {
+              if (typeof dieWrapHTML === 'function') {
+                html = dieWrapHTML(d, false, true, true);
+              }
+            } catch (e) {}
+            if (!html) {
+              const lbl = d.key || '?';
+              html = `<div class="die-wrap"><div class="die-body"><div class="face-badge fb-UNK">?</div></div><div class="die-tier-lbl">${lbl}</div></div>`;
+            }
+            const w = document.createElement('div');
+            w.innerHTML = html;
+            const dw = w.firstChild;
+            if (dw) {
+              dw.style.pointerEvents = 'none';
+              dr.appendChild(dw);
+            }
+          });
+        }
+        pop.appendChild(dr);
+        const btn = document.createElement('button');
+        btn.className = 'm-iced-close';
+        btn.textContent = 'Close';
+        btn.addEventListener('click', () => bd.remove());
+        pop.appendChild(btn);
+        bd.appendChild(pop);
+        bd.addEventListener('click', (e) => { if (e.target === bd) bd.remove(); });
+        document.body.appendChild(bd);
+      } catch (e) {}
+    });
     // Find the label element (wrap with who-label, move into topRow)
     const label = th.querySelector('.active-label');
     const labelWrap = document.createElement('div');
@@ -7502,8 +7583,18 @@ window.addEventListener('DOMContentLoaded', () => {
       m.classList.toggle('active', m.dataset.zone === id);
     });
   };
-  // Start with RS on stage
-  window.mStageTo('z-rs');
+  // v5.143: allow RS melt when HC RR is the only die left (Tim)
+  const checkHcOnly = () => {
+    try {
+      const ap = AP();
+      if (!ap || !stage) return;
+      const rsDice = ap.z.rs || [];
+      const hcOnly = rsDice.length === 1 && rsDice[0].pos === 'HC';
+      stage.classList.toggle('hc-only', hcOnly);
+    } catch (e) {}
+  };
+  setInterval(checkHcOnly, 1000);
+  checkHcOnly();
 
   // — mini zone grid: dots + pips, tap to bring zone to stage —
   // v5.117: 3x2 grid, no iced mini (count is in turn header). Tap = stage, not popup (Tim)
