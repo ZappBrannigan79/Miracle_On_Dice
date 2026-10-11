@@ -689,7 +689,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.106</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.109</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -845,7 +845,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.106</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.109</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2304,10 +2304,11 @@ function goonStartFight(die){
   opp.z['defend'].forEach(d=>{ if(d.key[0]!=='G') defTargets.push({die:d,zone:'defend',label:'Defensive'}); });
   if(!offTargets.length&&!defTargets.length){toast('No targets \u2014 opponent has no dice in Cold/Hot/Defensive (goalies are off-limits).');renderAll();return;}
   _goonDie=die;
+  const _sub2=document.querySelector('#goon-panel .panel-sub'); if(_sub2)_sub2.style.display='block'; // 5_108: restore (Tim)
   const el=document.getElementById('goon-targets');el.innerHTML='';
-  const mkHalf=(title,targets)=>{
+  const mkHalf=(title,targets,bg)=>{
     const half=document.createElement('div');
-    half.style.cssText='flex:1;min-width:200px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px';
+    half.style.cssText='flex:1;min-width:200px;background:'+bg+';border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px'; // 5_107: zone colors (Tim)
     const h=document.createElement('div');
     h.style.cssText='font-size:.75em;color:#888;font-weight:700;margin-bottom:8px;text-align:center';
     h.textContent=title;
@@ -2332,8 +2333,8 @@ function goonStartFight(die){
     half.appendChild(wrap);
     return half;
   };
-  el.appendChild(mkHalf('\u2694\ufe0f OFFENSIVE (Cold/Hot)',offTargets));
-  el.appendChild(mkHalf('\U0001f6e1\ufe0f DEFENSIVE',defTargets));
+  el.appendChild(mkHalf('\u2694\ufe0f OFFENSIVE (Cold/Hot)',offTargets,'rgba(80,140,255,.08)')); // 5_107: blue (Tim)
+  el.appendChild(mkHalf('🛡️ DEFENSIVE',defTargets,'rgba(255,80,80,.08)')); // 5_107: red (Tim)
   document.getElementById('goon-commit').disabled=true;
   document.getElementById('goon-result').style.display='none';
   document.getElementById('goon-pick').style.display='block';
@@ -2370,24 +2371,33 @@ function goonResolveFight(){
     // 4_45 (Tim): no set-aside — goon cycles with everyone else (iced win or lose).
     const gi=ap.z.rs.indexOf(goonDie);if(gi!==-1)ap.z.rs.splice(gi,1);
     ap.z.iced.push(goonDie);
-    let html=`🥊 Goon [${gr.join(',')}=${gTot}] vs ${t.die.key} [${tr.join(',')}=${tTot}]<br>`;
+    // 5_108: visual dice on result card, instructions hidden (Tim)
+    // 5_109: use goon-die class (green fight dice), larger winner text (Tim)
+    const dieDiv=(v)=>`<div class="goon-die" style="width:52px;height:52px;font-size:1.5em">${v}</div>`;
+    let html=`<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:12px">
+      <div style="text-align:center"><div style="font-size:.75em;color:#888;margin-bottom:6px">🥊 GOON</div><div style="display:flex;gap:6px">${gr.map(dieDiv).join('')}</div><div style="font-size:1.3em;font-weight:900;margin-top:6px">${gTot}</div></div>
+      <div style="font-size:1.2em;color:#666">vs</div>
+      <div style="text-align:center"><div style="font-size:.75em;color:#888;margin-bottom:6px">${t.die.key}</div><div style="display:flex;gap:6px">${tr.map(dieDiv).join('')}</div><div style="font-size:1.3em;font-weight:900;margin-top:6px">${tTot}</div></div>
+    </div>`;
     if(won){
       const ti=opp.z[t.zone].indexOf(t.die);if(ti!==-1)opp.z[t.zone].splice(ti,1);
       opp.z.iced.push(t.die);
       document.getElementById('goon-fight-win').textContent=`${whoEmoji(G.ap)} Goon wins!`;
-      html+=`<strong style="color:#7bdb7b">Goon wins ${gTot}-${tTot}!</strong> ${t.die.key} → Iced. Goon → Iced.`;
+      html+=`<div style="font-size:1.3em;font-weight:900;color:#7bdb7b;margin-bottom:6px">Goon wins ${gTot}-${tTot}!</div><div style="color:#aaa">${t.die.key} → Iced.<br>Goon → Iced.</div>`; // 5_109: larger, tidy (Tim)
       addLog(`🥊 Goon wins ${gTot}-${tTot}! ${t.die.key} iced, goon iced.`,'imp');
     }else{
       // 5_27: respect the 3-die pool (Tim)
       const _gotPen=G.penaltyPool>0;
       if(_gotPen){ap.bag.push(mkDie('Penalty'));G.penaltyPool--;}
       document.getElementById('goon-fight-win').textContent=`${whoEmoji(1-G.ap)} ${t.die.key} wins!`;
-      html+=`<strong style="color:#ff8888">Goon loses ${gTot}-${tTot}.</strong> Goon → Iced`+(_gotPen?', penalty die added to your bag.':', pool empty — no penalty added.')+`.`;
+      html+=`<div style="font-size:1.3em;font-weight:900;color:#ff8888;margin-bottom:6px">Goon loses ${gTot}-${tTot}.</div><div style="color:#aaa">Goon → Iced.<br>`+(_gotPen?'Penalty die → your bag.':'Pool empty — no penalty.')+`</div>`; // 5_109: larger, tidy (Tim)
       addLog(`🥊 Goon loses ${gTot}-${tTot}. Goon iced`+(_gotPen?', penalty die to bag.':', pool empty, no penalty.')+'.','imp');
     }
     _goonFightUsed=true;
     noteTurn(won?`🥊 Goon wins! ${t.die.key} iced`:`🔲 Goon loses — penalty die added`);
     document.getElementById('goon-result-text').innerHTML=html;
+    // 5_108: hide instructions on result card (Tim)
+    const _sub=document.querySelector('#goon-panel .panel-sub'); if(_sub)_sub.style.display='none';
     setTimeout(()=>{
       document.getElementById('goon-fight').style.display='none';
       document.getElementById('goon-result').style.display='block';
@@ -2446,15 +2456,21 @@ function showFightWatch(fs){
   animNumbers([...d1.children,...d2.children],[...fs.gr,...fs.tr],()=>{
     document.getElementById('goon-f1-total').textContent=fs.gTot;
     document.getElementById('goon-f2-total').textContent=fs.tTot;
-    let html=`🥊 Goon [${fs.gr.join(',')}=${fs.gTot}] vs ${fs.targetKey} [${fs.tr.join(',')}=${fs.tTot}]<br>`;
+    const _dd=(v)=>`<div class="goon-die" style="width:52px;height:52px;font-size:1.5em">${v}</div>`; // 5_109: green (Tim)
+    let html=`<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:12px">
+      <div style="text-align:center"><div style="font-size:.75em;color:#888;margin-bottom:6px">🥊 GOON</div><div style="display:flex;gap:6px">${fs.gr.map(_dd).join('')}</div><div style="font-size:1.3em;font-weight:900;margin-top:6px">${fs.gTot}</div></div>
+      <div style="font-size:1.2em;color:#666">vs</div>
+      <div style="text-align:center"><div style="font-size:.75em;color:#888;margin-bottom:6px">${fs.targetKey}</div><div style="display:flex;gap:6px">${fs.tr.map(_dd).join('')}</div><div style="font-size:1.3em;font-weight:900;margin-top:6px">${fs.tTot}</div></div>
+    </div>`; // 5_108: visual dice (Tim)
     if(fs.won){
       document.getElementById('goon-fight-win').textContent=`${whoEmoji(1-_mySlot)} Goon wins!`;
-      html+=`<strong style="color:#7bdb7b">Goon wins ${fs.gTot}-${fs.tTot}!</strong> ${fs.targetKey} → Iced. Goon → Iced.`;
+      html+=`<div style="font-size:1.3em;font-weight:900;color:#7bdb7b;margin-bottom:6px">Goon wins ${fs.gTot}-${fs.tTot}!</div><div style="color:#aaa">${fs.targetKey} → Iced.<br>Goon → Iced.</div>`; // 5_109 (Tim)
     }else{
       document.getElementById('goon-fight-win').textContent=`${whoEmoji(_mySlot)} ${fs.targetKey} wins!`;
-      html+=`<strong style="color:#ff8888">Goon loses ${fs.gTot}-${fs.tTot}.</strong> Goon → Iced, penalty die to goon player's bag.`;
+      html+=`<div style="font-size:1.3em;font-weight:900;color:#ff8888;margin-bottom:6px">Goon loses ${fs.gTot}-${fs.tTot}.</div><div style="color:#aaa">Goon → Iced.<br>Penalty die → goon player's bag.</div>`; // 5_109 (Tim)
     }
     document.getElementById('goon-result-text').innerHTML=html;
+    const _wsub=document.querySelector('#goon-panel .panel-sub'); if(_wsub)_wsub.style.display='none'; // 5_108: hide instructions (Tim)
     setTimeout(()=>{
       document.getElementById('goon-fight').style.display='none';
       document.getElementById('goon-result').style.display='block';
