@@ -1237,7 +1237,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <div class="panel-overlay" id="goon-panel">
   <div class="panel-box" style="max-width:560px">
     <div class="panel-title">🥊 Goon Fight!</div>
-    <div class="panel-sub">Pick a target from the opponent's zones. Goon rolls 3 fight dice, target rolls 2 (ties lose). Win: target iced. Lose: penalty die to your bag. Goon ices either way.</div>
+    <div class="panel-sub">Pick a target from the opponent's zones (goalies are off-limits). Goon rolls 3 fight dice, target rolls 2 (ties lose). Win: target iced. Lose: penalty die to your bag. Goon ices either way.</div>
     <div id="goon-pick">
       <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap" id="goon-targets"></div>
       <button class="abtn prim" id="goon-commit" onclick="goonResolveFight()" disabled>Fight! →</button>
@@ -2028,7 +2028,6 @@ function assignDie(die,action){
       ap2.z.rs.splice(ap2.z.rs.indexOf(d2),1);
       if(G.clock>2)ap2.z.cold.push(d2);else ap2.z.hot.push(d2);
       addLog(`${ap2.name}: ${dLbl(d2)}→${G.clock>2?'Cold':'Hot'} Zone (1⚡ paid).`);
-      if(_onlineActive)G.turnCounts.off++; // 5_106: costed advance counts as offensive (Tim)
       renderAll();
     });
     return;
@@ -2047,7 +2046,6 @@ function assignDie(die,action){
       ap2.z.rs.splice(ap2.z.rs.indexOf(d2),1);
       ap2.z.defend.push(d2);
       addLog(`${ap2.name}: ${dLbl(d2)}→Defensive Zone (1⚡ paid).`);
-      if(_onlineActive)G.turnCounts.def++; // 5_106: costed advance counts as defensive (Tim)
       renderAll();
     });
     return;
@@ -2084,7 +2082,6 @@ function assignDie(die,action){
     if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
     ap.z.rs.splice(idx,1);ap.z.reserve.push(die);die.energyPending=false;
     addLog(`${ap.name}: ${dLbl(die)} saved in Reserve.`);
-    if(_onlineActive)G.turnCounts.res++; // 5_106 (Tim)
   }else if(action==='wild-energy'){
     // Wild-as-energy removed from game — this action should not be reached
     toast('Wild can only be assigned as Shoot or Block.');return;
@@ -2153,7 +2150,6 @@ function assignDie(die,action){
       ap.z.hot.push(advanced);
       G.advPending=false;
       addLog(`${ap.name}: ADV — ${dLbl(advanced)} advanced Cold→Hot Zone immediately.`,'imp');
-      if(_onlineActive)G.turnCounts.adv++; // 5_106 (Tim)
       renderAll();return;
     }else{
       // 2_161: multiple cold dice — popup picker (Cold Zone is below the fold on phones)
@@ -2186,7 +2182,6 @@ function openAdvPicker(){
         ap2.z.hot.push(adv);
         G.advPending=false;
         addLog(`${ap2.name}: ADV \u2014 ${dLbl(adv)} advanced Cold\u2192Hot Zone.`,'imp');
-        if(_onlineActive)G.turnCounts.adv++; // 5_106 (Tim)
       }
       closeAdvPicker();renderAll();
     });
@@ -2301,32 +2296,44 @@ function closeFight(){document.getElementById('fight-panel').classList.remove('s
 let _goonDie=null;
 function goonStartFight(die){
   const opp=OPP();
-  const targets=[];
-  [['cold','Cold'],['defend','Defensive'],['hot','Hot']].forEach(([zn,label])=>{
-    opp.z[zn].forEach(d=>targets.push({die:d,zone:zn,label}));
+  // 5_106: goalies off-limits (Tim) — split into offense (Cold/Hot) vs defense halves
+  const offTargets=[],defTargets=[];
+  [['cold','Cold'],['hot','Hot']].forEach(([zn,label])=>{
+    opp.z[zn].forEach(d=>{ if(d.key[0]!=='G') offTargets.push({die:d,zone:zn,label}); });
   });
-  if(!targets.length){toast('No targets — opponent has no dice in Cold/Defensive/Hot.');renderAll();return;}
+  opp.z['defend'].forEach(d=>{ if(d.key[0]!=='G') defTargets.push({die:d,zone:'defend',label:'Defensive'}); });
+  if(!offTargets.length&&!defTargets.length){toast('No targets \u2014 opponent has no dice in Cold/Hot/Defensive (goalies are off-limits).');renderAll();return;}
   _goonDie=die;
   const el=document.getElementById('goon-targets');el.innerHTML='';
-  let lastZone=null;
-  targets.forEach(t=>{
-    if(t.label!==lastZone){
-      lastZone=t.label;
-      const h=document.createElement('div');
-      h.style.cssText='width:100%;font-size:.75em;color:#888;font-weight:700;margin:6px 0 2px';
-      h.textContent=t.label+' Zone';
-      el.appendChild(h);
+  const mkHalf=(title,targets)=>{
+    const half=document.createElement('div');
+    half.style.cssText='flex:1;min-width:200px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px';
+    const h=document.createElement('div');
+    h.style.cssText='font-size:.75em;color:#888;font-weight:700;margin-bottom:8px;text-align:center';
+    h.textContent=title;
+    half.appendChild(h);
+    const wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;gap:8px;flex-wrap:wrap;justify-content:center';
+    if(!targets.length){
+      const e=document.createElement('div');e.style.cssText='color:#555;font-size:.8em';e.textContent='\u2014 none \u2014';
+      wrap.appendChild(e);
     }
-    const w=document.createElement('div');w.innerHTML=dieWrapHTML(t.die,false,true,false);
-    w.querySelector('.die-body').style.cursor='pointer';
-    w.addEventListener('click',()=>{
-      el.querySelectorAll('.die-body').forEach(b=>b.classList.remove('sel'));
-      w.querySelector('.die-body').classList.add('sel');
-      document.getElementById('goon-commit').disabled=false;
-      _goonTarget=t;
+    targets.forEach(t=>{
+      const w=document.createElement('div');w.innerHTML=dieWrapHTML(t.die,false,true,false);
+      w.querySelector('.die-body').style.cursor='pointer';
+      w.addEventListener('click',()=>{
+        el.querySelectorAll('.die-body').forEach(b=>b.classList.remove('sel'));
+        w.querySelector('.die-body').classList.add('sel');
+        document.getElementById('goon-commit').disabled=false;
+        _goonTarget=t;
+      });
+      wrap.appendChild(w);
     });
-    el.appendChild(w);
-  });
+    half.appendChild(wrap);
+    return half;
+  };
+  el.appendChild(mkHalf('\u2694\ufe0f OFFENSIVE (Cold/Hot)',offTargets));
+  el.appendChild(mkHalf('\U0001f6e1\ufe0f DEFENSIVE',defTargets));
   document.getElementById('goon-commit').disabled=true;
   document.getElementById('goon-result').style.display='none';
   document.getElementById('goon-pick').style.display='block';
@@ -2672,7 +2679,6 @@ function buyTok(type){if(aiGuard())return;
   openEPicker(3, `buy 1 ${type} Token`, ()=>{
     const ap2=AP();ap2.tokBought=ap2.tokBought||{shoot:0,block:0};
     ap2.tok[type]++;ap2.tokBought[type]++;
-    if(_onlineActive)G.turnCounts[type==='shoot'?'tokS':'tokB']++; // 5_106: token buys counted (Tim)
     addLog(`${ap2.name}: Bought 1 ${type} Token (3E).`);
     renderAll();
   });
@@ -3343,7 +3349,6 @@ function endTurn(){if(aiGuard())return;
     toSave.forEach(d=>{
       ap.z.rs.splice(ap.z.rs.indexOf(d),1);d.energyPending=false;ap.z.reserve.push(d);
       addLog(`${ap.name}: Leftover ${d.face.v}E auto-saved to Reserve.`);
-      if(_onlineActive)G.turnCounts.res++; // 5_106: parity with Chuck's post-buy sweep count (Tim)
     });
   }
   // HC die goes back to set-aside (not iced); everything else → iced
@@ -3363,8 +3368,7 @@ function endTurn(){if(aiGuard())return;
     if(tc.def>0) G.turnNotes.push(`🔴 assigned ${tc.def} ${tc.def===1?'die':'dice'} to defensive zone`);
     if(tc.tokS>0) G.turnNotes.push(`🎯 bought ${tc.tokS} Shoot ${tc.tokS===1?'token':'tokens'}`); // 5_105: batched (Tim)
     if(tc.tokB>0) G.turnNotes.push(`🛡️ bought ${tc.tokB} Block ${tc.tokB===1?'token':'tokens'}`); // 5_105: batched (Tim)
-    if(tc.adv>0) G.turnNotes.push(`🔼 advanced ${tc.adv} ${tc.adv===1?'die':'dice'} Cold → Hot`); // 5_106 (Tim)
-    if(tc.res>0) G.turnNotes.push(`💲 reserved ${tc.res} ${tc.res===1?'die':'dice'}`); // 5_106: 💲 not 🏦 (Tim)
+    // Note: adv and res counters to be wired to their actions
   }
   G.ap=1-G.ap;
   // Period ends after whoever holds the 1:00 turn completes it (clock ticks to 0)
@@ -3697,7 +3701,6 @@ function renderZone(zid,arr,opts={}){
           ap2.z.hot.push(adv);
           G.advPending=false;
           addLog(`${ap2.name}: ADV — ${dLbl(adv)} advanced Cold→Hot Zone.`,'imp');
-          if(_onlineActive)G.turnCounts.adv++; // 5_106 (Tim)
           renderAll();
         }
       });
