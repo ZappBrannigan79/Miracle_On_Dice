@@ -689,7 +689,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.92</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.106</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -845,7 +845,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.92</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.106</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1070,7 +1070,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <p><strong style="color:var(--gold)">🛒 Buying:</strong> Pay cost + trash an iced rookie, die to Iced. Tokens 3E each (no limit). Sell out a card for a bonus token. Goalies give +1 Block token per buy.</p>
       <p><strong style="color:var(--gold)">🥊 Fighting:</strong> Goon with FT can fight an opponent's die (3v2, ties lose). Win: target iced. Lose: penalty die to your bag. Goon ices either way.</p>
       <p><strong style="color:var(--gold)">🎲 Dice:</strong> Rookie E1/E2/S1/B1/blank/blank. Forwards shoot, Defensemen block, Goalies block + shutout (SO2, costed).</p>
-      <p><strong style="color:var(--gold)">⏰ Clock:</strong> 10:00→01:00. Red zone 04:00–01:00 (block bonus ramps +1→+3). Tie after 3 periods → shootout.</p>
+      <p><strong style="color:var(--gold)">⏰ Clock:</strong> 10:00→01:00. Red zone 02:00–01:00 only — 10:00–03:00 is cold/white (block bonus +1, +2 at 02:00, +3 at 01:00). Tie after 3 periods → shootout.</p>
       <p style="text-align:center;margin-top:10px"><a href="MiracleOnDice_Rulebook.pdf" target="_blank" style="color:var(--gold)">📖 Full Rulebook (PDF)</a></p>
     </div>
   </div>
@@ -1310,7 +1310,7 @@ function mkPlayer(name,lineup,bagExtra=[]){return{name,goals:0,hcDie:mkDie('HC')
   z:{rs:[],hot:[],cold:[],defend:[],bench:[],reserve:[],iced:[],shoot:[],block:[]},
   tok:{shoot:0,block:0},lineup:mkLineup(lineup)};}
 function initG(l1,l2,bag1=[],bag2=[]){
-  G={period:1,ap:0,phase:0,rrUsed:false,hcRrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,shotLocked:false,combatResult:null,combatDone:false,fo:null,so:null,gameOver:null,benchPick:null,pe:null,
+  G={period:1,ap:0,phase:0,rrUsed:false,hcRrUsed:false,log:[],blockSelIds:[],blockToksUsed:0,shotDeclared:false,shotLocked:false,combatResult:null,combatDone:false,combatAnimDone:false,fightSync:null,rerollSync:null,turnNotes:[],turnCounts:{off:0,def:0,adv:0,res:0,tokS:0,tokB:0},fo:null,so:null,gameOver:null,benchPick:null,pe:null,
      assignmentStarted:false,
      advPending:false,
      periodFirstPlayer:0,
@@ -1703,7 +1703,9 @@ function startTurn(){
   G.phase=0;G.rrUsed=false;G.hcRrUsed=false;G.bonusRRUsed=false;_goonFightUsed=false;G.shotDeclared=false; // 5_10: restored 4_44 resets (v5.01 comment swallowed them)
   G.players.forEach(p=>p.tokBought={shoot:0,block:0}); // 5_01: token cap reset
   if(!G.shotDeclared)G.combatDone=false; // 4_48: stale guard
-  G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;G.combatDone=false; // 4_06
+  G.shotLocked=false;G.fo=null;G.assignmentStarted=false;G.advPending=false;G.blockSelIds=[];G.blockToksUsed=0;G.benchPick=null;G.pe=null;G.aaDone=false;G.combatDone=false;G.combatResult=null; // 4_06 // 5_96: clear stale combat (Tim)
+  // 5_101: turnNotes NOT cleared here — they hold the finished turn's notes for the opponent's summary (Tim)
+  G.turnCounts={off:0,def:0,adv:0,res:0,tokS:0,tokB:0}; // 5_104: fresh batched counters (Tim)
   _rrMode=false;_rrDieId=null;_aiRrNudge=false; // 4_20
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();phase0();
@@ -1745,12 +1747,18 @@ function rollAll(){if(aiGuard())return;
     addLog(`${ap.name}: Drew ${penDrawn.length} Penalty die — returned to shared pool (pool: ${G.penaltyPool}).`);
   }
   addLog(`${ap.name}: Drew ${drawn.length}+${fromBench.length} bench + HC die. Rolled ${ap.z.rs.length}.`);
+  noteTurn(`🎲 Rolled ${ap.z.rs.length} dice`);
   G.phase=3;
   // Auto-enter reroll selection mode immediately
   _rrMode=true;_rrDieId=null;
   AP().z.rs.forEach(d=>d.sel=false);
   renderAll();
   animGameDice(ap.z.rs); // 2_40: roll animation
+  // 5_100: sync initial roll tumble to opponent (Tim)
+  if(_onlineActive&&ap.z.rs.length){
+    G.rerollSync={diceIds:ap.z.rs.map(d=>d.id),ts:Date.now()};
+    pushState();
+  }
 }
 function refillBag(p){
   // Never include HC die in bag refill
@@ -1809,6 +1817,12 @@ function confirmRRSel(){if(aiGuard())return;
   });
   const _isBonusRR=G.clock===10&&G.ap===G.foWinner&&G.bonusRRUsed&&!G.rrUsed;
   addLog(`${ap.name}: Rerolled ${sel.length} dice${_isBonusRR?' (bonus)':''}.`);
+  if(sel.length) noteTurn(`🎲 Rerolled ${sel.length} dice${_isBonusRR?' (bonus)':''}`);
+  // 5_99: sync reroll animation to opponent (Tim)
+  if(_onlineActive&&sel.length){
+    G.rerollSync={diceIds:sel.map(d=>d.id),ts:Date.now()};
+    pushState();
+  }
   const wasFreeReroll=(_rrDieId===null);
   _rrMode=false;_rrDieId=null;
   if(wasFreeReroll){
@@ -1997,8 +2011,10 @@ function assignDie(die,action){
   G.assignmentStarted=true;
   if(action==='shoot'){
     ap.z.rs.splice(idx,1);
+    const _zone=G.clock>2?'Cold':'Hot';
     if(G.clock>2)ap.z.cold.push(die);else ap.z.hot.push(die);
-    addLog(`${ap.name}: ${dLbl(die)}→${G.clock>2?'Cold':'Hot'} Zone (clock ${G.clock<10?'0'+G.clock:G.clock}:00).`);
+    addLog(`${ap.name}: ${dLbl(die)}→${_zone} Zone (clock ${G.clock<10?'0'+G.clock:G.clock}:00).`);
+    if(_onlineActive) G.turnCounts.off++; // 5_104: batched (Tim)
   }else if(action==='shoot-cost'){
     // Open energy picker — cost is 1E
     closeMenus();
@@ -2012,12 +2028,14 @@ function assignDie(die,action){
       ap2.z.rs.splice(ap2.z.rs.indexOf(d2),1);
       if(G.clock>2)ap2.z.cold.push(d2);else ap2.z.hot.push(d2);
       addLog(`${ap2.name}: ${dLbl(d2)}→${G.clock>2?'Cold':'Hot'} Zone (1⚡ paid).`);
+      if(_onlineActive)G.turnCounts.off++; // 5_106: costed advance counts as offensive (Tim)
       renderAll();
     });
     return;
   }else if(action==='block'){
     ap.z.rs.splice(idx,1);ap.z.defend.push(die);
     addLog(`${ap.name}: ${dLbl(die)}→Defensive Zone.`);
+    if(_onlineActive) G.turnCounts.def++; // 5_104: batched (Tim)
   }else if(action==='block-cost'){
     closeMenus();
     const dieId=die.id;
@@ -2029,6 +2047,7 @@ function assignDie(die,action){
       ap2.z.rs.splice(ap2.z.rs.indexOf(d2),1);
       ap2.z.defend.push(d2);
       addLog(`${ap2.name}: ${dLbl(d2)}→Defensive Zone (1⚡ paid).`);
+      if(_onlineActive)G.turnCounts.def++; // 5_106: costed advance counts as defensive (Tim)
       renderAll();
     });
     return;
@@ -2065,6 +2084,7 @@ function assignDie(die,action){
     if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
     ap.z.rs.splice(idx,1);ap.z.reserve.push(die);die.energyPending=false;
     addLog(`${ap.name}: ${dLbl(die)} saved in Reserve.`);
+    if(_onlineActive)G.turnCounts.res++; // 5_106 (Tim)
   }else if(action==='wild-energy'){
     // Wild-as-energy removed from game — this action should not be reached
     toast('Wild can only be assigned as Shoot or Block.');return;
@@ -2133,6 +2153,7 @@ function assignDie(die,action){
       ap.z.hot.push(advanced);
       G.advPending=false;
       addLog(`${ap.name}: ADV — ${dLbl(advanced)} advanced Cold→Hot Zone immediately.`,'imp');
+      if(_onlineActive)G.turnCounts.adv++; // 5_106 (Tim)
       renderAll();return;
     }else{
       // 2_161: multiple cold dice — popup picker (Cold Zone is below the fold on phones)
@@ -2165,6 +2186,7 @@ function openAdvPicker(){
         ap2.z.hot.push(adv);
         G.advPending=false;
         addLog(`${ap2.name}: ADV \u2014 ${dLbl(adv)} advanced Cold\u2192Hot Zone.`,'imp');
+        if(_onlineActive)G.turnCounts.adv++; // 5_106 (Tim)
       }
       closeAdvPicker();renderAll();
     });
@@ -2319,6 +2341,11 @@ function goonResolveFight(){
   const gr=[rcfF(),rcfF(),rcfF()],tr=[rcfF(),rcfF()]; // 4_54: fight dice
   const gTot=gr.reduce((a,b)=>a+b,0),tTot=tr.reduce((a,b)=>a+b,0);
   const won=gTot>tTot; // ties go to the target (defender)
+  // 5_98: sync fight to opponent (Tim) — they watch the same rolls
+  if(_onlineActive){
+    G.fightSync={gr:gr.slice(),tr:tr.slice(),gTot,tTot,won,goonKey:'Goon',targetKey:t.die.key,ts:Date.now()};
+    pushState();
+  }
   // 4_46 (Tim): the fight rolls out like the faceoff — header names who controls which
   document.getElementById('goon-pick').style.display='none';
   document.getElementById('goon-fight').style.display='block';
@@ -2352,6 +2379,7 @@ function goonResolveFight(){
       addLog(`🥊 Goon loses ${gTot}-${tTot}. Goon iced`+(_gotPen?', penalty die to bag.':', pool empty, no penalty.')+'.','imp');
     }
     _goonFightUsed=true;
+    noteTurn(won?`🥊 Goon wins! ${t.die.key} iced`:`🔲 Goon loses — penalty die added`);
     document.getElementById('goon-result-text').innerHTML=html;
     setTimeout(()=>{
       document.getElementById('goon-fight').style.display='none';
@@ -2361,7 +2389,75 @@ function goonResolveFight(){
   });
 }
 
-function goonCloseFight(){document.getElementById('goon-panel').classList.remove('show');_goonDie=null;_goonTarget=null;renderAll();}
+// 5_98: Opponent watches a synced fight (Tim) — same animation, no buttons
+// 5_101: Clear turn notes when the new player starts their turn (after seeing summary)
+function clearTurnNotes(){ G.turnNotes=[]; if(_onlineActive)pushState(); }
+
+// 5_101: Online turn summary (Tim) — like Chuck's summary, but for human opponents
+function showOnlineTurnSummary(){
+  const notes=G.turnNotes||[];
+  if(!notes.length) return; // nothing to show
+  const oppIdx=1-_mySlot;
+  const oppName=G.players[oppIdx]?G.players[oppIdx].name:'Opponent';
+  let el=document.getElementById('ai-pill');
+  if(!el){el=document.createElement('div');el.id='ai-pill';document.body.appendChild(el);}
+  clearTimeout(el._t);
+  el.classList.add('summary');
+  el.innerHTML=`<div class="ai-sum-head">👤 <b>${oppName.toUpperCase()}'S TURN SUMMARY</b></div>`+
+    `<div class="ai-sum-notes">${notes.map(n=>`<div>${n}</div>`).join('')}</div>`+
+    `<button class="abtn prim" id="online-take-turn">Start Turn ▸</button>`;
+  el.classList.add('show');
+  document.getElementById('online-take-turn').addEventListener('click',()=>{
+    el.classList.remove('show');el.classList.remove('summary');el.innerHTML='';
+    clearTurnNotes();
+    renderAll();
+  });
+}
+
+// 5_101: Helper to add a note to the current turn (synced to opponent)
+function noteTurn(msg){
+  if(!_onlineActive) return;
+  G.turnNotes.push(msg);
+  // Don't push on every note — the endTurn push will include them
+}
+
+// 5_101: Opponent watches a synced fight (Tim) — same animation, no buttons
+function showFightWatch(fs){
+  if(!fs||!fs.gr)return;
+  document.getElementById('goon-pick').style.display='none';
+  document.getElementById('goon-fight').style.display='block';
+  document.getElementById('goon-result').style.display='none';
+  document.getElementById('goon-f1-name').textContent=`${whoEmoji(1-_mySlot)} Goon`;
+  document.getElementById('goon-f2-name').textContent=`${whoEmoji(_mySlot)} ${fs.targetKey}`;
+  const d1=document.getElementById('goon-f1-dice'),d2=document.getElementById('goon-f2-dice');
+  d1.innerHTML=fs.gr.map(()=>`<div class="goon-die">?</div>`).join('');
+  d2.innerHTML=fs.tr.map(()=>`<div class="goon-die">?</div>`).join('');
+  document.getElementById('goon-f1-total').textContent='–';
+  document.getElementById('goon-f2-total').textContent='–';
+  document.getElementById('goon-fight-win').textContent='🥊 Fighting…';
+  document.getElementById('goon-panel').classList.add('show');
+  animNumbers([...d1.children,...d2.children],[...fs.gr,...fs.tr],()=>{
+    document.getElementById('goon-f1-total').textContent=fs.gTot;
+    document.getElementById('goon-f2-total').textContent=fs.tTot;
+    let html=`🥊 Goon [${fs.gr.join(',')}=${fs.gTot}] vs ${fs.targetKey} [${fs.tr.join(',')}=${fs.tTot}]<br>`;
+    if(fs.won){
+      document.getElementById('goon-fight-win').textContent=`${whoEmoji(1-_mySlot)} Goon wins!`;
+      html+=`<strong style="color:#7bdb7b">Goon wins ${fs.gTot}-${fs.tTot}!</strong> ${fs.targetKey} → Iced. Goon → Iced.`;
+    }else{
+      document.getElementById('goon-fight-win').textContent=`${whoEmoji(_mySlot)} ${fs.targetKey} wins!`;
+      html+=`<strong style="color:#ff8888">Goon loses ${fs.gTot}-${fs.tTot}.</strong> Goon → Iced, penalty die to goon player's bag.`;
+    }
+    document.getElementById('goon-result-text').innerHTML=html;
+    setTimeout(()=>{
+      document.getElementById('goon-fight').style.display='none';
+      document.getElementById('goon-result').style.display='block';
+      // Opponent sees result but no Continue button (goon player controls it)
+      const btn=document.querySelector('#goon-result .abtn');
+      if(btn){btn.style.display='none';}
+    },1400);
+  });
+}
+function goonCloseFight(){document.getElementById('goon-panel').classList.remove('show');_goonDie=null;_goonTarget=null;G.fightSync=null;if(_onlineActive)pushState();renderAll();} // 5_98: clear fight sync (Tim)
 function sendBench(p,d){if(p.z.bench.length>=2)p.z.iced.push(d);else p.z.bench.push(d);}
 
 // ═══════════════════ ECONOMY (spin-down) ═══════════════════
@@ -2515,6 +2611,7 @@ function completeBuy(cardIdx,trashDieId){
   card.left--;
   ap.z.iced.push(mkDie(card.key));
   addLog(`${ap.name}: Bought ${card.key} → Iced Zone.`,'imp');
+  noteTurn(`📝 bought ${card.key}`);
   awardBuyBonus(ap,card);
   renderAll();
 }
@@ -2575,6 +2672,7 @@ function buyTok(type){if(aiGuard())return;
   openEPicker(3, `buy 1 ${type} Token`, ()=>{
     const ap2=AP();ap2.tokBought=ap2.tokBought||{shoot:0,block:0};
     ap2.tok[type]++;ap2.tokBought[type]++;
+    if(_onlineActive)G.turnCounts[type==='shoot'?'tokS':'tokB']++; // 5_106: token buys counted (Tim)
     addLog(`${ap2.name}: Bought 1 ${type} Token (3E).`);
     renderAll();
   });
@@ -2599,6 +2697,7 @@ function declareShot(){if(aiGuard())return;
   if(G.shotDeclared){toast('Only one shot per turn is allowed!');return;}
   if(!ap.z.shoot.length){toast('Add dice to Shoot Zone first!');return;}
   G.shotDeclared=true;
+  noteTurn(`🏒 shoots with ${ap.z.shoot.length} ${ap.z.shoot.length===1?'die':'dice'}`); // 5_103: 🏒 like Chuck (Tim)
   _shotHeldOut=new Set(); // 3_32: fresh hold-out set per shot
   G.combatResult=null; // clear any stale result from an earlier combat
   G.combatDone=false;
@@ -2872,7 +2971,7 @@ function armDieceEgg(){
     });
   });
 }
-function clockBlockBonus(){return G.clock>=5?1:(G.clock>=2?2:(G.clock===1?3:0));}
+function clockBlockBonus(){return G.clock>=3?1:(G.clock===2?2:(G.clock===1?3:0));} // 5_93: matches v5.91 hot zone (proactive)
 function renderBselInfo(){
   const el=document.getElementById('bsel-info');if(!el)return;
   const sel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
@@ -2957,13 +3056,19 @@ function resolveCombat(){
     if(_aiTurnNotes[li].includes('shoots with')) // 2_162: notes lead with emoji, startsWith never matched — GOAL!/Blocked! never appended
       _aiTurnNotes[li]+=isGoal?' — GOAL! 🚨':' — Blocked!';
   }
+  // 5_103: human online — same outcome append (Tim)
+  if(_onlineActive&&G.turnNotes.length){
+    const li=G.turnNotes.length-1;
+    if(G.turnNotes[li].includes('shoots with'))
+      G.turnNotes[li]+=isGoal?' — GOAL! 🚨':' — Blocked!';
+  }
   // The full result travels to the other client so the shooter sees the same
   // GOAL!/BLOCKED reveal (combat dice are rolled once, by the defender).
   const result={sr,br,sTotal,bTotal,isGoal,sTok:shootTokensUsed,bTok:blockTokensUsed,
     sBreak:`${shootBreakdown||'0 dice'} → ${numShootDice} combat ${cDiceWord(numShootDice)} [${sr.join(',')}] +${shootTokensUsed}tok`,
     bBreak:`${blockBreakdown||'0 dice'} → ${numBlockDice} combat ${cDiceWord(numBlockDice)} [${br.join(',')}] +${bonus}bonus +${blockTokensUsed}tok`};
   if(result.isGoal){
-    addLog(`🚨 GOAL! ${ap.name} scores! (${sTotal} vs ${bTotal})`,'goal');
+    addLog(`🚨 GOAL! ${ap.name} scores! (${sTotal} vs ${bTotal})`,'goal'); // 5_103: outcome appended to shot note above (Tim)
     ap.goals++;
     ap.z.shoot.forEach(d=>ap.z.iced.push(d));ap.z.shoot=[];
     ap.tok.shoot=Math.max(0,ap.tok.shoot-shootTokensUsed);
@@ -3027,6 +3132,7 @@ function setupBenchPick(loserSlot,zone,ids){
 // Also gates the Continue button until the choice is confirmed.
 function refreshBenchPhase(){
   const bp=G.benchPick;
+  if(bp&&!bp.done&&!G.combatAnimDone)return; // 5_97: wait for dice to land (Tim)
   const area=document.getElementById('bench-pick-area');
   const waitLine=document.getElementById('bench-wait-line');
   const cbtn=document.getElementById('combat-continue-btn');
@@ -3123,6 +3229,7 @@ function confirmBenchPick(){
 // Display-only combat reveal — used locally by the resolver AND remotely by
 // the other client from the synced result (never re-rolls, never mutates G).
 function showCombatResult(r){
+  G.combatAnimDone=false; // 5_97: bench UI waits for animation (Tim)
   // 2_40: combat dice scramble first — totals, banner, and Continue land on the settle.
   const _sc=document.getElementById('scdice'),_bc=document.getElementById('bcdice');
   _sc.innerHTML=
@@ -3168,6 +3275,7 @@ function showCombatResult(r){
     // 2_44: bench-choice UI lands here, on the settle — after the dice stop
     // scrambling and the result is displayed. (The immediate call that used
     // to sit below this line showed it mid-roll.)
+    G.combatAnimDone=true; // 5_97: animation complete, bench UI may show (Tim)
     refreshBenchPhase(); // bench-pending override wins, as before 2_40
     aiMaybeBench(); // 2_45: Vs AI hook — AI benches its best dice
   });
@@ -3235,6 +3343,7 @@ function endTurn(){if(aiGuard())return;
     toSave.forEach(d=>{
       ap.z.rs.splice(ap.z.rs.indexOf(d),1);d.energyPending=false;ap.z.reserve.push(d);
       addLog(`${ap.name}: Leftover ${d.face.v}E auto-saved to Reserve.`);
+      if(_onlineActive)G.turnCounts.res++; // 5_106: parity with Chuck's post-buy sweep count (Tim)
     });
   }
   // HC die goes back to set-aside (not iced); everything else → iced
@@ -3247,6 +3356,16 @@ function endTurn(){if(aiGuard())return;
   G.clock=Math.max(0,G.clock-1);
   addLog(`${ap.name}: Turn ended. Clock→${G.clock<10?'0'+G.clock:''+G.clock}:00.`);
   const justPlayedIdx=G.ap;
+  // 5_104: Generate batched turn notes (Tim) — like Chuck's summary
+  if(_onlineActive){
+    const tc=G.turnCounts;
+    if(tc.off>0) G.turnNotes.push(`🔵 assigned ${tc.off} ${tc.off===1?'die':'dice'} to offensive zone`);
+    if(tc.def>0) G.turnNotes.push(`🔴 assigned ${tc.def} ${tc.def===1?'die':'dice'} to defensive zone`);
+    if(tc.tokS>0) G.turnNotes.push(`🎯 bought ${tc.tokS} Shoot ${tc.tokS===1?'token':'tokens'}`); // 5_105: batched (Tim)
+    if(tc.tokB>0) G.turnNotes.push(`🛡️ bought ${tc.tokB} Block ${tc.tokB===1?'token':'tokens'}`); // 5_105: batched (Tim)
+    if(tc.adv>0) G.turnNotes.push(`🔼 advanced ${tc.adv} ${tc.adv===1?'die':'dice'} Cold → Hot`); // 5_106 (Tim)
+    if(tc.res>0) G.turnNotes.push(`💲 reserved ${tc.res} ${tc.res===1?'die':'dice'}`); // 5_106: 💲 not 🏦 (Tim)
+  }
   G.ap=1-G.ap;
   // Period ends after whoever holds the 1:00 turn completes it (clock ticks to 0)
   const periodSecond=1-G.periodFirstPlayer;
@@ -3578,6 +3697,7 @@ function renderZone(zid,arr,opts={}){
           ap2.z.hot.push(adv);
           G.advPending=false;
           addLog(`${ap2.name}: ADV — ${dLbl(adv)} advanced Cold→Hot Zone.`,'imp');
+          if(_onlineActive)G.turnCounts.adv++; // 5_106 (Tim)
           renderAll();
         }
       });
@@ -4832,7 +4952,7 @@ function soShowResult(r){
         _aiBusy=false; // 2_61: AI is done — release the guard so the player's tap works
       }else{
         nb.style.display='';
-        nb.textContent = _soLastBtn || 'AI Turn →'; // 2_69: directional — you're advancing to the AI's turn
+        nb.textContent = _soLastBtn || (_onlineActive&&!_so.vsAI?'Opponent Turn →':'AI Turn →'); // 2_69: directional // 5_96: online says Opponent (Tim)
       }
       // Online: only the player who just shot clicks Next — the other side waits.
       if(_onlineActive && _mySlot!==r.playerIdx){
@@ -5448,7 +5568,7 @@ function pushState(){
     penaltyPool:G.penaltyPool, shotDeclared:G.shotDeclared, shotLocked:!!G.shotLocked, fo:G.fo||null, so:G.so||null, gameOver:G.gameOver||null, pe:G.pe||null,
     assignmentStarted:G.assignmentStarted, advPending:G.advPending,
     blockSelIds:G.blockSelIds||[], blockToksUsed:G.blockToksUsed||0,
-    rrUsed:G.rrUsed, periodFirstPlayer:G.periodFirstPlayer,
+    rrUsed:G.rrUsed, periodFirstPlayer:G.periodFirstPlayer, foWinner:G.foWinner, fightSync:G.fightSync||null, rerollSync:G.rerollSync||null, turnNotes:G.turnNotes||[], turnCounts:G.turnCounts||{off:0,def:0,adv:0,res:0,tokS:0,tokB:0},
     players:[serPlayer(G.players[0]),serPlayer(G.players[1])],
     log:G.log.slice(-30), ts:Date.now(),
   };
@@ -5488,6 +5608,7 @@ function pullState(remote){
     document.getElementById('combat-panel').classList.remove('show');
   }
   // Apply full remote state to local G
+  const _prevAp=G.ap; // 5_101: detect turn flip for summary (Tim)
   G.period=remote.period; G.ap=remote.ap; G.phase=remote.phase;
   G.clock=remote.clock; G.penaltyPool=remote.penaltyPool;
   G.shotDeclared=remote.shotDeclared; G.shotLocked=!!remote.shotLocked; G.fo=remote.fo||null; G.gameOver=remote.gameOver||null; G.pe=remote.pe||null; G.assignmentStarted=remote.assignmentStarted;
@@ -5499,7 +5620,34 @@ function pullState(remote){
   G.benchPick=remote.benchPick?{loser:remote.benchPick.loser,zone:remote.benchPick.zone,
     ids:remote.benchPick.ids||[],picked:remote.benchPick.picked||[],
     need:remote.benchPick.need||0,done:!!remote.benchPick.done}:null;
-  G.periodFirstPlayer=remote.periodFirstPlayer;
+  G.periodFirstPlayer=remote.periodFirstPlayer; G.foWinner=remote.foWinner;
+  if(remote.turnNotes) G.turnNotes=remote.turnNotes;
+  if(remote.turnCounts) G.turnCounts=remote.turnCounts;
+  // 5_101: Turn just flipped to me — show opponent's summary (Tim)
+  if(_onlineActive&&_prevAp!==undefined&&_prevAp!==G.ap&&G.ap===_mySlot&&G.turnNotes&&G.turnNotes.length){
+    setTimeout(()=>showOnlineTurnSummary(),500);
+  }
+  if(remote.fightSync&&(!G.fightSync||remote.fightSync.ts!==G.fightSync.ts)){
+    G.fightSync=remote.fightSync;
+    showFightWatch(remote.fightSync);
+  }else if(!remote.fightSync&&G.fightSync){
+    G.fightSync=null;
+    document.getElementById('goon-panel').classList.remove('show');
+  }
+  // 5_99: reroll animation sync (Tim) — opponent sees the tumble
+  if(remote.rerollSync&&(!G.rerollSync||remote.rerollSync.ts!==G.rerollSync.ts)){
+    G.rerollSync=remote.rerollSync;
+    const diceIds=remote.rerollSync.diceIds||[];
+    const dice=[];
+    G.players.forEach(pl=>{
+      Object.values(pl.z).forEach(zone=>{
+        if(Array.isArray(zone)) zone.forEach(d=>{
+          if(d&&diceIds.includes(d.id)) dice.push(d);
+        });
+      });
+    });
+    if(dice.length) animGameDice(dice);
+  }
   remote.players.forEach((rp,i)=>{
     const lp=G.players[i];
     lp.name=rp.name; lp.teamName=rp.teamName; lp.goals=rp.goals;
@@ -6247,7 +6395,7 @@ function aiDoAssign(P){
     // 2_148: narrate it — the player needs to know a Penalty die hit their bag
     let nPen=0;
     [...ap.z.rs].forEach(d=>{if(d.face&&d.face.t==='PEN'&&G.penaltyPool>0){assignDie(d,'pen-give');nPen++;}});
-    if(nPen)aiPill(`⛔ sent ${nPen} Penalty ${nPen===1?'die':'dice'} to your bag`);
+    if(nPen)aiPill(`🔲 sent ${nPen} Penalty ${nPen===1?'die':'dice'} to your bag`); // 5_94: 🔲 for penalty (Tim)
     // 2_92: Coach assignment order (Tim's spec) —
     // 1. shoot → 2. block → 3. shutout → 4. ADV → 5. PEN → 6. wild → 7. energy (next)
     // 1. SHOOT faces → cold/hot (costed: pay if able, else ice immediately — 4_21, Tim)
@@ -6567,6 +6715,7 @@ function aiDoBuy(P){
           let tt;try{tt=aiPickTokenType();}catch(e){break;}
           try{aiSpendE(3,false);}catch(e){break;}
           if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
+
           else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
           continue;
         }
@@ -6645,7 +6794,7 @@ function aiDoBuy(P){
   }finally{
     _aiSelf=false;
     // 2_121: single combined reserve line for the summary ("reserved x dice")
-    if(_aiReserveBanked>0)aiPill(`🏦 reserved ${_aiReserveBanked} ${_aiReserveBanked===1?'die':'dice'}`);
+    if(_aiReserveBanked>0)aiPill(`💲 reserved ${_aiReserveBanked} ${_aiReserveBanked===1?'die':'dice'}`); // 5_104: 💲 not 🏦 (Tim)
   }
 }
 // 4_02: smart token need (Tim) — which token type does Chuck need more?
