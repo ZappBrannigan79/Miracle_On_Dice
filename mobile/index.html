@@ -558,15 +558,9 @@ body:has(#game.screen.active){height:100%;overflow:hidden;margin:0;}
 /* ---- dice: touch-sized, keep desktop faces/colors ---- */
 #m-scroll .die-body{width:60px;height:60px;}
 #m-scroll .die-body:active{transform:scale(1.12);}
-#m-tabbody .die-body{width:60px;height:60px;}
 
-/* ---- tab bar for shoot / iced / bench / reserve ---- */
-#m-tabs{display:flex;gap:6px;}
-.m-tab{flex:1;padding:11px 4px;border-radius:10px;background:#131f38;color:#8b94a7;
-  border:1px solid #22314f;font-weight:800;font-size:.68em;letter-spacing:.6px;cursor:pointer;}
-.m-tab.active{background:#d4a94e;color:#111;border-color:#d4a94e;}
-.m-tab .n{opacity:.75;font-weight:700;}
-#m-tabbody{display:flex;flex-direction:column;}
+/* ---- dice in stage: larger touch targets ---- */
+#m-stage .die-body{width:64px;height:64px;}
 
 /* ---- opponent / quick actions / log ---- */
 #m-scroll .opp-area{width:100%!important;}
@@ -658,18 +652,106 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 /* 2_45 AI pills: clear the bottom action bar like the toast does */
 #ai-pill{bottom:calc(90px + env(safe-area-inset-bottom))!important;}
 
-/* 3_39: opponent summary box — mirrors the reset button, left of the clock.
-   Revert: delete this block + the boot-script creation + the renderOpp hook. */
-#m-oppsummary{position:absolute;left:2px;top:50%;transform:translateY(-50%);
-  background:rgba(0,0,0,.45);border:1px solid rgba(140,160,200,.35);border-radius:10px;
-  padding:4px 8px;font-size:.68em;line-height:1.4;color:#cdd6ea;text-align:center;min-width:66px;}
-#m-oppsummary .m-os-title{font-weight:700;color:#fff;letter-spacing:.05em;}
-#m-oppsummary .m-os-line{white-space:nowrap;}
-#m-oppsummary .m-os-chip{display:inline-block;vertical-align:top;background:rgba(255,255,255,.07);border:1px solid rgba(140,160,200,.4);border-radius:6px;padding:1px 7px;margin:1px;min-width:44px;}
-#m-oppsummary .m-os-chip b{display:block;font-size:1.15em;color:#fff;line-height:1.1;}
-#m-oppsummary .m-os-chip small{display:block;font-size:.62em;color:#8b96b0;line-height:1.2;}
-#m-oppsummary .m-os-off{background:rgba(30,60,160,.4);border-color:rgba(80,120,255,.55);}
-#m-oppsummary .m-os-def2{background:rgba(120,20,20,.4);border-color:rgba(200,50,50,.55);}
+/* v2: OPP offense/defense split around clock (Tim's layout) */
+#m-clockrow{display:flex!important;align-items:stretch;gap:8px;width:100%;}
+#m-clockrow #timerbox{flex:1.2;}
+.m-oppbox{flex:1;background:rgba(0,0,0,.45);border:1px solid;border-radius:10px;
+  padding:6px 4px;font-size:.62em;line-height:1.5;color:#cdd6ea;text-align:center;
+  display:flex;flex-direction:column;justify-content:center;}
+.m-oppbox.off{border-color:rgba(80,120,255,.5);}
+.m-oppbox.def{border-color:rgba(255,80,80,.5);}
+.m-oppbox .m-opp-lbl{font-weight:800;letter-spacing:.5px;font-size:.9em;}
+.m-oppbox.off .m-opp-lbl{color:#7aa5ff;}
+.m-oppbox.def .m-opp-lbl{color:#ff8080;}
+.m-oppbox .m-opp-pips{font-size:1.3em;font-weight:900;color:#fff;}
+.m-oppbox .m-opp-dice{color:#8b96b0;}
+
+/* v2: STAGE — active zone (RS or Hot) */
+#m-stage{margin-bottom:10px;}
+#m-stage .zone{width:100%!important;background:#0e1c36;border:2px solid #d4a94e!important;
+  border-radius:14px;padding:12px;}
+#m-stage .zone-lbl{font-size:.75em!important;color:#d4a94e!important;margin-bottom:10px;
+  font-weight:800;letter-spacing:1px;text-align:center;}
+#m-stage .zone-dice{display:flex;flex-wrap:wrap;gap:10px;min-height:70px;justify-content:center;}
+#m-stage .die-body{width:64px;height:64px;}
+
+/* v2: mini zone grid — 3 columns, each a vertical stack (v5.114) */
+#m-zonegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.m-zcol{display:flex;flex-direction:column;gap:8px;}
+.m-mini{background:rgba(255,255,255,.04);border:2px solid;border-radius:12px;
+  padding:8px 4px;text-align:center;cursor:pointer;min-height:76px;
+  display:flex;flex-direction:column;justify-content:center;}
+.m-mini:active{transform:scale(.96);}
+.m-mini-lbl{font-size:.62em;font-weight:800;letter-spacing:.8px;margin-bottom:4px;}
+.m-mini-dots{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;margin:4px 0;}
+.m-dot{width:12px;height:12px;border-radius:50%;}
+/* v5.114: Tim's dot colors — blue F, red D, white R, grey G */
+.m-dot.F{background:#508cff;}.m-dot.D{background:#ff5050;}.m-dot.G{background:#888;}
+.m-dot.R{background:#fff;}.m-dot.HC{background:#ffd75e;}.m-dot.GN{background:#55ff55;}
+.m-dot.P{background:#555;}
+.m-mini-pips{font-size:.68em;color:#8b96b0;font-weight:700;}
+.m-mini-count{font-size:1.7em;font-weight:900;color:#8b96b0;}
+.m-mini.z-def{border-color:rgba(255,80,80,.5);}.m-mini.z-def .m-mini-lbl{color:#ff8080;}
+.m-mini.z-rs{border-color:rgba(160,120,80,.5);}.m-mini.z-rs .m-mini-lbl{color:#c09060;}
+.m-mini.z-hot{border-color:rgba(40,80,180,.6);}.m-mini.z-hot .m-mini-lbl{color:#6a9aff;}
+.m-mini.z-cold{border-color:rgba(140,180,255,.5);}.m-mini.z-cold .m-mini-lbl{color:#aaccff;}
+.m-mini.z-yel{border-color:rgba(255,215,94,.4);}.m-mini.z-yel .m-mini-lbl{color:#ffd75e;}
+.m-mini.z-iced{border-color:rgba(255,255,255,.15);}.m-mini.z-iced .m-mini-lbl{color:#888;}
+
+/* v5.114: center the auto-assign button in stage (Tim) */
+#m-stage .rs-actions{display:flex;justify-content:center;}
+#m-stage .rs-actions .abtn{margin:0 auto;}
+
+/* v5.119: RS zone stays visible even when empty — no melt on mobile (Tim) */
+#m-stage .zone.z-rs.rs-done{opacity:1!important;max-height:none!important;min-height:70px!important;
+  margin:0!important;padding:12px!important;overflow:visible!important;border-width:2px!important;
+  transition:none!important;}
+#m-turnhead{display:flex!important;flex-direction:column;align-items:center;padding:4px 0;}
+#m-turnrow{display:flex!important;align-items:center;justify-content:space-between;width:100%;padding:2px 12px;}
+.m-headcount{font-size:.68em;color:#8b96b0;font-weight:700;letter-spacing:.5px;opacity:.75;white-space:nowrap;min-width:60px;}
+#m-bagcount{text-align:left;}
+#m-icedcount{text-align:right;}
+#m-turnrow .active-label{flex:1;text-align:center;font-size:.92em;font-weight:800;}
+#m-turnhead .tok-strip{width:100%;justify-content:center;margin-top:4px;}
+
+/* v5.120: opponent board popup (Tim) */
+.m-oppbd-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:10001;
+  display:flex;align-items:center;justify-content:center;padding:16px;}
+.m-oppbd{background:#0d1628;border:2px solid #7aa5ff;border-radius:16px;padding:18px;
+  max-width:380px;width:100%;max-height:80dvh;overflow-y:auto;}
+.m-oppbd-title{text-align:center;font-weight:800;color:#aaa;letter-spacing:1px;
+  font-size:.95em;margin-bottom:12px;}
+.m-oppbd-toks{display:flex;gap:10px;justify-content:center;margin-bottom:12px;}
+.m-oppbd-tok{padding:8px 18px;border-radius:20px;font-weight:800;font-size:.9em;border:2px solid;}
+.m-oppbd-tok.shoot{border-color:#508cff;color:#7aa5ff;}
+.m-oppbd-tok.block{border-color:#ff5050;color:#ff8080;}
+.m-oppbd-zones{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px;}
+.m-oppbd-zone{background:rgba(255,255,255,.04);border:2px solid;border-radius:10px;
+  padding:8px 2px;text-align:center;cursor:pointer;}
+.m-oppbd-zone:active{transform:scale(.95);}
+/* v5.121: color-coded zones (Tim) */
+.m-oppbd-zone.z-hot{border-color:rgba(40,80,180,.7);}
+.m-oppbd-zone.z-cold{border-color:rgba(140,180,255,.6);}
+.m-oppbd-zone.z-def{border-color:rgba(255,80,80,.6);}
+.m-oppbd-zone.z-yel{border-color:rgba(255,215,94,.5);}
+.m-oppbd-zl{font-size:.58em;font-weight:800;letter-spacing:.5px;color:#888;margin-bottom:4px;}
+.m-oppbd-zv{font-size:1.2em;font-weight:900;color:#fff;}
+.m-oppbd-zv.big{font-size:1.8em;}
+.m-oppbd-zv span{font-size:.6em;color:#888;font-weight:400;margin-left:2px;}
+.m-oppbd-zd{font-size:.62em;color:#8b96b0;margin-top:2px;}
+.m-oppbd-bottom{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.m-oppbd-close{width:100%;padding:12px;border:none;border-radius:10px;background:#d4a94e;
+  color:#111;font-weight:800;font-size:.9em;}
+
+/* v2: opp board button in bottom bar (v5.116: one row, END TURN far right) */
+#m-bar{display:flex;gap:8px;}
+#m-bar #arow{flex:1;display:flex;gap:8px;}
+#m-bar #arow .abtn{flex:1;padding:12px 4px;font-size:.72em;border-radius:12px;min-height:52px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+#m-bar #arow:empty{display:none;}
+.m-oppbtn{flex:1;padding:12px 4px;border-radius:12px;background:rgba(255,255,255,.08);
+  border:1px solid #2a3f5c;color:#fff;font-weight:800;font-size:.72em;cursor:pointer;
+  min-height:52px;white-space:nowrap;}
 
 /* 3_96: small dialogs opt out of the bottom-sheet → centered capsules (Tim).
    Shootout / bag viewer keep the sheet; they need the room. */
@@ -679,6 +761,33 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 
 /* 4_00: game-log toggle — full-bleed strip on phones like the old QA bar */
 #m-scroll .glog-toggle{margin:0!important;width:100%;border-radius:0;border-left:none;border-right:none;}
+
+/* v5.128: END TURN shrinks to fit instead of truncating (Tim) */
+#m-bar #arow .abtn{font-size:.68em;letter-spacing:-.3px;}
+/* v5.128: dim the ICED/BAG boxes on opp board (Tim) */
+.m-oppbd-bottom .m-oppbd-zone{border-color:rgba(255,255,255,.25);}
+.m-oppbd-bottom .m-oppbd-zl{color:#6b7690;}
+.m-oppbd-bottom .m-oppbd-zv{color:#c8d0e0;}
+
+/* v5.129: END TURN fits — smaller font on ALL bar buttons (Tim) */
+#m-bar .abtn, #m-bar .m-oppbtn{font-size:.62em!important;letter-spacing:-.5px;padding:12px 2px!important;}
+
+/* v5.130: opp board numbers match zone colors (Tim) */
+.m-oppbd-zone.z-hot .m-oppbd-zv{color:#5a8cff;}
+.m-oppbd-zone.z-cold .m-oppbd-zv{color:#a8c8ff;}
+.m-oppbd-zone.z-def .m-oppbd-zv{color:#ff7a7a;}
+.m-oppbd-zone.z-bench .m-oppbd-zv{color:#ffffff;}
+.m-oppbd-zone.z-res .m-oppbd-zv{color:#ffd94a;}
+/* Zone borders to match */
+.m-oppbd-zone.z-hot{border-color:rgba(90,140,255,.7);}
+.m-oppbd-zone.z-cold{border-color:rgba(168,200,255,.6);}
+.m-oppbd-zone.z-def{border-color:rgba(255,122,122,.6);}
+.m-oppbd-zone.z-bench{border-color:rgba(255,255,255,.4);}
+.m-oppbd-zone.z-res{border-color:rgba(255,217,74,.6);}
+
+/* v5.131: pip number centered, bold, with "pip" below (Tim) */
+.m-oppbd-zv{font-size:1.6em;font-weight:900;text-align:center;line-height:1.1;}
+.m-oppbd-zp{font-size:.6em;color:#888;text-align:center;margin-bottom:2px;}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -689,7 +798,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.112</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.131</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -845,7 +954,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.112</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.131</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2382,17 +2491,17 @@ function goonResolveFight(){
       const ti=opp.z[t.zone].indexOf(t.die);if(ti!==-1)opp.z[t.zone].splice(ti,1);
       opp.z.iced.push(t.die);
       document.getElementById('goon-fight-win').textContent='';
-      if(_sum){_sum.innerHTML=`<div style="font-size:1.4em;font-weight:900;color:#7bdb7b;margin-bottom:8px;text-align:center">\U0001F94A Goon wins ${gTot}-${tTot}!</div><div style="color:#aaa;text-align:center">${t.die.key} \u2192 Iced.<br>Goon \u2192 Iced.</div>`;_sum.style.display='block';} // 5_112: single winner line (Tim)
-      addLog(`\U0001F94A Goon wins ${gTot}-${tTot}! ${t.die.key} iced, goon iced.`,'imp');
+      if(_sum){_sum.innerHTML=`<div style="font-size:1.4em;font-weight:900;color:#7bdb7b;margin-bottom:8px;text-align:center">🥊 Goon wins ${gTot}-${tTot}!</div><div style="color:#aaa;text-align:center">${t.die.key} \u2192 Iced.<br>Goon \u2192 Iced.</div>`;_sum.style.display='block';} // 5_112: single winner line (Tim)
+      addLog(`🥊 Goon wins ${gTot}-${tTot}! ${t.die.key} iced, goon iced.`,'imp');
     }else{
       const _gotPen=G.penaltyPool>0;
       if(_gotPen){ap.bag.push(mkDie('Penalty'));G.penaltyPool--;}
       document.getElementById('goon-fight-win').textContent='';
       if(_sum){_sum.innerHTML=`<div style="font-size:1.4em;font-weight:900;color:#7bdb7b;margin-bottom:8px;text-align:center">${t.die.key} wins ${tTot}-${gTot}!</div><div style="color:#aaa;text-align:center">Goon \u2192 Iced.<br>`+(_gotPen?'Penalty die \u2192 your bag.':'Pool empty \u2014 no penalty.')+`</div>`;_sum.style.display='block';} // 5_112: winner highlighted, not loser (Tim)
-      addLog(`\U0001F94A Goon loses ${gTot}-${tTot}. Goon iced`+(_gotPen?', penalty die to bag.':', pool empty, no penalty.')+'.','imp');
+      addLog(`🥊 Goon loses ${gTot}-${tTot}. Goon iced`+(_gotPen?', penalty die to bag.':', pool empty, no penalty.')+'.','imp');
     }
     _goonFightUsed=true;
-    noteTurn(won?`\U0001F94A Goon wins! ${t.die.key} iced`:`\U0001F532 Goon loses \u2014 penalty die added`);
+    noteTurn(won?`🥊 Goon wins! ${t.die.key} iced`:`\U0001F532 Goon loses \u2014 penalty die added`);
     const _sub=document.querySelector('#goon-panel .panel-sub'); if(_sub)_sub.style.display='none';
     if(_cont){_cont.disabled=false;}
     renderAll();
@@ -2455,7 +2564,7 @@ function showFightWatch(fs){
     const _wsum=document.getElementById('goon-fight-summary');
     if(fs.won){
       document.getElementById('goon-fight-win').textContent='';
-      if(_wsum){_wsum.innerHTML=`<div style="font-size:1.4em;font-weight:900;color:#7bdb7b;margin-bottom:8px;text-align:center">\U0001F94A Goon wins ${fs.gTot}-${fs.tTot}!</div><div style="color:#aaa;text-align:center">${fs.targetKey} \u2192 Iced.<br>Goon \u2192 Iced.</div>`;_wsum.style.display='block';} // 5_112 (Tim)
+      if(_wsum){_wsum.innerHTML=`<div style="font-size:1.4em;font-weight:900;color:#7bdb7b;margin-bottom:8px;text-align:center">🥊 Goon wins ${fs.gTot}-${fs.tTot}!</div><div style="color:#aaa;text-align:center">${fs.targetKey} \u2192 Iced.<br>Goon \u2192 Iced.</div>`;_wsum.style.display='block';} // 5_112 (Tim)
     }else{
       document.getElementById('goon-fight-win').textContent='';
       if(_wsum){_wsum.innerHTML=`<div style="font-size:1.4em;font-weight:900;color:#7bdb7b;margin-bottom:8px;text-align:center">${fs.targetKey} wins ${fs.tTot}-${fs.gTot}!</div><div style="color:#aaa;text-align:center">Goon \u2192 Iced.<br>Penalty die \u2192 goon player's bag.</div>`;_wsum.style.display='block';} // 5_112 (Tim)
@@ -4093,6 +4202,11 @@ function renderOpp(){
   const offPips=hotPips+coldPips, offDice=hp+cp;
   const osb=document.getElementById('m-oppsummary');
   if(osb){osb.innerHTML=`<div class="m-os-title">${whoEmoji(1-G.ap)} OPP</div><div class="m-os-line"><span class="m-os-chip m-os-off"><b>🏒 ${offPips}</b><small>${offDice} dice</small></span><span class="m-os-chip m-os-def2"><b>🥅 ${defPips}</b><small>${dp} dice</small></span></div>`;}
+  // v5.131: split opp boxes (Tim's layout) — offense left of clock, defense right
+  const mOff=document.getElementById('m-opp-off');
+  if(mOff){mOff.innerHTML=`<div class="m-opp-lbl">🏒 OPP OFF</div><div class="m-opp-pips">${offPips} pips</div><div class="m-opp-dice">${offDice} dice</div>`;}
+  const mDef=document.getElementById('m-opp-def');
+  if(mDef){mDef.innerHTML=`<div class="m-opp-lbl">🥅 OPP DEF</div><div class="m-opp-pips">${defPips} pips</div><div class="m-opp-dice">${dp} dice</div>`;}
 }
 function renderScore(){
   document.getElementById('sg1').textContent=G.players[0].goals;
@@ -4140,7 +4254,7 @@ function renderActions(){
   }
 
   if(G.phase<=2){
-    mk('🎲 Roll Dice',rollAll,'prim',false,true); // 4_34: gentle pulse — it's the primary action (Tim)
+    mk('ROLL DICE',rollAll,'prim',false,true); // v5.131: text only (Tim)
   } else if(G.phase===3){
     if(!G.assignmentStarted){
       // 4_22: confirm lives in the RS zone now — bottom keeps just Reroll None
@@ -4155,18 +4269,18 @@ function renderActions(){
     // 4_28 (Tim): turn winding down (shot taken, or no shot available w/ RS clear) —
     // End Turn becomes the pulsing gold primary; shop stays tappable but goes quiet.
     const windingDown=(G.combatDone&&G.shotDeclared)||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length); // 4_48
-    const shopBtn=mk('🛒 Open Shop',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown);
+    const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v5.131: short (Tim)
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
-      if(ap.z.hot.length){
-        // 3_34: shot taken — dead button, greyed like the hot dice (no second shot)
-        if(G.shotDeclared)mk('🔥 Commit All Hot',()=>{},'sec',true);
-        else mk('🔥 Commit All Hot',()=>{[...ap.z.hot].forEach(d=>moveToShoot(d.id));renderAll();},'blue pulsing-blue');
-      }
-      if(ap.z.shoot.length)mk('🚨 Declare Shot!',declareShot,'blue pulsing-blue'); // 5_71: blue like Commit All Hot (Tim)
-      else if(!ap.z.hot.length)mk('Move dice to Shoot Zone first',()=>{},'sec',true);
+      // v5.131: single Declare Shot — moves Hot->Shoot then opens card (Tim)
+      // Player can hold out shooters on the card (they return to Hot)
+      if(G.shotDeclared)mk('DECLARE SHOT',()=>{},'sec',true);
+      else mk('SHOOT',()=>{
+        [...ap.z.hot].forEach(d=>moveToShoot(d.id));
+        declareShot();
+      },'blue pulsing-blue');
     }
-    mk(G.shotDeclared?'⏭️ End Turn':'⏭️ End Turn',confirmEndTurn,windingDown?'prim':'sec',false,windingDown);
+    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v5.131: text only (Tim)
   }
   renderCombatPill(); // 3_27: slim popup pill (AI defend beats only)
 }
@@ -7222,8 +7336,11 @@ armDieceEgg();
 </script>
 
 <script>
-/* MOBILE SHELL v1 — re-parents the desktop sim's nodes (same ids, same logic)
-   into a portrait phone layout. Runs after the main script. */
+/* MOBILE SHELL v2 — Tim's layout redesign (Oct 11, 2026)
+   - Top: title, scoreboard, OPP OFFENSE | CLOCK | OPP DEFENSE, phase stepper
+   - Scroll: turn header, STAGE (RS/Hot), mini zone grid, game log
+   - Bottom: contextual buttons + Opp Board
+   Same ids, same game logic. */
 window.addEventListener('DOMContentLoaded', () => {
   const $ = id => document.getElementById(id);
   const game = $('game');
@@ -7236,71 +7353,268 @@ window.addEventListener('DOMContentLoaded', () => {
   const move = (n, p) => { if (n) p.appendChild(n); };
   const zwrap = id => { const el = $(id); return el ? el.closest('.zone') : null; };
 
-  // — sticky header: title, scoreboard, clock, phase stepper, utility btns —
+  // — sticky header: title, scoreboard —
   const topbar = game.querySelector('.top-bar');
   move(topbar.querySelector('.game-title'), top);
   move(topbar.querySelector('.scoreboard'), top);
-  // 3_28: clock + quit share a row; Buy/Lineup buttons are gone on phones (Tim) —
-  // Buy is covered by the bottom bar's Open Shop, Lineup lives on the opponent board view
+
+  // — clock row: OPP OFFENSE | CLOCK | OPP DEFENSE (v2: split, no reset) —
   const clockRow = document.createElement('div'); clockRow.id = 'm-clockrow';
   top.appendChild(clockRow);
+  const oppOff = document.createElement('div'); oppOff.id = 'm-opp-off'; oppOff.className = 'm-oppbox off';
+  const oppDef = document.createElement('div'); oppDef.id = 'm-opp-def'; oppDef.className = 'm-oppbox def';
+  clockRow.appendChild(oppOff);
   move($('timerbox'), clockRow);
+  clockRow.appendChild(oppDef);
+  // Hide reset button (v2: eliminated per Tim)
   const resetBtn = topbar.querySelector('.bar-right .btn-sm.danger');
-  // 3_39: opponent summary box, left of the clock (mirrors the reset button).
-  // Revert: delete this block + its CSS in mobile-overrides.css + the renderOpp hook in the sim.
-  const oppBox = document.createElement('div'); oppBox.id = 'm-oppsummary'; clockRow.prepend(oppBox);
-  if (resetBtn) {
-    resetBtn.innerHTML = '&#8617; RESET GAME';
-    resetBtn.title = 'Quit to menu (new game)';
-    resetBtn.setAttribute('aria-label', 'Reset game — quit to menu');
-    clockRow.appendChild(resetBtn);
-  }
+  if (resetBtn) resetBtn.style.display = 'none';
+
   move($('pbar'), top);
   move($('final-turn-banner'), top);
 
-  // — turn header (label + token strip) —
+  // — turn header (label + token strip) with bag/iced counts —
+  // v5.118: two rows — [BAG | Turn label | ICED] then [token strip] (Tim)
   const ahead = game.querySelector('.active-header');
-  if (ahead && ahead.children[0]) { ahead.children[0].id = 'm-turnhead'; move(ahead.children[0], scroll); }
+  if (ahead && ahead.children[0]) {
+    const th = ahead.children[0];
+    th.id = 'm-turnhead';
+    // Create top row for bag/label/iced
+    const topRow = document.createElement('div');
+    topRow.id = 'm-turnrow';
+    topRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;width:100%;padding:4px 8px;';
+    const bagSpan = document.createElement('span');
+    bagSpan.id = 'm-bagcount';
+    bagSpan.className = 'm-headcount';
+    bagSpan.textContent = 'BAG: 0';
+    const icedSpan = document.createElement('span');
+    icedSpan.id = 'm-icedcount';
+    icedSpan.className = 'm-headcount';
+    icedSpan.textContent = 'ICED: 0';
+    // Find the label element (move it into topRow)
+    const label = th.querySelector('.active-label');
+    topRow.appendChild(bagSpan);
+    if (label) topRow.appendChild(label);
+    topRow.appendChild(icedSpan);
+    th.insertBefore(topRow, th.firstChild);
+    // Token strip stays below (it's already in th, just ensure it's full width)
+    const tokStrip = th.querySelector('.tok-strip');
+    if (tokStrip) tokStrip.style.width = '100%';
+    move(th, scroll);
+    // Update counts live
+    const updHeadCounts = () => {
+      try {
+        const ap = AP();
+        if (!ap) return;
+        const b = document.getElementById('m-bagcount');
+        const ic = document.getElementById('m-icedcount');
+        if (b) b.textContent = `BAG: ${ap.bag.length}`;
+        if (ic) ic.textContent = `ICED: ${ap.z.iced.length}`;
+      } catch (e) {}
+    };
+    setInterval(updHeadCounts, 1000);
+    updHeadCounts();
+  }
   move($('rr-banner'), scroll);
 
-  // — main zones in turn-flow order —
-  ['z-rs', 'z-hot', 'z-cold', 'z-defend'].forEach(id => move(zwrap(id), scroll));
-
-  // — tabbed zones: reserve / bench / iced (shoot lives in the shot popup) — 2_152: Tim's order
-  const tabbar = document.createElement('div'); tabbar.id = 'm-tabs';
-  const tabbody = document.createElement('div'); tabbody.id = 'm-tabbody';
-  scroll.appendChild(tabbar); scroll.appendChild(tabbody);
-  const tabs = [['z-reserve', '💾 Reserve'], ['z-bench', '🪑 Bench'], ['z-iced', '🧊 Iced']];
-  // shoot zone not tabbed — hide it here (shot popup shows it on a declared shot)
-  const shootZw = zwrap('z-shoot'); if (shootZw) shootZw.style.display = 'none';
-  const updCounts = () => tabs.forEach(([id, label]) => {
-    const b = tabbar.querySelector('[data-z="' + id + '"]');
-    if (b) b.innerHTML = label + ' <span class="n">' + ($(id) ? $(id).children.length : 0) + '</span>';
+  // — STAGE: holds the active zone (any zone can be staged via mini tap) —
+  // v5.117: all zones can go to stage, not just RS/Hot (Tim)
+  const stage = document.createElement('div'); stage.id = 'm-stage';
+  scroll.appendChild(stage);
+  const zoneWraps = {};
+  ['z-rs', 'z-hot', 'z-cold', 'z-defend', 'z-reserve', 'z-bench'].forEach(id => {
+    const w = zwrap(id);
+    if (w) {
+      zoneWraps[id] = w;
+      w.style.display = 'none'; // all hidden initially
+      stage.appendChild(w);
+    }
   });
-  tabs.forEach(([id, label], i) => {
-    const b = document.createElement('button');
-    b.className = 'm-tab' + (i === 0 ? ' active' : '');
-    b.dataset.z = id;
-    b.addEventListener('click', () => {
-      tabbar.querySelectorAll('.m-tab').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      tabs.forEach(([id2]) => { const z = zwrap(id2); if (z) z.style.display = (id2 === id ? '' : 'none'); });
+  let stageZone = 'z-rs';
+  window.mStageTo = (id) => {
+    if (!zoneWraps[id]) return;
+    stageZone = id;
+    Object.keys(zoneWraps).forEach(k => {
+      zoneWraps[k].style.display = (k === id ? '' : 'none');
     });
-    tabbar.appendChild(b);
-    const z = zwrap(id);
-    if (z) { tabbody.appendChild(z); z.style.display = (i === 0 ? '' : 'none'); }
-    const dc = $(id);
-    if (dc) new MutationObserver(updCounts).observe(dc, { childList: true });
-  });
-  updCounts();
+    // Highlight the active mini
+    document.querySelectorAll('.m-mini').forEach(m => {
+      m.classList.toggle('active', m.dataset.zone === id);
+    });
+  };
+  // Start with RS on stage
+  window.mStageTo('z-rs');
 
-  // — opponent, quick actions, log —
-  move(game.querySelector('.opp-area'), scroll);
-  move(game.querySelector('#glog-toggle'), scroll); // 4_01: was .qa-box
+  // — mini zone grid: dots + pips, tap to bring zone to stage —
+  // v5.117: 3x2 grid, no iced mini (count is in turn header). Tap = stage, not popup (Tim)
+  const grid = document.createElement('div'); grid.id = 'm-zonegrid';
+  scroll.appendChild(grid);
+  // 6 zones: [DEF, RS, HOT] / [RESERVE, BENCH, COLD]
+  const zoneCfg = [
+    ['z-defend', 'DEF. ZONE', 'z-def', true],
+    ['z-rs', 'RS ZONE', 'z-rs', true],
+    ['z-hot', '🔥 HOT', 'z-hot', true],
+    ['z-reserve', 'RESERVE', 'z-yel', true],
+    ['z-bench', 'BENCH', 'z-yel', true],
+    ['z-cold', '❄️ COLD', 'z-cold', true],
+  ];
+  const minis = {};
+  // Helper: create a mini zone element (tap -> stage)
+  const mkMini = (id, label, colorCls, showPips) => {
+    const mini = document.createElement('div');
+    mini.className = 'm-mini ' + colorCls;
+    mini.dataset.zone = id;
+    mini.innerHTML = `<div class="m-mini-lbl">${label}</div><div class="m-mini-dots"></div><div class="m-mini-pips"></div>`;
+    // v5.117: tap brings zone to stage (no popup) — Tim
+    mini.addEventListener('click', () => window.mStageTo(id));
+    return mini;
+  };
+  // Helper: wire up live updates for a mini
+  // Uses game state (AP().z) — dots colored by position, pips = sum of face values
+  const wireMini = (mini, id, showPips) => {
+    minis[id] = mini;
+    const zoneKey = id.replace('z-', '');
+    const update = () => {
+      const dots = mini.querySelector('.m-mini-dots');
+      const pips = mini.querySelector('.m-mini-pips');
+      try {
+        const ap = AP();
+        if (!ap || !ap.z[zoneKey]) return;
+        const dice = ap.z[zoneKey];
+        dots.innerHTML = dice.map(d => {
+          const pc = d.pos === 'F' ? 'F' : d.pos === 'D' ? 'D' : d.pos === 'G' ? 'G'
+            : d.pos === 'R' ? 'R' : d.pos === 'HC' ? 'HC' : d.pos === 'GN' ? 'GN' : 'P';
+          return `<div class="m-dot ${pc}"></div>`;
+        }).join('');
+        const total = dice.reduce((s, d) => s + (d.face ? d.face.v : 0), 0);
+        pips.textContent = showPips ? total + ' pips' : '';
+      } catch (e) {}
+    };
+    const container = $(id);
+    if (container) {
+      new MutationObserver(update).observe(container, { childList: true, subtree: true });
+    }
+    setInterval(update, 1000);
+    update();
+  };
+  // Build grid (3x2)
+  zoneCfg.forEach(([id, label, colorCls, showPips]) => {
+    const mini = mkMini(id, label, colorCls, showPips);
+    grid.appendChild(mini);
+    wireMini(mini, id, showPips);
+  });
+
+  // — opponent board popup (v5.120: Tim — shows board, not lineup) —
+  window.mOppBoardPopup = () => {
+    document.querySelectorAll('.m-oppbd-backdrop').forEach(s => s.remove());
+    const bd = document.createElement('div'); bd.className = 'm-oppbd-backdrop';
+    const pop = document.createElement('div'); pop.className = 'm-oppbd';
+    try {
+      const o = OPP();
+      const oppIdx = 1 - G.ap;
+      let oppName = G.players[oppIdx] ? G.players[oppIdx].name : 'Opponent';
+      const teamFull = G.players[oppIdx] ? (G.players[oppIdx].teamName || '') : '';
+      // v5.125: strip leading emoji from player name (who-emoji shown separately) — Tim
+      oppName = oppName.replace(/^(\p{Extended_Pictographic}️?)\s*/u, '');
+      const wEmoji = (typeof whoEmoji === 'function') ? whoEmoji(oppIdx) : '🧑';
+      const tm = teamFull.match(/^(\p{Extended_Pictographic}️?)\s*/u);
+      const teamEmoji = tm ? tm[1] : '';
+      // Header
+      const h = document.createElement('div'); h.className = 'm-oppbd-title';
+      h.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
+      h.innerHTML = `<span>${wEmoji}</span><span>${oppName.toUpperCase()}'S BOARD</span><span>${teamEmoji}</span>`;
+      pop.appendChild(h);
+      // Token row
+      const tokRow = document.createElement('div'); tokRow.className = 'm-oppbd-toks';
+      tokRow.innerHTML = `<div class="m-oppbd-tok shoot">🎯 ${o.tok.shoot}</div><div class="m-oppbd-tok block">🛡️ ${o.tok.block}</div>`;
+      pop.appendChild(tokRow);
+      // Zone grid: HOT, COLD, DEF, BENCH, RESERVE
+      const zg = document.createElement('div'); zg.className = 'm-oppbd-zones';
+      const zoneInfo = [
+        ['hot', 'HOT', 'z-hot'],
+        ['cold', 'COLD', 'z-cold'],
+        ['defend', 'DEF', 'z-def'],
+        ['bench', 'BENCH', 'z-bench'],
+        ['reserve', 'RESERVE', 'z-res'],
+      ];
+      zoneInfo.forEach(([key, label, cls]) => {
+        const dice = o.z[key] || [];
+        const pips = dice.reduce((s, d) => s + (d.face ? d.face.v : 0), 0);
+        const z = document.createElement('div');
+        z.className = 'm-oppbd-zone ' + cls;
+        // v5.131: pip number centered with "pip" below, bold (Tim)
+        z.innerHTML = `<div class="m-oppbd-zl">${label}</div><div class="m-oppbd-zv">${pips}</div><div class="m-oppbd-zp">pip</div><div class="m-oppbd-zd">${dice.length} dice</div>`;
+        // Tap for toast with tier/pip details
+        z.addEventListener('click', () => {
+          if (!dice.length) { toast(`${label}: empty`); return; }
+          const details = dice.map(d => `${d.key} (${d.face ? d.face.t + (d.face.v || '') : '?'}, ${d.face ? d.face.v : 0}pip)`).join(', ');
+          toast(`${label}: ${details}`);
+        });
+        zg.appendChild(z);
+      });
+      pop.appendChild(zg);
+      // Bottom row: ICED, BAG (v5.121: just the number — Tim)
+      const bg = document.createElement('div'); bg.className = 'm-oppbd-bottom';
+      bg.innerHTML = `<div class="m-oppbd-zone"><div class="m-oppbd-zl">ICED</div><div class="m-oppbd-zv big">${o.z.iced.length}</div></div>` +
+        `<div class="m-oppbd-zone"><div class="m-oppbd-zl">BAG</div><div class="m-oppbd-zv big">${o.bag.length}</div></div>`;
+      pop.appendChild(bg);
+    } catch (e) {
+      pop.innerHTML = '<div style="color:#888">Unable to load opponent board</div>';
+    }
+    const btn = document.createElement('button'); btn.className = 'm-oppbd-close'; btn.textContent = 'Close';
+    btn.addEventListener('click', () => bd.remove());
+    pop.appendChild(btn);
+    bd.appendChild(pop);
+    bd.addEventListener('click', (e) => { if (e.target === bd) bd.remove(); });
+    document.body.appendChild(bd);
+  };
+
+  // — opponent board button in bottom bar —
+  // (opp-area moved to scroll for now; button opens it as popup)
+
+  // — game log —
+  move(game.querySelector('#glog-toggle'), scroll);
   move($('logpanel'), scroll);
 
   // — contextual action buttons -> sticky bottom bar —
   move($('arow'), bar);
+  // Add Opp Board button to bottom bar (v5.116: one row, END TURN far right — Tim)
+  const oppBtn = document.createElement('button');
+  oppBtn.className = 'm-oppbtn';
+  oppBtn.innerHTML = '👁 OPP';
+  oppBtn.addEventListener('click', () => {
+    if (typeof window.mOppBoardPopup === 'function') window.mOppBoardPopup();
+  });
+  bar.appendChild(oppBtn);
+  // Keep OPP in the bar before END TURN (v5.126: re-insert on every render — Tim)
+  // The game rebuilds #arow on phase changes, which wipes out moved buttons
+  const orderBar = () => {
+    const arow = $('arow');
+    if (!arow) return;
+    // If OPP got wiped (not in DOM), re-add it to bar
+    if (!document.contains(oppBtn)) {
+      bar.appendChild(oppBtn);
+    }
+    const btns = Array.from(arow.querySelectorAll('.abtn'));
+    const endBtn = btns.find(b => /END TURN/i.test(b.textContent));
+    // Move OPP into arow before END TURN (if not already there)
+    if (endBtn && oppBtn.parentNode !== arow) {
+      arow.insertBefore(oppBtn, endBtn);
+    }
+    // If no END TURN (e.g., during AI turn), keep OPP visible in bar
+    if (!endBtn && oppBtn.parentNode !== bar) {
+      bar.appendChild(oppBtn);
+    }
+  };
+  const arowEl = $('arow');
+  if (arowEl) {
+    new MutationObserver(orderBar).observe(arowEl, { childList: true, subtree: true, attributes: true });
+    // Also watch bar itself in case arow gets replaced
+    new MutationObserver(orderBar).observe(bar, { childList: true });
+  }
+  // Run periodically as a safety net (game rebuilds buttons on phase changes)
+  setInterval(orderBar, 1000);
+  orderBar();
 
   // — hide the emptied desktop wrappers (CSS also covers this) —
   game.querySelectorAll('.top-bar,.game-layout').forEach(el => { el.style.display = 'none'; });
