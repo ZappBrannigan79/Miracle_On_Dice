@@ -1963,7 +1963,7 @@ function rollAll(){if(aiGuard())return;
     addLog(`${ap.name}: Drew ${penDrawn.length} Penalty die — returned to shared pool (pool: ${G.penaltyPool}).`);
   }
   addLog(`${ap.name}: Drew ${drawn.length}+${fromBench.length} bench + HC die. Rolled ${ap.z.rs.length}.`);
-  noteTurn(`🎲 Rolled ${ap.z.rs.length} dice`);
+  // v6.14: no turn note for the opening roll (Tim) — summary/strip show rerolls only
   G.phase=3;
   // Auto-enter reroll selection mode immediately
   _rrMode=true;_rrDieId=null;
@@ -2315,6 +2315,7 @@ function assignDie(die,action){
     if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
     ap.z.rs.splice(idx,1);ap.z.reserve.push(die);die.energyPending=false;
     addLog(`${ap.name}: ${dLbl(die)} saved in Reserve.`);
+    if(_onlineActive) G.turnCounts.res++; // v6.14: wired (Tim)
   }else if(action==='wild-energy'){
     // Wild-as-energy removed from game — this action should not be reached
     toast('Wild can only be assigned as Shoot or Block.');return;
@@ -2912,6 +2913,7 @@ function buyTok(type){if(aiGuard())return;
     const ap2=AP();ap2.tokBought=ap2.tokBought||{shoot:0,block:0};
     ap2.tok[type]++;ap2.tokBought[type]++;
     addLog(`${ap2.name}: Bought 1 ${type} Token (3E).`);
+    if(_onlineActive){ if(type==='shoot')G.turnCounts.tokS++; else G.turnCounts.tokB++; } // v6.14: wired (Tim)
     renderAll();
   });
 }
@@ -3471,6 +3473,7 @@ function confirmBenchPick(){
     (bp.picked.includes(id)?p.z.bench:p.z.iced).push(d);
   });
   addLog(`${p.name}: benched ${bp.picked.length} (${bp.ids.length-bp.picked.length} iced).`);
+  noteTurn(`🪑 benched ${bp.picked.length} ${bp.picked.length===1?'die':'dice'}`); // v6.14: spectator strip (Tim)
   if(_onlineActive)pushState();
   renderAll();
   refreshBenchPhase();
@@ -3611,7 +3614,8 @@ function endTurn(){if(aiGuard())return;
     if(tc.def>0) G.turnNotes.push(`🔴 assigned ${tc.def} ${tc.def===1?'die':'dice'} to defensive zone`);
     if(tc.tokS>0) G.turnNotes.push(`🎯 bought ${tc.tokS} Shoot ${tc.tokS===1?'token':'tokens'}`); // 5_105: batched (Tim)
     if(tc.tokB>0) G.turnNotes.push(`🛡️ bought ${tc.tokB} Block ${tc.tokB===1?'token':'tokens'}`); // 5_105: batched (Tim)
-    // Note: adv and res counters to be wired to their actions
+    if(tc.res>0) G.turnNotes.push(`💲 reserved ${tc.res} ${tc.res===1?'die':'dice'}`); // v6.14: like Chuck (Tim)
+    // Note: adv counter still to be wired to its action
   }
   G.ap=1-G.ap;
   // Period ends after whoever holds the 1:00 turn completes it (clock ticks to 0)
@@ -3846,7 +3850,7 @@ function animGameDice(dice,done){
   if(!items.length||_REDUCED_MOTION||typeof requestAnimationFrame!=='function'){if(done)done();return;}
   let n=items.length;
   items.forEach((it,i)=>{
-    const total=460+i*55,t0=performance.now();
+    const total=900+i*70,t0=performance.now(); // v6.14: longer, clearly visible (Tim)
     it.b.classList.add('rolling');
     if(it.bd)it.bd.classList.add('rolling');
     (function frame(now){
@@ -4227,8 +4231,14 @@ function renderBoard(){
     else rcChip.style.display='none';
   }
   const tLbl = teamLbl(G.ap); // 4_05: "🤖 Gargoyles"
-  const myTurnIndicator = _onlineActive && !isMyTurn() ? ' ⏳' : _onlineActive ? ' ✅' : '';
-  document.getElementById('aplbl').textContent=`${tLbl}'s Turn${myTurnIndicator}`;
+  const aplblEl2=document.getElementById('aplbl');
+  if(_onlineActive && isMyTurn()){
+    // v6.14: pulsing YOUR TURN pill like other modes (Tim) — replaces the ✅
+    aplblEl2.innerHTML=`${tLbl}'s Turn <span class="so-yourturn" style="font-size:.8em;padding:5px 18px;letter-spacing:2px;">YOUR TURN</span>`;
+  } else {
+    const myTurnIndicator = _onlineActive && !isMyTurn() ? ' ⏳' : '';
+    aplblEl2.textContent=`${tLbl}'s Turn${myTurnIndicator}`;
+  }
   // Update scoreboard names with team names if available
   const sn1=document.getElementById('sn1');
   const sn2=document.getElementById('sn2');
@@ -4380,12 +4390,17 @@ function renderActions(){
     // end-of-turn batched "assigned N dice" notes are filtered to avoid doubles.
     const strip=(G.turnNotes||[]).map(n=>{
       if(/assigned \d+/.test(n||'')) return null; // batched summary note — counts cover it live
+      if(/reserved \d+/.test(n||'')) return null; // batched reserve note — count covers it live
+      if(/bought \d+ (Shoot|Block) tokens?/.test(n||'')) return null; // batched token note — count covers it live
       const m=/^(\p{Extended_Pictographic}\uFE0F?)/u.exec(n||'');
       return m?m[1]:null;
     }).filter(Boolean);
     const tc=G.turnCounts||{};
     if((tc.off||0)>0) strip.push('🔵'); // hot/cold batch — one icon like Chuck (Tim)
     if((tc.def||0)>0) strip.push('🔴'); // defense batch — one icon like Chuck (Tim)
+    if((tc.res||0)>0) strip.push('💲'); // reserve batch — matches Chuck's 💲 (Tim)
+    if((tc.tokS||0)>0) strip.push('🎯'); // shoot token batch (Tim)
+    if((tc.tokB||0)>0) strip.push('🛡️'); // block token batch (Tim)
     // v6.14: match Chuck's bar — full-width, header + icon strip (Tim)
     const stripHtml=`<div class="ai-strip nowrap" style="margin-top:4px">${strip.map(e=>`<span>${e}</span>`).join('')}</div>`;
     row.innerHTML=`<div class="watch-pill col full"><div class="ai-actions-hdr">⏳ WATCHING ${ap.name.toUpperCase()}'S TURN:</div>${stripHtml}</div>`;
@@ -5989,7 +6004,11 @@ function pullState(remote){
         });
       });
     });
-    if(dice.length) animGameDice(dice);
+    if(dice.length){
+      // v6.14: render first so the new dice exist in the DOM, then animate (Tim)
+      if(typeof renderAll==='function') renderAll();
+      animGameDice(dice);
+    }
   }
   remote.players.forEach((rp,i)=>{
     const lp=G.players[i];
@@ -6093,7 +6112,7 @@ function pullState(remote){
     const opp=G.players[G.ap];
     const aplblEl=document.getElementById('aplbl');
     if(aplblEl) aplblEl.textContent=
-      `⏳ ${bareName(opp.teamName||opp.name)} (${slotLabel(G.ap)})'s Turn — watching live`; // 4_05
+      `⏳ watching ${bareName(opp.name)}'s turn`; // v6.14: Tim's wording — player name, not team
   }
 }
 
