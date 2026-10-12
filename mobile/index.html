@@ -224,7 +224,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .pos-P .die-body{background:radial-gradient(circle at 35% 35%,#222,#111);border-color:#444;}
 @keyframes dicewob{0%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}50%{transform:translate(-50%,-50%) rotate(12deg) scale(1.14);}100%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}}
 @keyframes dicewob2{0%{transform:rotate(-14deg) scale(1.15);}50%{transform:rotate(14deg) scale(1.22);}100%{transform:rotate(-14deg) scale(1.15);}}
-.cdie.rolling,.fo-die.rolling,.die-body.rolling{animation:dicewob2 .08s linear infinite;} /* v6.16: even faster shake (Tim) */
+.cdie.rolling,.fo-die.rolling,.die-body.rolling{animation:dicewob2 .08s linear infinite;} /* v6.19: even faster shake (Tim) */
 /* 4_11: shootout coin flip (Tim) — spins like a tossed coin, then lands */
 @keyframes socoinflip{0%{transform:rotateY(0deg) translateY(0) scale(1);}18%{transform:rotateY(630deg) translateY(-18px) scale(1.08);}38%{transform:rotateY(1260deg) translateY(3px) scale(1);}62%{transform:rotateY(1800deg) translateY(-10px) scale(1.05);}82%{transform:rotateY(2070deg) translateY(1px) scale(1);}100%{transform:rotateY(2160deg) translateY(0) scale(1);}}
 #so-coin{display:inline-block;font-size:2.4em;animation:socoinflip 1.7s cubic-bezier(.3,.6,.4,1);}
@@ -245,7 +245,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .fb-PEN{background:#eee;color:#222;}
 .fb-BLANK{background:linear-gradient(145deg,#3a3a3a,#1e1e1e);color:#999;border:1px solid #333;}
 .fb-UNK{background:rgba(255,255,255,.15);color:#888;}
-/* v6.16: faded face symbols behind pips (Tim's mockup) */
+/* v6.19: faded face symbols behind pips (Tim's mockup) */
 .face-badge{overflow:hidden;}
 .face-badge::before{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   font-size:2.1em;opacity:.30;pointer-events:none;line-height:1;}
@@ -274,7 +274,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* Reserved badge */
 .reserved-badge{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#8B6914;color:#fff;font-size:.55em;font-weight:900;border-radius:4px;padding:1px 4px;pointer-events:none;white-space:nowrap;}
 #so-forward-choices .die-tier-lbl{display:none;}
-/* v6.16: shootout dice bigger — fill the colored border (Tim) */
+/* v6.19: shootout dice bigger — fill the colored border (Tim) */
 #so-forward-choices .die-body{width:64px!important;height:64px!important;}
 #so-forward-choices .face-badge{width:52px!important;height:52px!important;font-size:1em!important;}
 .die-tier-lbl{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;position:absolute;bottom:-3px;right:-3px;font-size:.62em;font-weight:800;color:#fff;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:1px 4px;line-height:1.3;letter-spacing:.3px;opacity:.6;} // 4_49: 60% (Tim)
@@ -900,7 +900,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v6.16</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v6.19</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1034,7 +1034,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <div class="builder-row"><label>Defense 2</label><select id="p1d2" onchange="updatePts(1)"><option value="">— (optional)</option></select></div>
           <div class="builder-row"><label>Goalie</label><select id="p1g" onchange="updatePts(1)"></select></div>
           <div class="builder-row" style="opacity:.6"><label>Head Coach</label><select disabled><option>HC (automatic each turn)</option></select></div>
-          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 19 Rookie dice + 1 Goon die (same for all players) <!-- v6.16: was 15 Rookies, Tim confirmed 19+1 Goon --></div>
+          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 19 Rookie dice + 1 Goon die (same for all players) <!-- v6.19: was 15 Rookies, Tim confirmed 19+1 Goon --></div>
         </div>
         <div class="builder-player" id="cb-p2-panel">
           <h3>Player 2 <span class="pts-badge" id="p2-pts">0/25 pts</span></h3>
@@ -1045,7 +1045,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <div class="builder-row"><label>Defense 2</label><select id="p2d2" onchange="updatePts(2)"><option value="">— (optional)</option></select></div>
           <div class="builder-row"><label>Goalie</label><select id="p2g" onchange="updatePts(2)"></select></div>
           <div class="builder-row" style="opacity:.6"><label>Head Coach</label><select disabled><option>HC (automatic each turn)</option></select></div>
-          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 19 Rookie dice + 1 Goon die (same for all players) <!-- v6.16: was 15 Rookies, Tim confirmed 19+1 Goon --></div>
+          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 19 Rookie dice + 1 Goon die (same for all players) <!-- v6.19: was 15 Rookies, Tim confirmed 19+1 Goon --></div>
         </div>
       </div>
       <button class="btn-start" onclick="startCustom()">Start Custom Game →</button>
@@ -1056,7 +1056,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v6.16</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v6.19</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1137,7 +1137,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div class="epicker-needed" id="epicker-needed">Need: <span id="epicker-need-val">0</span>⚡ &nbsp;|&nbsp; Paid: <span id="epicker-paid-val">0</span>⚡</div>
     <div class="epicker-sources" id="epicker-sources"></div>
     <div style="display:flex;gap:8px;">
-      <button class="abtn prim" id="epicker-confirm" onclick="confirmEPick()" style="flex:1;display:none" disabled>Confirm Payment</button> <!-- v6.16: hidden — auto-confirms (Tim) -->
+      <button class="abtn prim" id="epicker-confirm" onclick="confirmEPick()" style="flex:1;display:none" disabled>Confirm Payment</button> <!-- v6.19: hidden — auto-confirms (Tim) -->
       <button class="abtn sec" onclick="cancelEPick()" style="flex:0 0 auto">Cancel</button>
     </div>
   </div>
@@ -1455,7 +1455,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
       <button class="abtn prim" id="goon-commit" onclick="goonResolveFight()" disabled>Fight! →</button>
       <button class="abtn sec" onclick="goonCancelFight()">Cancel</button>
-      </div> <!-- v6.16: centered (Tim) -->
+      </div> <!-- v6.19: centered (Tim) -->
     </div>
     <div id="goon-fight" style="display:none;margin-top:10px">
       <div class="fo-rolls">
@@ -1500,7 +1500,7 @@ const DEFS={
   G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
   G5:[{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'SO',v:2,c:true}],
   G6:[{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4},{t:'B',v:4,c:true},{t:'SO',v:2,c:true}],
-  HC:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'RR',v:0},{t:'ADV',v:0}], // v6.16: 1E,1E,2E,RR,RR,ADV — PEN swapped for ADV (Tim)
+  HC:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'RR',v:0},{t:'ADV',v:0}], // v6.19: 1E,1E,2E,RR,RR,ADV — PEN swapped for ADV (Tim)
   Penalty:[{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0}],
 };
 const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,G3:3,G4:4,G5:5,G6:6}; // 5_89: tier 6 costs added (Tim's bug report)
@@ -1729,7 +1729,7 @@ function updatePts(p){
   badge.textContent=`${total}/25 pts`;
   badge.className='pts-badge'+(total>25?' over':'');
 }
-// getBagExtras removed — starting bag is always 19 Rookies + 1 Goon (v6.16)
+// getBagExtras removed — starting bag is always 19 Rookies + 1 Goon (v6.19)
 function startCustom(){
   resetAIFlags(); // 3_05: no AI-mode leakage from a previous game
   const v=id=>{const el=document.getElementById(id);return el?el.value:'';};
@@ -1814,7 +1814,7 @@ function renderFoReadonly(){
     document.getElementById('fo-d2').innerHTML=fo.r2.map(v=>`<div class="fo-die">${v}</div>`).join('');
     document.getElementById('fo-t1').textContent=fo.t1;
     document.getElementById('fo-t2').textContent=fo.t2;
-    document.getElementById('fo-win').textContent=`${G.players[fo.w].name} wins the faceoff! Takes ODD minutes.`; // 3_08: no need to enumerate
+    document.getElementById('fo-win').textContent=`${G.players[fo.w].name} wins the faceoff! Takes EVEN minutes.`; // v6.19: ODD→EVEN fix (Tim)
     // 3_06 — the winner (even a joiner) picks their token; otherwise wait.
     renderFoChoiceState();
   }else{
@@ -1856,7 +1856,7 @@ function renderFoChoiceState(){
   const w=fo.w;
   // 3_07: once the prize token is chosen, the result line names it — the Vs AI
   // player sees which token Coach took without having to catch the step pill.
-  if(fo.choice)document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! Takes ODD minutes +1 ${fo.choice==='shoot'?'🎯 Shoot':'🛡️ Block'} token.`;
+  if(fo.choice)document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! Takes EVEN minutes +1 ${fo.choice==='shoot'?'🎯 Shoot':'🛡️ Block'} token.`; // v6.19: ODD→EVEN fix (Tim)
   const iAmWinner=!_onlineActive||_mySlot===w;
   const iAmHost=!_onlineActive||_mySlot===0;
   const choiceDiv=document.getElementById('fo-choice');
@@ -1871,14 +1871,14 @@ function renderFoChoiceState(){
     }else if(!aiWon){
       // 3_08: online human winner — the wait is real, say so. Vs AI skips this:
       // Coach's pick lands a beat later and the result + Begin Period appear.
-      waitEl.textContent=`Waiting for ${G.players[w].name} to choose their token…`; // v6.16: dropped the ODD/EVEN explainer (Tim)
+      waitEl.textContent=`Waiting for ${G.players[w].name} to choose their token…`; // v6.19: dropped the ODD/EVEN explainer (Tim)
       waitEl.style.display='block';
     }
   }else if(iAmHost){
     btn.style.display='';btn.disabled=false;btn.textContent='Begin Period';
     btn.onclick=beginPeriodAfterFo;
   }else{
-    waitEl.textContent=`${G.players[w].name} takes EVEN minutes +1 ${fo.choice==='shoot'?'🎯 Shoot':'🛡️ Block'} token. Waiting for host to begin…`; // v6.16: ODD→EVEN fix
+    waitEl.textContent=`${G.players[w].name} takes EVEN minutes +1 ${fo.choice==='shoot'?'🎯 Shoot':'🛡️ Block'} token. Waiting for host to begin…`; // v6.19: ODD→EVEN fix
     waitEl.style.display='block';
   }
 }
@@ -1963,13 +1963,18 @@ function rollAll(){if(aiGuard())return;
     addLog(`${ap.name}: Drew ${penDrawn.length} Penalty die — returned to shared pool (pool: ${G.penaltyPool}).`);
   }
   addLog(`${ap.name}: Drew ${drawn.length}+${fromBench.length} bench + HC die. Rolled ${ap.z.rs.length}.`);
-  // v6.16: no turn note for the opening roll (Tim) — summary/strip show rerolls only
+  // v6.19: no turn note for the opening roll (Tim) — summary/strip show rerolls only
   G.phase=3;
   // Auto-enter reroll selection mode immediately
   _rrMode=true;_rrDieId=null;
   AP().z.rs.forEach(d=>d.sel=false);
-  renderAll(); // v6.16: render newly drawn dice first (Tim's bug: initial roll didn't shake)
-  shakeDice(ap.z.rs); // v6.16: render-time shake (Tim) — replaces animGameDice
+  // v6.19: mark for shake BEFORE rendering (Tim's bug: initial roll didn't shake)
+  ap.z.rs.forEach(d=>{if(d&&d.id)_shakeIds.add(d.id);});
+  renderAll();
+  setTimeout(()=>{
+    ap.z.rs.forEach(d=>{if(d&&d.id)_shakeIds.delete(d.id);});
+    if(typeof renderAll==='function')renderAll();
+  }, 950);
   // 5_100: sync initial roll tumble to opponent (Tim)
   if(_onlineActive&&ap.z.rs.length){
     G.rerollSync={diceIds:ap.z.rs.map(d=>d.id),ts:Date.now()};
@@ -2043,12 +2048,12 @@ function confirmRRSel(){if(aiGuard())return;
     // 5_63: AI doesn't enter human reroll mode (Tim)
     if(G.clock===10&&G.ap===G.foWinner&&!G.bonusRRUsed){
       G.bonusRRUsed=true;G.rrUsed=false;
-      // v6.16: push AFTER state finalized (was pre-finalize; echo reverted phase)
+      // v6.19: push AFTER state finalized (was pre-finalize; echo reverted phase)
       if(_onlineActive&&sel.length){G.rerollSync={diceIds:sel.map(d=>d.id),ts:Date.now()};pushState();}
-      if(!_aiSelf){enterFreeRR();shakeDice(sel);return;}else{shakeDice(sel);} // v6.16: shakeDice (Tim)
+      if(!_aiSelf){enterFreeRR();shakeDice(sel);return;}else{shakeDice(sel);} // v6.19: shakeDice (Tim)
     }else{G.rrUsed=true;G.phase=4;}
   }else{G.hcRrUsed=true;} // 4_21: blank auto-ice trigger
-  // v6.16: sync reroll animation to opponent (Tim) — AFTER G.phase/G.rrUsed are
+  // v6.19: sync reroll animation to opponent (Tim) — AFTER G.phase/G.rrUsed are
   // final. The old pre-finalize push's echo reverted the reroller's own phase
   // back to 3, re-showing the reroll prompt with no reroll left (Tim's report).
   if(_onlineActive&&sel.length){
@@ -2056,7 +2061,7 @@ function confirmRRSel(){if(aiGuard())return;
     pushState();
   }
   renderAll();
-  shakeDice(sel); // v6.16: render-time shake (Tim)
+  shakeDice(sel); // v6.19: render-time shake (Tim)
 }
 
 function cancelRRSel(){if(aiGuard())return;
@@ -2228,7 +2233,7 @@ function assignDie(die,action){
   closeMenus();
   const ap=AP(),opp=OPP();
   const idx=ap.z.rs.indexOf(die);if(idx===-1)return;
-  // v6.16: blank ice safety net (Tim) — if HC RR is live, confirm first
+  // v6.19: blank ice safety net (Tim) — if HC RR is live, confirm first
   // (catches all ice paths: taps, auto-ice, etc.)
   if(action==='iced'&&die.face&&die.face.t==='BLANK'&&die.key!=='HC'&&hcRRAvailable(ap)&&!die._blankConfirm){
     die._blankConfirm=true; // prevent loop
@@ -2315,7 +2320,7 @@ function assignDie(die,action){
     if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
     ap.z.rs.splice(idx,1);ap.z.reserve.push(die);die.energyPending=false;
     addLog(`${ap.name}: ${dLbl(die)} saved in Reserve.`);
-    if(_onlineActive) G.turnCounts.res++; // v6.16: wired (Tim)
+    if(_onlineActive) G.turnCounts.res++; // v6.19: wired (Tim)
   }else if(action==='wild-energy'){
     // Wild-as-energy removed from game — this action should not be reached
     toast('Wild can only be assigned as Shoot or Block.');return;
@@ -2571,7 +2576,7 @@ function goonStartFight(die){
   el.appendChild(mkHalf('🛡️ DEFENSIVE',defTargets,'rgba(255,80,80,.08)')); // 5_107: red (Tim)
   document.getElementById('goon-commit').disabled=true;
   document.getElementById('goon-result').style.display='none';
-  document.getElementById('goon-fight').style.display='none'; // v6.16: clear old results (Tim)
+  document.getElementById('goon-fight').style.display='none'; // v6.19: clear old results (Tim)
   document.getElementById('goon-pick').style.display='block';
   document.getElementById('goon-panel').classList.add('show');
 }
@@ -2592,8 +2597,8 @@ function goonResolveFight(){
   // 4_46 (Tim): the fight rolls out like the faceoff — header names who controls which
   document.getElementById('goon-pick').style.display='none';
   document.getElementById('goon-fight').style.display='block';
-  document.getElementById('goon-f1-name').textContent=`${teamEmoji(G.ap)} ${bareName(G.players[G.ap].name)}'s Goon`; // v6.16: team emoji, not 🧑 (Tim)
-  document.getElementById('goon-f2-name').textContent=`${teamEmoji(1-G.ap)} ${bareName(G.players[1-G.ap].name)}'s ${t.die.key}`; // v6.16
+  document.getElementById('goon-f1-name').textContent=`${teamEmoji(G.ap)} ${bareName(G.players[G.ap].name)}'s Goon`; // v6.19: team emoji, not 🧑 (Tim)
+  document.getElementById('goon-f2-name').textContent=`${teamEmoji(1-G.ap)} ${bareName(G.players[1-G.ap].name)}'s ${t.die.key}`; // v6.19
   const d1=document.getElementById('goon-f1-dice'),d2=document.getElementById('goon-f2-dice');
   d1.innerHTML=gr.map(()=>`<div class="goon-die">?</div>`).join('');
   d2.innerHTML=tr.map(()=>`<div class="goon-die">?</div>`).join(''); // 4_53 green
@@ -2670,8 +2675,8 @@ function showFightWatch(fs){
   document.getElementById('goon-pick').style.display='none';
   document.getElementById('goon-fight').style.display='block';
   document.getElementById('goon-result').style.display='none';
-  document.getElementById('goon-f1-name').textContent=`${teamEmoji(1-_mySlot)} ${bareName(G.players[1-_mySlot].name)}'s Goon`; // v6.16: team emoji (Tim)
-  document.getElementById('goon-f2-name').textContent=`${teamEmoji(_mySlot)} ${bareName(G.players[_mySlot].name)}'s ${fs.targetKey}`; // v6.16
+  document.getElementById('goon-f1-name').textContent=`${teamEmoji(1-_mySlot)} ${bareName(G.players[1-_mySlot].name)}'s Goon`; // v6.19: team emoji (Tim)
+  document.getElementById('goon-f2-name').textContent=`${teamEmoji(_mySlot)} ${bareName(G.players[_mySlot].name)}'s ${fs.targetKey}`; // v6.19
   const d1=document.getElementById('goon-f1-dice'),d2=document.getElementById('goon-f2-dice');
   d1.innerHTML=fs.gr.map(()=>`<div class="goon-die">?</div>`).join('');
   d2.innerHTML=fs.tr.map(()=>`<div class="goon-die">?</div>`).join('');
@@ -2913,7 +2918,7 @@ function buyTok(type){if(aiGuard())return;
     const ap2=AP();ap2.tokBought=ap2.tokBought||{shoot:0,block:0};
     ap2.tok[type]++;ap2.tokBought[type]++;
     addLog(`${ap2.name}: Bought 1 ${type} Token (3E).`);
-    if(_onlineActive){ if(type==='shoot')G.turnCounts.tokS++; else G.turnCounts.tokB++; } // v6.16: wired (Tim)
+    if(_onlineActive){ if(type==='shoot')G.turnCounts.tokS++; else G.turnCounts.tokB++; } // v6.19: wired (Tim)
     renderAll();
   });
 }
@@ -3008,7 +3013,7 @@ function renderAtkDice(){
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
     if(db){
-      // v6.16: attacker dice always show halo in combat card (Tim)
+      // v6.19: attacker dice always show halo in combat card (Tim)
       const heldOut=_shotHeldOut.has(d.id);
       if(!heldOut)db.classList.add('sel');
       if(canTune){
@@ -3028,7 +3033,7 @@ function renderAtkDice(){
   const n=inShot.length;
   document.getElementById('atk-dice-sum').innerHTML=
     `<span class="combat-pulse"><strong>${n}</strong> shooter${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} → <strong>${pips} combat ${cDiceWord(pips)}</strong>${_sTok>0?` + <strong style="color:#ffd75e">${_sTok} Token${_sTok!==1?'s':''}</strong>`:''}</span>`+
-    (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot</div>`:''); // v6.16: pulse + tokens in flow (Tim)
+    (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot</div>`:''); // v6.19: pulse + tokens in flow (Tim)
 }
 
 // 2_151: mini game clock in the shot panel — white 10:00–05:00, red 04:00–01:00 (matches header badge)
@@ -3039,7 +3044,7 @@ function renderCombatClock(){
 }
 function openCombat(){
   renderCombatClock(); // 2_151: mini clock next to the title (white 10:00–05:00, red 04:00–01:00)
-  // v6.16: last-shot reminder + auto-select all block dice on 2:00/1:00 (Tim)
+  // v6.19: last-shot reminder + auto-select all block dice on 2:00/1:00 (Tim)
   const _isLastShot = G.clock <= 2;
   const _lsb = document.getElementById('last-shot-banner');
   if (_lsb) _lsb.style.display = _isLastShot ? '' : 'none';
@@ -3092,14 +3097,14 @@ function openCombat(){
     });
     bsel.appendChild(commitAllBtn);
   }
-  // v6.16: auto-select all block dice on last shot (Tim) — defender can unselect
+  // v6.19: auto-select all block dice on last shot (Tim) — defender can unselect
   if (_isLastShot && !_defViewOnly && !defenderIsAI) {
     G.blockSelIds = OPP().z.defend.map(d=>d.id);
   }
   OPP().z.defend.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
-    // v6.16: pre-highlight auto-selected dice
+    // v6.19: pre-highlight auto-selected dice
     if (_isLastShot && !_defViewOnly && !defenderIsAI && G.blockSelIds.includes(d.id)) {
       db.classList.add('sel');
     }
@@ -3228,7 +3233,7 @@ function renderBselInfo(){
   const el=document.getElementById('bsel-info');if(!el)return;
   const sel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
   const n=sel.length,pips=sel.reduce((s,d)=>s+(d.face?d.face.v:0),0),bonus=clockBlockBonus();
-  el.innerHTML=`<span class="combat-pulse"><strong>${n}</strong> blocker${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} + <strong>${bonus}</strong> clock → <strong>${pips+bonus} combat ${cDiceWord(pips+bonus)}</strong>${_bTok>0?` + <strong style="color:#ffd75e">${_bTok} Token${_bTok!==1?'s':''}</strong>`:''}</span>`; // v6.16: pulse + tokens in flow (Tim)
+  el.innerHTML=`<span class="combat-pulse"><strong>${n}</strong> blocker${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} + <strong>${bonus}</strong> clock → <strong>${pips+bonus} combat ${cDiceWord(pips+bonus)}</strong>${_bTok>0?` + <strong style="color:#ffd75e">${_bTok} Token${_bTok!==1?'s':''}</strong>`:''}</span>`; // v6.19: pulse + tokens in flow (Tim)
 }
 
 let _combatResolving=false; // 2_121: prevent double-resolution of the same shot
@@ -3473,7 +3478,7 @@ function confirmBenchPick(){
     (bp.picked.includes(id)?p.z.bench:p.z.iced).push(d);
   });
   addLog(`${p.name}: benched ${bp.picked.length} (${bp.ids.length-bp.picked.length} iced).`);
-  noteTurn(`🪑 benched ${bp.picked.length} ${bp.picked.length===1?'die':'dice'}`); // v6.16: spectator strip (Tim)
+  noteTurn(`🪑 benched ${bp.picked.length} ${bp.picked.length===1?'die':'dice'}`); // v6.19: spectator strip (Tim)
   if(_onlineActive)pushState();
   renderAll();
   refreshBenchPhase();
@@ -3614,7 +3619,7 @@ function endTurn(){if(aiGuard())return;
     if(tc.def>0) G.turnNotes.push(`🔴 assigned ${tc.def} ${tc.def===1?'die':'dice'} to defensive zone`);
     if(tc.tokS>0) G.turnNotes.push(`🎯 bought ${tc.tokS} Shoot ${tc.tokS===1?'token':'tokens'}`); // 5_105: batched (Tim)
     if(tc.tokB>0) G.turnNotes.push(`🛡️ bought ${tc.tokB} Block ${tc.tokB===1?'token':'tokens'}`); // 5_105: batched (Tim)
-    if(tc.res>0) G.turnNotes.push(`💲 reserved ${tc.res} ${tc.res===1?'die':'dice'}`); // v6.16: like Chuck (Tim)
+    if(tc.res>0) G.turnNotes.push(`💲 reserved ${tc.res} ${tc.res===1?'die':'dice'}`); // v6.19: like Chuck (Tim)
     // Note: adv counter still to be wired to its action
   }
   G.ap=1-G.ap;
@@ -3781,21 +3786,23 @@ function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
   } else if(!die.face){
     fbCls='fb-UNK';faceHTML='?';
   } else {
-    const f=die.face;
+    // v6.19: while shaking, show a random face — the shuffle (Tim)
+    // Each render during the shake picks a new one; the true face returns after.
+    const f=_shakeIds.has(die.id)?(DEFS[die.key]||DEFS.Penalty)[(Math.random()*(DEFS[die.key]||DEFS.Penalty).length)|0]:die.face;
     isCost=!!f.c;
     fbCls=fbClass(f.t,isCost);
-    if(f.t==='BLANK')faceHTML='<span class="fb-n" style="transform:scaleY(1.6);display:inline-block;font-size:2.4em;">—</span>'; // v6.16: enlarged (Tim)
-    else if(f.t==='FT')faceHTML='<span class="fb-n" style="font-size:1.4em;">FT</span>'; // v6.16: enlarged (Tim)
+    if(f.t==='BLANK')faceHTML='<span class="fb-n" style="transform:scaleY(1.6);display:inline-block;font-size:2.4em;">—</span>'; // v6.19: enlarged (Tim)
+    else if(f.t==='FT')faceHTML='<span class="fb-n" style="font-size:1.4em;">FT</span>'; // v6.19: enlarged (Tim)
     else if(f.t==='SO')faceHTML=`<span class="fb-l">SO</span><span class="fb-n">${f.v}</span>`;
-    else if(f.t==='ADV')faceHTML='<span class="fb-n" style="font-size:1.4em;">ADV</span>'; // v6.16: enlarged (Tim)
-    else if(f.t==='RR')faceHTML='<span class="fb-n" style="font-size:1.4em;">RR</span>'; // v6.16: enlarged (Tim)
+    else if(f.t==='ADV')faceHTML='<span class="fb-n" style="font-size:1.4em;">ADV</span>'; // v6.19: enlarged (Tim)
+    else if(f.t==='RR')faceHTML='<span class="fb-n" style="font-size:1.4em;">RR</span>'; // v6.19: enlarged (Tim)
     else faceHTML=`<span class="fb-l">${f.t}</span>${f.v?'<span class="fb-n">'+f.v+'</span>':''}`;
   }
   const selCls=die.sel?(inRS&&_rrMode?'sel-rr':'sel'):'';
   const tierLbl=die.key==='Penalty'?'PEN':die.key==='Rookie'?'RK':die.key==='Goon'?'GN':die.key; // 4_49: GN (Tim)
   const energyBadge=(!inIced&&die.energyPending)?`<div class="energy-inuse">⚡${die.face?die.face.v:''}</div>`:'';
   const costStrip=(!inIced&&isCost&&inRS)?`<div class="cost-strip">costs 1⚡</div>`:'';
-  const shakeCls=_shakeIds.has(die.id)?' rolling':''; // v6.16: render-time shake (Tim)
+  const shakeCls=_shakeIds.has(die.id)?' rolling':''; // v6.19: render-time shake (Tim)
   return`<div class="die-wrap ${pc}" data-id="${die.id}">
     <div class="die-body ${selCls}${isCost&&!inIced?' has-cost':''}${shakeCls}">
       <div class="face-badge ${fbCls}">${faceHTML}</div>
@@ -3839,17 +3846,21 @@ function _faceBadgeInner(f){
 // random legal faces while the whole die body shakes (2_42: dicewob2, the
 // faceoff shake), then everything settles on the true rendered faces.
 function shakeDice(dice,ms){
-  // v6.16: Tim's approach — mark the dice, render (they shake via CSS), then
-  // unmark and render again. Survives any re-render in between.
+  // v6.19: Tim's approach — mark the dice, render (they shake via CSS + cycle
+  // random faces), then unmark and render again. Survives any re-render in between.
+  const dur=ms||950;
   (dice||[]).forEach(d=>{if(d&&d.id)_shakeIds.add(d.id);});
   if(typeof renderAll==='function')renderAll();
+  // Re-render every 120ms so the faces shuffle (each render picks new random faces)
+  const cyc=setInterval(()=>{ if(typeof renderAll==='function')renderAll(); }, 120);
   setTimeout(()=>{
+    clearInterval(cyc);
     (dice||[]).forEach(d=>{if(d&&d.id)_shakeIds.delete(d.id);});
     if(typeof renderAll==='function')renderAll();
-  }, ms||950);
+  }, dur);
 }
 function animGameDice(dice,done){
-  // v6.16: re-query elements each frame (Tim) — Firebase echoes re-render mid-shake,
+  // v6.19: re-query elements each frame (Tim) — Firebase echoes re-render mid-shake,
   // detaching the cached elements and killing the animation invisibly.
   const items=[];
   (dice||[]).forEach(d=>{
@@ -3860,7 +3871,7 @@ function animGameDice(dice,done){
   let n=items.length;
   const doneOne=()=>{if(--n===0&&done)done();};
   items.forEach((it,i)=>{
-    const total=900+i*70,t0=performance.now(); // v6.16: longer, clearly visible (Tim)
+    const total=900+i*70,t0=performance.now(); // v6.19: longer, clearly visible (Tim)
     let settled=false;
     (function frame(now){
       const t=(now||performance.now())-t0;
@@ -3870,7 +3881,7 @@ function animGameDice(dice,done){
       if(t>=total){
         if(!settled){settled=true;
           if(b){
-            // Restore the true final face (v6.16)
+            // Restore the true final face (v6.19)
             const ff=it.finalFace;
             b.className='face-badge '+fbClass(ff.t,!!ff.c);
             b.innerHTML=_faceBadgeInner(ff);
@@ -3962,7 +3973,7 @@ function renderZone(zid,arr,opts={}){
           body.addEventListener('click',e=>{e.stopPropagation();showDiePopover(die,wrap,hopts);});
         }
       }else if(die.face&&die.face.t==='BLANK'){
-        // v6.16: blank tap safety net (Tim) — if HC RR is live, confirm before icing
+        // v6.19: blank tap safety net (Tim) — if HC RR is live, confirm before icing
         // (reroll still available); otherwise blanks melt as usual
         const ap2=AP();
         if(ap2&&hcRRAvailable(ap2)){
@@ -4247,9 +4258,9 @@ function whoEmoji(i){return (_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlo
 // 4_05: team emoji lives only in the team picker (Tim) — everywhere else the
 // controller emoji leads: "🤖 Gargoyles"
 function bareName(n){return String(n||'').replace(/^[\p{Extended_Pictographic}\uFE0F\u200D]+\s*/u,'').trim()||String(n||'');}
-function teamEmoji(i){const p=G.players[i];const tn=p.teamName||'';const m=/^([\p{Extended_Pictographic}\uFE0F\u200D]+)/u.exec(tn);return m?m[1]:'🧑';} // v6.16: team emoji for fight card (Tim)
-function teamLbl(i){const p=G.players[i];const tn=p.teamName||p.name||('Player '+(i+1));return tn;} // v6.16: team emoji, no who-emoji (Tim)
-function whoLbl(i){const p=G.players[i];if(!p)return '';const nm=bareName(p.name||'');if(_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)return bareName(nm)||'AI Chuck';if(_aiActive)return 'Player 1';return nm||('Player '+(i+1));} // v6.16: Player 1 / AI Chuck / given name (Tim)
+function teamEmoji(i){const p=G.players[i];const tn=p.teamName||'';const m=/^([\p{Extended_Pictographic}\uFE0F\u200D]+)/u.exec(tn);return m?m[1]:'🧑';} // v6.19: team emoji for fight card (Tim)
+function teamLbl(i){const p=G.players[i];const tn=p.teamName||p.name||('Player '+(i+1));return tn;} // v6.19: team emoji, no who-emoji (Tim)
+function whoLbl(i){const p=G.players[i];if(!p)return '';const nm=bareName(p.name||'');if(_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)return bareName(nm)||'AI Chuck';if(_aiActive)return 'Player 1';return nm||('Player '+(i+1));} // v6.19: Player 1 / AI Chuck / given name (Tim)
 function renderBoard(){
   const ap=AP();
   // 2_26: show the room code next to the title while online (for drop/rejoin)
@@ -4261,7 +4272,7 @@ function renderBoard(){
   const tLbl = teamLbl(G.ap); // 4_05: "🤖 Gargoyles"
   const aplblEl2=document.getElementById('aplbl');
   if(_onlineActive && isMyTurn()){
-    // v6.16: pulsing YOUR TURN pill like other modes (Tim) — replaces the ✅
+    // v6.19: pulsing YOUR TURN pill like other modes (Tim) — replaces the ✅
     aplblEl2.innerHTML=`${tLbl}'s Turn <span class="so-yourturn" style="font-size:.8em;padding:5px 18px;letter-spacing:2px;">YOUR TURN</span>`;
   } else {
     const myTurnIndicator = _onlineActive && !isMyTurn() ? ' ⏳' : '';
@@ -4273,7 +4284,7 @@ function renderBoard(){
   // 3_23: team name + who-emoji — no more (P1)/(P2) in the scoreboard header
   if(sn1) sn1.textContent=teamLbl(0); // 4_05
   if(sn2) sn2.textContent=teamLbl(1);
-  // v6.16: who-label below team name (Tim)
+  // v6.19: who-label below team name (Tim)
   const sw1=document.getElementById('sw1'); if(sw1) sw1.textContent=whoLbl(0);
   const sw2=document.getElementById('sw2'); if(sw2) sw2.textContent=whoLbl(1);
   const tv=document.getElementById('tmr');
@@ -4394,7 +4405,7 @@ function renderOpp(){
   const offPips=hotPips+coldPips, offDice=hp+cp;
   const osb=document.getElementById('m-oppsummary');
   if(osb){osb.innerHTML=`<div class="m-os-title">${whoEmoji(1-G.ap)} OPP</div><div class="m-os-line"><span class="m-os-chip m-os-off"><b>🏒 ${offPips}</b><small>${offDice} dice</small></span><span class="m-os-chip m-os-def2"><b>🥅 ${defPips}</b><small>${dp} dice</small></span></div>`;}
-  // v6.16: split opp boxes (Tim's layout) — offense left of clock, defense right
+  // v6.19: split opp boxes (Tim's layout) — offense left of clock, defense right
   const mOff=document.getElementById('m-opp-off');
   if(mOff){mOff.innerHTML=`<div class="m-opp-lbl">🏒 OPP OFF</div><div class="m-opp-pips">${offPips} pips</div><div class="m-opp-dice">${offDice} dice</div>`;}
   const mDef=document.getElementById('m-opp-def');
@@ -4409,11 +4420,11 @@ function renderActions(){
   const row=document.getElementById('arow');row.innerHTML='';
   {const _ap=AP();if(_ap&&!_ap.z.hot.length&&!_ap.z.cold.length&&!_ap.z.defend.length&&!_ap.z.shoot.length)G.assignmentStarted=false;} // 4_50: stale guard (Tim)
   // Spectators get no action buttons — just a watching pill plus a live emoji
-  // strip from the opponent's turn notes (v6.16, Tim). Compact ticks only;
+  // strip from the opponent's turn notes (v6.19, Tim). Compact ticks only;
   // the full narration waits for the end-of-turn summary.
   if(spectating()){
     const ap=AP();
-    // v6.16: live emoji strip — event notes (roll/reroll/buy/shoot/fight) plus
+    // v6.19: live emoji strip — event notes (roll/reroll/buy/shoot/fight) plus
     // live assignment counts (Tim asked for hot/cold/defense ticks). The
     // end-of-turn batched "assigned N dice" notes are filtered to avoid doubles.
     const strip=(G.turnNotes||[]).map(n=>{
@@ -4429,7 +4440,7 @@ function renderActions(){
     if((tc.res||0)>0) strip.push('💲'); // reserve batch — matches Chuck's 💲 (Tim)
     if((tc.tokS||0)>0) strip.push('🎯'); // shoot token batch (Tim)
     if((tc.tokB||0)>0) strip.push('🛡️'); // block token batch (Tim)
-    // v6.16: match Chuck's bar — full-width, header + icon strip (Tim)
+    // v6.19: match Chuck's bar — full-width, header + icon strip (Tim)
     const stripHtml=`<div class="ai-strip nowrap" style="margin-top:4px">${strip.map(e=>`<span>${e}</span>`).join('')}</div>`;
     row.innerHTML=`<div class="watch-pill col full"><div class="ai-actions-hdr">⏳ WATCHING ${ap.name.toUpperCase()}'S TURN:</div>${stripHtml}</div>`;
     return;
@@ -4462,7 +4473,7 @@ function renderActions(){
   }
 
   if(G.phase<=2){
-    mk('ROLL DICE',rollAll,'prim',false,true); // v6.16: text only (Tim)
+    mk('ROLL DICE',rollAll,'prim',false,true); // v6.19: text only (Tim)
   } else if(G.phase===3){
     if(!G.assignmentStarted){
       // 4_22: confirm lives in the RS zone now — bottom keeps just Reroll None
@@ -4477,10 +4488,10 @@ function renderActions(){
     // 4_28 (Tim): turn winding down (shot taken, or no shot available w/ RS clear) —
     // End Turn becomes the pulsing gold primary; shop stays tappable but goes quiet.
     const windingDown=(G.combatDone&&G.shotDeclared)||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length); // 4_48
-    const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v6.16: short (Tim)
+    const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v6.19: short (Tim)
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
-      // v6.16: single Declare Shot — moves Hot->Shoot then opens card (Tim)
+      // v6.19: single Declare Shot — moves Hot->Shoot then opens card (Tim)
       // Player can hold out shooters on the card (they return to Hot)
       if(G.shotDeclared)mk('DECLARE SHOT',()=>{},'sec',true);
       else mk('SHOOT',()=>{
@@ -4488,7 +4499,7 @@ function renderActions(){
         declareShot();
       },'blue pulsing-blue');
     }
-    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v6.16: text only (Tim)
+    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v6.19: text only (Tim)
   }
   renderCombatPill(); // 3_27: slim popup pill (AI defend beats only)
 }
@@ -4508,7 +4519,7 @@ function renderLog(){
 
 // ═══════════════════ UTILS ═══════════════════
 function addLog(m,c=''){G.log.push({m,c});if(G.log.length>30)G.log.splice(0,G.log.length-30);renderLog();} // 4_30: cap at 30 (Tim)
-// v6.16: custom confirm popup (Tim) — confirm() unreliable in webview
+// v6.19: custom confirm popup (Tim) — confirm() unreliable in webview
 function showConfirm(html,onYes,onNo){
   const bd=document.createElement('div');
   bd.className='overlay overlay-center show';
@@ -4643,7 +4654,7 @@ function spendEPickPip(srcIdx) {
   src.currentV--;
   src.spentPips++;
   _epick.paid++;
-  // v6.16: auto-confirm when paid in full (Tim) — no Confirm button
+  // v6.19: auto-confirm when paid in full (Tim) — no Confirm button
   if(_epick.paid>=_epick.needed){ confirmEPick(); return; }
   renderEPicker();
 }
@@ -4962,7 +4973,7 @@ function startShootout(practice){
   // Set scoreboard names
   [0,1].forEach(i=>{
     const nameEl = document.getElementById('so-name-'+i);
-    // v6.16: team name + who-label below (Tim)
+    // v6.19: team name + who-label below (Tim)
     if(nameEl){
       const whoEl = document.getElementById('so-who-'+i);
       const whoHTML = whoEl ? whoEl.outerHTML : '';
@@ -4978,7 +4989,7 @@ function startShootout(practice){
   // (first turn now starts when the who-shoots-first card dismisses)
 }
 
-// v6.16: extracted coin flip (Tim) — restartShootout now gets a fresh flip too
+// v6.19: extracted coin flip (Tim) — restartShootout now gets a fresh flip too
 function soCoinFlip(practice){
   // 3_82: brief "who shoots first" card (Tim) — the practice order is a coin flip,
   // so announce it. 3_85: sits above the shootout panel (not overlapping it) and
@@ -5026,7 +5037,7 @@ function soNewGame(){
   resetAIFlags();
   backToModes();
   document.getElementById('so-overlay').classList.remove('show');
-  // v6.16: re-randomize teams on next entry (Tim) — unless manually picked
+  // v6.19: re-randomize teams on next entry (Tim) — unless manually picked
   if(typeof _soManualPick!=='undefined'&&!_soManualPick)_so.sel1=null;
   if(typeof _soAiManualPick!=='undefined'&&!_soAiManualPick)_so.aiIdx=null;
   showScreen('setup');
@@ -5034,7 +5045,7 @@ function soNewGame(){
 }
 function restartShootout(){
   _so.scores=[0,0]; _so.round=1; _so.maxRounds=3;
-  // v6.16: fresh coin flip for the new shootout (Tim)
+  // v6.19: fresh coin flip for the new shootout (Tim)
   _so.firstShooter=Math.random()<0.5?0:1;
   _so.shooterIdx=_so.firstShooter; _so.results=[]; _so.suddenDeath=false; _so.selectedFwd=null;
   _so.phase='shoot';
@@ -5055,11 +5066,11 @@ function restartShootout(){
 // 3_59: who-emoji on shootout teams — 🤖 AI, 🧑 human (Tim)
 // 3_63: keyed on _aiActive like the main scoreboard — real-game overtime shootouts set _so.vsAI=false
 function soWhoEmoji(si){return (_aiActive&&typeof _aiSlot!=='undefined'&&si===_aiSlot)?'🤖':'🧑';}
-function soTeamLabel(si){const p=_so.players[si]; // v6.16: team emoji, no who-emoji (Tim)
+function soTeamLabel(si){const p=_so.players[si]; // v6.19: team emoji, no who-emoji (Tim)
   return (p.teamName||p.name||'');}
 function soWhoLbl(si){const p=_so.players[si];if(!p)return '';const nm=bareName(p.name||'');
   if(_aiActive&&typeof _aiSlot!=='undefined'&&si===_aiSlot)return nm||'AI Chuck';
-  if(_aiActive)return 'Player 1';return nm||('Player '+(si+1));} // v6.16 (Tim)
+  if(_aiActive)return 'Player 1';return nm||('Player '+(si+1));} // v6.19 (Tim)
 function renderSOScoreboard(){
   // 3_62: one SD column — blank until a sudden-death shootout is decided, then winner ● / loser X (Tim)
   const sdHead=document.getElementById('so-h-sd');
@@ -5922,7 +5933,7 @@ function _drainPending(){
   const r=_pendingRemote; _pendingRemote=null;
   _deliverRemote(r);
 }
-// v6.16: Firebase .set() throws on undefined values anywhere in the tree.
+// v6.19: Firebase .set() throws on undefined values anywhere in the tree.
 // Scrub them to null so a not-yet-set field (e.g. foWinner before the faceoff)
 // can never kill a launch again.
 function _cleanUndefined(v){
@@ -6023,22 +6034,6 @@ function pullState(remote){
     document.getElementById('goon-panel').classList.remove('show');
   }
   // 5_99: reroll animation sync (Tim) — opponent sees the tumble
-  if(remote.rerollSync&&(!G.rerollSync||remote.rerollSync.ts!==G.rerollSync.ts)){
-    G.rerollSync=remote.rerollSync;
-    const diceIds=remote.rerollSync.diceIds||[];
-    const dice=[];
-    G.players.forEach(pl=>{
-      Object.values(pl.z).forEach(zone=>{
-        if(Array.isArray(zone)) zone.forEach(d=>{
-          if(d&&diceIds.includes(d.id)) dice.push(d);
-        });
-      });
-    });
-    if(dice.length){
-      // v6.16: shake via render (Tim) — survives re-renders
-      shakeDice(dice);
-    }
-  }
   remote.players.forEach((rp,i)=>{
     const lp=G.players[i];
     lp.name=rp.name; lp.teamName=rp.teamName; lp.goals=rp.goals;
@@ -6054,6 +6049,23 @@ function pullState(remote){
       orig.left=rc.left; return orig;
     });
   });
+  // v6.19: spectator roll shake (Tim) — AFTER players update, so the dice exist.
+  // Mark the IDs; the _origRenderAll() below paints them mid-tumble.
+  if(remote.rerollSync&&(!G.rerollSync||remote.rerollSync.ts!==G.rerollSync.ts)){
+    G.rerollSync=remote.rerollSync;
+    const diceIds=remote.rerollSync.diceIds||[];
+    G.players.forEach(pl=>{
+      Object.values(pl.z).forEach(zone=>{
+        if(Array.isArray(zone)) zone.forEach(d=>{
+          if(d&&d.id&&diceIds.includes(d.id))_shakeIds.add(d.id);
+        });
+      });
+    });
+    setTimeout(()=>{
+      diceIds.forEach(id=>_shakeIds.delete(id));
+      if(typeof renderAll==='function')renderAll();
+    }, 950);
+  }
   if(remote.log) G.log=remote.log;
   // Adopt the attacker's committed shoot tokens (I'm the defender, not the active player)
   if(typeof remote.sTok==='number'&&G.ap!==_mySlot)_sTok=remote.sTok;
@@ -6141,7 +6153,7 @@ function pullState(remote){
     const opp=G.players[G.ap];
     const aplblEl=document.getElementById('aplbl');
     if(aplblEl) aplblEl.textContent=
-      `⏳ watching ${bareName(opp.name)}'s turn`; // v6.16: Tim's wording — player name, not team
+      `⏳ watching ${bareName(opp.name)}'s turn`; // v6.19: Tim's wording — player name, not team
   }
 }
 
@@ -6253,7 +6265,7 @@ function aiBenchRank(d){return tierOf(d.key)*100+aiTierRank(d.key)*10+((d.face&&
 
 // ── Step-summary pills: their own channel so they never clobber warnings ──
 let _aiTurnNotes=[]; // 2_47: Max speed collects step pills into one turn summary
-let _shakeIds=new Set(); // v6.16: die IDs currently shaking — the render applies the
+let _shakeIds=new Set(); // v6.19: die IDs currently shaking — the render applies the
 // rolling class, so Firebase re-renders can't detach and kill the animation (Tim's idea)
 let _aiStripIcons=[]; // 3_09: icon timeline — one emoji per summary-bound action, left to right
 function aiStripPush(msg){ // 3_09: the leading emoji of a summary note becomes a timeline icon
@@ -6597,7 +6609,7 @@ function aiRerollTable(){
     let p=0;
     if(f.t==='RR'||f.t==='PEN')p=25;
     else if(f.t==='ADV'){
-      // v6.16: always reroll on 10:00/02:00/01:00 only (Tim)
+      // v6.19: always reroll on 10:00/02:00/01:00 only (Tim)
       if(G.clock===10||G.clock===2||G.clock===1)p=100;
       else{
         const hasShoot=[...ap.z.rs,...ap.z.cold].some(x=>x.face&&x.face.t==='S'&&(x.face.v||0)>0);
@@ -7261,7 +7273,7 @@ async function aiDoShoot(P){
   const desperation=(opp.goals-ap.goals)>1;
   const t1=D+1+(desperation?1:0); // commit dice until shot >= t1
   const t2=D+2+(desperation?1:0); // 25% token tier cap
-  const t3=D+3+(desperation?1:0); // v6.16: token hard cap (Tim)
+  const t3=D+3+(desperation?1:0); // v6.19: token hard cap (Tim)
   let commit=[];
   if(G.clock===2||G.clock===1){
     commit=shooters; // clock all-in (Tim) — everything shoots
@@ -7282,7 +7294,7 @@ async function aiDoShoot(P){
   _aiSelf=true;
   try{
     declareShot();
-    // 3_56: scouted token spend (Tim) — fill to t1, 25% each to t2, 5% each to t3 (v6.16)
+    // 3_56: scouted token spend (Tim) — fill to t1, 25% each to t2, 5% each to t3 (v6.19)
     let tokLeft=ap.tok.shoot;
     while(tokLeft>0&&shotPips<t1){adjST(1);tokLeft--;shotPips++;}
     while(tokLeft>0&&shotPips<t2){tokLeft--;if(d100()<=25){adjST(1);shotPips++;}}
@@ -7345,7 +7357,7 @@ async function aiDefendTurn(){
         .sort((a,b)=>b.face.v-a.face.v); // most pips first — a big die can clear +1/+2 alone
       for(const d of candidates){
         if(blkPips>=atkPips+1){ // 4_81: tiered past +1 (Tim)
-          // v6.16: 20%->25% between +2/+3 (Tim)
+          // v6.19: 20%->25% between +2/+3 (Tim)
           const pct=blkPips>=atkPips+3?5:(blkPips>=atkPips+2?25:50);
           if(d100()>pct)continue;
         }
@@ -7365,7 +7377,7 @@ async function aiDefendTurn(){
       tokTries--;
       if(d100()<=50){adjBT(1);matched++;blkPips++;}
     }
-    while(blkPips<atkPips+3&&tokTries>0){ // v6.16: 5% each, one by one, to +3 (Tim)
+    while(blkPips<atkPips+3&&tokTries>0){ // v6.19: 5% each, one by one, to +3 (Tim)
       tokTries--;
       if(d100()<=5){adjBT(1);matched++;blkPips++;}
     }
@@ -7583,7 +7595,7 @@ function resumeGame(){
   }
 }
 
-// v6.16: surface uncaught errors as toasts (Tim's Vs Friend dead-screen report Oct 12)
+// v6.19: surface uncaught errors as toasts (Tim's Vs Friend dead-screen report Oct 12)
 // Without this, a throw in the online launch path leaves the setup screen
 // dead with no indication of what failed.
 window.addEventListener('error',e=>{
