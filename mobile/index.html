@@ -245,7 +245,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .fb-PEN{background:#eee;color:#222;}
 .fb-BLANK{background:linear-gradient(145deg,#3a3a3a,#1e1e1e);color:#999;border:1px solid #333;}
 .fb-UNK{background:rgba(255,255,255,.15);color:#888;}
-/* v5.175: faded face symbols behind pips (Tim's mockup) */
+/* v6.01: faded face symbols behind pips (Tim's mockup) */
 .face-badge{overflow:hidden;}
 .face-badge::before{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   font-size:2.1em;opacity:.30;pointer-events:none;line-height:1;}
@@ -274,6 +274,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* Reserved badge */
 .reserved-badge{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#8B6914;color:#fff;font-size:.55em;font-weight:900;border-radius:4px;padding:1px 4px;pointer-events:none;white-space:nowrap;}
 #so-forward-choices .die-tier-lbl{display:none;}
+/* v6.01: shootout dice bigger — fill the colored border (Tim) */
+#so-forward-choices .die-body{width:64px!important;height:64px!important;}
+#so-forward-choices .face-badge{width:52px!important;height:52px!important;font-size:1em!important;}
 .die-tier-lbl{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;position:absolute;bottom:-3px;right:-3px;font-size:.62em;font-weight:800;color:#fff;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:1px 4px;line-height:1.3;letter-spacing:.3px;opacity:.6;} // 4_49: 60% (Tim)
 /* Spindown badge */
 .spindown-badge{position:absolute;top:-5px;left:-5px;background:#cc6600;color:#fff;font-size:.55em;font-weight:900;border-radius:6px;padding:1px 4px;pointer-events:none;}
@@ -897,7 +900,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.175</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v6.01</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1053,7 +1056,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.175</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v6.01</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1452,7 +1455,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
       <button class="abtn prim" id="goon-commit" onclick="goonResolveFight()" disabled>Fight! →</button>
       <button class="abtn sec" onclick="goonCancelFight()">Cancel</button>
-      </div> <!-- v5.175: centered (Tim) -->
+      </div> <!-- v6.01: centered (Tim) -->
     </div>
     <div id="goon-fight" style="display:none;margin-top:10px">
       <div class="fo-rolls">
@@ -1496,8 +1499,8 @@ const DEFS={
   G3:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
   G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
   G5:[{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'SO',v:2,c:true}],
-  G6:[{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4},{t:'B',v:4,c:true},{t:'SO',v:1}],
-  HC:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'RR',v:0},{t:'ADV',v:0}], // v5.175: 1E,1E,2E,RR,RR,ADV — PEN swapped for ADV (Tim)
+  G6:[{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4},{t:'B',v:4,c:true},{t:'SO',v:2,c:true}],
+  HC:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'RR',v:0},{t:'ADV',v:0}], // v6.01: 1E,1E,2E,RR,RR,ADV — PEN swapped for ADV (Tim)
   Penalty:[{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0}],
 };
 const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,G3:3,G4:4,G5:5,G6:6}; // 5_89: tier 6 costs added (Tim's bug report)
@@ -2219,7 +2222,7 @@ function assignDie(die,action){
   closeMenus();
   const ap=AP(),opp=OPP();
   const idx=ap.z.rs.indexOf(die);if(idx===-1)return;
-  // v5.175: blank ice safety net (Tim) — if HC RR is live, confirm first
+  // v6.01: blank ice safety net (Tim) — if HC RR is live, confirm first
   // (catches all ice paths: taps, auto-ice, etc.)
   if(action==='iced'&&die.face&&die.face.t==='BLANK'&&die.key!=='HC'&&hcRRAvailable(ap)&&!die._blankConfirm){
     die._blankConfirm=true; // prevent loop
@@ -2561,7 +2564,7 @@ function goonStartFight(die){
   el.appendChild(mkHalf('🛡️ DEFENSIVE',defTargets,'rgba(255,80,80,.08)')); // 5_107: red (Tim)
   document.getElementById('goon-commit').disabled=true;
   document.getElementById('goon-result').style.display='none';
-  document.getElementById('goon-fight').style.display='none'; // v5.175: clear old results (Tim)
+  document.getElementById('goon-fight').style.display='none'; // v6.01: clear old results (Tim)
   document.getElementById('goon-pick').style.display='block';
   document.getElementById('goon-panel').classList.add('show');
 }
@@ -2997,7 +3000,7 @@ function renderAtkDice(){
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
     if(db){
-      // v5.175: attacker dice always show halo in combat card (Tim)
+      // v6.01: attacker dice always show halo in combat card (Tim)
       const heldOut=_shotHeldOut.has(d.id);
       if(!heldOut)db.classList.add('sel');
       if(canTune){
@@ -3017,7 +3020,7 @@ function renderAtkDice(){
   const n=inShot.length;
   document.getElementById('atk-dice-sum').innerHTML=
     `<span class="combat-pulse"><strong>${n}</strong> shooter${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} → <strong>${pips} combat ${cDiceWord(pips)}</strong>${_sTok>0?` + <strong style="color:#ffd75e">${_sTok} Token${_sTok!==1?'s':''}</strong>`:''}</span>`+
-    (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot</div>`:''); // v5.175: pulse + tokens in flow (Tim)
+    (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot</div>`:''); // v6.01: pulse + tokens in flow (Tim)
 }
 
 // 2_151: mini game clock in the shot panel — white 10:00–05:00, red 04:00–01:00 (matches header badge)
@@ -3028,7 +3031,7 @@ function renderCombatClock(){
 }
 function openCombat(){
   renderCombatClock(); // 2_151: mini clock next to the title (white 10:00–05:00, red 04:00–01:00)
-  // v5.175: last-shot reminder + auto-select all block dice on 2:00/1:00 (Tim)
+  // v6.01: last-shot reminder + auto-select all block dice on 2:00/1:00 (Tim)
   const _isLastShot = G.clock <= 2;
   const _lsb = document.getElementById('last-shot-banner');
   if (_lsb) _lsb.style.display = _isLastShot ? '' : 'none';
@@ -3081,14 +3084,14 @@ function openCombat(){
     });
     bsel.appendChild(commitAllBtn);
   }
-  // v5.175: auto-select all block dice on last shot (Tim) — defender can unselect
+  // v6.01: auto-select all block dice on last shot (Tim) — defender can unselect
   if (_isLastShot && !_defViewOnly && !defenderIsAI) {
     G.blockSelIds = OPP().z.defend.map(d=>d.id);
   }
   OPP().z.defend.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
-    // v5.175: pre-highlight auto-selected dice
+    // v6.01: pre-highlight auto-selected dice
     if (_isLastShot && !_defViewOnly && !defenderIsAI && G.blockSelIds.includes(d.id)) {
       db.classList.add('sel');
     }
@@ -3217,7 +3220,7 @@ function renderBselInfo(){
   const el=document.getElementById('bsel-info');if(!el)return;
   const sel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
   const n=sel.length,pips=sel.reduce((s,d)=>s+(d.face?d.face.v:0),0),bonus=clockBlockBonus();
-  el.innerHTML=`<span class="combat-pulse"><strong>${n}</strong> blocker${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} + <strong>${bonus}</strong> clock → <strong>${pips+bonus} combat ${cDiceWord(pips+bonus)}</strong>${_bTok>0?` + <strong style="color:#ffd75e">${_bTok} Token${_bTok!==1?'s':''}</strong>`:''}</span>`; // v5.175: pulse + tokens in flow (Tim)
+  el.innerHTML=`<span class="combat-pulse"><strong>${n}</strong> blocker${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} + <strong>${bonus}</strong> clock → <strong>${pips+bonus} combat ${cDiceWord(pips+bonus)}</strong>${_bTok>0?` + <strong style="color:#ffd75e">${_bTok} Token${_bTok!==1?'s':''}</strong>`:''}</span>`; // v6.01: pulse + tokens in flow (Tim)
 }
 
 let _combatResolving=false; // 2_121: prevent double-resolution of the same shot
@@ -3771,11 +3774,11 @@ function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
     const f=die.face;
     isCost=!!f.c;
     fbCls=fbClass(f.t,isCost);
-    if(f.t==='BLANK')faceHTML='<span class="fb-n" style="transform:scaleY(1.6);display:inline-block;font-size:2.4em;">—</span>'; // v5.175: enlarged (Tim)
-    else if(f.t==='FT')faceHTML='<span class="fb-n" style="font-size:1.4em;">FT</span>'; // v5.175: enlarged (Tim)
+    if(f.t==='BLANK')faceHTML='<span class="fb-n" style="transform:scaleY(1.6);display:inline-block;font-size:2.4em;">—</span>'; // v6.01: enlarged (Tim)
+    else if(f.t==='FT')faceHTML='<span class="fb-n" style="font-size:1.4em;">FT</span>'; // v6.01: enlarged (Tim)
     else if(f.t==='SO')faceHTML=`<span class="fb-l">SO</span><span class="fb-n">${f.v}</span>`;
-    else if(f.t==='ADV')faceHTML='<span class="fb-n" style="font-size:1.4em;">ADV</span>'; // v5.175: enlarged (Tim)
-    else if(f.t==='RR')faceHTML='<span class="fb-n" style="font-size:1.4em;">RR</span>'; // v5.175: enlarged (Tim)
+    else if(f.t==='ADV')faceHTML='<span class="fb-n" style="font-size:1.4em;">ADV</span>'; // v6.01: enlarged (Tim)
+    else if(f.t==='RR')faceHTML='<span class="fb-n" style="font-size:1.4em;">RR</span>'; // v6.01: enlarged (Tim)
     else faceHTML=`<span class="fb-l">${f.t}</span>${f.v?'<span class="fb-n">'+f.v+'</span>':''}`;
   }
   const selCls=die.sel?(inRS&&_rrMode?'sel-rr':'sel'):'';
@@ -3922,7 +3925,7 @@ function renderZone(zid,arr,opts={}){
           body.addEventListener('click',e=>{e.stopPropagation();showDiePopover(die,wrap,hopts);});
         }
       }else if(die.face&&die.face.t==='BLANK'){
-        // v5.175: blank tap safety net (Tim) — if HC RR is live, confirm before icing
+        // v6.01: blank tap safety net (Tim) — if HC RR is live, confirm before icing
         // (reroll still available); otherwise blanks melt as usual
         const ap2=AP();
         if(ap2&&hcRRAvailable(ap2)){
@@ -4207,8 +4210,8 @@ function whoEmoji(i){return (_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlo
 // 4_05: team emoji lives only in the team picker (Tim) — everywhere else the
 // controller emoji leads: "🤖 Gargoyles"
 function bareName(n){return String(n||'').replace(/^[\p{Extended_Pictographic}\uFE0F\u200D]+\s*/u,'').trim()||String(n||'');}
-function teamLbl(i){const p=G.players[i];const tn=p.teamName||p.name||('Player '+(i+1));return tn;} // v5.175: team emoji, no who-emoji (Tim)
-function whoLbl(i){const p=G.players[i];if(!p)return '';const nm=bareName(p.name||'');if(_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)return bareName(nm)||'AI Chuck';if(_aiActive)return 'Player 1';return nm||('Player '+(i+1));} // v5.175: Player 1 / AI Chuck / given name (Tim)
+function teamLbl(i){const p=G.players[i];const tn=p.teamName||p.name||('Player '+(i+1));return tn;} // v6.01: team emoji, no who-emoji (Tim)
+function whoLbl(i){const p=G.players[i];if(!p)return '';const nm=bareName(p.name||'');if(_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)return bareName(nm)||'AI Chuck';if(_aiActive)return 'Player 1';return nm||('Player '+(i+1));} // v6.01: Player 1 / AI Chuck / given name (Tim)
 function renderBoard(){
   const ap=AP();
   // 2_26: show the room code next to the title while online (for drop/rejoin)
@@ -4226,7 +4229,7 @@ function renderBoard(){
   // 3_23: team name + who-emoji — no more (P1)/(P2) in the scoreboard header
   if(sn1) sn1.textContent=teamLbl(0); // 4_05
   if(sn2) sn2.textContent=teamLbl(1);
-  // v5.175: who-label below team name (Tim)
+  // v6.01: who-label below team name (Tim)
   const sw1=document.getElementById('sw1'); if(sw1) sw1.textContent=whoLbl(0);
   const sw2=document.getElementById('sw2'); if(sw2) sw2.textContent=whoLbl(1);
   const tv=document.getElementById('tmr');
@@ -4347,7 +4350,7 @@ function renderOpp(){
   const offPips=hotPips+coldPips, offDice=hp+cp;
   const osb=document.getElementById('m-oppsummary');
   if(osb){osb.innerHTML=`<div class="m-os-title">${whoEmoji(1-G.ap)} OPP</div><div class="m-os-line"><span class="m-os-chip m-os-off"><b>🏒 ${offPips}</b><small>${offDice} dice</small></span><span class="m-os-chip m-os-def2"><b>🥅 ${defPips}</b><small>${dp} dice</small></span></div>`;}
-  // v5.175: split opp boxes (Tim's layout) — offense left of clock, defense right
+  // v6.01: split opp boxes (Tim's layout) — offense left of clock, defense right
   const mOff=document.getElementById('m-opp-off');
   if(mOff){mOff.innerHTML=`<div class="m-opp-lbl">🏒 OPP OFF</div><div class="m-opp-pips">${offPips} pips</div><div class="m-opp-dice">${offDice} dice</div>`;}
   const mDef=document.getElementById('m-opp-def');
@@ -4399,7 +4402,7 @@ function renderActions(){
   }
 
   if(G.phase<=2){
-    mk('ROLL DICE',rollAll,'prim',false,true); // v5.175: text only (Tim)
+    mk('ROLL DICE',rollAll,'prim',false,true); // v6.01: text only (Tim)
   } else if(G.phase===3){
     if(!G.assignmentStarted){
       // 4_22: confirm lives in the RS zone now — bottom keeps just Reroll None
@@ -4414,10 +4417,10 @@ function renderActions(){
     // 4_28 (Tim): turn winding down (shot taken, or no shot available w/ RS clear) —
     // End Turn becomes the pulsing gold primary; shop stays tappable but goes quiet.
     const windingDown=(G.combatDone&&G.shotDeclared)||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length); // 4_48
-    const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v5.175: short (Tim)
+    const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v6.01: short (Tim)
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
-      // v5.175: single Declare Shot — moves Hot->Shoot then opens card (Tim)
+      // v6.01: single Declare Shot — moves Hot->Shoot then opens card (Tim)
       // Player can hold out shooters on the card (they return to Hot)
       if(G.shotDeclared)mk('DECLARE SHOT',()=>{},'sec',true);
       else mk('SHOOT',()=>{
@@ -4425,7 +4428,7 @@ function renderActions(){
         declareShot();
       },'blue pulsing-blue');
     }
-    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v5.175: text only (Tim)
+    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v6.01: text only (Tim)
   }
   renderCombatPill(); // 3_27: slim popup pill (AI defend beats only)
 }
@@ -4445,7 +4448,7 @@ function renderLog(){
 
 // ═══════════════════ UTILS ═══════════════════
 function addLog(m,c=''){G.log.push({m,c});if(G.log.length>30)G.log.splice(0,G.log.length-30);renderLog();} // 4_30: cap at 30 (Tim)
-// v5.175: custom confirm popup (Tim) — confirm() unreliable in webview
+// v6.01: custom confirm popup (Tim) — confirm() unreliable in webview
 function showConfirm(html,onYes,onNo){
   const bd=document.createElement('div');
   bd.className='overlay overlay-center show';
@@ -4897,7 +4900,7 @@ function startShootout(practice){
   // Set scoreboard names
   [0,1].forEach(i=>{
     const nameEl = document.getElementById('so-name-'+i);
-    // v5.175: team name + who-label below (Tim)
+    // v6.01: team name + who-label below (Tim)
     if(nameEl){
       const whoEl = document.getElementById('so-who-'+i);
       const whoHTML = whoEl ? whoEl.outerHTML : '';
@@ -4981,11 +4984,11 @@ function restartShootout(){
 // 3_59: who-emoji on shootout teams — 🤖 AI, 🧑 human (Tim)
 // 3_63: keyed on _aiActive like the main scoreboard — real-game overtime shootouts set _so.vsAI=false
 function soWhoEmoji(si){return (_aiActive&&typeof _aiSlot!=='undefined'&&si===_aiSlot)?'🤖':'🧑';}
-function soTeamLabel(si){const p=_so.players[si]; // v5.175: team emoji, no who-emoji (Tim)
+function soTeamLabel(si){const p=_so.players[si]; // v6.01: team emoji, no who-emoji (Tim)
   return (p.teamName||p.name||'');}
 function soWhoLbl(si){const p=_so.players[si];if(!p)return '';const nm=bareName(p.name||'');
   if(_aiActive&&typeof _aiSlot!=='undefined'&&si===_aiSlot)return nm||'AI Chuck';
-  if(_aiActive)return 'Player 1';return nm||('Player '+(si+1));} // v5.175 (Tim)
+  if(_aiActive)return 'Player 1';return nm||('Player '+(si+1));} // v6.01 (Tim)
 function renderSOScoreboard(){
   // 3_62: one SD column — blank until a sudden-death shootout is decided, then winner ● / loser X (Tim)
   const sdHead=document.getElementById('so-h-sd');
