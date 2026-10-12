@@ -17,8 +17,8 @@
 <style>
 :root {
   --rink:#1A3A5C;--gold:#c8a84b;--gold-light:#f5e6c0;--radius:8px;
-  --fc-E:#c8a84b;--fc-S:#2255cc;--fc-B:#cc2222;--fc-W:#7722aa;
-  --fc-RR:#dd7722;--fc-SO:#cc2222;--fc-FT:#226622;--fc-PEN:#eee;--fc-BLANK:#333;
+  --fc-E:#f5d020;--fc-S:#2255cc;--fc-B:#cc2222;--fc-W:#7722aa;
+  --fc-RR:#e8930c;--fc-SO:#cc2222;--fc-FT:#226622;--fc-PEN:#eee;--fc-BLANK:#333;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-height:100vh;overflow-x:hidden;}
@@ -196,6 +196,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 
 /* RS zone action bar */
 .rs-actions{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:3px;flex-shrink:0;}
+.rs-act-btn.pulsing{animation:nudgePulse 1.4s ease-in-out infinite;}
 .rs-act-btn{padding:3px 9px;font-size:.68em;font-weight:700;border-radius:5px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.4px;transition:all .15s;}
 .rs-act-btn.auto-sb{background:#334488;color:#aac4ff;border:1px solid #4466cc;}
 .rs-act-btn.auto-sb:hover{background:#445599;}
@@ -205,19 +206,15 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .die-wrap{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;display:flex;flex-direction:column;align-items:center;gap:9px;position:relative;flex-shrink:0;cursor:default;} /* 4_41: tier label is an absolute corner badge now — no layout shift, halo-safe (Tim) */
 .die-body{width:54px;height:54px;border-radius:12px; /* 2_42: rounded squares, like the faceoff dice */display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.4);transition:all .15s;position:relative;flex-shrink:0;user-select:none;}
 .die-body:hover{transform:scale(1.07);}
-.die-body.sel{box-shadow:0 0 0 2px rgba(255,214,110,.9),0 0 8px rgba(255,214,110,.5)!important;transform:scale(1.1);border-color:#ffd66e!important;} /* 3_38: thinner, softer halo */
-.die-body.sel-rr{box-shadow:0 0 0 2px rgba(221,119,34,.9),0 0 8px rgba(221,119,34,.5)!important;border-color:#dd7722!important;transform:scale(1.08);} /* 3_38: thinner, softer halo */
+.die-body.sel{box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;transform:scale(1.1);border-color:#ffffff!important;} /* 3_38: thinner, softer halo */
+.die-body.sel-rr{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;transform:scale(1.08);} /* 3_38: thinner, softer halo */
 /* 4_55 (Tim): neon selection halos by die color */
-.pos-F .die-body.sel{border-color:#5599ff!important;box-shadow:0 0 0 1.85px rgba(85,153,255,.95),0 0 14px rgba(85,153,255,.8)!important;} /* 4_56: faded+thinner (Tim) */
-.pos-D .die-body.sel{border-color:#ff5555!important;box-shadow:0 0 0 1.85px rgba(255,85,85,.95),0 0 14px rgba(255,85,85,.8)!important;}
+.pos-F .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;} /* 4_56: faded+thinner (Tim) */
+.pos-D .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;}
 .pos-R .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 1.85px rgba(255,255,255,.95),0 0 14px rgba(255,255,255,.8)!important;}
-.pos-HC .die-body.sel{border-color:#ffdd44!important;box-shadow:0 0 0 1.85px rgba(255,221,68,.95),0 0 14px rgba(255,221,68,.8)!important;}
-.pos-GN .die-body.sel{border-color:#55ff55!important;box-shadow:0 0 0 1.85px rgba(85,255,85,.95),0 0 14px rgba(85,255,85,.8)!important;}
-.pos-F .die-body.sel-rr{border-color:#5599ff!important;box-shadow:0 0 0 1.85px rgba(85,153,255,.95),0 0 14px rgba(85,153,255,.8)!important;}
-.pos-D .die-body.sel-rr{border-color:#ff5555!important;box-shadow:0 0 0 1.85px rgba(255,85,85,.95),0 0 14px rgba(255,85,85,.8)!important;}
-.pos-R .die-body.sel-rr{border-color:#ffffff!important;box-shadow:0 0 0 1.85px rgba(255,255,255,.95),0 0 14px rgba(255,255,255,.8)!important;}
-.pos-HC .die-body.sel-rr{border-color:#ffdd44!important;box-shadow:0 0 0 1.85px rgba(255,221,68,.95),0 0 14px rgba(255,221,68,.8)!important;}
-.pos-GN .die-body.sel-rr{border-color:#55ff55!important;box-shadow:0 0 0 1.85px rgba(85,255,85,.95),0 0 14px rgba(85,255,85,.8)!important;} /* 4_57 */
+.pos-HC .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;}
+.pos-GN .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;}
+.pos-X .die-body.sel-rr{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;} /* 4_57 */
 .pos-F .die-body{background:radial-gradient(circle at 35% 35%,#2a4aaa,#0d1f55);border-color:#4466cc;}
 .pos-D .die-body{background:radial-gradient(circle at 35% 35%,#aa2a2a,#550d0d);border-color:#cc4444;}
 .pos-G .die-body{background:radial-gradient(circle at 35% 35%,#666,#333);border-color:#888;}
@@ -237,16 +234,32 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 @keyframes tokpop{0%{transform:scale(1);}40%{transform:scale(1.35);}100%{transform:scale(1);}}
 .tok-pill.tokpop{animation:tokpop .45s ease-out;}
 .face-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;font-size:.67em;font-weight:900;line-height:1.1;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.5);pointer-events:none;}
-.fb-E{background:var(--fc-E);color:#111;}
+.fb-E{background:linear-gradient(145deg,#f5d020,#d4a010);color:#111;}
 .fb-S{background:var(--fc-S);color:#fff;}
 .fb-B{background:var(--fc-B);color:#fff;}
 .fb-W{background:#7722aa;color:#fff;}
-.fb-RR{background:#dd7722;color:#fff;}
+.fb-RR{background:linear-gradient(145deg,#e8930c,#b06a08);color:#fff;}
+.fb-ADV{background:linear-gradient(145deg,#e8930c,#b06a08);color:#fff;}
 .fb-SO{background:#cc2222;color:#fff;}
 .fb-FT{background:#226622;color:#fff;}
 .fb-PEN{background:#eee;color:#222;}
-.fb-BLANK{background:#333;color:#555;border:1px solid #444;}
+.fb-BLANK{background:linear-gradient(145deg,#3a3a3a,#1e1e1e);color:#999;border:1px solid #333;}
 .fb-UNK{background:rgba(255,255,255,.15);color:#888;}
+/* v5.175: faded face symbols behind pips (Tim's mockup) */
+.face-badge{overflow:hidden;}
+.face-badge::before{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:2.1em;opacity:.30;pointer-events:none;line-height:1;}
+.fb-S::before{content:'🏒';}
+.fb-B::before{content:'🛡️';}
+.fb-E::before{content:'⚡';filter:grayscale(100%) brightness(.35);}
+.fb-W::before{content:'⭐';filter:grayscale(100%) brightness(.25);}
+.fb-FT::before{content:'👊';font-size:2.6em;}
+.fb-ADV::before{content:'⏩';font-size:3.2em;}
+.fb-RR::before{content:'🎲';font-size:1.8em;}
+/* Big number / small letter (Tim) */
+.face-badge .fb-l{font-size:.85em;font-weight:700;opacity:.85;line-height:1;position:relative;z-index:1;}
+.face-badge .fb-n{font-size:2em;font-weight:900;line-height:1.1;position:relative;z-index:1;}
+
 /* Cost mechanic — yellow bottom stripe on die body */
 /* 4_55 (Tim): has-cost ring removed — halos only for selection now */
 /* Cost faces have a yellow tinted badge */
@@ -521,14 +534,14 @@ body:has(#game.screen.active){height:100%;overflow:hidden;margin:0;}
 
 /* ---- sticky header contents ---- */
 #m-top .game-title{font-size:.78em;font-weight:800;letter-spacing:1px;color:#d4a94e;text-align:center;}
-#m-top .scoreboard{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.45);
-  border:1px solid #2a3f5c;border-radius:14px;padding:6px 16px;}
-#m-top .score-name{font-size:.72em;font-weight:800;letter-spacing:.5px;}
-#m-top .score-goals{font-size:1.6em;font-weight:900;}
-#m-top .score-sep{color:#4a5a7a;}
+#m-top .scoreboard{display:flex;align-items:center;gap:14px;background:rgba(0,0,0,.45);
+  border:1px solid #2a3f5c;border-radius:14px;padding:8px 20px;}
+#m-top .score-name{font-size:.82em;font-weight:800;letter-spacing:.5px;}
+#m-top .score-goals{font-size:1.9em;font-weight:900;}
+#m-top .score-sep{color:#4a5a7a;font-size:1.2em;}
 #m-top .period-info{text-align:center;}
-#m-top .period-label{font-size:.58em;color:#8b94a7;letter-spacing:1px;}
-#m-top .period-val{font-size:1.1em;font-weight:900;color:#d4a94e;}
+#m-top .period-label{font-size:.65em;color:#8b94a7;letter-spacing:1px;}
+#m-top .period-val{font-size:1.3em;font-weight:900;color:#d4a94e;}
 #m-top #timerbox{margin:0;}
 /* 3_29: clock re-centered; labeled reset pinned to the banner's far right (Tim) */
 #m-clockrow{position:relative;display:flex;align-items:center;justify-content:center;width:100%;margin:0;}
@@ -774,6 +787,39 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 /* v5.129: END TURN fits — smaller font on ALL bar buttons (Tim) */
 #m-bar .abtn, #m-bar .m-oppbtn{font-size:.62em!important;letter-spacing:-.5px;padding:12px 2px!important;}
 
+/* v5.157: button text scales with button count (Tim) — bigger when fewer buttons */
+#m-bar[data-n="1"] .abtn, #m-bar[data-n="1"] .m-oppbtn{font-size:.95em!important;letter-spacing:0;padding:14px 6px!important;}
+#m-bar[data-n="2"] .abtn, #m-bar[data-n="2"] .m-oppbtn{font-size:.9em!important;letter-spacing:-.2px;padding:14px 4px!important;}
+#m-bar[data-n="3"] .abtn, #m-bar[data-n="3"] .m-oppbtn{font-size:.85em!important;letter-spacing:-.3px;padding:12px 4px!important;}
+#m-bar[data-n="4"] .abtn, #m-bar[data-n="4"] .m-oppbtn{font-size:.78em!important;letter-spacing:-.3px;padding:12px 3px!important;}
+
+/* v5.158: faded hockey rink behind mini zone grid (Tim) */
+#m-zonegrid{position:relative;padding:14px 10px;}
+#m-zonegrid::before{content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120' preserveAspectRatio='none'%3E%3Crect x='3' y='3' width='194' height='114' rx='28' fill='none' stroke='%233a5a8a' stroke-width='1.5' opacity='.3'/%3E%3Cline x1='100' y1='3' x2='100' y2='117' stroke='%233a5a8a' stroke-width='1.5' opacity='.3'/%3E%3Ccircle cx='100' cy='60' r='18' fill='none' stroke='%233a5a8a' stroke-width='1.5' opacity='.3'/%3E%3Ccircle cx='100' cy='60' r='3' fill='%233a5a8a' opacity='.3'/%3E%3Ccircle cx='45' cy='35' r='10' fill='none' stroke='%233a5a8a' stroke-width='1' opacity='.22'/%3E%3Ccircle cx='45' cy='85' r='10' fill='none' stroke='%233a5a8a' stroke-width='1' opacity='.22'/%3E%3Ccircle cx='155' cy='35' r='10' fill='none' stroke='%233a5a8a' stroke-width='1' opacity='.22'/%3E%3Ccircle cx='155' cy='85' r='10' fill='none' stroke='%233a5a8a' stroke-width='1' opacity='.22'/%3E%3C/svg%3E") center/100% 100% no-repeat;
+  pointer-events:none;z-index:0;}
+#m-zonegrid .m-mini{position:relative;z-index:1;transform:scale(.94);}
+
+/* v5.175: game over popup — rectangle with rounded corners, not oval (Tim) */
+#go-overlay .ov-box{border-radius:16px!important;}
+@keyframes rsMiniPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(212,169,78,.0);border-color:inherit;}
+  50%{box-shadow:0 0 12px 2px rgba(212,169,78,.55);}
+}
+.m-mini.rs-reminder{animation:rsMiniPulse 1.4s ease-in-out infinite;}
+
+/* v5.161: watch mode — action bar 2/3, OPP 1/3 with stacked label (Tim) */
+#m-bar.watch-mode #arow{flex:2;}
+#m-bar.watch-mode .m-oppbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;padding:8px 4px!important;line-height:1.1;position:relative;overflow:hidden;}
+/* v5.162: eye as faded bg behind OPPONENT BOARD text (Tim, like dice symbols) */
+.m-oppbtn::before{content:'👁️';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  font-size:3.2em;opacity:.28;pointer-events:none;}
+.m-oppbtn .m-opplbl{position:relative;z-index:1;font-size:.72em;font-weight:800;letter-spacing:1px;
+  text-transform:uppercase;}
+/* Normal mode: OPP button inline layout */
+#m-bar:not(.watch-mode) .m-oppbtn{flex-direction:column;gap:1px;position:relative;overflow:hidden;}
+
 /* v5.130: opp board numbers match zone colors (Tim) */
 .m-oppbd-zone.z-hot .m-oppbd-zv{color:#5a8cff;}
 .m-oppbd-zone.z-cold .m-oppbd-zv{color:#a8c8ff;}
@@ -851,7 +897,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.151</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.175</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1007,7 +1053,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.151</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v5.175</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1118,6 +1164,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <div class="panel-overlay" id="combat-panel">
   <div class="combat-box">
     <div class="combat-title">⚔️ Shot on Goal <span class="combat-clock" id="combat-clock"></span></div>
+    <div id="last-shot-banner" style="display:none;background:linear-gradient(135deg,#8a1a1a,#5a0a0a);border:2px solid #ff6666;border-radius:10px;padding:8px 12px;margin:8px 0;text-align:center;font-weight:800;font-size:.85em;color:#ffcccc;animation:nudgePulse 1.4s ease-in-out infinite;">⏰ LAST SHOT OF THE PERIOD — make it count!</div>
     <!-- 2_147: combat-info summary removed (all info duplicated elsewhere) -->
     <div id="block-sel-area">
       <div class="block-sel-area">
@@ -1405,7 +1452,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
       <button class="abtn prim" id="goon-commit" onclick="goonResolveFight()" disabled>Fight! →</button>
       <button class="abtn sec" onclick="goonCancelFight()">Cancel</button>
-      </div> <!-- v5.151: centered (Tim) -->
+      </div> <!-- v5.175: centered (Tim) -->
     </div>
     <div id="goon-fight" style="display:none;margin-top:10px">
       <div class="fo-rolls">
@@ -1450,7 +1497,7 @@ const DEFS={
   G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
   G5:[{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'SO',v:2,c:true}],
   G6:[{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4},{t:'B',v:4,c:true},{t:'SO',v:1}],
-  HC:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'RR',v:0},{t:'PEN',v:0}], // 5_44: 1E,1E,2E,RR,RR,PEN — ADV removed (Tim)
+  HC:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'RR',v:0},{t:'ADV',v:0}], // v5.175: 1E,1E,2E,RR,RR,ADV — PEN swapped for ADV (Tim)
   Penalty:[{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0}],
 };
 const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,G3:3,G4:4,G5:5,G6:6}; // 5_89: tier 6 costs added (Tim's bug report)
@@ -2155,11 +2202,11 @@ function getOpts(die){
     else o.push({l:'Penalty pool empty — no penalty dice available',a:'pen-pool-empty'});
   }else if(f.t==='ADV'){
     if(G.clock===10){
-      o.push({l:'ADV — unavailable on 10:00 turn (opponent has no defenders yet)',a:'adv-blocked'});
+      o.push({l:'⏭️ ADV — unavailable on 10:00 turn (opponent has no defenders yet)',a:'adv-blocked'});
     }else{
       const hasCold=ap.z.cold.length>0;
-      if(hasCold)o.push({l:`ADV — advance Cold Zone die to Hot (${ap.z.cold.length} available)`,a:'adv'});
-      else o.push({l:'ADV — no dice in Cold Zone',a:'adv-empty'});
+      if(hasCold)o.push({l:`⏭️ ADV — advance Cold Zone die to Hot (${ap.z.cold.length} available)`,a:'adv'});
+      else o.push({l:'⏭️ ADV — no dice in Cold Zone',a:'adv-empty'});
     }
   }else if(f.t==='BLANK'){
     // 2_24: blanks are individually clickable — one-click 'iced' (the HC guard lives in assignDie)
@@ -2172,6 +2219,17 @@ function assignDie(die,action){
   closeMenus();
   const ap=AP(),opp=OPP();
   const idx=ap.z.rs.indexOf(die);if(idx===-1)return;
+  // v5.175: blank ice safety net (Tim) — if HC RR is live, confirm first
+  // (catches all ice paths: taps, auto-ice, etc.)
+  if(action==='iced'&&die.face&&die.face.t==='BLANK'&&die.key!=='HC'&&hcRRAvailable(ap)&&!die._blankConfirm){
+    die._blankConfirm=true; // prevent loop
+    const did=die.id;
+    showConfirm('🎲 HC Reroll is still available.<br><br>Ice this blank instead of rerolling it?',
+      ()=>{const d=AP().z.rs.find(x=>x.id===did);if(d){d._blankConfirm=true;assignDie(d,'iced');}},
+      ()=>{const d=AP().z.rs.find(x=>x.id===did);if(d)delete d._blankConfirm;});
+    return;
+  }
+  delete die._blankConfirm;
   const payOneCost=()=>payOneCostFrom(ap);
   // Mark that assignment has started — disables further free reroll use
   G.assignmentStarted=true;
@@ -2307,7 +2365,7 @@ function assignDie(die,action){
     if(_aiActive&&G.ap===_aiSlot){
       const best=[...ap.z.cold].sort((a,b)=>((b.face&&b.face.v)||0)-((a.face&&a.face.v)||0))[0];
       if(best){ap.z.cold.splice(ap.z.cold.indexOf(best),1);ap.z.hot.push(best);
-        addLog(`${ap.name}: ADV \u2014 ${dLbl(best)} advanced Cold\u2192Hot Zone.`,'imp');}
+        addLog(`⏭️ ${ap.name}: ADV \u2014 ${dLbl(best)} advanced Cold\u2192Hot Zone.`,'imp');}
       G.advPending=false;renderAll();return;
     }
     if(ap.z.cold.length===1){
@@ -2315,11 +2373,11 @@ function assignDie(die,action){
       const advanced=ap.z.cold.splice(0,1)[0];
       ap.z.hot.push(advanced);
       G.advPending=false;
-      addLog(`${ap.name}: ADV — ${dLbl(advanced)} advanced Cold→Hot Zone immediately.`,'imp');
+      addLog(`⏭️ ${ap.name}: ADV — ${dLbl(advanced)} advanced Cold→Hot Zone immediately.`,'imp');
       renderAll();return;
     }else{
       // 2_161: multiple cold dice — popup picker (Cold Zone is below the fold on phones)
-      addLog(`${ap.name}: ADV — pick a Cold Zone die to advance it to Hot Zone.`,'imp');
+      addLog(`⏭️ ${ap.name}: ADV — pick a Cold Zone die to advance it to Hot Zone.`,'imp');
       renderAll();openAdvPicker();return;
     }
   }else if(action==='adv-empty'){
@@ -2347,7 +2405,7 @@ function openAdvPicker(){
         const adv=ap2.z.cold.splice(di,1)[0];
         ap2.z.hot.push(adv);
         G.advPending=false;
-        addLog(`${ap2.name}: ADV \u2014 ${dLbl(adv)} advanced Cold\u2192Hot Zone.`,'imp');
+        addLog(`⏭️ ${ap2.name}: ADV \u2014 ${dLbl(adv)} advanced Cold\u2192Hot Zone.`,'imp');
       }
       closeAdvPicker();renderAll();
     });
@@ -2503,7 +2561,7 @@ function goonStartFight(die){
   el.appendChild(mkHalf('🛡️ DEFENSIVE',defTargets,'rgba(255,80,80,.08)')); // 5_107: red (Tim)
   document.getElementById('goon-commit').disabled=true;
   document.getElementById('goon-result').style.display='none';
-  document.getElementById('goon-fight').style.display='none'; // v5.151: clear old results (Tim)
+  document.getElementById('goon-fight').style.display='none'; // v5.175: clear old results (Tim)
   document.getElementById('goon-pick').style.display='block';
   document.getElementById('goon-panel').classList.add('show');
 }
@@ -2939,9 +2997,10 @@ function renderAtkDice(){
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
     if(db){
+      // v5.175: attacker dice always show halo in combat card (Tim)
+      const heldOut=_shotHeldOut.has(d.id);
+      if(!heldOut)db.classList.add('sel');
       if(canTune){
-        const heldOut=_shotHeldOut.has(d.id);
-        if(!heldOut)db.classList.add('sel');
         db.style.cursor='pointer';
         db.title=heldOut?'Tap → back into the shot':'Tap → hold out of the shot';
         db.addEventListener('click',()=>{
@@ -2958,7 +3017,7 @@ function renderAtkDice(){
   const n=inShot.length;
   document.getElementById('atk-dice-sum').innerHTML=
     `<span class="combat-pulse"><strong>${n}</strong> shooter${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} → <strong>${pips} combat ${cDiceWord(pips)}</strong>${_sTok>0?` + <strong style="color:#ffd75e">${_sTok} Token${_sTok!==1?'s':''}</strong>`:''}</span>`+
-    (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot</div>`:''); // v5.151: pulse + tokens in flow (Tim)
+    (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot</div>`:''); // v5.175: pulse + tokens in flow (Tim)
 }
 
 // 2_151: mini game clock in the shot panel — white 10:00–05:00, red 04:00–01:00 (matches header badge)
@@ -2969,6 +3028,10 @@ function renderCombatClock(){
 }
 function openCombat(){
   renderCombatClock(); // 2_151: mini clock next to the title (white 10:00–05:00, red 04:00–01:00)
+  // v5.175: last-shot reminder + auto-select all block dice on 2:00/1:00 (Tim)
+  const _isLastShot = G.clock <= 2;
+  const _lsb = document.getElementById('last-shot-banner');
+  if (_lsb) _lsb.style.display = _isLastShot ? '' : 'none';
   _bTok=0; // _sTok is reset per-shot in declareShot; the defender keeps the attacker's synced value
   document.getElementById('btok-count').textContent='0';
   document.getElementById('stok-count').textContent=_sTok;
@@ -3018,9 +3081,17 @@ function openCombat(){
     });
     bsel.appendChild(commitAllBtn);
   }
+  // v5.175: auto-select all block dice on last shot (Tim) — defender can unselect
+  if (_isLastShot && !_defViewOnly && !defenderIsAI) {
+    G.blockSelIds = OPP().z.defend.map(d=>d.id);
+  }
   OPP().z.defend.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
+    // v5.175: pre-highlight auto-selected dice
+    if (_isLastShot && !_defViewOnly && !defenderIsAI && G.blockSelIds.includes(d.id)) {
+      db.classList.add('sel');
+    }
     if(_defViewOnly||defenderIsAI){
       // 2_21 — shooter sees the defender's dice dimmed across the table; no clicks.
       // 3_13 — same in Vs AI when Coach defends: visible, greyed, inert.
@@ -3146,7 +3217,7 @@ function renderBselInfo(){
   const el=document.getElementById('bsel-info');if(!el)return;
   const sel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
   const n=sel.length,pips=sel.reduce((s,d)=>s+(d.face?d.face.v:0),0),bonus=clockBlockBonus();
-  el.innerHTML=`<span class="combat-pulse"><strong>${n}</strong> blocker${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} + <strong>${bonus}</strong> clock → <strong>${pips+bonus} combat ${cDiceWord(pips+bonus)}</strong>${_bTok>0?` + <strong style="color:#ffd75e">${_bTok} Token${_bTok!==1?'s':''}</strong>`:''}</span>`; // v5.151: pulse + tokens in flow (Tim)
+  el.innerHTML=`<span class="combat-pulse"><strong>${n}</strong> blocker${n!==1?'s':''} • <strong>${pips}</strong> pip${pips!==1?'s':''} + <strong>${bonus}</strong> clock → <strong>${pips+bonus} combat ${cDiceWord(pips+bonus)}</strong>${_bTok>0?` + <strong style="color:#ffd75e">${_bTok} Token${_bTok!==1?'s':''}</strong>`:''}</span>`; // v5.175: pulse + tokens in flow (Tim)
 }
 
 let _combatResolving=false; // 2_121: prevent double-resolution of the same shot
@@ -3686,7 +3757,7 @@ function posClass(p){return{F:'pos-F',D:'pos-D',G:'pos-G',HC:'pos-HC',GN:'pos-GN
 
 function fbClass(t,cost=false){
   if(cost){return{S:'fb-SC',B:'fb-BC',W:'fb-WC',SO:'fb-SOC'}[t]||('fb-'+t);}
-  return{E:'fb-E',S:'fb-S',B:'fb-B',W:'fb-W',RR:'fb-RR',SO:'fb-SO',FT:'fb-FT',PEN:'fb-PEN',BLANK:'fb-BLANK'}[t]||'fb-BLANK';
+  return{E:'fb-E',S:'fb-S',B:'fb-B',W:'fb-W',RR:'fb-RR',ADV:'fb-ADV',SO:'fb-SO',FT:'fb-FT',PEN:'fb-PEN',BLANK:'fb-BLANK'}[t]||'fb-BLANK';
 }
 function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
   const pc=posClass(die.pos);
@@ -3700,10 +3771,12 @@ function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
     const f=die.face;
     isCost=!!f.c;
     fbCls=fbClass(f.t,isCost);
-    if(f.t==='BLANK')faceHTML='—';
-    else if(f.t==='FT')faceHTML='FT'; // 4_45: goon fight face reads FT (Tim, like ADV/RR)
-    else if(f.t==='SO')faceHTML=`SO<br>${f.v}`;
-    else faceHTML=`${f.t}${f.v?'<br>'+f.v:''}`;
+    if(f.t==='BLANK')faceHTML='<span class="fb-n" style="transform:scaleY(1.6);display:inline-block;font-size:2.4em;">—</span>'; // v5.175: enlarged (Tim)
+    else if(f.t==='FT')faceHTML='<span class="fb-n" style="font-size:1.4em;">FT</span>'; // v5.175: enlarged (Tim)
+    else if(f.t==='SO')faceHTML=`<span class="fb-l">SO</span><span class="fb-n">${f.v}</span>`;
+    else if(f.t==='ADV')faceHTML='<span class="fb-n" style="font-size:1.4em;">ADV</span>'; // v5.175: enlarged (Tim)
+    else if(f.t==='RR')faceHTML='<span class="fb-n" style="font-size:1.4em;">RR</span>'; // v5.175: enlarged (Tim)
+    else faceHTML=`<span class="fb-l">${f.t}</span>${f.v?'<span class="fb-n">'+f.v+'</span>':''}`;
   }
   const selCls=die.sel?(inRS&&_rrMode?'sel-rr':'sel'):'';
   const tierLbl=die.key==='Penalty'?'PEN':die.key==='Rookie'?'RK':die.key==='Goon'?'GN':die.key; // 4_49: GN (Tim)
@@ -3849,7 +3922,21 @@ function renderZone(zid,arr,opts={}){
           body.addEventListener('click',e=>{e.stopPropagation();showDiePopover(die,wrap,hopts);});
         }
       }else if(die.face&&die.face.t==='BLANK'){
-        body.style.cursor='default';body.style.opacity='.5';
+        // v5.175: blank tap safety net (Tim) — if HC RR is live, confirm before icing
+        // (reroll still available); otherwise blanks melt as usual
+        const ap2=AP();
+        if(ap2&&hcRRAvailable(ap2)){
+          body.style.cursor='pointer';body.style.opacity='1';
+          body.addEventListener('click',e=>{
+            e.stopPropagation();if(aiGuard())return;
+            const did=die.id;
+            showConfirm('🎲 HC Reroll is still available.<br><br>Ice this blank instead of rerolling it?',
+              ()=>{const d=AP().z.rs.find(x=>x.id===did);if(d)assignDie(d,'iced');},
+              null);
+          });
+        }else{
+          body.style.cursor='default';body.style.opacity='.5';
+        }
       }
     }else if(!locked&&opts.advPending){
       // ADV pending — clicking a cold zone die advances it to Hot (2_23: bright pulse until chosen)
@@ -3863,7 +3950,7 @@ function renderZone(zid,arr,opts={}){
           const adv=ap2.z.cold.splice(di,1)[0];
           ap2.z.hot.push(adv);
           G.advPending=false;
-          addLog(`${ap2.name}: ADV — ${dLbl(adv)} advanced Cold→Hot Zone.`,'imp');
+          addLog(`⏭️ ${ap2.name}: ADV — ${dLbl(adv)} advanced Cold→Hot Zone.`,'imp');
           renderAll();
         }
       });
@@ -4120,8 +4207,8 @@ function whoEmoji(i){return (_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlo
 // 4_05: team emoji lives only in the team picker (Tim) — everywhere else the
 // controller emoji leads: "🤖 Gargoyles"
 function bareName(n){return String(n||'').replace(/^[\p{Extended_Pictographic}\uFE0F\u200D]+\s*/u,'').trim()||String(n||'');}
-function teamLbl(i){const p=G.players[i];const tn=p.teamName||p.name||('Player '+(i+1));return tn;} // v5.151: team emoji, no who-emoji (Tim)
-function whoLbl(i){const p=G.players[i];if(!p)return '';const nm=bareName(p.name||'');if(_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)return bareName(nm)||'AI Chuck';if(_aiActive)return 'Player 1';return nm||('Player '+(i+1));} // v5.151: Player 1 / AI Chuck / given name (Tim)
+function teamLbl(i){const p=G.players[i];const tn=p.teamName||p.name||('Player '+(i+1));return tn;} // v5.175: team emoji, no who-emoji (Tim)
+function whoLbl(i){const p=G.players[i];if(!p)return '';const nm=bareName(p.name||'');if(_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)return bareName(nm)||'AI Chuck';if(_aiActive)return 'Player 1';return nm||('Player '+(i+1));} // v5.175: Player 1 / AI Chuck / given name (Tim)
 function renderBoard(){
   const ap=AP();
   // 2_26: show the room code next to the title while online (for drop/rejoin)
@@ -4139,7 +4226,7 @@ function renderBoard(){
   // 3_23: team name + who-emoji — no more (P1)/(P2) in the scoreboard header
   if(sn1) sn1.textContent=teamLbl(0); // 4_05
   if(sn2) sn2.textContent=teamLbl(1);
-  // v5.151: who-label below team name (Tim)
+  // v5.175: who-label below team name (Tim)
   const sw1=document.getElementById('sw1'); if(sw1) sw1.textContent=whoLbl(0);
   const sw2=document.getElementById('sw2'); if(sw2) sw2.textContent=whoLbl(1);
   const tv=document.getElementById('tmr');
@@ -4212,7 +4299,7 @@ function renderRSActions(){
     const ap=AP();
     if(!ap.z.rs.some(d=>d.face&&(d.face.t==='S'||d.face.t==='B')))return; // 3_49: nothing to assign — no button
     const b1=document.createElement('button');
-    b1.className='rs-act-btn auto-sb';b1.textContent='⚡ Auto-Assign Shoot & Block';
+    b1.className='rs-act-btn auto-sb pulsing';b1.textContent='⚡ Auto-Assign Shoot & Block';
     b1.addEventListener('click',autoAssignSB);ra.appendChild(b1);
     // 2_24: Auto-send Blanks→Iced button removed (unused); blanks are individually clickable instead
   }
@@ -4260,7 +4347,7 @@ function renderOpp(){
   const offPips=hotPips+coldPips, offDice=hp+cp;
   const osb=document.getElementById('m-oppsummary');
   if(osb){osb.innerHTML=`<div class="m-os-title">${whoEmoji(1-G.ap)} OPP</div><div class="m-os-line"><span class="m-os-chip m-os-off"><b>🏒 ${offPips}</b><small>${offDice} dice</small></span><span class="m-os-chip m-os-def2"><b>🥅 ${defPips}</b><small>${dp} dice</small></span></div>`;}
-  // v5.151: split opp boxes (Tim's layout) — offense left of clock, defense right
+  // v5.175: split opp boxes (Tim's layout) — offense left of clock, defense right
   const mOff=document.getElementById('m-opp-off');
   if(mOff){mOff.innerHTML=`<div class="m-opp-lbl">🏒 OPP OFF</div><div class="m-opp-pips">${offPips} pips</div><div class="m-opp-dice">${offDice} dice</div>`;}
   const mDef=document.getElementById('m-opp-def');
@@ -4312,7 +4399,7 @@ function renderActions(){
   }
 
   if(G.phase<=2){
-    mk('ROLL DICE',rollAll,'prim',false,true); // v5.151: text only (Tim)
+    mk('ROLL DICE',rollAll,'prim',false,true); // v5.175: text only (Tim)
   } else if(G.phase===3){
     if(!G.assignmentStarted){
       // 4_22: confirm lives in the RS zone now — bottom keeps just Reroll None
@@ -4327,10 +4414,10 @@ function renderActions(){
     // 4_28 (Tim): turn winding down (shot taken, or no shot available w/ RS clear) —
     // End Turn becomes the pulsing gold primary; shop stays tappable but goes quiet.
     const windingDown=(G.combatDone&&G.shotDeclared)||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length); // 4_48
-    const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v5.151: short (Tim)
+    const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v5.175: short (Tim)
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
-      // v5.151: single Declare Shot — moves Hot->Shoot then opens card (Tim)
+      // v5.175: single Declare Shot — moves Hot->Shoot then opens card (Tim)
       // Player can hold out shooters on the card (they return to Hot)
       if(G.shotDeclared)mk('DECLARE SHOT',()=>{},'sec',true);
       else mk('SHOOT',()=>{
@@ -4338,7 +4425,7 @@ function renderActions(){
         declareShot();
       },'blue pulsing-blue');
     }
-    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v5.151: text only (Tim)
+    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v5.175: text only (Tim)
   }
   renderCombatPill(); // 3_27: slim popup pill (AI defend beats only)
 }
@@ -4358,6 +4445,22 @@ function renderLog(){
 
 // ═══════════════════ UTILS ═══════════════════
 function addLog(m,c=''){G.log.push({m,c});if(G.log.length>30)G.log.splice(0,G.log.length-30);renderLog();} // 4_30: cap at 30 (Tim)
+// v5.175: custom confirm popup (Tim) — confirm() unreliable in webview
+function showConfirm(html,onYes,onNo){
+  const bd=document.createElement('div');
+  bd.className='overlay overlay-center show';
+  bd.innerHTML=`<div style="background:#1a2a4a;border:2px solid #d4a94e;border-radius:16px!important;padding:20px;max-width:320px;text-align:center;">
+    <div style="font-size:.95em;margin-bottom:16px;line-height:1.4;">${html}</div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button class="abtn prim" style="padding:10px 24px;">Yes, Ice It</button>
+      <button class="abtn" style="padding:10px 24px;">Cancel</button>
+    </div></div>`;
+  const[yesBtn,noBtn]=bd.querySelectorAll('button');
+  yesBtn.addEventListener('click',()=>{bd.remove();if(onYes)onYes();});
+  noBtn.addEventListener('click',()=>{bd.remove();if(onNo)onNo();});
+  bd.addEventListener('click',e=>{if(e.target===bd){bd.remove();if(onNo)onNo();}});
+  document.body.appendChild(bd);
+}
 function toast(msg,ms=2600){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),ms);
@@ -4794,7 +4897,7 @@ function startShootout(practice){
   // Set scoreboard names
   [0,1].forEach(i=>{
     const nameEl = document.getElementById('so-name-'+i);
-    // v5.151: team name + who-label below (Tim)
+    // v5.175: team name + who-label below (Tim)
     if(nameEl){
       const whoEl = document.getElementById('so-who-'+i);
       const whoHTML = whoEl ? whoEl.outerHTML : '';
@@ -4878,11 +4981,11 @@ function restartShootout(){
 // 3_59: who-emoji on shootout teams — 🤖 AI, 🧑 human (Tim)
 // 3_63: keyed on _aiActive like the main scoreboard — real-game overtime shootouts set _so.vsAI=false
 function soWhoEmoji(si){return (_aiActive&&typeof _aiSlot!=='undefined'&&si===_aiSlot)?'🤖':'🧑';}
-function soTeamLabel(si){const p=_so.players[si]; // v5.151: team emoji, no who-emoji (Tim)
+function soTeamLabel(si){const p=_so.players[si]; // v5.175: team emoji, no who-emoji (Tim)
   return (p.teamName||p.name||'');}
 function soWhoLbl(si){const p=_so.players[si];if(!p)return '';const nm=bareName(p.name||'');
   if(_aiActive&&typeof _aiSlot!=='undefined'&&si===_aiSlot)return nm||'AI Chuck';
-  if(_aiActive)return 'Player 1';return nm||('Player '+(si+1));} // v5.151 (Tim)
+  if(_aiActive)return 'Player 1';return nm||('Player '+(si+1));} // v5.175 (Tim)
 function renderSOScoreboard(){
   // 3_62: one SD column — blank until a sudden-death shootout is decided, then winner ● / loser X (Tim)
   const sdHead=document.getElementById('so-h-sd');
@@ -6457,7 +6560,7 @@ function aiResolveAdv(){
   // 2_98: most pips in cold → hot
   const best=[...ap.z.cold].sort((a,b)=>((b.face&&b.face.v)||0)-((a.face&&a.face.v)||0))[0];
   if(best){ap.z.cold.splice(ap.z.cold.indexOf(best),1);ap.z.hot.push(best);
-    addLog(`${ap.name}: ADV — ${dLbl(best)} advanced Cold→Hot Zone.`,'imp');}
+    addLog(`⏭️ ${ap.name}: ADV — ${dLbl(best)} advanced Cold→Hot Zone.`,'imp');}
   G.advPending=false;renderAll();
 }
 // 2_150: HC reroll is its own visible beat — extracted from aiDoAssign so the
@@ -7599,6 +7702,7 @@ window.addEventListener('DOMContentLoaded', () => {
   // v5.151: show RS on stage at boot (was starting empty — Tim's bug report)
   window.mStageTo('z-rs');
   // v5.143: allow RS melt when HC RR is the only die left (Tim)
+  // v5.165: stage stays on RS, lone HC die hidden (Tim)
   const checkHcOnly = () => {
     try {
       const ap = AP();
@@ -7606,10 +7710,17 @@ window.addEventListener('DOMContentLoaded', () => {
       const rsDice = ap.z.rs || [];
       const hcOnly = rsDice.length === 1 && rsDice[0].pos === 'HC';
       stage.classList.toggle('hc-only', hcOnly);
+      const rsWrap = zoneWraps['z-rs'];
+      if (rsWrap) {
+        // Hide just the HC die element, keep the zone visible
+        const hcDie = rsWrap.querySelector('.die-wrap.pos-HC');
+        if (hcDie) hcDie.style.display = hcOnly ? 'none' : '';
+      }
     } catch (e) {}
   };
-  setInterval(checkHcOnly, 1000);
+  setInterval(checkHcOnly, 100);
   checkHcOnly();
+  // v5.171: also hide immediately on RS zone mutations (Tim) — kills the post-shot flicker
 
   // — mini zone grid: dots + pips, tap to bring zone to stage —
   // v5.117: 3x2 grid, no iced mini (count is in turn header). Tap = stage, not popup (Tim)
@@ -7654,6 +7765,16 @@ window.addEventListener('DOMContentLoaded', () => {
         }).join('');
         const total = dice.reduce((s, d) => s + (d.face ? d.face.v : 0), 0);
         pips.textContent = showPips ? total + ' pips' : '';
+        // v5.160: pulse RS mini border when dice are waiting (Tim's nudge)
+        // v5.164: HC-only melts completely — no dots, no pulse (Tim)
+        if (id === 'z-rs') {
+          const hcOnly = dice.length === 1 && dice[0].pos === 'HC';
+          if (hcOnly) {
+            dots.innerHTML = '';
+            pips.textContent = showPips ? '0 pips' : '';
+          }
+          mini.classList.toggle('rs-reminder', dice.length > 0 && !hcOnly);
+        }
       } catch (e) {}
     };
     const container = $(id);
@@ -7747,7 +7868,8 @@ window.addEventListener('DOMContentLoaded', () => {
   // Add Opp Board button to bottom bar (v5.116: one row, END TURN far right — Tim)
   const oppBtn = document.createElement('button');
   oppBtn.className = 'm-oppbtn';
-  oppBtn.innerHTML = '👁 OPP';
+  // v5.162: eye as faded background behind text (Tim, like dice symbols)
+  oppBtn.innerHTML = '<div class="m-opplbl">opponent</div><div class="m-opplbl">board</div>';
   oppBtn.addEventListener('click', () => {
     if (typeof window.mOppBoardPopup === 'function') window.mOppBoardPopup();
   });
@@ -7771,6 +7893,12 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!endBtn && oppBtn.parentNode !== bar) {
       bar.appendChild(oppBtn);
     }
+    // v5.157: count visible buttons for responsive text sizing (Tim)
+    const n = arow.querySelectorAll('.abtn:not([style*="display: none"]):not([style*="display:none"]),.m-oppbtn:not([style*="display: none"]):not([style*="display:none"])').length;
+    bar.setAttribute('data-n', Math.max(1, Math.min(4, n)));
+    // v5.161: watch mode — action bar 2/3, OPP button 1/3 (Tim)
+    const isWatch = !!arow.querySelector('.watch-pill');
+    bar.classList.toggle('watch-mode', isWatch);
   };
   const arowEl = $('arow');
   if (arowEl) {
@@ -7781,6 +7909,20 @@ window.addEventListener('DOMContentLoaded', () => {
   // Run periodically as a safety net (game rebuilds buttons on phase changes)
   setInterval(orderBar, 1000);
   orderBar();
+
+  // v5.167: auto-stage RS at the start of any turn (Tim) — so you never miss
+  // the action stuck on a different zone
+  let _lastTurnKey = null;
+  setInterval(() => {
+    try {
+      if (typeof G === 'undefined' || !G.players) return;
+      const key = G.ap + ':' + G.clock + ':' + G.period;
+      if (_lastTurnKey !== null && _lastTurnKey !== key) {
+        window.mStageTo('z-rs');
+      }
+      _lastTurnKey = key;
+    } catch (e) {}
+  }, 1000);
 
   // — hide the emptied desktop wrappers (CSS also covers this) —
   game.querySelectorAll('.top-bar,.game-layout').forEach(el => { el.style.display = 'none'; });
