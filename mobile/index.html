@@ -224,7 +224,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .pos-P .die-body{background:radial-gradient(circle at 35% 35%,#222,#111);border-color:#444;}
 @keyframes dicewob{0%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}50%{transform:translate(-50%,-50%) rotate(12deg) scale(1.14);}100%{transform:translate(-50%,-50%) rotate(-12deg) scale(1.1);}}
 @keyframes dicewob2{0%{transform:rotate(-14deg) scale(1.15);}50%{transform:rotate(14deg) scale(1.22);}100%{transform:rotate(-14deg) scale(1.15);}}
-.cdie.rolling,.fo-die.rolling,.die-body.rolling{animation:dicewob2 .08s linear infinite;} /* v7.08: even faster shake (Tim) */
+.cdie.rolling,.fo-die.rolling,.die-body.rolling{animation:dicewob2 .08s linear infinite;} /* v7.09: even faster shake (Tim) */
 /* 4_11: shootout coin flip (Tim) — spins like a tossed coin, then lands */
 @keyframes socoinflip{0%{transform:rotateY(0deg) translateY(0) scale(1);}18%{transform:rotateY(630deg) translateY(-18px) scale(1.08);}38%{transform:rotateY(1260deg) translateY(3px) scale(1);}62%{transform:rotateY(1800deg) translateY(-10px) scale(1.05);}82%{transform:rotateY(2070deg) translateY(1px) scale(1);}100%{transform:rotateY(2160deg) translateY(0) scale(1);}}
 #so-coin{display:inline-block;font-size:2.4em;animation:socoinflip 1.7s cubic-bezier(.3,.6,.4,1);}
@@ -245,7 +245,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .fb-PEN{background:#eee;color:#222;}
 .fb-BLANK{background:linear-gradient(145deg,#3a3a3a,#1e1e1e);color:#999;border:1px solid #333;}
 .fb-UNK{background:rgba(255,255,255,.15);color:#888;}
-/* v7.08: faded face symbols behind pips (Tim's mockup) */
+/* v7.09: faded face symbols behind pips (Tim's mockup) */
 .face-badge{overflow:hidden;}
 .face-badge::before{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   font-size:2.1em;opacity:.30;pointer-events:none;line-height:1;}
@@ -274,7 +274,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* Reserved badge */
 .reserved-badge{position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);background:#8B6914;color:#fff;font-size:.55em;font-weight:900;border-radius:4px;padding:1px 4px;pointer-events:none;white-space:nowrap;}
 #so-forward-choices .die-tier-lbl{display:none;}
-/* v7.08: shootout dice bigger — fill the colored border (Tim) */
+/* v7.09: shootout dice bigger — fill the colored border (Tim) */
 #so-forward-choices .die-body{width:64px!important;height:64px!important;}
 #so-forward-choices .face-badge{width:52px!important;height:52px!important;font-size:1em!important;}
 .die-tier-lbl{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;position:absolute;bottom:-3px;right:-3px;font-size:.62em;font-weight:800;color:#fff;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:1px 4px;line-height:1.3;letter-spacing:.3px;opacity:.6;} // 4_49: 60% (Tim)
@@ -292,7 +292,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* 3_68: blanks flash-fade to the Iced Zone once assignment starts (Tim) */
 .die-wrap.blank-pop{transition:transform .16s ease;transform:scale(1.25);}
 .die-wrap.blank-fade{transition:opacity .6s ease,transform .6s ease;opacity:0;transform:scale(.5);}
-.die-wrap.pos-HC{opacity:1!important;visibility:visible!important;display:flex!important;} /* v7.08: HC never hidden (Tim) */
+.die-wrap.pos-HC{opacity:1!important;visibility:visible!important;display:flex!important;} /* v7.09: HC never hidden (Tim) */
 /* 3_69: slower dissolve + glide (Tim) — the zones below slide up in sync via FLIP */
 .zone.z-rs.rs-done{opacity:0;max-height:0!important;min-height:0!important;margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;overflow:hidden!important;border-width:0;transition:opacity 1.5s ease-in-out,max-height 1.5s ease-in-out,margin 1.5s ease-in-out,padding 1.5s ease-in-out;} /* 4_33: 1.5s melt (Tim) */
 
@@ -356,22 +356,28 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .lcard.pos-G{background:rgba(130,130,130,.14);border:2px solid #bbbbbb!important;} /* 4_88 */
 .lcard.buyable{border-color:rgba(200,168,75,.45);}
 .lcard.soldout{opacity:.45;}
-.card-pt{display:flex;align-items:center;gap:7px;margin-bottom:2px;} /* v7.08: tier badge (Tim) */
+.card-pt{display:flex;align-items:center;gap:7px;margin-bottom:2px;} /* v7.09: tier badge (Tim) */
 .tier-badge{font-weight:900;font-size:.95em;border-radius:7px;padding:2px 9px;color:#fff;letter-spacing:1px;}
 .pos-F .tier-badge{background:#3a6ae0;}
 .pos-D .tier-badge{background:#d04040;}
 .pos-G .tier-badge{background:#6a7a9a;}
 .card-pt span.pos-name{font-size:.73em;color:#aaa;font-weight:400;}
 .card-faces{font-size:.62em;color:#ccc;margin-bottom:5px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} /* 4_82 */
-.card-pips{display:flex;gap:4px;margin-bottom:7px;} /* v7.08: mini dice (Tim) */
+.card-pips{display:flex;gap:4px;margin-bottom:7px;} /* v7.09: mini dice (Tim) */
 .mini-die{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;
   font-size:.6em;font-weight:900;color:#fff;border:2px solid rgba(255,255,255,.4);}
 .pos-F .mini-die{background:linear-gradient(145deg,#4a7ae0,#2a4aa0);}
 .pos-D .mini-die{background:linear-gradient(145deg,#e05050,#a02020);}
 .pos-G .mini-die{background:linear-gradient(145deg,#8a9aba,#5a6a8a);}
+.pos-Rookie .mini-die{background:linear-gradient(145deg,#c0c8d8,#8a93a8);} /* v7.09 */
+.pos-GN .mini-die{background:linear-gradient(145deg,#4aae4a,#2a7a2a);} /* v7.09: Goon */
+.pos-HC .mini-die{background:linear-gradient(145deg,#d8b84a,#a0842a);} /* v7.09 */
+.pos-Penalty .mini-die{background:linear-gradient(145deg,#333,#111);border-color:#666;} /* v7.09 */
+.bag-mini-die{width:16px;height:16px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:.5em;font-weight:900;color:#fff;border:1px solid rgba(255,255,255,.4);} /* v7.09: compact for bag viewer */
 .card-cost{font-size:.78em;color:#aaa;margin-bottom:5px;}
 .card-cost strong{color:var(--gold);}
-.buy-row{display:flex;gap:4px;} .buy-row .btn-buy{flex:1;margin-bottom:0;} .btn-buy{width:100%;padding:7px;font-size:.92em;font-weight:900;border-radius:6px;border:1px solid var(--gold);background:rgba(200,168,75,.13);color:var(--gold-light);cursor:pointer;text-transform:uppercase;transition:all .15s;margin-bottom:3px;} /* v7.08: bigger + energy yellow (Tim) */
+.buy-row{display:flex;gap:4px;} .buy-row .btn-buy{flex:1;margin-bottom:0;} .btn-buy{width:100%;padding:7px;font-size:.92em;font-weight:900;border-radius:6px;border:1px solid var(--gold);background:rgba(200,168,75,.13);color:var(--gold-light);cursor:pointer;text-transform:uppercase;transition:all .15s;margin-bottom:3px;} /* v7.09: bigger + energy yellow (Tim) */
 .btn-buy:hover:not(:disabled){background:rgba(200,168,75,.33);}
 .btn-buy:disabled{opacity:.28;cursor:not-allowed;}
 .btn-buy.trade{border-color:#aa7733;color:#cc9944;background:rgba(170,119,51,.09);}
@@ -415,7 +421,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .cresult.goal{background:rgba(26,58,139,.3);color:#88aaff;border:1px solid #4466cc;}
 .cresult.blocked{background:rgba(139,26,26,.3);color:#ffaaaa;border:1px solid #cc3333;}
 .block-sel-area h3{font-size:.8em;color:#ccc;margin-bottom:7px;}
-.block-sel-dice{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 22px;min-height:30px;} /* v7.08: breathing room (Tim) */
+.block-sel-dice{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 22px;min-height:30px;} /* v7.09: breathing room (Tim) */
 /* 2_21 — opponent's (defender's) dice on the shooter's screen: visible but dimmed, not clickable */
 #bsel-dice .die-body.opp-dim{opacity:.55;filter:grayscale(.35);cursor:default!important;}
 #bsel-dice .die-body.opp-dim:hover{transform:none;}
@@ -447,23 +453,23 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .combat-box #atk-dice .die-body,.combat-box #bsel-dice .die-body{width:50px;height:50px;}
 .tok-ctrl.tok-empty{opacity:.55;} /* 3_16/3_17: 0 tokens — picker visible but inert */
 
-/* v7.08: Shot on Goal mirror halves (Tim) — uniform attacker/defender zones */
-.cbreak{display:none} /* v7.08: breakdown removed (Tim) */
-.sog-half{border-radius:14px;padding:12px 14px;margin-top:14px;} /* v7.08: tighter box, spacing kept (Tim) */
+/* v7.09: Shot on Goal mirror halves (Tim) — uniform attacker/defender zones */
+.cbreak{display:none} /* v7.09: breakdown removed (Tim) */
+.sog-half{border-radius:14px;padding:12px 14px;margin-top:14px;} /* v7.09: tighter box, spacing kept (Tim) */
 .sog-off{background:rgba(59,110,246,.10);border:1.5px solid rgba(59,110,246,.55);}
 .sog-def{background:rgba(246,59,59,.08);border:1.5px solid rgba(246,59,59,.5);}
 .sog-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;}
 .sog-label-row h3{margin-bottom:0!important;flex:1;}
 .sog-label-row .abtn{white-space:nowrap;}
-/* v7.08: compact single-line token rows (Tim) — label+avail left, stepper right */
+/* v7.09: compact single-line token rows (Tim) — label+avail left, stepper right */
 .tok-ctrl.tok-slim{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;margin-bottom:0;}
 .tok-ctrl.tok-slim .tok-slim-top{margin-bottom:0;flex:1;min-width:0;}
 .tok-ctrl.tok-slim .tok-step{gap:8px;}
 .tok-ctrl.tok-slim .tok-step button{padding:4px 12px;min-width:44px;min-height:38px;font-size:1.15em;}
 .tok-ctrl.tok-slim .tok-count{font-size:1.25em;}
-/* v7.08: token pulse whenever tokens are available (Tim) */
+/* v7.09: token pulse whenever tokens are available (Tim) */
 .tok-pulse{animation:nudgePulse 1.4s ease-in-out infinite;border-color:#ffd75e!important;}
-/* v7.08: smaller combat-panel dice — card fits one phone screen (Tim) */
+/* v7.09: smaller combat-panel dice — card fits one phone screen (Tim) */
 .combat-box #atk-dice .die-body,.combat-box #bsel-dice .die-body{width:46px;height:46px;}
 .block-sel-dice{gap:10px;} /* was 14px */
 .atk-dice-row{gap:10px;} /* was 14px */
@@ -488,7 +494,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .ov-box{background:#0f2035;border:2px solid var(--gold);border-radius:16px;padding:32px 40px;text-align:center;max-width:500px;}
 .ov-box h2{color:var(--gold);font-size:1.5em;margin-bottom:8px;text-transform:uppercase;letter-spacing:2px;}
 .ov-box p{color:#aaa;margin-bottom:18px;font-size:.9em;}
-.fo-rolls{display:flex;gap:38px;justify-content:center;align-items:flex-start;margin-bottom:18px;} /* v7.08: align tops (Tim) */
+.fo-rolls{display:flex;gap:38px;justify-content:center;align-items:flex-start;margin-bottom:18px;} /* v7.09: align tops (Tim) */
 .fo-player{text-align:center;}
 .fo-player .nm{font-size:.8em;color:#aaa;margin-bottom:5px;text-transform:uppercase;}
 .fo-dice{display:flex;gap:5px;margin-bottom:5px;justify-content:center;}
@@ -497,10 +503,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .goon-die.rolling{animation:dicewob2 .13s linear infinite;}
 .fo-total{font-size:1.4em;font-weight:900;color:white;}
 .fo-winner{color:var(--gold);font-size:1em;font-weight:700;margin-bottom:14px;}
-/* v7.08: Goon Fight Concept A (Tim) — green card, mirror halves, circle totals */
+/* v7.09: Goon Fight Concept A (Tim) — green card, mirror halves, circle totals */
 #goon-panel .panel-box{background:linear-gradient(160deg,#0e2317,#0a1a10);border:2px solid #4caf5d;}
-#chuck-fight-panel .panel-box{background:linear-gradient(160deg,#0e2317,#0a1a10);border:2px solid #4caf5d;} /* v7.08: Chuck's card matches (Tim) */
-#chuck-fight-panel .panel-title{color:#e8b62a;letter-spacing:.06em;} /* v7.08 (Tim) */
+#chuck-fight-panel .panel-box{background:linear-gradient(160deg,#0e2317,#0a1a10);border:2px solid #4caf5d;} /* v7.09: Chuck's card matches (Tim) */
+#chuck-fight-panel .panel-title{color:#e8b62a;letter-spacing:.06em;} /* v7.09 (Tim) */
 #goon-panel .panel-title{color:#e8b62a;letter-spacing:.06em;}
 #goon-panel .sog-half h3{font-size:.85em;letter-spacing:.04em;}
 #goon-panel .sog-off h3{color:#7aa5ff;}
@@ -513,31 +519,31 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 #goon-panel .sog-off .goon-half-label{color:#7aa5ff;}
 #goon-panel .sog-def .goon-half-label{color:#ff8a8a;}
 .goon-targets-wrap{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
-.goon-targets-wrap>div{transform:scale(.8);transform-origin:top center;margin:0 -7px -12px;} /* v7.08: 48px-ish targets (Tim) */
+.goon-targets-wrap>div{transform:scale(.8);transform-origin:top center;margin:0 -7px -12px;} /* v7.09: 48px-ish targets (Tim) */
 .goon-hint{text-align:center;color:#aab4d4;font-size:.82em;line-height:1.6;margin:10px 2px 0;}
-.goon-pool{text-align:center;color:#8b96b0;font-size:.78em;margin-top:6px;} /* v7.08: pool count (Tim) */
+.goon-pool{text-align:center;color:#8b96b0;font-size:.78em;margin-top:6px;} /* v7.09: pool count (Tim) */
 .goon-pool strong{color:#e8ecf4;}
-.goon-fight-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:6px 0 2px;} /* v7.08: dice left, total right (Tim) */
+.goon-fight-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:6px 0 2px;} /* v7.09: dice left, total right (Tim) */
 .totcirc{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6em;font-weight:900;flex-shrink:0;}
 .totcirc.grn{background:rgba(76,175,93,.22);border:2px solid #6fbf73;color:#c9f0cc;}
 .totcirc.wht{background:rgba(255,255,255,.10);border:2px solid #c9d2e8;color:#e8ecf4;}
-.sog-half.win{animation:winPulse 1.4s ease-in-out infinite;border-color:#ffd75e!important;} /* v7.08: pulse winning half (Tim) */
+.sog-half.win{animation:winPulse 1.4s ease-in-out infinite;border-color:#ffd75e!important;} /* v7.09: pulse winning half (Tim) */
 @keyframes winPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,94,0);}50%{box-shadow:0 0 18px 4px rgba(255,215,94,.55);}}
 #goon-fight-win{text-align:center;font-size:1.35em;font-weight:900;color:#7dff9a;margin:12px 0 4px;}
 .goon-outcome{text-align:center;color:#aab4d4;font-size:.9em;line-height:1.7;}
-.tgt-ctx{display:flex;align-items:center;justify-content:center;gap:7px;margin:2px 0 4px;font-size:.78em;color:#aab4d4;} /* v7.08: target context (Tim) */
-.tgt-die-mini{display:inline-block;transform:scale(.55);transform-origin:center;margin:-13px -11px;pointer-events:none;} /* v7.08: real die, scaled (Tim) */
-.tgt-die-mini .die-tier-lbl{display:none;} /* v7.08: tier already in label (Tim) */
+.tgt-ctx{display:flex;align-items:center;justify-content:center;gap:7px;margin:2px 0 4px;font-size:.78em;color:#aab4d4;} /* v7.09: target context (Tim) */
+.tgt-die-mini{display:inline-block;transform:scale(.55);transform-origin:center;margin:-13px -11px;pointer-events:none;} /* v7.09: real die, scaled (Tim) */
+.tgt-die-mini .die-tier-lbl{display:none;} /* v7.09: tier already in label (Tim) */
 .ov-score{font-size:2em;font-weight:900;color:white;margin-bottom:14px;}
 .ov-winner{font-size:1.2em;font-weight:900;color:white;margin-bottom:7px;}
 .btn-ov{padding:11px 28px;background:var(--gold);color:#111;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:.95em;text-transform:uppercase;letter-spacing:1px;margin:4px;}
 .btn-ov:hover{background:#e8c86b;}
 .btn-ov:disabled{opacity:.45;cursor:default;}
-.atk-dice-row{display:flex;gap:14px; /* 4_103 */flex-wrap:wrap;margin:16px 0 22px;} /* v7.08: breathing room (Tim) */
+.atk-dice-row{display:flex;gap:14px; /* 4_103 */flex-wrap:wrap;margin:16px 0 22px;} /* v7.09: breathing room (Tim) */
 .atk-dice-row .die-body{cursor:default;}
 .combat-pulse{display:inline-block;animation:combatPulse 1.4s ease-in-out infinite;}@keyframes combatPulse{0%,100%{opacity:1}50%{opacity:.65}}
-#atk-dice-sum{font-size:1.15em;font-weight:900;color:#bcd0ff;margin:14px 0 14px;padding:10px 12px;background:rgba(59,110,246,.22);border:1.5px solid rgba(122,165,255,.5);border-radius:12px;text-align:center;} /* v7.08: live tracker hero (Tim) */
-#bsel-info{font-size:1.15em;font-weight:900;color:#ffc4c4;margin:14px 0 14px;padding:10px 12px;background:rgba(246,59,59,.18);border:1.5px solid rgba(255,138,138,.45);border-radius:12px;text-align:center;} /* v7.08: live tracker hero (Tim) */
+#atk-dice-sum{font-size:1.15em;font-weight:900;color:#bcd0ff;margin:14px 0 14px;padding:10px 12px;background:rgba(59,110,246,.22);border:1.5px solid rgba(122,165,255,.5);border-radius:12px;text-align:center;} /* v7.09: live tracker hero (Tim) */
+#bsel-info{font-size:1.15em;font-weight:900;color:#ffc4c4;margin:14px 0 14px;padding:10px 12px;background:rgba(246,59,59,.18);border:1.5px solid rgba(255,138,138,.45);border-radius:12px;text-align:center;} /* v7.09: live tracker hero (Tim) */
 
 /* LOG */
 .log-panel{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.08);padding:5px 12px;flex-shrink:0;max-height:42vh;overflow-y:auto;} /* 4_30: room to scroll ~30 lines (Tim) */
@@ -552,12 +558,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 /* 2_45 AI opponent */
 #ai-pill{position:fixed;left:50%;bottom:86px;transform:translate(-50%,20px);background:rgba(20,16,8,.95);border:1px solid #ffd75e;color:#ffe9a8;padding:8px 16px;border-radius:999px;font-size:.85em;z-index:9999;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:92vw;text-align:center}
 #ai-pill.show{opacity:1;transform:translate(-50%,0)}
-#ai-pill.summary{pointer-events:auto;border-radius:14px;text-align:center;padding:18px 16px 16px;width:min(80vw,480px);bottom:auto;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;max-height:94vh;min-height:52vh} /* v7.08: 30% taller (Tim) */
+#ai-pill.summary{pointer-events:auto;border-radius:14px;text-align:center;padding:18px 16px 16px;width:min(80vw,480px);bottom:auto;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;max-height:94vh;min-height:52vh} /* v7.09: 30% taller (Tim) */
 #ai-pill.summary.show{transform:translate(-50%,-50%)}
-#ai-pill.summary .ai-sum-head{white-space:nowrap;font-size:1.25em;margin-bottom:2px} /* v7.08: bigger (Tim) */
-#ai-pill.summary .ai-sum-notes{margin:14px 0 8px;font-size:1em;line-height:1.5;color:#ffe9a8;overflow-y:auto;min-height:0;text-align:left;padding-left:8px} /* v7.08: left-aligned, breathing room (Tim) */
-#ai-pill.summary #ai-take-turn{width:100%;margin-top:auto;font-size:1em;padding:10px} /* v7.08: pinned to bottom (Tim) */
-#ai-pill.summary #online-take-turn{width:100%;margin-top:auto;font-size:1em;padding:12px} /* v7.08: pinned to bottom (Tim) */
+#ai-pill.summary .ai-sum-head{white-space:nowrap;font-size:1.25em;margin-bottom:2px} /* v7.09: bigger (Tim) */
+#ai-pill.summary .ai-sum-notes{margin:14px 0 8px;font-size:1em;line-height:1.5;color:#ffe9a8;overflow-y:auto;min-height:0;text-align:left;padding-left:8px} /* v7.09: left-aligned, breathing room (Tim) */
+#ai-pill.summary #ai-take-turn{width:100%;margin-top:auto;font-size:1em;padding:10px} /* v7.09: pinned to bottom (Tim) */
+#ai-pill.summary #online-take-turn{width:100%;margin-top:auto;font-size:1em;padding:12px} /* v7.09: pinned to bottom (Tim) */
 /* 2_161: ADV cold-zone picker — popup so the player never has to scroll to the Cold Zone */
 #adv-picker-back{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:12px}
 #adv-picker{background:rgba(20,16,8,.97);border:1px solid var(--gold);border-radius:14px;padding:14px 16px;width:min(88vw,420px);max-height:94vh;display:flex;flex-direction:column;text-align:center;color:#ffe9a8;box-shadow:0 8px 30px rgba(0,0,0,.8)}
@@ -568,7 +574,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .persona-card{border:2px solid #444;border-radius:10px;padding:10px;cursor:pointer;text-align:center;background:rgba(255,255,255,.03);flex:1;min-width:110px}
 .persona-card.sel{border-color:#ffd75e;background:rgba(255,215,94,.08)}
 #ai-persona-cards{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-#commit-all-slot button{margin-top:8px;} /* v7.08: breathing room (Tim) */
+#commit-all-slot button{margin-top:8px;} /* v7.09: breathing room (Tim) */
 
 /* ============================================================
    MIRACLE ON DICE — MOBILE OVERRIDE LAYER (v1)
@@ -969,7 +975,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.08</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.09</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1103,7 +1109,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <div class="builder-row"><label>Defense 2</label><select id="p1d2" onchange="updatePts(1)"><option value="">— (optional)</option></select></div>
           <div class="builder-row"><label>Goalie</label><select id="p1g" onchange="updatePts(1)"></select></div>
           <div class="builder-row" style="opacity:.6"><label>Head Coach</label><select disabled><option>HC (automatic each turn)</option></select></div>
-          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 19 Rookie dice + 1 Goon die (same for all players) <!-- v7.08: was 15 Rookies, Tim confirmed 19+1 Goon --></div>
+          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 19 Rookie dice + 1 Goon die (same for all players) <!-- v7.09: was 15 Rookies, Tim confirmed 19+1 Goon --></div>
         </div>
         <div class="builder-player" id="cb-p2-panel">
           <h3>Player 2 <span class="pts-badge" id="p2-pts">0/25 pts</span></h3>
@@ -1114,7 +1120,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <div class="builder-row"><label>Defense 2</label><select id="p2d2" onchange="updatePts(2)"><option value="">— (optional)</option></select></div>
           <div class="builder-row"><label>Goalie</label><select id="p2g" onchange="updatePts(2)"></select></div>
           <div class="builder-row" style="opacity:.6"><label>Head Coach</label><select disabled><option>HC (automatic each turn)</option></select></div>
-          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 19 Rookie dice + 1 Goon die (same for all players) <!-- v7.08: was 15 Rookies, Tim confirmed 19+1 Goon --></div>
+          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 19 Rookie dice + 1 Goon die (same for all players) <!-- v7.09: was 15 Rookies, Tim confirmed 19+1 Goon --></div>
         </div>
       </div>
       <button class="btn-start" onclick="startCustom()">Start Custom Game →</button>
@@ -1125,7 +1131,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.08</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.09</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1206,7 +1212,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div class="epicker-needed" id="epicker-needed">Need: <span id="epicker-need-val">0</span>⚡ &nbsp;|&nbsp; Paid: <span id="epicker-paid-val">0</span>⚡</div>
     <div class="epicker-sources" id="epicker-sources"></div>
     <div style="display:flex;gap:8px;">
-      <button class="abtn prim" id="epicker-confirm" onclick="confirmEPick()" style="flex:1;display:none" disabled>Confirm Payment</button> <!-- v7.08: hidden — auto-confirms (Tim) -->
+      <button class="abtn prim" id="epicker-confirm" onclick="confirmEPick()" style="flex:1;display:none" disabled>Confirm Payment</button> <!-- v7.09: hidden — auto-confirms (Tim) -->
       <button class="abtn sec" onclick="cancelEPick()" style="flex:0 0 auto">Cancel</button>
     </div>
   </div>
@@ -1235,7 +1241,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- COMBAT PANEL -->
 <div class="panel-overlay" id="combat-panel">
   <div class="combat-box">
-    <div class="combat-title">⚔️ Shot on Goal <span class="combat-clock" id="combat-clock"></span><span id="shot-cancel-x" style="display:none;float:right;cursor:pointer;padding:0 8px;font-size:1.2em" onclick="cancelShot()">✕</span></div> <!-- v7.08: X to back out pre-lock (Tim) -->
+    <div class="combat-title">⚔️ Shot on Goal <span class="combat-clock" id="combat-clock"></span><span id="shot-cancel-x" style="display:none;float:right;cursor:pointer;padding:0 8px;font-size:1.2em" onclick="cancelShot()">✕</span></div> <!-- v7.09: X to back out pre-lock (Tim) -->
     <div id="last-shot-banner" style="display:none;background:linear-gradient(135deg,#8a1a1a,#5a0a0a);border:2px solid #ff6666;border-radius:10px;padding:8px 12px;margin:8px 0;text-align:center;font-weight:800;font-size:.85em;color:#ffcccc;animation:nudgePulse 1.4s ease-in-out infinite;">⏰ LAST SHOT OF THE PERIOD — make it count!</div>
     <!-- 2_147: combat-info summary removed (all info duplicated elsewhere) -->
     <div id="block-sel-area">
@@ -1253,7 +1259,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
           <div class="sog-label-row"><h3 id="bsel-heading">🥅 Defender — click your Defensive Zone dice to block with</h3><span id="commit-all-slot"></span></div>
           <div class="block-sel-dice" id="bsel-dice"></div>
           <div id="bsel-info"></div>
-          <div id="def-opp-pill" style="display:none"></div> <!-- v7.08: shooter sees defender tokens (Tim) -->
+          <div id="def-opp-pill" style="display:none"></div> <!-- v7.09: shooter sees defender tokens (Tim) -->
           <div class="tok-ctrl tok-slim" id="block-tok-ctrl">
             <div class="tok-slim-top"><span class="tok-slim-label">🛡️ <strong>Block Tokens</strong></span><span class="tok-avail"><b id="opp-btok">0</b> available</span></div>
             <div class="tok-step"><button onclick="adjBT(-1)">−</button><span id="btok-count" class="tok-count">0</span><button onclick="adjBT(1)">+</button></div>
@@ -1263,7 +1269,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
             <div class="tok-hint" id="block-tok-counter-txt"></div>
           </div>
         </div>
-        <button class="abtn prim" style="width:100%;margin-top:28px" onclick="humanResolveCombat()">Roll Combat Dice!</button> <!-- v7.08: breathing room (Tim) -->
+        <button class="abtn prim" style="width:100%;margin-top:28px" onclick="humanResolveCombat()">Roll Combat Dice!</button> <!-- v7.09: breathing room (Tim) -->
       </div>
     </div>
     <div id="combat-result" style="display:none">
@@ -1280,7 +1286,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       </div>
       <div id="bench-wait-line" style="display:none;color:#cdb87a;font-size:.9em;margin-top:10px;">⏳ <span id="bench-wait-name"></span> is choosing bench dice…</div>
       <button class="abtn prim" id="combat-continue-btn" style="width:100%;margin-top:8px" onclick="combatContinue()">Continue</button>
-      <div id="bench-status-line" style="display:none;text-align:center;font-size:.82em;color:#aab4d4;margin-top:6px"></div> <!-- v7.08: bench status text (Tim) -->
+      <div id="bench-status-line" style="display:none;text-align:center;font-size:.82em;color:#aab4d4;margin-top:6px"></div> <!-- v7.09: bench status text (Tim) -->
     </div>
     <!-- 3_27: slim AI bar for the human's shot only — AI Chuck's pre-shot defend beats
          (👀 studies / 🔴 commits). Gone once the shot resolves. (Tim) -->
@@ -1324,7 +1330,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
   </div>
 </div>
 
-<!-- CHUCK FIGHT REVEAL (4_94, Tim; v7.08: green card to match goon-panel) -->
+<!-- CHUCK FIGHT REVEAL (4_94, Tim; v7.09: green card to match goon-panel) -->
 <div class="panel-overlay" id="chuck-fight-panel">
   <div class="panel-box" style="max-width:480px">
     <div class="panel-title">👊 Chuck's Goon Attacks!</div>
@@ -1530,16 +1536,16 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- 4_44: GOON FIGHT panel (Tim) -->
 <div class="panel-overlay" id="goon-panel">
   <div class="panel-box" style="max-width:560px;max-height:92vh;overflow-y:auto">
-    <div class="panel-title">👊 GOON FIGHT!</div> <!-- v7.08: fist + green card (Tim) -->
-    <div class="panel-sub">Pick a target.<br>Goon rolls 3 fight dice, target rolls 2.<br>Goon loses ties.</div> <!-- v7.08: Tim's wording -->
+    <div class="panel-title">👊 GOON FIGHT!</div> <!-- v7.09: fist + green card (Tim) -->
+    <div class="panel-sub">Pick a target.<br>Goon rolls 3 fight dice, target rolls 2.<br>Goon loses ties.</div> <!-- v7.09: Tim's wording -->
     <div id="goon-pick">
       <div id="goon-targets"></div>
-      <div class="goon-hint">Win: Target iced.<br>Lose: Penalty die to your bag.</div> <!-- v7.08: Tim's wording -->
-      <div class="goon-pool" id="goon-pool-pick"></div> <!-- v7.08: pool count (Tim) -->
+      <div class="goon-hint">Win: Target iced.<br>Lose: Penalty die to your bag.</div> <!-- v7.09: Tim's wording -->
+      <div class="goon-pool" id="goon-pool-pick"></div> <!-- v7.09: pool count (Tim) -->
       <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
       <button class="abtn prim" id="goon-commit" onclick="goonResolveFight()" disabled>Fight! →</button>
       <button class="abtn sec" onclick="goonCancelFight()">Cancel</button>
-      </div> <!-- v7.08: centered (Tim) -->
+      </div> <!-- v7.09: centered (Tim) -->
     </div>
     <div id="goon-fight" style="display:none;margin-top:10px">
       <div class="sog-half sog-grn">
@@ -1553,7 +1559,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       </div>
       <div class="fo-winner" id="goon-fight-win"></div>
       <div id="goon-fight-summary" style="display:none;text-align:center;margin-top:12px"></div> <!-- 5_110: seamless (Tim) -->
-      <button class="abtn prim" id="goon-fight-continue" style="width:100%;margin-top:10px;position:sticky;bottom:0;z-index:5" onclick="goonCloseFight()" disabled>Continue ▸</button> <!-- v7.08: sticky, always reachable (Tim) -->
+      <button class="abtn prim" id="goon-fight-continue" style="width:100%;margin-top:10px;position:sticky;bottom:0;z-index:5" onclick="goonCloseFight()" disabled>Continue ▸</button> <!-- v7.09: sticky, always reachable (Tim) -->
     </div>
     <div id="goon-result" style="display:none;margin-top:10px">
       <div class="combat-info" id="goon-result-text" style="background:rgba(255,255,255,.05);border-radius:6px;padding:10px;font-size:.85em;line-height:1.7"></div>
@@ -1587,9 +1593,9 @@ const DEFS={
   D8:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'W',v:3}],
   G3:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
   G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
-  G5:[{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}], // v7.08: B4→B3, max 3 (Tim)
+  G5:[{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}], // v7.09: B4→B3, max 3 (Tim)
   G6:[{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4},{t:'B',v:4,c:true},{t:'SO',v:2,c:true}],
-  HC:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'RR',v:0},{t:'ADV',v:0}], // v7.08: 1E,1E,2E,RR,RR,ADV — PEN swapped for ADV (Tim)
+  HC:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'RR',v:0},{t:'ADV',v:0}], // v7.09: 1E,1E,2E,RR,RR,ADV — PEN swapped for ADV (Tim)
   Penalty:[{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0}],
 };
 const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,G3:3,G4:4,G5:5,G6:6}; // 5_89: tier 6 costs added (Tim's bug report)
@@ -1818,7 +1824,7 @@ function updatePts(p){
   badge.textContent=`${total}/25 pts`;
   badge.className='pts-badge'+(total>25?' over':'');
 }
-// getBagExtras removed — starting bag is always 19 Rookies + 1 Goon (v7.08)
+// getBagExtras removed — starting bag is always 19 Rookies + 1 Goon (v7.09)
 function startCustom(){
   resetAIFlags(); // 3_05: no AI-mode leakage from a previous game
   const v=id=>{const el=document.getElementById(id);return el?el.value:'';};
@@ -1903,7 +1909,7 @@ function renderFoReadonly(){
     document.getElementById('fo-d2').innerHTML=fo.r2.map(v=>`<div class="fo-die">${v}</div>`).join('');
     document.getElementById('fo-t1').textContent=fo.t1;
     document.getElementById('fo-t2').textContent=fo.t2;
-    document.getElementById('fo-win').textContent=`${G.players[fo.w].name} wins the faceoff! Takes EVEN minutes.`; // v7.08: ODD→EVEN fix (Tim)
+    document.getElementById('fo-win').textContent=`${G.players[fo.w].name} wins the faceoff! Takes EVEN minutes.`; // v7.09: ODD→EVEN fix (Tim)
     // 3_06 — the winner (even a joiner) picks their token; otherwise wait.
     renderFoChoiceState();
   }else{
@@ -1945,7 +1951,7 @@ function renderFoChoiceState(){
   const w=fo.w;
   // 3_07: once the prize token is chosen, the result line names it — the Vs AI
   // player sees which token Coach took without having to catch the step pill.
-  if(fo.choice)document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! Takes EVEN minutes +1 ${fo.choice==='shoot'?'🎯 Shoot':'🛡️ Block'} token.`; // v7.08: ODD→EVEN fix (Tim)
+  if(fo.choice)document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! Takes EVEN minutes +1 ${fo.choice==='shoot'?'🎯 Shoot':'🛡️ Block'} token.`; // v7.09: ODD→EVEN fix (Tim)
   const iAmWinner=!_onlineActive||_mySlot===w;
   const iAmHost=!_onlineActive||_mySlot===0;
   const choiceDiv=document.getElementById('fo-choice');
@@ -1960,14 +1966,14 @@ function renderFoChoiceState(){
     }else if(!aiWon){
       // 3_08: online human winner — the wait is real, say so. Vs AI skips this:
       // Coach's pick lands a beat later and the result + Begin Period appear.
-      waitEl.textContent=`Waiting for ${G.players[w].name} to choose their token…`; // v7.08: dropped the ODD/EVEN explainer (Tim)
+      waitEl.textContent=`Waiting for ${G.players[w].name} to choose their token…`; // v7.09: dropped the ODD/EVEN explainer (Tim)
       waitEl.style.display='block';
     }
   }else if(iAmHost){
     btn.style.display='';btn.disabled=false;btn.textContent='Begin Period';
     btn.onclick=beginPeriodAfterFo;
   }else{
-    waitEl.textContent=`Waiting for host to begin…`; // v7.08: ODD→EVEN fix
+    waitEl.textContent=`Waiting for host to begin…`; // v7.09: ODD→EVEN fix
     waitEl.style.display='block';
   }
 }
@@ -2045,14 +2051,14 @@ function rollAll(){if(aiGuard())return;
     if(d.key!=='HC'){const f=DEFS[d.key]||DEFS.Penalty;d.face=f[Math.floor(Math.random()*f.length)];}
     d.sel=false;d.energyPending=false;d.spun=false; // 3_36: fresh draw clears the spun flag
   });
-  // v7.08: penalty dice are permanent (Tim) — they stay in RS like normal dice, ice on tap
+  // v7.09: penalty dice are permanent (Tim) — they stay in RS like normal dice, ice on tap
   addLog(`${ap.name}: Drew ${drawn.length}+${fromBench.length} bench + HC die. Rolled ${ap.z.rs.length}.`);
-  // v7.08: no turn note for the opening roll (Tim) — summary/strip show rerolls only
+  // v7.09: no turn note for the opening roll (Tim) — summary/strip show rerolls only
   G.phase=3;
   // Auto-enter reroll selection mode immediately
   _rrMode=true;_rrDieId=null;
   AP().z.rs.forEach(d=>d.sel=false);
-  // v7.08: Vs AI-perfect tumble (Tim) — animGameDice shuffles + shakes.
+  // v7.09: Vs AI-perfect tumble (Tim) — animGameDice shuffles + shakes.
   // _animating blocks Firebase re-renders from killing it mid-shake.
   renderAll();
   _animating=true;
@@ -2092,15 +2098,15 @@ function skipRR(){if(aiGuard())return;
   }
   G.phase=4;
   addLog(`${AP().name}: Skipped free reroll.`);
-  if(_rrPendingHC){AP().z.rs.push(_rrPendingHC);_rrPendingHC=null;} // v7.08: restore HC on skip (Tim)
-  _rrMode=false;_rrDieId=null; // v7.08: clear stale face-spend ID (Tim) — was splicing HC on later free reroll
+  if(_rrPendingHC){AP().z.rs.push(_rrPendingHC);_rrPendingHC=null;} // v7.09: restore HC on skip (Tim)
+  _rrMode=false;_rrDieId=null; // v7.09: clear stale face-spend ID (Tim) — was splicing HC on later free reroll
   document.getElementById('rr-banner').classList.remove('show');
   renderAll();
 }
 function enterRRFaceMode(dieId){if(aiGuard())return;
   const ap=AP();
   ap.z.rs.forEach(d=>d.sel=false);
-  // v7.08: splice the HC die on entry (Tim) — restored on cancel
+  // v7.09: splice the HC die on entry (Tim) — restored on cancel
   const _hIdx=ap.z.rs.findIndex(d=>d.id===dieId&&d.key==='HC');
   if(_hIdx!==-1){_rrPendingHC=ap.z.rs.splice(_hIdx,1)[0];}
   _rrMode=true;_rrDieId=dieId; // face-spend mode
@@ -2127,9 +2133,9 @@ function confirmRRSel(){if(aiGuard())return;
   addLog(`${ap.name}: Rerolled ${sel.length} dice${_isBonusRR?' (bonus)':''}.`);
   if(sel.length) noteTurn(`🎲 Rerolled ${sel.length} dice${_isBonusRR?' (bonus)':''}`);
   const wasFreeReroll=(_rrDieId===null);
-  const _rrSpentId=_rrDieId; // v7.08: capture before null (Tim)
-  _rrMode=false;_rrDieId=null;_rrPendingHC=null; // v7.08: HC already spliced on entry
-  // v7.08: HC die spliced on RR entry (see enterRRFaceMode); nothing to do here
+  const _rrSpentId=_rrDieId; // v7.09: capture before null (Tim)
+  _rrMode=false;_rrDieId=null;_rrPendingHC=null; // v7.09: HC already spliced on entry
+  // v7.09: HC die spliced on RR entry (see enterRRFaceMode); nothing to do here
   if(wasFreeReroll){
     // 5_44: faceoff winner's bonus reroll on 10:00 (Tim) — second free reroll
     // 5_49: must re-enter reroll mode or dice aren't selectable (Tim's bug report)
@@ -2137,15 +2143,15 @@ function confirmRRSel(){if(aiGuard())return;
     // 5_63: AI doesn't enter human reroll mode (Tim)
     if(G.clock===10&&G.ap===G.foWinner&&!G.bonusRRUsed){
       G.bonusRRUsed=true;G.rrUsed=false;
-      // v7.08: push AFTER state finalized (was pre-finalize; echo reverted phase)
+      // v7.09: push AFTER state finalized (was pre-finalize; echo reverted phase)
       if(_onlineActive&&sel.length){G.rerollSync={diceIds:sel.map(d=>d.id),ts:Date.now()};pushState();}
-      if(!_aiSelf){enterFreeRR();_animating=true;animGameDice(sel,()=>{_animating=false;});return;}else{_animating=true;animGameDice(sel,()=>{_animating=false;});} // v7.08: Vs AI tumble (Tim)
+      if(!_aiSelf){enterFreeRR();_animating=true;animGameDice(sel,()=>{_animating=false;});return;}else{_animating=true;animGameDice(sel,()=>{_animating=false;});} // v7.09: Vs AI tumble (Tim)
     }else{G.rrUsed=true;G.phase=4;}
   }else{
     G.hcRrUsed=true;
-    // v7.08: (Tim) removed duplicate HC splice — the ID-based splice above handles all RR dice
+    // v7.09: (Tim) removed duplicate HC splice — the ID-based splice above handles all RR dice
   }
-  // v7.08: sync reroll animation to opponent (Tim) — AFTER G.phase/G.rrUsed are
+  // v7.09: sync reroll animation to opponent (Tim) — AFTER G.phase/G.rrUsed are
   // final. The old pre-finalize push's echo reverted the reroller's own phase
   // back to 3, re-showing the reroll prompt with no reroll left (Tim's report).
   if(_onlineActive&&sel.length){
@@ -2153,12 +2159,12 @@ function confirmRRSel(){if(aiGuard())return;
     pushState();
   }
   renderAll();
-  _animating=true; animGameDice(sel,()=>{_animating=false;}); // v7.08: Vs AI tumble (Tim)
+  _animating=true; animGameDice(sel,()=>{_animating=false;}); // v7.09: Vs AI tumble (Tim)
 }
 
 function cancelRRSel(){if(aiGuard())return;
   const ap=AP();
-  if(_rrPendingHC){ap.z.rs.push(_rrPendingHC);_rrPendingHC=null;} // v7.08: restore HC on cancel (Tim)
+  if(_rrPendingHC){ap.z.rs.push(_rrPendingHC);_rrPendingHC=null;} // v7.09: restore HC on cancel (Tim)
   ap.z.rs.forEach(d=>{d.sel=false;});
   _rrMode=false;_rrDieId=null;
   renderAll();
@@ -2190,7 +2196,7 @@ function autoAssignSB(){if(aiGuard())return;
     if(d.face.t==='S'){if(G.clock>2)ap.z.cold.push(d);else ap.z.hot.push(d);G.turnCounts.off++;}
     else{ap.z.defend.push(d);G.turnCounts.def++;}
     moved++;
-  }); // v7.08: auto-assign counts for summary (Tim)
+  }); // v7.09: auto-assign counts for summary (Tim)
   if(moved)addLog(`${ap.name}: Auto-assigned ${moved} free Shoot/Block dice.`);
   // For costed dice, queue them through the energy picker one at a time
   if(costedDice.length){
@@ -2299,7 +2305,7 @@ function getOpts(die){
     o.push({l:`Wild as Shoot → ${z} Zone (${f.v} pip)`,a:'shoot'});
     o.push({l:`Wild as Block → Defensive Zone (${f.v} pip)`,a:'block'});
   }else if(f.t==='RR'){
-    // v7.08: (Tim) if nothing to reroll, offer Set Aside instead
+    // v7.09: (Tim) if nothing to reroll, offer Set Aside instead
     const _others=ap.z.rs.filter(d=>d.id!==die.id&&!d.spun&&d.face);
     if(_others.length){
       o.push({l:'Spend Reroll → pick any R&S dice to reroll',a:'rr'}); // 3_73: HC RR stays live even after assigning (Tim)
@@ -2320,7 +2326,7 @@ function getOpts(die){
     }else{
       const hasCold=ap.z.cold.length>0;
       if(hasCold)o.push({l:`⏭️ ADV — advance Cold Zone die to Hot (${ap.z.cold.length} available)`,a:'adv'});
-      else o.push({l:'⏭️ ADV — no Cold dice — Set Aside',a:'iced'}); // v7.08: (Tim) Set Aside option
+      else o.push({l:'⏭️ ADV — no Cold dice — Set Aside',a:'iced'}); // v7.09: (Tim) Set Aside option
     }
   }else if(f.t==='BLANK'){
     // 2_24: blanks are individually clickable — one-click 'iced' (the HC guard lives in assignDie)
@@ -2332,13 +2338,13 @@ function getOpts(die){
 function assignDie(die,action){
   closeMenus();
   const ap=AP(),opp=OPP();
-  // v7.08: re-resolve by ID (Tim) — v6.24 lesson: never trust object reference
+  // v7.09: re-resolve by ID (Tim) — v6.24 lesson: never trust object reference
   const _dieId=die&&die.id;
   const _fresh=ap.z.rs.find(d=>d.id===_dieId);
   if(!_fresh)return;
   die=_fresh;
   const idx=ap.z.rs.indexOf(die);if(idx===-1)return;
-  // v7.08: blank ice safety net (Tim) — if HC RR is live, confirm first
+  // v7.09: blank ice safety net (Tim) — if HC RR is live, confirm first
   // (catches all ice paths: taps, auto-ice, etc.)
   if(action==='iced'&&die.face&&die.face.t==='BLANK'&&die.key!=='HC'&&hcRRAvailable(ap)&&!die._blankConfirm){
     die._blankConfirm=true; // prevent loop
@@ -2357,7 +2363,7 @@ function assignDie(die,action){
     const _zone=G.clock>2?'Cold':'Hot';
     if(G.clock>2)ap.z.cold.push(die);else ap.z.hot.push(die);
     addLog(`${ap.name}: ${dLbl(die)}→${_zone} Zone (clock ${G.clock<10?'0'+G.clock:G.clock}:00).`);
-    G.turnCounts.off++; // v7.08: unconditional — endTurn checks online
+    G.turnCounts.off++; // v7.09: unconditional — endTurn checks online
   }else if(action==='shoot-cost'){
     // Open energy picker — cost is 1E
     closeMenus();
@@ -2377,7 +2383,7 @@ function assignDie(die,action){
   }else if(action==='block'){
     ap.z.rs.splice(idx,1);ap.z.defend.push(die);
     addLog(`${ap.name}: ${dLbl(die)}→Defensive Zone.`);
-    G.turnCounts.def++; // v7.08: unconditional
+    G.turnCounts.def++; // v7.09: unconditional
   }else if(action==='block-cost'){
     closeMenus();
     const dieId=die.id;
@@ -2425,18 +2431,18 @@ function assignDie(die,action){
     if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
     ap.z.rs.splice(idx,1);ap.z.reserve.push(die);die.energyPending=false;
     addLog(`${ap.name}: ${dLbl(die)} saved in Reserve.`);
-    if(_onlineActive) G.turnCounts.res++; // v7.08: wired (Tim)
+    if(_onlineActive) G.turnCounts.res++; // v7.09: wired (Tim)
   }else if(action==='wild-energy'){
     // Wild-as-energy removed from game — this action should not be reached
     toast('Wild can only be assigned as Shoot or Block.');return;
   }else if(action==='rr'){
-    // v7.08: (Tim) v6.26 rule — dice stay until the player acts. If nothing to
+    // v7.09: (Tim) v6.26 rule — dice stay until the player acts. If nothing to
     // reroll, leave the die in RS (don't auto-set-aside); player can ice it.
     const others=ap.z.rs.filter(d=>d.id!==die.id&&!d.spun);
     if(!others.length){
-      toast('No dice to reroll — ice it manually.');return; // v7.08: no renderAll (Tim) — was dropping the die
+      toast('No dice to reroll — ice it manually.');return; // v7.09: no renderAll (Tim) — was dropping the die
     }
-    // v7.08: (Tim) die stays in RS during selection — spliced on confirm, not on entry
+    // v7.09: (Tim) die stays in RS during selection — spliced on confirm, not on entry
     addLog(`${ap.name}: Reroll face → select dice to reroll.`);
     enterRRFaceMode(die.id);return;
   }else if(action==='shutout-cost'){
@@ -2470,11 +2476,11 @@ function assignDie(die,action){
     renderAll();return;
   }else if(action==='adv'){
     // ADV: advance one Cold Zone die to Hot Zone
-    // v7.08: (Tim) don't splice until we know the action can complete
+    // v7.09: (Tim) don't splice until we know the action can complete
     if(ap.z.cold.length===0){
       toast('No dice in Cold Zone to advance.');renderAll();return;
     }
-    if(_onlineActive) G.turnCounts.adv++; // v7.08: wired (Tim)
+    if(_onlineActive) G.turnCounts.adv++; // v7.09: wired (Tim)
     ap.z.rs.splice(idx,1); // Die leaves RS only after confirming Cold dice exist
     // 3_04: on the AI's turn resolve ADV silently — the human picker must never
     // pop for Coach. (It used to: this path opened the picker, then
@@ -2647,11 +2653,11 @@ function goonStartFight(die){
   if(!offTargets.length&&!defTargets.length){toast('No targets \u2014 opponent has no dice in Cold/Hot/Defensive (goalies are off-limits).');renderAll();return;}
   _goonDie=die;
   const _sub2=document.querySelector('#goon-panel .panel-sub'); if(_sub2)_sub2.style.display='block'; // 5_108: restore (Tim)
-  const _pp=document.getElementById('goon-pool-pick');if(_pp)_pp.innerHTML=`🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left`; // v7.08: pool count (Tim)
+  const _pp=document.getElementById('goon-pool-pick');if(_pp)_pp.innerHTML=`🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left`; // v7.09: pool count (Tim)
   const el=document.getElementById('goon-targets');el.innerHTML='';
   const mkHalf=(cls,title,targets)=>{
     const half=document.createElement('div');
-    half.className='sog-half '+cls; // v7.08: mirror halves (Tim)
+    half.className='sog-half '+cls; // v7.09: mirror halves (Tim)
     const h=document.createElement('div');
     h.className='goon-half-label';
     h.textContent=title;
@@ -2680,7 +2686,7 @@ function goonStartFight(die){
   el.appendChild(mkHalf('sog-def','🛡️ DEFENSIVE',defTargets));
   document.getElementById('goon-commit').disabled=true;
   document.getElementById('goon-result').style.display='none';
-  document.getElementById('goon-fight').style.display='none'; // v7.08: clear old results (Tim)
+  document.getElementById('goon-fight').style.display='none'; // v7.09: clear old results (Tim)
   document.getElementById('goon-pick').style.display='block';
   document.getElementById('goon-panel').classList.add('show');
 }
@@ -2695,30 +2701,30 @@ function goonResolveFight(){
   const won=gTot>tTot; // ties go to the target (defender)
   // 5_98: sync fight to opponent (Tim) — they watch the same rolls
   if(_onlineActive){
-    G.fightSync={gr:gr.slice(),tr:tr.slice(),gTot,tTot,won,goonKey:'Goon',targetKey:t.die.key,targetFace:t.die.face,targetPos:t.die.pos,targetZone:t.label,ts:Date.now()}; // v7.08: die info for spectator (Tim)
+    G.fightSync={gr:gr.slice(),tr:tr.slice(),gTot,tTot,won,goonKey:'Goon',targetKey:t.die.key,targetFace:t.die.face,targetPos:t.die.pos,targetZone:t.label,ts:Date.now()}; // v7.09: die info for spectator (Tim)
     pushState();
   }
   // 4_46 (Tim): the fight rolls out like the faceoff — header names who controls which
   document.getElementById('goon-pick').style.display='none';
   document.getElementById('goon-fight').style.display='block';
-  document.getElementById('goon-f1-name').textContent=`${teamEmoji(G.ap)} ${bareName(G.players[G.ap].name)}'s Goon`; // v7.08: team emoji, not 🧑 (Tim)
-  document.getElementById('goon-f2-name').textContent=`${teamEmoji(1-G.ap)} ${bareName(G.players[1-G.ap].name)}'s ${t.die.key}`; // v7.08
-  document.getElementById('goon-f2-ctx').innerHTML=`${fightDieMini(t.die)} from ${t.label}`; // v7.08: real die (Tim)
+  document.getElementById('goon-f1-name').textContent=`${teamEmoji(G.ap)} ${bareName(G.players[G.ap].name)}'s Goon`; // v7.09: team emoji, not 🧑 (Tim)
+  document.getElementById('goon-f2-name').textContent=`${teamEmoji(1-G.ap)} ${bareName(G.players[1-G.ap].name)}'s ${t.die.key}`; // v7.09
+  document.getElementById('goon-f2-ctx').innerHTML=`${fightDieMini(t.die)} from ${t.label}`; // v7.09: real die (Tim)
   const d1=document.getElementById('goon-f1-dice'),d2=document.getElementById('goon-f2-dice');
   d1.innerHTML=gr.map(()=>`<div class="goon-die">?</div>`).join('');
   d2.innerHTML=tr.map(()=>`<div class="goon-die">?</div>`).join(''); // 4_53 green
   document.getElementById('goon-f1-total').textContent='–';
   document.getElementById('goon-f2-total').textContent='–';
-  document.getElementById('goon-f1-total').closest('.sog-half').classList.remove('win'); // v7.08: reset winner pulse (Tim)
+  document.getElementById('goon-f1-total').closest('.sog-half').classList.remove('win'); // v7.09: reset winner pulse (Tim)
   document.getElementById('goon-f2-total').closest('.sog-half').classList.remove('win');
   document.getElementById('goon-fight-win').textContent='👊 Fighting…';
   const _rsum=document.getElementById('goon-fight-summary');if(_rsum){_rsum.style.display='none';_rsum.innerHTML='';}
-  const _rcont=document.getElementById('goon-fight-continue');if(_rcont){_rcont.disabled=true;_rcont.textContent='Continue ▸';_rcont.onclick=goonCloseFight;} // v7.08: reset to initiator handler+text (Tim)
+  const _rcont=document.getElementById('goon-fight-continue');if(_rcont){_rcont.disabled=true;_rcont.textContent='Continue ▸';_rcont.onclick=goonCloseFight;} // v7.09: reset to initiator handler+text (Tim)
   animNumbers([...d1.children,...d2.children],[...gr,...tr],()=>{
     document.getElementById('goon-f1-total').textContent=gTot;
     document.getElementById('goon-f2-total').textContent=tTot;
     // 4_45 (Tim): no set-aside — goon cycles with everyone else (iced win or lose).
-    // v7.08: re-resolve by id (Tim's bug) — the captured goonDie may be stale after Firebase remapDie.
+    // v7.09: re-resolve by id (Tim's bug) — the captured goonDie may be stale after Firebase remapDie.
     const _gd=ap.z.rs.find(d=>d.id===goonDie.id)||goonDie;
     const gi=ap.z.rs.indexOf(_gd);if(gi!==-1)ap.z.rs.splice(gi,1);
     ap.z.iced.push(_gd);
@@ -2726,32 +2732,32 @@ function goonResolveFight(){
     const _sum=document.getElementById('goon-fight-summary');
     const _cont=document.getElementById('goon-fight-continue');
     if(won){
-      const _td=opp.z[t.zone].find(d=>d.id===t.die.id)||t.die; // v7.08: re-resolve by id (Tim's bug — stale ref)
+      const _td=opp.z[t.zone].find(d=>d.id===t.die.id)||t.die; // v7.09: re-resolve by id (Tim's bug — stale ref)
       const ti=opp.z[t.zone].indexOf(_td);if(ti!==-1)opp.z[t.zone].splice(ti,1);
       opp.z.iced.push(_td);
-      document.getElementById('goon-fight-win').textContent=`👊 Goon wins ${gTot}-${tTot}!`; // v7.08: banner (Tim)
-      document.getElementById('goon-f1-total').closest('.sog-half').classList.add('win'); // v7.08: pulse winning half (Tim)
-      if(_sum){_sum.innerHTML=`<div class="goon-outcome">${t.die.key} \u2192 Iced.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_sum.style.display='block';} // v7.08: pool count (Tim)
+      document.getElementById('goon-fight-win').textContent=`👊 Goon wins ${gTot}-${tTot}!`; // v7.09: banner (Tim)
+      document.getElementById('goon-f1-total').closest('.sog-half').classList.add('win'); // v7.09: pulse winning half (Tim)
+      if(_sum){_sum.innerHTML=`<div class="goon-outcome">${t.die.key} \u2192 Iced.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_sum.style.display='block';} // v7.09: pool count (Tim)
       addLog(`🥊 Goon wins ${gTot}-${tTot}! ${t.die.key} iced, goon iced.`,'imp');
     }else{
       const _gotPen=G.penaltyPool>0;
       if(_gotPen){ap.bag.push(mkDie('Penalty'));G.penaltyPool--;}
-      document.getElementById('goon-fight-win').textContent=`${t.die.key} wins ${tTot}-${gTot}!`; // v7.08: banner (Tim)
-      document.getElementById('goon-f2-total').closest('.sog-half').classList.add('win'); // v7.08: pulse winning half (Tim)
-      if(_sum){_sum.innerHTML=`<div class="goon-outcome">Penalty die \u2192 ${bareName(ap.name)}'s bag.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_sum.style.display='block';} // v7.08: pool count (Tim)
+      document.getElementById('goon-fight-win').textContent=`${t.die.key} wins ${tTot}-${gTot}!`; // v7.09: banner (Tim)
+      document.getElementById('goon-f2-total').closest('.sog-half').classList.add('win'); // v7.09: pulse winning half (Tim)
+      if(_sum){_sum.innerHTML=`<div class="goon-outcome">Penalty die \u2192 ${bareName(ap.name)}'s bag.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_sum.style.display='block';} // v7.09: pool count (Tim)
       addLog(`🥊 Goon loses ${gTot}-${tTot}. Goon iced`+(_gotPen?', penalty die to bag.':', pool empty, no penalty.')+'.','imp');
     }
     _goonFightUsed=true;
     noteTurn(won?`🥊 Goon wins! ${t.die.key} iced`:`\U0001F532 Goon loses \u2014 penalty die added`);
     const _sub=document.querySelector('#goon-panel .panel-sub'); if(_sub)_sub.style.display='none';
-    if(_cont){_cont.disabled=false;_cont.style.display='';_cont.onclick=goonCloseFight;} // v7.08: initiator handler (Tim)
+    if(_cont){_cont.disabled=false;_cont.style.display='';_cont.onclick=goonCloseFight;} // v7.09: initiator handler (Tim)
     renderAll();
-  },CF_F); // v7.08: faces 4th (Tim's stuck-fight fix)
+  },CF_F); // v7.09: faces 4th (Tim's stuck-fight fix)
 }
 
 // 5_98: Opponent watches a synced fight (Tim) — same animation, no buttons
 // 5_101: Clear turn notes when the new player starts their turn (after seeing summary)
-function clearTurnNotes(){ G.turnNotes=[]; G.turnCounts={off:0,def:0,adv:0,res:0,tokS:0,tokB:0}; if(_onlineActive)pushState(); } // v7.08: also reset counts (Tim's bug)
+function clearTurnNotes(){ G.turnNotes=[]; G.turnCounts={off:0,def:0,adv:0,res:0,tokS:0,tokB:0}; if(_onlineActive)pushState(); } // v7.09: also reset counts (Tim's bug)
 
 // 5_101: Online turn summary (Tim) — like Chuck's summary, but for human opponents
 function showOnlineTurnSummary(){
@@ -2760,7 +2766,7 @@ function showOnlineTurnSummary(){
   if(!notes.length && !(tc.off||tc.def||tc.adv||tc.res)) return; // nothing to show
   const oppIdx=1-_mySlot;
   const oppName=G.players[oppIdx]?G.players[oppIdx].name:'Opponent';
-  // v7.08: Batch like Chuck's summary (Tim) — sum rerolls, generate assignment lines from counts
+  // v7.09: Batch like Chuck's summary (Tim) — sum rerolls, generate assignment lines from counts
   const batched=[];
   let rerollTotal=0;
   const others=[];
@@ -2798,12 +2804,12 @@ function noteTurn(msg){
 }
 
 // 5_101: Opponent watches a synced fight (Tim) — same animation, no buttons
-// v7.08: Local-only dismiss for the watch path (Tim's son's bug) — closes the panel
+// v7.09: Local-only dismiss for the watch path (Tim's son's bug) — closes the panel
 // without touching G.fightSync. If a spurious watch-path panel strands a client,
 // they can always dismiss it. The real close-sync is a harmless no-op later.
 function goonDismissWatch(){document.getElementById('goon-panel').classList.remove('show');}
 function showFightWatch(fs){
-  // v7.08: Never run for the fight initiator (Tim's bug) — the Firebase echo of
+  // v7.09: Never run for the fight initiator (Tim's bug) — the Firebase echo of
   // our own fightSync was hiding our Continue button. If it's my turn, I'm the
   // initiator, not a spectator.
   if(G.ap===_mySlot)return;
@@ -2811,38 +2817,38 @@ function showFightWatch(fs){
   document.getElementById('goon-pick').style.display='none';
   document.getElementById('goon-fight').style.display='block';
   document.getElementById('goon-result').style.display='none';
-  document.getElementById('goon-f1-name').textContent=`${teamEmoji(1-_mySlot)} ${bareName(G.players[1-_mySlot].name)}'s Goon`; // v7.08: team emoji (Tim)
-  document.getElementById('goon-f2-name').textContent=`${teamEmoji(_mySlot)} ${bareName(G.players[_mySlot].name)}'s ${fs.targetKey}`; // v7.08
-  document.getElementById('goon-f2-ctx').innerHTML=`${fightDieMini({face:fs.targetFace,key:fs.targetKey,pos:fs.targetPos,id:'tgtctx'})} from ${fs.targetZone||''}`; // v7.08: real die (Tim)
+  document.getElementById('goon-f1-name').textContent=`${teamEmoji(1-_mySlot)} ${bareName(G.players[1-_mySlot].name)}'s Goon`; // v7.09: team emoji (Tim)
+  document.getElementById('goon-f2-name').textContent=`${teamEmoji(_mySlot)} ${bareName(G.players[_mySlot].name)}'s ${fs.targetKey}`; // v7.09
+  document.getElementById('goon-f2-ctx').innerHTML=`${fightDieMini({face:fs.targetFace,key:fs.targetKey,pos:fs.targetPos,id:'tgtctx'})} from ${fs.targetZone||''}`; // v7.09: real die (Tim)
   const d1=document.getElementById('goon-f1-dice'),d2=document.getElementById('goon-f2-dice');
   d1.innerHTML=fs.gr.map(()=>`<div class="goon-die">?</div>`).join('');
   d2.innerHTML=fs.tr.map(()=>`<div class="goon-die">?</div>`).join('');
   document.getElementById('goon-f1-total').textContent='–';
   document.getElementById('goon-f2-total').textContent='–';
-  document.getElementById('goon-f1-total').closest('.sog-half').classList.remove('win'); // v7.08 (Tim)
+  document.getElementById('goon-f1-total').closest('.sog-half').classList.remove('win'); // v7.09 (Tim)
   document.getElementById('goon-f2-total').closest('.sog-half').classList.remove('win');
   document.getElementById('goon-fight-win').textContent='👊 Fighting…';
   const _wrsum=document.getElementById('goon-fight-summary');if(_wrsum){_wrsum.style.display='none';_wrsum.innerHTML='';}
-  const _wrcont=document.getElementById('goon-fight-continue');if(_wrcont){_wrcont.disabled=false;_wrcont.style.display='';_wrcont.textContent='Close';_wrcont.onclick=()=>{document.getElementById('goon-panel').classList.remove('show');};} // v7.08: spectator closes own card (Tim) — fighter's Continue still advances the game
+  const _wrcont=document.getElementById('goon-fight-continue');if(_wrcont){_wrcont.disabled=false;_wrcont.style.display='';_wrcont.textContent='Close';_wrcont.onclick=()=>{document.getElementById('goon-panel').classList.remove('show');};} // v7.09: spectator closes own card (Tim) — fighter's Continue still advances the game
   document.getElementById('goon-panel').classList.add('show');
   animNumbers([...d1.children,...d2.children],[...fs.gr,...fs.tr],()=>{
     document.getElementById('goon-f1-total').textContent=fs.gTot;
     document.getElementById('goon-f2-total').textContent=fs.tTot;
     // 5_110: seamless — summary drops below dice, no card swap (Tim)
     const _wsum=document.getElementById('goon-fight-summary');
-    const _wgoonOwner=bareName(G.players[1-_mySlot].name); // v7.08: dynamic bag owner (Tim)
+    const _wgoonOwner=bareName(G.players[1-_mySlot].name); // v7.09: dynamic bag owner (Tim)
     if(fs.won){
       document.getElementById('goon-fight-win').textContent=`👊 Goon wins ${fs.gTot}-${fs.tTot}!`;
-      document.getElementById('goon-f1-total').closest('.sog-half').classList.add('win'); // v7.08 (Tim)
-      if(_wsum){_wsum.innerHTML=`<div class="goon-outcome">${fs.targetKey} \u2192 Iced.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_wsum.style.display='block';} // v7.08: pool count (Tim)
+      document.getElementById('goon-f1-total').closest('.sog-half').classList.add('win'); // v7.09 (Tim)
+      if(_wsum){_wsum.innerHTML=`<div class="goon-outcome">${fs.targetKey} \u2192 Iced.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_wsum.style.display='block';} // v7.09: pool count (Tim)
     }else{
       document.getElementById('goon-fight-win').textContent=`${fs.targetKey} wins ${fs.tTot}-${fs.gTot}!`;
-      document.getElementById('goon-f2-total').closest('.sog-half').classList.add('win'); // v7.08 (Tim)
-      if(_wsum){_wsum.innerHTML=`<div class="goon-outcome">Penalty die \u2192 ${_wgoonOwner}'s bag.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_wsum.style.display='block';} // v7.08: pool count (Tim)
+      document.getElementById('goon-f2-total').closest('.sog-half').classList.add('win'); // v7.09 (Tim)
+      if(_wsum){_wsum.innerHTML=`<div class="goon-outcome">Penalty die \u2192 ${_wgoonOwner}'s bag.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_wsum.style.display='block';} // v7.09: pool count (Tim)
     }
     const _wsub2=document.querySelector('#goon-panel .panel-sub'); if(_wsub2)_wsub2.style.display='none';
     renderAll();
-  },CF_F); // v7.08: faces 4th (Tim's stuck-fight fix)
+  },CF_F); // v7.09: faces 4th (Tim's stuck-fight fix)
 }
 function goonCloseFight(){document.getElementById('goon-panel').classList.remove('show');_goonDie=null;_goonTarget=null;G.fightSync=null;if(_onlineActive)pushState();renderAll();} // 5_98: clear fight sync (Tim)
 function sendBench(p,d){if(p.z.bench.length>=2)p.z.iced.push(d);else p.z.bench.push(d);}
@@ -2851,7 +2857,7 @@ function sendBench(p,d){if(p.z.bench.length>=2)p.z.iced.push(d);else p.z.bench.p
 // Returns available energy from RS (energy faces + wild-energy pending) + reserve
 function totalE(){
   const ap=AP();let t=0;
-  ap.z.rs.forEach(d=>{if(d.face&&d.face.t!=='BLANK'&&(d.face.t==='E'||d.energyPending))t+=d.face.v;}); // v7.08: no blanks (Tim)
+  ap.z.rs.forEach(d=>{if(d.face&&d.face.t!=='BLANK'&&(d.face.t==='E'||d.energyPending))t+=d.face.v;}); // v7.09: no blanks (Tim)
   ap.z.reserve.forEach(d=>{if(d.face)t+=d.face.v;});
   return t;
 }
@@ -2871,7 +2877,7 @@ function spendE(amt,skipCommitted){
   for(const d of rsAll){
     if(rem<=0)break;
     const isHC=d.key==='HC';
-    if(isHC)continue; // v7.08: never auto-spend HC (Tim) — player chooses via picker
+    if(isHC)continue; // v7.09: never auto-spend HC (Tim) — player chooses via picker
     if(d.face.v<=rem){
       rem-=d.face.v;
       if(!isHC){ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);}
@@ -2964,12 +2970,12 @@ function openFodderPicker(cardIdx,cost){
   });
   document.getElementById('trash-panel').classList.add('show');
 }
-// v7.08: X on trash panel cancels the buy (Tim) — no die without trash
-// v7.08: Refunds the energy dice (Tim's question) — restores pre-payment state
+// v7.09: X on trash panel cancels the buy (Tim) — no die without trash
+// v7.09: Refunds the energy dice (Tim's question) — restores pre-payment state
 function cancelTrashPick(){
   document.getElementById('trash-panel').classList.remove('show');
   const ap=AP();
-  // v7.08: Refund energy from snapshot (Tim) — _epick.sources was wiped by confirmEPick
+  // v7.09: Refund energy from snapshot (Tim) — _epick.sources was wiped by confirmEPick
   if(_epickSpent){
     _epickSpent.forEach(src=>{
       if(src.spentPips===0)return;
@@ -2983,7 +2989,7 @@ function cancelTrashPick(){
         if(ii!==-1){die=ap.z.iced[ii];fromIced=true;}
       }
       if(!die && ap.hcDie && ap.hcDie.id===src.dieId){
-        // v7.08: HC was spliced out of RS (not iced) — restore to RS (Tim)
+        // v7.09: HC was spliced out of RS (not iced) — restore to RS (Tim)
         die=ap.hcDie;
         die.face={t:'E',v:src.originalV};
         die.energyPending=false;
@@ -3003,7 +3009,7 @@ function cancelTrashPick(){
         zoneArr.push(die);
       }
     });
-    _epickSpent=[]; // v7.08: clear after refund (Tim)
+    _epickSpent=[]; // v7.09: clear after refund (Tim)
   }
   toast('Buy cancelled — energy refunded.');
   renderAll();
@@ -3036,12 +3042,12 @@ function openBuyTrashPicker(cardIdx,cost){
   document.getElementById('trash-panel').classList.add('show');
 }
 function completeBuy(cardIdx,trashDieId){
-  _epickSpent=[]; // v7.08: buy completed, no refund pending (Tim)
+  _epickSpent=[]; // v7.09: buy completed, no refund pending (Tim)
   const ap=AP();const card=ap.lineup[cardIdx];
   if(!card){document.getElementById('trash-panel').classList.remove('show');return;}
   let ti=ap.z.iced.findIndex(d=>d.id===trashDieId);
   if(ti===-1){
-    // v7.08: Try ANY iced rookie (Tim) — the specific ID may be stale from sync.
+    // v7.09: Try ANY iced rookie (Tim) — the specific ID may be stale from sync.
     // Mandatory trash: bag must stay at 20.
     ti=ap.z.iced.findIndex(d=>d.key==='Rookie');
   }
@@ -3120,7 +3126,7 @@ function buyTok(type){if(aiGuard())return;
     const ap2=AP();ap2.tokBought=ap2.tokBought||{shoot:0,block:0};
     ap2.tok[type]++;ap2.tokBought[type]++;
     addLog(`${ap2.name}: Bought 1 ${type} Token (3E).`);
-    if(_onlineActive){ if(type==='shoot')G.turnCounts.tokS++; else G.turnCounts.tokB++; } // v7.08: wired (Tim)
+    if(_onlineActive){ if(type==='shoot')G.turnCounts.tokS++; else G.turnCounts.tokB++; } // v7.09: wired (Tim)
     renderAll();
   });
 }
@@ -3163,7 +3169,7 @@ function declareShot(){if(aiGuard())return;
   openCombat();renderAll();
   if(G.shotLocked)aiMaybeDefend(); // 2_47: local play locks at once — the AI defends now (lockShot early-returns here, so its hook never fires)
 }
-// v7.08: back out of a declared-but-unlocked shot (Tim) — purely local, nothing pushed
+// v7.09: back out of a declared-but-unlocked shot (Tim) — purely local, nothing pushed
 function cancelShot(){
   if(G.shotLocked||!G.shotDeclared)return;
   G.shotDeclared=false;G.combatResult=null;
@@ -3186,7 +3192,7 @@ function lockShot(){if(aiGuard())return;
   });
   _shotHeldOut.clear();
   G.shotLocked=true;
-  const _sx2=document.getElementById('shot-cancel-x');if(_sx2)_sx2.style.display='none'; // v7.08: no backing out after lock (Tim)
+  const _sx2=document.getElementById('shot-cancel-x');if(_sx2)_sx2.style.display='none'; // v7.09: no backing out after lock (Tim)
   addLog(`${AP().name}: ✅ Shot confirmed — ${AP().z.shoot.length} die/dice + ${_sTok} shoot token(s).`,'imp');
   openCombat(); // rebuild: token steppers lock, button flips to "Waiting for defender…"
   renderAll();
@@ -3203,7 +3209,7 @@ let _shotHeldOut=new Set(); // 3_32: shoot-zone dice the shooter held out on the
 function adjST(n){if(aiGuard())return;
   _sTok=Math.max(0,Math.min(AP().tok.shoot,_sTok+n));
   document.getElementById('stok-count').textContent=_sTok;
-  renderAtkDice(); // v7.08: refresh the live tracker (Tim's bug)
+  renderAtkDice(); // v7.09: refresh the live tracker (Tim's bug)
   if(_onlineActive&&isMyTurn())pushState();
 }
 // At-a-glance view of what the shooter is putting up: the actual dice, total
@@ -3222,7 +3228,7 @@ function renderAtkDice(){
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
     if(db){
-      // v7.08: attacker dice always show halo in combat card (Tim)
+      // v7.09: attacker dice always show halo in combat card (Tim)
       const heldOut=_shotHeldOut.has(d.id);
       if(!heldOut)db.classList.add('sel');
       if(canTune){
@@ -3241,7 +3247,7 @@ function renderAtkDice(){
   const pips=inShot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
   const n=inShot.length;
   document.getElementById('atk-dice-sum').innerHTML=
-    `<span class="combat-pulse">⚔️ <strong>${pips} combat ${cDiceWord(pips)}</strong> <span style="color:#ffd75e">+ 🎯 ${_sTok}</span></span>`+ // v7.08: live tracker (Tim)
+    `<span class="combat-pulse">⚔️ <strong>${pips} combat ${cDiceWord(pips)}</strong> <span style="color:#ffd75e">+ 🎯 ${_sTok}</span></span>`+ // v7.09: live tracker (Tim)
     (canTune?`<div style="font-size:.72em;opacity:.75;margin-top:3px">tap a die to hold it out of the shot</div>`:'');
 }
 
@@ -3252,11 +3258,11 @@ function renderCombatClock(){
   el.classList.toggle('hot',G.clock<=2); // 5_91 (Tim)
 }
 function openCombat(){
-  // v7.08: X shows for the shooter pre-lock (Tim) — backing out is local-only, defender hasn't seen anything
+  // v7.09: X shows for the shooter pre-lock (Tim) — backing out is local-only, defender hasn't seen anything
   const _sx=document.getElementById('shot-cancel-x');
   if(_sx){const _iAmShooter2=!_onlineActive||isMyTurn();_sx.style.display=(_iAmShooter2&&G.shotDeclared&&!G.shotLocked)?'':'none';}
   renderCombatClock(); // 2_151: mini clock next to the title (white 10:00–05:00, red 04:00–01:00)
-  // v7.08: last-shot reminder + auto-select all block dice on 2:00/1:00 (Tim)
+  // v7.09: last-shot reminder + auto-select all block dice on 2:00/1:00 (Tim)
   const _isLastShot = G.clock <= 2;
   const _lsb = document.getElementById('last-shot-banner');
   if (_lsb) _lsb.style.display = _isLastShot ? '' : 'none';
@@ -3273,8 +3279,8 @@ function openCombat(){
   const _defViewOnly=_onlineActive&&isMyTurn();
   const attackerIsAI=_aiActive&&G.ap===_aiSlot;
   const defenderIsAI=_aiActive&&G.ap!==_aiSlot;
-  document.getElementById('bsel-heading').textContent='🥅 Defender'; // v7.08: just Defender (Tim)
-  _shotDefViewOnly=_defViewOnly||defenderIsAI; // v7.08: max mode in shooter view, online or Vs AI (Tim)
+  document.getElementById('bsel-heading').textContent='🥅 Defender'; // v7.09: just Defender (Tim)
+  _shotDefViewOnly=_defViewOnly||defenderIsAI; // v7.09: max mode in shooter view, online or Vs AI (Tim)
   // 3_10: in Vs AI the human never touches Coach's tokens — he auto-commits (shoot:
     // 50%/token at declaration, block: auto to shooter+1 then 20% each to +2), and the
     // declaration line / pills name what he spent. So: his shoot-token box is hidden on
@@ -3285,7 +3291,7 @@ function openCombat(){
   // 2_147: combat-info summary removed (attacker total, tutorial, defender bonus all duplicated elsewhere)
   renderAtkDice();
   const bsel=document.getElementById('bsel-dice');bsel.innerHTML='';
-  // v7.08: Commit All lives in the defender half's h3 row (Tim) — clear the slot each open
+  // v7.09: Commit All lives in the defender half's h3 row (Tim) — clear the slot each open
   document.getElementById('commit-all-slot').innerHTML='';
   // Add Commit All Defenders button if any defend dice available (not for the online shooter — 2_21;
   // not for Coach in Vs AI — 3_13: he auto-commits, the button is his call, not the human's)
@@ -3309,14 +3315,14 @@ function openCombat(){
     });
     document.getElementById('commit-all-slot').appendChild(commitAllBtn);
   }
-  // v7.08: auto-select all block dice on last shot (Tim) — defender can unselect
+  // v7.09: auto-select all block dice on last shot (Tim) — defender can unselect
   if (_isLastShot && !_defViewOnly && !defenderIsAI) {
     G.blockSelIds = OPP().z.defend.map(d=>d.id);
   }
   OPP().z.defend.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
-    // v7.08: pre-highlight auto-selected dice
+    // v7.09: pre-highlight auto-selected dice
     if (_isLastShot && !_defViewOnly && !defenderIsAI && G.blockSelIds.includes(d.id)) {
       db.classList.add('sel');
     }
@@ -3384,12 +3390,12 @@ function openCombat(){
   if(_defViewOnly){
     document.getElementById('block-tok-ctrl').style.display='none';blockCtr.style.display='none';
   }else if(defenderIsAI){
-    // v7.08: counter removed — the "Defender has N block tokens" pill covers it (Tim)
+    // v7.09: counter removed — the "Defender has N block tokens" pill covers it (Tim)
     document.getElementById('block-tok-ctrl').style.display='none';blockCtr.style.display='none';
   }else{
     document.getElementById('block-tok-ctrl').style.display='';blockCtr.style.display='none';
   }
-  // v7.08: pulse the token row whenever tokens are available (Tim) — shooter's
+  // v7.09: pulse the token row whenever tokens are available (Tim) — shooter's
   // row when they can spend, defender's row when the defender can act.
   document.getElementById('shoot-tok-ctrl').classList.toggle('tok-pulse',showShootBox&&!tokLocked&&AP().tok.shoot>0);
   document.getElementById('block-tok-ctrl').classList.toggle('tok-pulse',!_defViewOnly&&!defenderIsAI&&OPP().tok.block>0);
@@ -3403,7 +3409,7 @@ function refreshBlockerNudge(){
   // 3_13: in Vs AI the human never assigns Coach's blockers — no pulse on his dice.
   const aiDefends=_aiActive&&G.ap!==_aiSlot;
   const anyAvail=isDefender&&!aiDefends&&OPP().z.defend.some(d=>!G.blockSelIds.includes(d.id));
-  const btn=document.querySelector('#commit-all-slot .abtn'); // v7.08: button moved to h3 row (Tim)
+  const btn=document.querySelector('#commit-all-slot .abtn'); // v7.09: button moved to h3 row (Tim)
   if(btn)btn.classList.toggle('pulsing',anyAvail);
   // 4_18: dice no longer pulse — the Commit All button keeps the nudge, dice are
   // halo (chosen) or plain (not). The pulse glow mimicked selection (Tim).
@@ -3437,16 +3443,16 @@ function armDieceEgg(){
   });
 }
 function clockBlockBonus(){return G.clock>=3?1:(G.clock===2?2:(G.clock===1?3:0));} // 5_93: matches v5.91 hot zone (proactive)
-let _shotDefViewOnly=false; // v7.08: shooter-view flag for tracker (Tim)
+let _shotDefViewOnly=false; // v7.09: shooter-view flag for tracker (Tim)
 function renderBselInfo(){
   const el=document.getElementById('bsel-info');if(!el)return;
   const bonus=clockBlockBonus();
   if(_shotDefViewOnly){
-    // v7.08: shooter sees the MAX the defender could bring (Tim)
+    // v7.09: shooter sees the MAX the defender could bring (Tim)
     const maxPips=OPP().z.defend.reduce((s,d)=>s+(d.face?d.face.v:0),0);
     const max=maxPips+bonus;
     el.innerHTML=`<span class="combat-pulse">⚔️ up to <strong>${max} combat ${cDiceWord(max)}</strong></span>`;
-    // v7.08: block token pill for the shooter (Tim)
+    // v7.09: block token pill for the shooter (Tim)
     const pill=document.getElementById('def-opp-pill');
     const bt=OPP().tok.block;
     pill.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;font-size:.8em;font-weight:700;color:#8a93b2">🛡️ Defender has <span style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.25);border-radius:20px;padding:4px 12px;color:#e8ecf4;font-weight:800">${bt} block token${bt!==1?'s':''}</span></div>`;
@@ -3455,7 +3461,7 @@ function renderBselInfo(){
     const sel=OPP().z.defend.filter(d=>G.blockSelIds.includes(d.id));
     const pips=sel.reduce((s,d)=>s+(d.face?d.face.v:0),0);
     const total=pips+bonus;
-    el.innerHTML=`<span class="combat-pulse">⚔️ <strong>${total} combat ${cDiceWord(total)}</strong> <span style="color:#ffd75e">+ 🎯 ${_bTok}</span></span>`; // v7.08: live tracker (Tim)
+    el.innerHTML=`<span class="combat-pulse">⚔️ <strong>${total} combat ${cDiceWord(total)}</strong> <span style="color:#ffd75e">+ 🎯 ${_bTok}</span></span>`; // v7.09: live tracker (Tim)
     document.getElementById('def-opp-pill').style.display='none';
   }
 }
@@ -3555,7 +3561,7 @@ function resolveCombat(){
     opp.tok.block=Math.max(0,opp.tok.block-blockTokensUsed);
     // Defender lost: they choose which assigned block dice go to the bench
     // (max 2 — the rest ice). Dice stay in the defend zone until confirmed.
-    // v7.08: fall back to defend zone if bDice empty (Tim's bug — block IDs may not sync)
+    // v7.09: fall back to defend zone if bDice empty (Tim's bug — block IDs may not sync)
     const _bIds=bDice.length?bDice.map(d=>d.id):opp.z.defend.map(d=>d.id);
     setupBenchPick(1-G.ap,'defend',_bIds);
   }else{
@@ -3604,13 +3610,13 @@ function setupBenchPick(loserSlot,zone,ids){
   if(noTurnsLeft){
     ids.forEach(id=>{const z=p.z[zone],i=z.findIndex(d=>d.id===id);if(i!==-1)p.z.iced.push(z.splice(i,1)[0]);});
     addLog(`\u{1FA91} ${p.name}: no dice sent to the bench \u2014 no turns left this period.`);
-    // v7.08: toast for the local loser (Tim) — reminds them why no bench choice on the last turn
+    // v7.09: toast for the local loser (Tim) — reminds them why no bench choice on the last turn
     const _isLocalLoser=(_aiActive&&loserSlot!==_aiSlot)||(_onlineActive&&loserSlot===_mySlot)||(!_aiActive&&!_onlineActive);
     if(_isLocalLoser)toast('\u{1FA91} No bench on your last turn \u2014 everything ices at period end.');
     return;
   }
   G.benchPick={loser:loserSlot,zone,ids:ids.slice(),picked:[],need,done:false};
-  // v7.08: pre-select highest-tier dice (Tim) — player can deselect; reverses 4_104 no-pre-selection
+  // v7.09: pre-select highest-tier dice (Tim) — player can deselect; reverses 4_104 no-pre-selection
   const _ranked=p.z[zone].filter(d=>ids.includes(d.id)).sort((a,b)=>aiBenchRank(b)-aiBenchRank(a));
   _benchSel=_ranked.slice(0,need).map(d=>d.id);
 }
@@ -3629,12 +3635,12 @@ function refreshBenchPhase(){
   const iAmLoser=aiLoser?false:(!_onlineActive||(bp&&bp.loser===_mySlot));
   if(!pending){
     area.style.display='none';waitLine.style.display='none';
-    const _bl0=document.getElementById('bench-status-line');if(_bl0)_bl0.style.display='none'; // v7.08: clear (Tim)
+    const _bl0=document.getElementById('bench-status-line');if(_bl0)_bl0.style.display='none'; // v7.09: clear (Tim)
     // restore the Continue button to its normal post-result state
     // (display timing stays with showCombatResult's reveal logic)
     if(cbtn){
-      cbtn.style.display='block'; // v7.08: restore after bench pick (Tim)
-      cbtn.disabled=false;cbtn.textContent='Continue'; // v7.08: defender's Continue works locally (Tim)
+      cbtn.style.display='block'; // v7.09: restore after bench pick (Tim)
+      cbtn.disabled=false;cbtn.textContent='Continue'; // v7.09: defender's Continue works locally (Tim)
     }
     renderCombatPill(); // 3_35: hide the Chuck-benching bar once the pick lands
     return;
@@ -3643,14 +3649,14 @@ function refreshBenchPhase(){
   if(iAmLoser){
     waitLine.style.display='none';area.style.display='block';
     renderBenchPickDice();
-    if(cbtn){cbtn.style.display='none';} // v7.08: removed — SEND TO BENCH covers it (Tim)
+    if(cbtn){cbtn.style.display='none';} // v7.09: removed — SEND TO BENCH covers it (Tim)
   }else{
     area.style.display='none';
-    // v7.08: Continue button stays (Tim) — bench status goes to text line below, not the button
+    // v7.09: Continue button stays (Tim) — bench status goes to text line below, not the button
     const _bl=document.getElementById('bench-status-line');
     if(aiLoser){
       waitLine.style.display='none';
-      if(_bl)_bl.style.display='none'; // v7.08: no "choosing…" — just the benched result (Tim)
+      if(_bl)_bl.style.display='none'; // v7.09: no "choosing…" — just the benched result (Tim)
     }else{
       waitLine.style.display='block';
       document.getElementById('bench-wait-name').textContent=loserName;
@@ -3693,14 +3699,14 @@ function updateBenchConfirm(){
   const bp=G.benchPick;
   const b=document.getElementById('bench-pick-confirm');
   b.textContent=`Send to Bench (${_benchSel.length}/${bp?bp.need:0})`;
-  b.disabled=!bp; // v7.08: always enabled (Tim) — under-select gets an "are you sure?"
+  b.disabled=!bp; // v7.09: always enabled (Tim) — under-select gets an "are you sure?"
 }
 async function confirmBenchPick(){
   const bp=G.benchPick;
   if(!bp||bp.done)return;
   if(_aiActive&&bp.loser===_aiSlot&&!_aiSelf)return; // 2_50: AI picks its own bench — human taps must not interfere. (Blanket aiGuard() here swallowed the HUMAN's pick after any AI combat, sticking the game.)
   if(_onlineActive&&bp.loser!==_mySlot){toast('Waiting for the bench choice…');return;}
-  // v7.08: "are you sure?" if benching fewer than max (Tim)
+  // v7.09: "are you sure?" if benching fewer than max (Tim)
   if(_benchSel.length<bp.need){
     const ok=await appConfirm({title:'Bench fewer dice?',
       msg:`Benching ${_benchSel.length} of ${bp.need} — the rest go to the Iced Zone. Continue?`,
@@ -3717,7 +3723,7 @@ async function confirmBenchPick(){
     (bp.picked.includes(id)?p.z.bench:p.z.iced).push(d);
   });
   addLog(`${p.name}: benched ${bp.picked.length} (${bp.ids.length-bp.picked.length} iced).`);
-  // v7.08: only the active player's benching goes in turn notes (Tim's bug) — the defender's
+  // v7.09: only the active player's benching goes in turn notes (Tim's bug) — the defender's
   // pick was misattributed to the attacker's summary in Vs Friend
   if(bp.loser===G.ap)noteTurn(`🪑 benched ${bp.picked.length} ${bp.picked.length===1?'die':'dice'}`);
   if(_onlineActive)pushState();
@@ -3738,7 +3744,7 @@ function showCombatResult(r){
     Array.from({length:r.bTok||0},()=>`<div class="cdie bd" style="border-style:dashed;opacity:.8">+1</div>`).join('');
   document.getElementById('stotal').textContent='–';
   document.getElementById('btotal').textContent='–';
-  // v7.08: breakdown text removed (Tim) — dice and totals tell the story
+  // v7.09: breakdown text removed (Tim) — dice and totals tell the story
   const banner=document.getElementById('crbanner');
   banner.className='cresult';banner.textContent='🎲 Rolling…';
   document.getElementById('block-sel-area').style.display='none';
@@ -3749,7 +3755,7 @@ function showCombatResult(r){
   const _shotCells=[..._sc.querySelectorAll('.cdie.sd')].slice(0,r.sr.length);
   const _saveCells=[..._bc.querySelectorAll('.cdie.bd')].slice(0,r.br.length);
   animNumbers([..._shotCells,..._saveCells],[...r.sr,...r.br],()=>{
-    // v7.08: totals + banner paint together (Tim's son caught totals landing early)
+    // v7.09: totals + banner paint together (Tim's son caught totals landing early)
     if(r.isGoal){banner.className='cresult goal';banner.textContent='🚨 GOAL! 🚨';popGoal(banner);}
     else{banner.className='cresult blocked';banner.textContent='🛡 SHOT BLOCKED';}
     requestAnimationFrame(()=>{
@@ -3763,12 +3769,12 @@ function showCombatResult(r){
     const iAmShooter=!_onlineActive||isMyTurn();
     if(cbtn){
       if(_onlineActive&&!iAmShooter){
-        // v7.08: defender gets a working Continue (Tim) — dismisses locally, shooter still advances the game
+        // v7.09: defender gets a working Continue (Tim) — dismisses locally, shooter still advances the game
         cbtn.style.display='block';cbtn.disabled=false;cbtn.textContent='Continue';
       }else{
         cbtn.disabled=false;cbtn.textContent='Continue';
         if(_onlineActive){cbtn.style.display='none';setTimeout(()=>{
-          // v7.08: don't re-show if I'm picking bench — SEND TO BENCH covers it (Tim)
+          // v7.09: don't re-show if I'm picking bench — SEND TO BENCH covers it (Tim)
           const _bp=G.benchPick,_iAmLoser=_bp&&!_bp.done&&_bp.loser===_mySlot;
           if(!_iAmLoser)cbtn.style.display='block';
         },2500);}
@@ -3786,10 +3792,10 @@ function showCombatResult(r){
 // Only the shooter advances past the combat result — this also closes the
 // defender's panel via the synced combatDone flag.
 function combatContinue(){
-  // v7.08: defender's Continue dismisses locally (Tim) — only the shooter advances the game
+  // v7.09: defender's Continue dismisses locally (Tim) — only the shooter advances the game
   if(_onlineActive&&!isMyTurn()){closeCombat();return;}
   const _ccb=document.getElementById('combat-continue-btn');if(_ccb)_ccb.disabled=true; // 2_48: no double-advance
-  // v7.08: no waiting on Chuck's automatic bench (Tim) — only block for a human picker
+  // v7.09: no waiting on Chuck's automatic bench (Tim) — only block for a human picker
   const _bp=G.benchPick,_aiPicking=_aiActive&&_bp&&!_bp.done&&_bp.loser===_aiSlot;
   if(_bp&&!_bp.done&&!_aiPicking){toast('Waiting for the bench choice…');if(_ccb)_ccb.disabled=false;return;}
   G.combatDone=true;
@@ -3807,7 +3813,7 @@ function confirmEndTurn(){if(aiGuard())return;
   // bypass the warning.
   const ap=AP();
   const rsWarn=ap.z.rs.filter(d=>{
-    if(d.key==='HC')return d.face&&d.face.t==='E'&&d.face.v>0; // v7.08: spent E0 doesn't warn (Tim)
+    if(d.key==='HC')return d.face&&d.face.t==='E'&&d.face.v>0; // v7.09: spent E0 doesn't warn (Tim)
     return !d.face||d.face.t!=='BLANK';
   });
   if(rsWarn.length){
@@ -3868,7 +3874,7 @@ function endTurn(){if(aiGuard())return;
     if(tc.def>0) G.turnNotes.push(`🔴 assigned ${tc.def} ${tc.def===1?'die':'dice'} to defensive zone`);
     if(tc.tokS>0) G.turnNotes.push(`🎯 bought ${tc.tokS} Shoot ${tc.tokS===1?'token':'tokens'}`); // 5_105: batched (Tim)
     if(tc.tokB>0) G.turnNotes.push(`🛡️ bought ${tc.tokB} Block ${tc.tokB===1?'token':'tokens'}`); // 5_105: batched (Tim)
-    if(tc.res>0) G.turnNotes.push(`💲 reserved ${tc.res} ${tc.res===1?'die':'dice'}`); // v7.08: like Chuck (Tim)
+    if(tc.res>0) G.turnNotes.push(`💲 reserved ${tc.res} ${tc.res===1?'die':'dice'}`); // v7.09: like Chuck (Tim)
     // Note: adv counter still to be wired to its action
   }
   G.ap=1-G.ap;
@@ -3970,7 +3976,7 @@ function openShop(){if(aiGuard())return;
   // 4_92: shop-title removed (Tim) — no title to set
   document.getElementById('ebar').innerHTML=`Available Energy: <strong>${avail}E</strong>`; // 4_89: slim (Tim)
   const grid=document.getElementById('cgrid');grid.innerHTML='';
-  // v7.08: column layout — forwards left (cheap→pricey), defensemen right, goalie bottom-right (Tim)
+  // v7.09: column layout — forwards left (cheap→pricey), defensemen right, goalie bottom-right (Tim)
   const _shopCards=ap.lineup.map((card,idx)=>({card,idx})).filter(x=>x.card.key!=='HC');
   const _Fs=_shopCards.filter(x=>x.card.key[0]==='F').sort((a,b)=>(COSTS[a.card.key]||0)-(COSTS[b.card.key]||0));
   const _Ds=_shopCards.filter(x=>x.card.key[0]==='D').sort((a,b)=>(COSTS[a.card.key]||0)-(COSTS[b.card.key]||0));
@@ -3983,10 +3989,10 @@ function openShop(){if(aiGuard())return;
     const canB=avail>=cost&&card.left>0;
     const hasFodder=ap.z.iced.some(d=>d.key==='Rookie')||ap.z.rs.some(d=>d.key==='Rookie')||ap.z.reserve.some(d=>d.key==='Rookie'); // 5_20: reserve counts (Tim)
     const faces=(DEFS[card.key]||[]).map(f=>`${f.t}${f.v||''}${f.c?'(⚡)':''}`).join(' | ');
-    const pips=Array.from({length:card.left},()=>`<div class="mini-die">${card.key}</div>`).join(''); // v7.08: mini dice (Tim)
+    const pips=Array.from({length:card.left},()=>`<div class="mini-die">${card.key}</div>`).join(''); // v7.09: mini dice (Tim)
     grid.innerHTML+=`<div class="lcard pos-${card.key[0]} ${card.left?'buyable':'soldout'}">
       <div class="card-pt"><span class="tier-badge">${card.key}</span><span class="pos-name">${posName(card.key)}</span></div>
-      <div class="card-faces">${faces}</div><div class="card-pips">${pips}</div> <!-- v7.08: cost line removed (Tim) -->
+      <div class="card-faces">${faces}</div><div class="card-pips">${pips}</div> <!-- v7.09: cost line removed (Tim) -->
       ${!card.left?'<div style="color:#666;font-size:.8em;text-align:center">SOLD OUT</div>':`
       <div class="buy-row"><button class="btn-buy" onclick="buyCard(${idx})" ${canB&&hasFodder?'':'disabled'}>Buy (${cost}E)</button></div>
       ${!hasFodder?'<div style="color:#a66;font-size:.72em;text-align:center">need rookie to trash</div>':''}`}
@@ -4042,23 +4048,23 @@ function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
     const f=die.face;
     isCost=!!f.c;
     fbCls=fbClass(f.t,isCost);
-    if(f.t==='BLANK'&&die.key==='Penalty')faceHTML='<span class="fb-n" style="font-size:1.25em;letter-spacing:1px;">PEN</span>'; // v7.08: PEN face (Tim)
-    else if(f.t==='BLANK')faceHTML='<span class="fb-n" style="transform:scaleY(1.6);display:inline-block;font-size:2.4em;">—</span>'; // v7.08: enlarged (Tim)
-    else if(f.t==='FT')faceHTML='<span class="fb-n" style="font-size:1.4em;">FT</span>'; // v7.08: enlarged (Tim)
+    if(f.t==='BLANK'&&die.key==='Penalty')faceHTML='<span class="fb-n" style="font-size:1.25em;letter-spacing:1px;">PEN</span>'; // v7.09: PEN face (Tim)
+    else if(f.t==='BLANK')faceHTML='<span class="fb-n" style="transform:scaleY(1.6);display:inline-block;font-size:2.4em;">—</span>'; // v7.09: enlarged (Tim)
+    else if(f.t==='FT')faceHTML='<span class="fb-n" style="font-size:1.4em;">FT</span>'; // v7.09: enlarged (Tim)
     else if(f.t==='SO')faceHTML=`<span class="fb-l">SO</span><span class="fb-n">${f.v}</span>`;
-    else if(f.t==='ADV')faceHTML='<span class="fb-n" style="font-size:1.4em;">ADV</span>'; // v7.08: enlarged (Tim)
-    else if(f.t==='RR')faceHTML='<span class="fb-n" style="font-size:1.4em;">RR</span>'; // v7.08: enlarged (Tim)
+    else if(f.t==='ADV')faceHTML='<span class="fb-n" style="font-size:1.4em;">ADV</span>'; // v7.09: enlarged (Tim)
+    else if(f.t==='RR')faceHTML='<span class="fb-n" style="font-size:1.4em;">RR</span>'; // v7.09: enlarged (Tim)
     else faceHTML=`<span class="fb-l">${f.t}</span>${f.v?'<span class="fb-n">'+f.v+'</span>':''}`;
   }
   const selCls=die.sel?(inRS&&_rrMode?'sel-rr':'sel'):'';
   const tierLbl=die.key==='Penalty'?'PEN':die.key==='Rookie'?'RK':die.key==='Goon'?'GN':die.key; // 4_49: GN (Tim)
   const energyBadge=(!inIced&&die.energyPending)?`<div class="energy-inuse">⚡${die.face?die.face.v:''}</div>`:'';
   const costStrip=(!inIced&&isCost&&inRS)?`<div class="cost-strip">costs 1⚡</div>`:'';
-  const shakeCls=_shakeIds.has(die.id)?' rolling':''; // v7.08: render-time shake (Tim)
+  const shakeCls=_shakeIds.has(die.id)?' rolling':''; // v7.09: render-time shake (Tim)
   return`<div class="die-wrap ${pc}" data-id="${die.id}">
     <div class="die-body ${selCls}${isCost&&!inIced?' has-cost':''}${shakeCls}">
       <div class="face-badge ${fbCls}">${faceHTML}</div>
-<!-- v7.08: ⛔ marker removed — PEN face instead (Tim) -->
+<!-- v7.09: ⛔ marker removed — PEN face instead (Tim) -->
       ${energyBadge}${costStrip}
     </div>
     <div class="die-tier-lbl">${tierLbl}</div>
@@ -4098,9 +4104,9 @@ function _faceBadgeInner(f){
 // already rendered with their final faces. Each face-badge scrambles through
 // random legal faces while the whole die body shakes (2_42: dicewob2, the
 // faceoff shake), then everything settles on the true rendered faces.
-let _animating=false; // v7.08: true while dice are tumbling — pullState defers re-renders (Tim)
+let _animating=false; // v7.09: true while dice are tumbling — pullState defers re-renders (Tim)
 function shakeDice(dice,ms){
-  // v7.08: CSS wobble via render (Tim). The face shuffle is done by animGameDice.
+  // v7.09: CSS wobble via render (Tim). The face shuffle is done by animGameDice.
   const dur=ms||950;
   (dice||[]).forEach(d=>{if(d&&d.id)_shakeIds.add(d.id);});
   if(typeof renderAll==='function')renderAll();
@@ -4110,7 +4116,7 @@ function shakeDice(dice,ms){
   }, dur);
 }
 function animGameDice(dice,done){
-  // v7.08: Vs AI original — cache elements once, cycle faces fast.
+  // v7.09: Vs AI original — cache elements once, cycle faces fast.
   // The _animating guard blocks Firebase re-renders mid-shake, so caching is safe.
   const items=[];
   (dice||[]).forEach(d=>{
@@ -4130,7 +4136,7 @@ function animGameDice(dice,done){
     (function frame(now){
       const t=(now||performance.now())-t0;
       if(t>=total){it.b.innerHTML=it.fh;it.b.className=it.fc;if(it.bd)it.bd.classList.remove('rolling');if(--n===0&&done)done();return;}
-      // v7.08: always pick a DIFFERENT face (Tim) — no repeats, faster-looking shuffle
+      // v7.09: always pick a DIFFERENT face (Tim) — no repeats, faster-looking shuffle
       let fi=(Math.random()*it.faces.length)|0;
       if(fi===it.last)fi=(fi+1)%it.faces.length;
       it.last=fi;
@@ -4143,7 +4149,7 @@ function animGameDice(dice,done){
 }
 // Animate plain number dice (combat dice, faceoff dice). `cells` are the
 // elements, `finals` the true numbers — settled in cascade order.
-function animNumbers(cells,finals,done,faces){ // v7.08: optional faces — fight dice tumble through real faces (Tim)
+function animNumbers(cells,finals,done,faces){ // v7.09: optional faces — fight dice tumble through real faces (Tim)
   const items=[];
   cells.forEach((el,i)=>{if(el&&finals[i]!=null)items.push({el:el,final:finals[i]});});
   if(!items.length){if(done)done();return;}
@@ -4208,12 +4214,12 @@ function renderZone(zid,arr,opts={}){
         body.style.cursor='pointer';
         if(hopts.length===1&&(die.key!=='HC'||hopts[0].a!=='iced')){
           const a=hopts[0].a;
-          body.addEventListener('click',e=>{e.stopPropagation();if(aiGuard())return;assignDie(die,a);}); // v7.08: HC one-clicks for rr/adv (Tim); menu for set-aside
+          body.addEventListener('click',e=>{e.stopPropagation();if(aiGuard())return;assignDie(die,a);}); // v7.09: HC one-clicks for rr/adv (Tim); menu for set-aside
         }else{
           body.addEventListener('click',e=>{e.stopPropagation();showDiePopover(die,wrap,hopts);});
         }
       }else if(die.face&&die.face.t==='BLANK'){
-        // v7.08: blank tap safety net (Tim) — if HC RR is live, confirm before icing
+        // v7.09: blank tap safety net (Tim) — if HC RR is live, confirm before icing
         // (reroll still available); otherwise blanks melt as usual
         const ap2=AP();
         if(ap2&&hcRRAvailable(ap2)){
@@ -4299,7 +4305,7 @@ function getHumanOpts(die){
            {l:'Ice it',a:'iced'}];
   }
   // Single-option faces: reuse getOpts (handles costed/blocked/empty states) — one click.
-  // v7.08: preserve the full option incl. label (Tim) — the HC die must never
+  // v7.09: preserve the full option incl. label (Tim) — the HC die must never
   // one-click; it always gets the popover so a stray tap can't ice it.
   const o=getOpts(die);
   if(o.length)return o;
@@ -4348,7 +4354,7 @@ function hcRRAvailable(ap){
   return ap.z.rs.some(d=>d.key==='HC'&&d.face&&d.face.t==='RR');
 }
 function maybeIceBlanks(){
-  // v7.08: DISABLED (Tim) — no auto-ice. Blanks stay in RS until the player taps them.
+  // v7.09: DISABLED (Tim) — no auto-ice. Blanks stay in RS until the player taps them.
   // Every die remains until spent, advanced, assigned, or otherwise used by the player.
   return;
   // 4_21 (Tim): blanks auto-ice only after a reroll was used (free or HC) and no HC RR sits in RS
@@ -4392,7 +4398,7 @@ function maybeIceBlanks(){
 // glide up in sync over a full second. FLIP: measure, snap shut to find landing
 // spots, revert, then animate on the next frame.
 function collapseRSZone(zoneEl){
-  // v7.08: DISABLED (Tim) — no auto-melt. The RS zone stays visible; the player controls it.
+  // v7.09: DISABLED (Tim) — no auto-melt. The RS zone stays visible; the player controls it.
   return;
   const gen=++_rsCollapseGen; // 3_71: stale timers (e.g. armed during the end-turn handoff render) abort
   // — measure: every outermost element sitting below the zone (sync; no paint) —
@@ -4466,7 +4472,7 @@ function updateRRNudge(){
   }else{ el.classList.remove('show'); el.innerHTML=''; const _bp=document.getElementById('bonus-pill'); if(_bp&&!_bonusPillHold)_bp.classList.remove('show'); }
 }
 function renderAll(){
-  // v7.08: HC dedupe DISABLED (Tim) — was removing the live HC on every render.
+  // v7.09: HC dedupe DISABLED (Tim) — was removing the live HC on every render.
   // The v6.24 duplicate bug (bad indexOf safeguard) is long gone; the dedupe
   // does more harm than good via Firebase remapDie timing mismatches.
   // NOTHING self-melts: HC stays until player uses it (splice on full spend).
@@ -4526,14 +4532,14 @@ function slotLabel(i){const n=G.players[i]&&G.players[i].name;return (n&&!/^Play
 function whoEmoji(i){return (_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)?'🤖':'🧑';}
 // 4_05: team emoji lives only in the team picker (Tim) — everywhere else the
 // controller emoji leads: "🤖 Gargoyles"
-function fightDieMini(die){ // v7.08: real die rendering, scaled down (Tim)
+function fightDieMini(die){ // v7.09: real die rendering, scaled down (Tim)
   if(!die||!die.face)return'';
   return `<span class="tgt-die-mini">${dieWrapHTML(die,false,true,false)}</span>`;
 }
 function bareName(n){return String(n||'').replace(/^[\p{Extended_Pictographic}\uFE0F\u200D]+\s*/u,'').trim()||String(n||'');}
-function teamEmoji(i){const p=G.players[i];const tn=p.teamName||'';const m=/^([\p{Extended_Pictographic}\uFE0F\u200D]+)/u.exec(tn);return m?m[1]:'🧑';} // v7.08: team emoji for fight card (Tim)
-function teamLbl(i){const p=G.players[i];const tn=p.teamName||p.name||('Player '+(i+1));return tn;} // v7.08: team emoji, no who-emoji (Tim)
-function whoLbl(i){const p=G.players[i];if(!p)return '';const nm=bareName(p.name||'');if(_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)return bareName(nm)||'AI Chuck';if(_aiActive)return 'Player 1';return nm||('Player '+(i+1));} // v7.08: Player 1 / AI Chuck / given name (Tim)
+function teamEmoji(i){const p=G.players[i];const tn=p.teamName||'';const m=/^([\p{Extended_Pictographic}\uFE0F\u200D]+)/u.exec(tn);return m?m[1]:'🧑';} // v7.09: team emoji for fight card (Tim)
+function teamLbl(i){const p=G.players[i];const tn=p.teamName||p.name||('Player '+(i+1));return tn;} // v7.09: team emoji, no who-emoji (Tim)
+function whoLbl(i){const p=G.players[i];if(!p)return '';const nm=bareName(p.name||'');if(_aiActive&&typeof _aiSlot!=='undefined'&&i===_aiSlot)return bareName(nm)||'AI Chuck';if(_aiActive)return 'Player 1';return nm||('Player '+(i+1));} // v7.09: Player 1 / AI Chuck / given name (Tim)
 function renderBoard(){
   const ap=AP();
   // 2_26: show the room code next to the title while online (for drop/rejoin)
@@ -4545,8 +4551,8 @@ function renderBoard(){
   const tLbl = teamLbl(G.ap); // 4_05: "🤖 Gargoyles"
   const aplblEl2=document.getElementById('aplbl');
   if(_onlineActive && isMyTurn()){
-    // v7.08: pulsing YOUR TURN pill like other modes (Tim) — replaces the ✅
-    aplblEl2.innerHTML=`<span class="so-yourturn" style="font-size:.9em;padding:6px 22px;letter-spacing:2px;">YOUR TURN</span>`; // v7.08: slightly smaller (Tim)
+    // v7.09: pulsing YOUR TURN pill like other modes (Tim) — replaces the ✅
+    aplblEl2.innerHTML=`<span class="so-yourturn" style="font-size:.9em;padding:6px 22px;letter-spacing:2px;">YOUR TURN</span>`; // v7.09: slightly smaller (Tim)
   } else {
     const myTurnIndicator = _onlineActive && !isMyTurn() ? ' ⏳' : '';
     aplblEl2.textContent=`${tLbl}'s Turn${myTurnIndicator}`;
@@ -4557,7 +4563,7 @@ function renderBoard(){
   // 3_23: team name + who-emoji — no more (P1)/(P2) in the scoreboard header
   if(sn1) sn1.textContent=teamLbl(0); // 4_05
   if(sn2) sn2.textContent=teamLbl(1);
-  // v7.08: who-label below team name (Tim)
+  // v7.09: who-label below team name (Tim)
   const sw1=document.getElementById('sw1'); if(sw1) sw1.textContent=whoLbl(0);
   const sw2=document.getElementById('sw2'); if(sw2) sw2.textContent=whoLbl(1);
   const tv=document.getElementById('tmr');
@@ -4678,7 +4684,7 @@ function renderOpp(){
   const offPips=hotPips+coldPips, offDice=hp+cp;
   const osb=document.getElementById('m-oppsummary');
   if(osb){osb.innerHTML=`<div class="m-os-title">${whoEmoji(1-G.ap)} OPP</div><div class="m-os-line"><span class="m-os-chip m-os-off"><b>🏒 ${offPips}</b><small>${offDice} dice</small></span><span class="m-os-chip m-os-def2"><b>🥅 ${defPips}</b><small>${dp} dice</small></span></div>`;}
-  // v7.08: split opp boxes (Tim's layout) — offense left of clock, defense right
+  // v7.09: split opp boxes (Tim's layout) — offense left of clock, defense right
   const mOff=document.getElementById('m-opp-off');
   if(mOff){mOff.innerHTML=`<div class="m-opp-lbl">🏒 OPP OFF</div><div class="m-opp-pips">${offPips} pips</div><div class="m-opp-dice">${offDice} dice</div>`;}
   const mDef=document.getElementById('m-opp-def');
@@ -4693,11 +4699,11 @@ function renderActions(){
   const row=document.getElementById('arow');row.innerHTML='';
   {const _ap=AP();if(_ap&&!_ap.z.hot.length&&!_ap.z.cold.length&&!_ap.z.defend.length&&!_ap.z.shoot.length)G.assignmentStarted=false;} // 4_50: stale guard (Tim)
   // Spectators get no action buttons — just a watching pill plus a live emoji
-  // strip from the opponent's turn notes (v7.08, Tim). Compact ticks only;
+  // strip from the opponent's turn notes (v7.09, Tim). Compact ticks only;
   // the full narration waits for the end-of-turn summary.
   if(spectating()){
     const ap=AP();
-    // v7.08: live emoji strip — event notes (roll/reroll/buy/shoot/fight) plus
+    // v7.09: live emoji strip — event notes (roll/reroll/buy/shoot/fight) plus
     // live assignment counts (Tim asked for hot/cold/defense ticks). The
     // end-of-turn batched "assigned N dice" notes are filtered to avoid doubles.
     const strip=(G.turnNotes||[]).map(n=>{
@@ -4714,9 +4720,9 @@ function renderActions(){
     if((tc.res||0)>0) strip.push('💲'); // reserve batch — matches Chuck's 💲 (Tim)
     if((tc.tokS||0)>0) strip.push('🎯'); // shoot token batch (Tim)
     if((tc.tokB||0)>0) strip.push('🛡️'); // block token batch (Tim)
-    // v7.08: match Chuck's bar — full-width, header + icon strip (Tim)
+    // v7.09: match Chuck's bar — full-width, header + icon strip (Tim)
     const stripHtml=`<div class="ai-strip nowrap" style="margin-top:4px">${strip.map(e=>`<span>${e}</span>`).join('')}</div>`;
-    row.innerHTML=`<div class="watch-pill col full"><div class="ai-actions-hdr" style="white-space:nowrap;font-size:.9em;">⏳ WATCHING OPPONENT ⏳:</div>${stripHtml}</div>`; // v7.08: no wrap (Tim)
+    row.innerHTML=`<div class="watch-pill col full"><div class="ai-actions-hdr" style="white-space:nowrap;font-size:.9em;">⏳ WATCHING OPPONENT ⏳:</div>${stripHtml}</div>`; // v7.09: no wrap (Tim)
     return;
   }
   // 2_45: Vs AI — the human watches; speed toggle included
@@ -4747,7 +4753,7 @@ function renderActions(){
   }
 
   if(G.phase<=2){
-    mk('ROLL DICE',rollAll,'prim',false,true); // v7.08: text only (Tim)
+    mk('ROLL DICE',rollAll,'prim',false,true); // v7.09: text only (Tim)
   } else if(G.phase===3){
     if(!G.assignmentStarted){
       // 4_22: confirm lives in the RS zone now — bottom keeps just Reroll None
@@ -4762,10 +4768,10 @@ function renderActions(){
     // 4_28 (Tim): turn winding down (shot taken, or no shot available w/ RS clear) —
     // End Turn becomes the pulsing gold primary; shop stays tappable but goes quiet.
     const windingDown=(G.combatDone&&G.shotDeclared)||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length); // 4_48
-    const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v7.08: short (Tim)
+    const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v7.09: short (Tim)
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
-      // v7.08: single Declare Shot — moves Hot->Shoot then opens card (Tim)
+      // v7.09: single Declare Shot — moves Hot->Shoot then opens card (Tim)
       // Player can hold out shooters on the card (they return to Hot)
       if(G.shotDeclared)mk('DECLARE SHOT',()=>{},'sec',true);
       else mk('SHOOT',()=>{
@@ -4773,7 +4779,7 @@ function renderActions(){
         declareShot();
       },'blue pulsing-blue');
     }
-    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v7.08: text only (Tim)
+    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v7.09: text only (Tim)
   }
   renderCombatPill(); // 3_27: slim popup pill (AI defend beats only)
 }
@@ -4793,7 +4799,7 @@ function renderLog(){
 
 // ═══════════════════ UTILS ═══════════════════
 function addLog(m,c=''){G.log.push({m,c});if(G.log.length>30)G.log.splice(0,G.log.length-30);renderLog();} // 4_30: cap at 30 (Tim)
-// v7.08: custom confirm popup (Tim) — confirm() unreliable in webview
+// v7.09: custom confirm popup (Tim) — confirm() unreliable in webview
 function showConfirm(html,onYes,onNo){
   const bd=document.createElement('div');
   bd.className='overlay overlay-center show';
@@ -4821,7 +4827,7 @@ document.addEventListener('click',e=>{if(_dpop&&!_dpop.contains(e.target))closeD
 
 // ═══════════════════ ENERGY PICKER ═══════════════════
 // State for the energy picker modal
-let _epickSpent = []; // v7.08: snapshot of _epick.sources for cancelTrashPick refund (Tim)
+let _epickSpent = []; // v7.09: snapshot of _epick.sources for cancelTrashPick refund (Tim)
 let _epick = {
   needed: 0,       // total energy cost to pay
   paid: 0,         // energy paid so far
@@ -4835,7 +4841,7 @@ function getEnergySources() {
   const sources = [];
   // RS energy dice
   ap.z.rs.forEach(d => {
-    if (d.face && d.face.t !== 'BLANK' && (d.face.t === 'E' || d.energyPending) && d.face.v > 0) { // v7.08: no blanks (Tim)
+    if (d.face && d.face.t !== 'BLANK' && (d.face.t === 'E' || d.energyPending) && d.face.v > 0) { // v7.09: no blanks (Tim)
       sources.push({ die: d, dieId: d.id, fromReserve: false, originalV: d.face.v, currentV: d.face.v, spentPips: 0 });
     }
   });
@@ -4929,7 +4935,7 @@ function spendEPickPip(srcIdx) {
   src.currentV--;
   src.spentPips++;
   _epick.paid++;
-  // v7.08: auto-confirm when paid in full (Tim) — no Confirm button
+  // v7.09: auto-confirm when paid in full (Tim) — no Confirm button
   if(_epick.paid>=_epick.needed){ confirmEPick(); return; }
   renderEPicker();
 }
@@ -4947,7 +4953,7 @@ function confirmEPick() {
     const die = zoneArr.find(x => x.id === src.dieId);
     if (!die) return; // vanished mid-picker (shouldn't happen) — skip, don't ghost-duplicate
     if (src.currentV <= 0) {
-      // v7.08: HC fully spent → splice out of RS (Tim) — same as ADV/RR.
+      // v7.09: HC fully spent → splice out of RS (Tim) — same as ADV/RR.
       // 2E→1E stays (spin-down); 1E→0E splices out.
       const ri = zoneArr.indexOf(die);
       if (ri !== -1) zoneArr.splice(ri, 1);
@@ -4963,7 +4969,7 @@ function confirmEPick() {
   });
   addLog(`${ap.name}: Paid ${_epick.paid}⚡ for ${_epick.label}.`, 'imp');
   document.getElementById('epicker').classList.remove('show');
-  _epickSpent = _epick.sources; // v7.08: snapshot before wipe (Tim)
+  _epickSpent = _epick.sources; // v7.09: snapshot before wipe (Tim)
   if (_epick.onConfirm) _epick.onConfirm();
   _epick = { needed: 0, paid: 0, sources: [], onConfirm: null, label: '' };
   renderAll();
@@ -4972,7 +4978,7 @@ function confirmEPick() {
 function cancelEPick() {
   document.getElementById('epicker').classList.remove('show');
   _epick = { needed: 0, paid: 0, sources: [], onConfirm: null, label: '' };
-  _epickSpent=[]; // v7.08 (Tim)
+  _epickSpent=[]; // v7.09 (Tim)
   renderAll();
 }
 
@@ -5009,21 +5015,23 @@ function showBagViewer(){
     const total=allDice.length;
     const posColors={F:'#4466cc',D:'#cc4444',G:'#888',HC:'#c8a84b',GN:'#3fae3f',Rookie:'#ccc',Penalty:'#555'}; // 4_44: Goon
     const posNames={F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach',GN:'Goon',Rookie:'Rookie',Penalty:'Penalty'}; // 4_44: Goon
-    let html=`<div style="margin-bottom:20px;">
-      <h3 style="color:var(--gold);font-size:.95em;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">
+    let html=`<div style="margin-bottom:14px;"> <!-- v7.09: tighter (Tim) -->
+      <h3 style="color:var(--gold);font-size:.85em;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">
         ${p.name} — ${total} total dice &nbsp;
         <span style="font-size:.75em;color:#888">(${p.goals} goal${p.goals!==1?'s':''})</span>
       </h3>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;">`;
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">`;
     sorted.forEach(([key,count])=>{
-      const posKey=key==='Rookie'?'Rookie':key==='Penalty Die'?'Penalty':key[0];
+      const posKey=key==='Rookie'?'Rookie':key==='Penalty Die'?'Penalty':key==='Goon'?'GN':key==='HC'?'HC':key[0];
       const color=posColors[posKey]||'#888';
-      const posName=posNames[posKey]||'';
       const faces=(DEFS[key==='Penalty Die'?'Penalty':key]||[]).map(f=>`${f.t}${f.v||''}${f.c?'⚡':''}`).join(' ');
-      html+=`<div style="background:rgba(255,255,255,.05);border:1px solid ${color}44;border-radius:8px;padding:8px 12px;min-width:120px;">
-        <div style="font-size:.9em;font-weight:900;color:${color};margin-bottom:2px;">${key} <span style="font-size:1.2em;color:white;">×${count}</span></div>
-        <div style="font-size:.65em;color:#888;">${posName}</div>
-        <div style="font-size:.62em;color:#666;margin-top:3px;">${faces}</div>
+      // v7.09: mini dice instead of ×N (Tim) — glanceable, like the shop
+      const _shortKey=key==='Rookie'?'R':key==='Penalty Die'?'PEN':key==='Goon'?'GN':key; // v7.09: fit 16px dice
+      const diceRow=Array.from({length:count},()=>`<span class="bag-mini-die" style="background:${color}">${_shortKey}</span>`).join('');
+      html+=`<div class="pos-${posKey}" style="background:rgba(255,255,255,.05);border:1px solid ${color}44;border-radius:8px;padding:6px 8px;min-width:100px;">
+        <div style="font-size:.8em;font-weight:900;color:${color};margin-bottom:3px;">${key}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:2px;margin-bottom:3px;">${diceRow}</div>
+        <div style="font-size:.58em;color:#666;">${faces}</div>
       </div>`;
     });
     html+=`</div></div>`;
@@ -5251,7 +5259,7 @@ function startShootout(practice){
   // Set scoreboard names
   [0,1].forEach(i=>{
     const nameEl = document.getElementById('so-name-'+i);
-    // v7.08: team name + who-label below (Tim)
+    // v7.09: team name + who-label below (Tim)
     if(nameEl){
       const whoEl = document.getElementById('so-who-'+i);
       const whoHTML = whoEl ? whoEl.outerHTML : '';
@@ -5267,7 +5275,7 @@ function startShootout(practice){
   // (first turn now starts when the who-shoots-first card dismisses)
 }
 
-// v7.08: extracted coin flip (Tim) — restartShootout now gets a fresh flip too
+// v7.09: extracted coin flip (Tim) — restartShootout now gets a fresh flip too
 function soCoinFlip(practice){
   // 3_82: brief "who shoots first" card (Tim) — the practice order is a coin flip,
   // so announce it. 3_85: sits above the shootout panel (not overlapping it) and
@@ -5315,7 +5323,7 @@ function soNewGame(){
   resetAIFlags();
   backToModes();
   document.getElementById('so-overlay').classList.remove('show');
-  // v7.08: re-randomize teams on next entry (Tim) — unless manually picked
+  // v7.09: re-randomize teams on next entry (Tim) — unless manually picked
   if(typeof _soManualPick!=='undefined'&&!_soManualPick)_so.sel1=null;
   if(typeof _soAiManualPick!=='undefined'&&!_soAiManualPick)_so.aiIdx=null;
   showScreen('setup');
@@ -5323,7 +5331,7 @@ function soNewGame(){
 }
 function restartShootout(){
   _so.scores=[0,0]; _so.round=1; _so.maxRounds=3;
-  // v7.08: fresh coin flip for the new shootout (Tim)
+  // v7.09: fresh coin flip for the new shootout (Tim)
   _so.firstShooter=Math.random()<0.5?0:1;
   _so.shooterIdx=_so.firstShooter; _so.results=[]; _so.suddenDeath=false; _so.selectedFwd=null;
   _so.phase='shoot';
@@ -5344,11 +5352,11 @@ function restartShootout(){
 // 3_59: who-emoji on shootout teams — 🤖 AI, 🧑 human (Tim)
 // 3_63: keyed on _aiActive like the main scoreboard — real-game overtime shootouts set _so.vsAI=false
 function soWhoEmoji(si){return (_aiActive&&typeof _aiSlot!=='undefined'&&si===_aiSlot)?'🤖':'🧑';}
-function soTeamLabel(si){const p=_so.players[si]; // v7.08: team emoji, no who-emoji (Tim)
+function soTeamLabel(si){const p=_so.players[si]; // v7.09: team emoji, no who-emoji (Tim)
   return (p.teamName||p.name||'');}
 function soWhoLbl(si){const p=_so.players[si];if(!p)return '';const nm=bareName(p.name||'');
   if(_aiActive&&typeof _aiSlot!=='undefined'&&si===_aiSlot)return nm||'AI Chuck';
-  if(_aiActive)return 'Player 1';return nm||('Player '+(si+1));} // v7.08 (Tim)
+  if(_aiActive)return 'Player 1';return nm||('Player '+(si+1));} // v7.09 (Tim)
 function renderSOScoreboard(){
   // 3_62: one SD column — blank until a sudden-death shootout is decided, then winner ● / loser X (Tim)
   const sdHead=document.getElementById('so-h-sd');
@@ -6120,7 +6128,7 @@ function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName,ref){
     });
   } else {
     // JOINER: show connecting screen, do NOT touch G or game screen yet
-    // v7.08: 5-second delay (Tim) — only show if game hasn't started by then.
+    // v7.09: 5-second delay (Tim) — only show if game hasn't started by then.
     // If players join right away, no blip.
     _joinerReady=false;
     clearTimeout(window._connectingDelayT);
@@ -6202,7 +6210,7 @@ function _deliverRemote(remote){
   if(_mySlot===1&&!_joinerReady){
     // First state received — now initialize G from host's state
     _joinerReady=true;
-    clearTimeout(window._connectingDelayT); // v7.08: game started, cancel the delayed popup
+    clearTimeout(window._connectingDelayT); // v7.09: game started, cancel the delayed popup
     // Build lineup arrays from remote player data
     const l0=remote.players[0].lineup.map(c=>c.key);
     const l1=remote.players[1].lineup.map(c=>c.key);
@@ -6219,7 +6227,7 @@ function _drainPending(){
   const r=_pendingRemote; _pendingRemote=null;
   _deliverRemote(r);
 }
-// v7.08: Firebase .set() throws on undefined values anywhere in the tree.
+// v7.09: Firebase .set() throws on undefined values anywhere in the tree.
 // Scrub them to null so a not-yet-set field (e.g. foWinner before the faceoff)
 // can never kill a launch again.
 function _cleanUndefined(v){
@@ -6307,8 +6315,8 @@ function pullState(remote){
     need:remote.benchPick.need||0,done:!!remote.benchPick.done}:null;
   G.periodFirstPlayer=remote.periodFirstPlayer; G.foWinner=remote.foWinner;
   if(remote.turnNotes) G.turnNotes=remote.turnNotes;
-  // v7.08: turnCounts NOT synced (Tim) — local-only. See above.
-  // v7.08: Turn flipped — reset local turnCounts so action bar starts blank (Tim).
+  // v7.09: turnCounts NOT synced (Tim) — local-only. See above.
+  // v7.09: Turn flipped — reset local turnCounts so action bar starts blank (Tim).
   // The previous turn's batched notes are in turnNotes (synced) for the summary.
   if(_onlineActive&&_prevAp!==undefined&&_prevAp!==G.ap){
     G.turnCounts={off:0,def:0,adv:0,res:0,tokS:0,tokB:0};
@@ -6340,7 +6348,7 @@ function pullState(remote){
       orig.left=rc.left; return orig;
     });
   });
-  // v7.08: spectator sees the Vs AI tumble too (Tim).
+  // v7.09: spectator sees the Vs AI tumble too (Tim).
   // Collect the dice AFTER the player update; animGameDice runs after the render below.
   let _specTumble=null;
   if(remote.rerollSync&&(!G.rerollSync||remote.rerollSync.ts!==G.rerollSync.ts)){
@@ -6359,7 +6367,7 @@ function pullState(remote){
   // Adopt the attacker's committed shoot tokens (I'm the defender, not the active player)
   if(typeof remote.sTok==='number'&&G.ap!==_mySlot)_sTok=remote.sTok;
   // Render without triggering another Firebase push.
-  // v7.08: if dice are tumbling, defer the render until the animation ends (Tim)
+  // v7.09: if dice are tumbling, defer the render until the animation ends (Tim)
   if(_animating){
     const wait=setInterval(()=>{
       if(!_animating){ clearInterval(wait);
@@ -6370,7 +6378,7 @@ function pullState(remote){
   } else {
     _isWriting=true;
     try{ _origRenderAll(); }finally{ _isWriting=false; }
-    // v7.08: spectator tumble (Tim) — runs on the freshly rendered dice
+    // v7.09: spectator tumble (Tim) — runs on the freshly rendered dice
     if(_specTumble&&_specTumble.length){
       _animating=true;
       animGameDice(_specTumble, ()=>{ _animating=false; });
@@ -6387,7 +6395,7 @@ function pullState(remote){
       renderCombatClock(); // 2_151: clock on the synced reveal too
       document.getElementById('combat-panel').classList.add('show');
     }
-    // v7.08: no auto-close on remote combatDone (Tim) — each player dismisses the card at their own pace
+    // v7.09: no auto-close on remote combatDone (Tim) — each player dismisses the card at their own pace
   }
   // Bench-choice phase: the loser's pick (or its completion) may arrive without
   // a combat-nonce change — refresh the panel step and flash the opponent's
@@ -6456,7 +6464,7 @@ function pullState(remote){
     const opp=G.players[G.ap];
     const aplblEl=document.getElementById('aplbl');
     if(aplblEl) aplblEl.innerHTML=
-      `<span style="font-size:.9em;white-space:nowrap;">⏳ WATCHING OPPONENT ⏳</span>`; // v7.08: no wrap (Tim)
+      `<span style="font-size:.9em;white-space:nowrap;">⏳ WATCHING OPPONENT ⏳</span>`; // v7.09: no wrap (Tim)
   }
 }
 
@@ -6568,7 +6576,7 @@ function aiBenchRank(d){return tierOf(d.key)*100+aiTierRank(d.key)*10+((d.face&&
 
 // ── Step-summary pills: their own channel so they never clobber warnings ──
 let _aiTurnNotes=[]; // 2_47: Max speed collects step pills into one turn summary
-let _shakeIds=new Set(); // v7.08: die IDs currently shaking — the render applies the
+let _shakeIds=new Set(); // v7.09: die IDs currently shaking — the render applies the
 // rolling class, so Firebase re-renders can't detach and kill the animation (Tim's idea)
 let _aiStripIcons=[]; // 3_09: icon timeline — one emoji per summary-bound action, left to right
 function aiStripPush(msg){ // 3_09: the leading emoji of a summary note becomes a timeline icon
@@ -6818,7 +6826,7 @@ async function aiTurnMain(){
     if(aiDoHcReroll(P)){await aiSleep(900);if(!aiIsTurn()){_aiBusy=false;renderAll();return;}}
     if(await aiDoFight()){if(!aiIsTurn()){_aiBusy=false;renderAll();return;}} // 4_94: await fight reveal (Tim)
     aiDoAssign(P);
-    // v7.08: purge blanks (incl. PEN) to iced after all rerolls/assignments (Tim)
+    // v7.09: purge blanks (incl. PEN) to iced after all rerolls/assignments (Tim)
     {const _ap2=AP();[..._ap2.z.rs].forEach(d=>{if(d.face&&d.face.t==='BLANK')assignDie(d,'iced');});}
     await aiSleep(800);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
     aiDoBuy(P);
@@ -6914,7 +6922,7 @@ function aiRerollTable(){
     let p=0;
     if(f.t==='RR'||f.t==='PEN')p=25;
     else if(f.t==='ADV'){
-      // v7.08: always reroll on 10:00/02:00/01:00 only (Tim)
+      // v7.09: always reroll on 10:00/02:00/01:00 only (Tim)
       if(G.clock===10||G.clock===2||G.clock===1)p=100;
       else{
         const hasShoot=[...ap.z.rs,...ap.z.cold].some(x=>x.face&&x.face.t==='S'&&(x.face.v||0)>0);
@@ -6991,13 +6999,13 @@ function aiResolveAdv(){
 // (animation + pill) before assignment continues. Returns true if it rerolled.
 // 4_77: Chuck's fight logic (Tim) — reverses the "never fights" rule
 function aiFightTarget(){
-  // v7.08: penalty cap (Tim) — one penalty die and Chuck stops fighting until 08:00 of P3
+  // v7.09: penalty cap (Tim) — one penalty die and Chuck stops fighting until 08:00 of P3
   const _ap=AP();
   const _hasPen=_ap.bag.some(d=>d.key==='Penalty');
   const _lateGame=(G.period===3&&G.clock<=8);
   if(_hasPen&&!_lateGame)return null;
   const opp=OPP();
-  const hot=(opp.z.hot||[]).filter(d=>d.key[0]!=='G'),def=(opp.z.defend||[]).filter(d=>d.key[0]!=='G'); // v7.08: goalies off-limits (Tim)
+  const hot=(opp.z.hot||[]).filter(d=>d.key[0]!=='G'),def=(opp.z.defend||[]).filter(d=>d.key[0]!=='G'); // v7.09: goalies off-limits (Tim)
   const maxPips=zone=>zone.reduce((m,d)=>Math.max(m,(d.face&&(d.face.v||0))),0);
   const hotMax=maxPips(hot),defMax=maxPips(def);
   const bestMax=Math.max(hotMax,defMax);
@@ -7034,8 +7042,8 @@ async function aiDoFight(){ // 4_94: fight reveal (Tim)
   }finally{_aiSelf=false;}
   // reveal
   document.getElementById('cf-sub').textContent=`Goon rolls 3 fight dice vs your ${t.die.key}'s 2. Ties lose.`;
-  const _cfZone=t.zone==='hot'?'Hot':t.zone==='defend'?'Defensive':t.zone; // v7.08: friendly zone (Tim)
-  document.getElementById('cf-tgt-ctx').innerHTML=`${fightDieMini(t.die)} from ${_cfZone}`; // v7.08: real die (Tim)
+  const _cfZone=t.zone==='hot'?'Hot':t.zone==='defend'?'Defensive':t.zone; // v7.09: friendly zone (Tim)
+  document.getElementById('cf-tgt-ctx').innerHTML=`${fightDieMini(t.die)} from ${_cfZone}`; // v7.09: real die (Tim)
   document.getElementById('cf-goon').innerHTML=dieWrapHTML(goonDie,false,true,false);
   document.getElementById('cf-target').innerHTML=dieWrapHTML(t.die,false,true,false);
   document.getElementById('chuck-fight-panel').classList.add('show');
@@ -7059,7 +7067,7 @@ async function aiDoFight(){ // 4_94: fight reveal (Tim)
   ctd.innerHTML=tr.map(()=>`<div class="goon-die">?</div>`).join('');
   document.getElementById('cf-goon-total').textContent='–';
   document.getElementById('cf-target-total').textContent='–';
-  document.getElementById('cf-goon-total').closest('.sog-half').classList.remove('win'); // v7.08: reset (Tim)
+  document.getElementById('cf-goon-total').closest('.sog-half').classList.remove('win'); // v7.09: reset (Tim)
   document.getElementById('cf-target-total').closest('.sog-half').classList.remove('win');
   document.getElementById('cf-win').textContent='👊 Fighting…';
   document.getElementById('cf-result').innerHTML='';
@@ -7067,19 +7075,19 @@ async function aiDoFight(){ // 4_94: fight reveal (Tim)
     animNumbers([...cgd.children,...ctd.children],[...gr,...tr],()=>{
       document.getElementById('cf-goon-total').textContent=gTot;
       document.getElementById('cf-target-total').textContent=tTot;
-      // v7.08: banner + half pulse + conditional outcome (Tim)
+      // v7.09: banner + half pulse + conditional outcome (Tim)
       if(won){
         document.getElementById('cf-win').textContent=`👊 Goon wins ${gTot}-${tTot}!`;
         document.getElementById('cf-goon-total').closest('.sog-half').classList.add('win');
-        document.getElementById('cf-result').innerHTML=`<div class="goon-outcome">${t.die.key} \u2192 Iced.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`; // v7.08: pool count (Tim)
+        document.getElementById('cf-result').innerHTML=`<div class="goon-outcome">${t.die.key} \u2192 Iced.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`; // v7.09: pool count (Tim)
       }else{
         document.getElementById('cf-win').textContent=`${t.die.key} wins ${tTot}-${gTot}!`;
         document.getElementById('cf-target-total').closest('.sog-half').classList.add('win');
-        document.getElementById('cf-result').innerHTML=`<div class="goon-outcome">Penalty die \u2192 Chuck's bag.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`; // v7.08: pool count (Tim)
+        document.getElementById('cf-result').innerHTML=`<div class="goon-outcome">Penalty die \u2192 Chuck's bag.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`; // v7.09: pool count (Tim)
       }
       aiPill(won?`🥊 Goon wins! ${t.die.key} iced`:`🔲 Goon loses — penalty die added`); // 5_81: 🔲 for penalty (Tim)
       res();
-    },CF_F); // v7.08: fight faces (Tim)
+    },CF_F); // v7.09: fight faces (Tim)
   });
   await new Promise(res=>{_cfRes=res;});
   return true;
@@ -7594,7 +7602,7 @@ async function aiDoShoot(P){
   const desperation=(opp.goals-ap.goals)>1;
   const t1=D+1+(desperation?1:0); // commit dice until shot >= t1
   const t2=D+2+(desperation?1:0); // 25% token tier cap
-  const t3=D+3+(desperation?1:0); // v7.08: token hard cap (Tim)
+  const t3=D+3+(desperation?1:0); // v7.09: token hard cap (Tim)
   let commit=[];
   if(G.clock===2||G.clock===1){
     commit=shooters; // clock all-in (Tim) — everything shoots
@@ -7615,7 +7623,7 @@ async function aiDoShoot(P){
   _aiSelf=true;
   try{
     declareShot();
-    // 3_56: scouted token spend (Tim) — fill to t1, 25% each to t2, 5% each to t3 (v7.08)
+    // 3_56: scouted token spend (Tim) — fill to t1, 25% each to t2, 5% each to t3 (v7.09)
     let tokLeft=ap.tok.shoot;
     while(tokLeft>0&&shotPips<t1){adjST(1);tokLeft--;shotPips++;}
     while(tokLeft>0&&shotPips<t2){tokLeft--;if(d100()<=25){adjST(1);shotPips++;}}
@@ -7678,7 +7686,7 @@ async function aiDefendTurn(){
         .sort((a,b)=>b.face.v-a.face.v); // most pips first — a big die can clear +1/+2 alone
       for(const d of candidates){
         if(blkPips>=atkPips+1){ // 4_81: tiered past +1 (Tim)
-          // v7.08: 20%->25% between +2/+3 (Tim)
+          // v7.09: 20%->25% between +2/+3 (Tim)
           const pct=blkPips>=atkPips+3?5:(blkPips>=atkPips+2?25:50);
           if(d100()>pct)continue;
         }
@@ -7698,7 +7706,7 @@ async function aiDefendTurn(){
       tokTries--;
       if(d100()<=50){adjBT(1);matched++;blkPips++;}
     }
-    while(blkPips<atkPips+3&&tokTries>0){ // v7.08: 5% each, one by one, to +3 (Tim)
+    while(blkPips<atkPips+3&&tokTries>0){ // v7.09: 5% each, one by one, to +3 (Tim)
       tokTries--;
       if(d100()<=5){adjBT(1);matched++;blkPips++;}
     }
@@ -7745,7 +7753,7 @@ function aiMaybeBench(){
       confirmBenchPick();
       const msg=`🪑 benched ${Math.min(bp.need,ranked.length)} ${bp.need===1?'die':'dice'}`;
       aiPill(msg); // stashes the note; shows a step pill now, or joins the live card
-      // v7.08: update shot-card status line (Tim)
+      // v7.09: update shot-card status line (Tim)
       const _bl=document.getElementById('bench-status-line');
       if(_bl){_bl.style.display='block';_bl.textContent=`Chuck benched ${Math.min(bp.need,ranked.length)} ${bp.need===1?'die':'dice'}.`;}
       // 2_48: when the AI's own shot just ended, the turn-summary card carries
@@ -7919,7 +7927,7 @@ function resumeGame(){
   }
 }
 
-// v7.08: surface uncaught errors as toasts (Tim's Vs Friend dead-screen report Oct 12)
+// v7.09: surface uncaught errors as toasts (Tim's Vs Friend dead-screen report Oct 12)
 // Without this, a throw in the online launch path leaves the setup screen
 // dead with no indication of what failed.
 window.addEventListener('error',e=>{
