@@ -589,6 +589,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .persona-card.sel{border-color:#ffd75e;background:rgba(255,215,94,.08)}
 #ai-persona-cards{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 #commit-all-slot button{margin-top:8px;} /* v7.30: breathing room (Tim) */
+.pinwheel{animation:pinwheelSpin .2s linear infinite;display:inline-block;}@keyframes pinwheelSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 
 /* ============================================================
    MIRACLE ON DICE — MOBILE OVERRIDE LAYER (v1)
@@ -997,13 +998,13 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
-</head>
+<!-- v7.59: REVERT to v7.48 — v7.49-v7.58 bench timing changes reverted (Tim). Spoiler exists but flow is correct. --></head>
 <body>
 
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.41</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.65</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1159,7 +1160,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.41</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.65</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1361,13 +1362,12 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- CHUCK FIGHT REVEAL (4_94, Tim; v7.30: green card to match goon-panel) -->
 <div class="panel-overlay" id="chuck-fight-panel">
   <div class="panel-box" style="max-width:480px">
-    <div class="panel-title">👊 GOON FIGHT!</div> <!-- v7.30: match player card (Tim) -->
-    <div class="panel-sub" id="cf-sub">The Goon has picked a target.</div>
+    <div class="panel-title" style="text-align:center;font-size:1.6em">👊 GOON FIGHT!</div> <!-- v7.47: centered + enlarged (Tim) -->
     <div style="display:flex;gap:16px;justify-content:center;align-items:center;margin:12px 0">
-      <div style="text-align:center"><div style="font-size:.75em;color:#888;margin-bottom:6px">Chuck's Goon</div><div id="cf-goon"></div></div>
+      <div style="text-align:center"><div id="cf-goon"></div><div style="font-size:.85em;opacity:.8;margin-top:4px">GOON</div></div>
       <div style="font-size:1.5em">⚔️</div>
-      <div style="text-align:center"><div style="font-size:.75em;color:#888;margin-bottom:6px">Your die</div><div id="cf-target"></div></div>
-    </div>
+      <div style="text-align:center"><div id="cf-target"></div><div id="cf-target-zone" style="font-size:.85em;opacity:.8;margin-top:4px"></div></div>
+    </div> <!-- v7.47: labels removed (Tim) -->
     <div id="cf-fight" style="margin-top:10px">
       <div class="sog-half sog-grn">
         <div class="goon-half-label nm">Chuck's Goon</div>
@@ -3337,9 +3337,7 @@ function openCombat(){
   const _defViewOnly=_onlineActive&&isMyTurn();
   const attackerIsAI=_aiActive&&G.ap===_aiSlot;
   const defenderIsAI=_aiActive&&G.ap!==_aiSlot;
-  // v7.41: pulsing auto-block reminder (Tim)
-  const _bonus=clockBlockBonus();
-  document.getElementById('bsel-heading').innerHTML=`🥅 Defender <span style="font-size:.72em;font-weight:800;color:#ffb3b3;animation:nudgePulse 1.4s ease-in-out infinite">+${_bonus} auto block</span>`;
+  document.getElementById('bsel-heading').textContent='🥅 Defender'; // v7.44: auto-block reminder removed (Tim)
   _shotDefViewOnly=_defViewOnly||defenderIsAI; // v7.30: max mode in shooter view, online or Vs AI (Tim)
   // 3_10: in Vs AI the human never touches Coach's tokens — he auto-commits (shoot:
     // 50%/token at declaration, block: auto to shooter+1 then 20% each to +2), and the
@@ -4843,7 +4841,7 @@ function renderActions(){
     // Combined assign + buy phase — no "Done Assigning" needed
     // 4_28 (Tim): turn winding down (shot taken, or no shot available w/ RS clear) —
     // End Turn becomes the pulsing gold primary; shop stays tappable but goes quiet.
-    const windingDown=(G.combatDone&&G.shotDeclared)||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length); // 4_48
+    const windingDown=((G.combatDone&&G.shotDeclared)||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length))&&(!_aiActive||G.ap===_mySlot); // 4_48; v7.60: not on Chuck's turn (Tim)
     const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v7.30: short (Tim)
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
@@ -6646,7 +6644,8 @@ setInterval(()=>{
   }catch(e){}
 },2000);
 // 2_85: flat pacing — Relaxed 2500ms, Brisk 1500ms, Max 750ms
-function aiPace(ms){return _aiSpeed===0?750:_aiSpeed===2?1500:2500;}
+function aiPace(ms){const m=_aiSpeed===0?0.3:_aiSpeed===2?0.6:1.0;return (ms||400)*m;} // v7.46: respects ms arg (was ignoring it — Tim's catch)
+const AI_BEAT=2500; // v7.46: standard action beat — matches reroll feel (Tim)
 function aiSleep(ms){return new Promise(r=>setTimeout(r,aiPace(ms)));}
 function aiLater(fn,ms){setTimeout(fn,aiPace(ms));}
 function aiTierRank(key){const p=posOf(key);return p==='F'?4:p==='D'?3:p==='G'?2:1;}
@@ -6866,14 +6865,17 @@ async function aiTurnMain(){
   // 5_07: watchdog — if the turn hangs, force the summary so the game never strands (Tim)
   clearTimeout(window._aiWatchdog);
   window._aiWatchdog=setTimeout(()=>{
-    if(typeof G!=='undefined'&&G.ap===_aiSlot&&_aiBusy&&_aiDefPhase!=='humanDef'){ // 5_10: skip during human defense
+    // v7.64: skip when Chuck's fight card is open — player taps CONTINUE when ready (Tim)
+    const _fightOpen=document.getElementById('chuck-fight-panel')&&document.getElementById('chuck-fight-panel').classList.contains('show');
+    if(typeof G!=='undefined'&&G.ap===_aiSlot&&_aiBusy&&_aiDefPhase!=='humanDef'&&!_fightOpen){ // 5_10: skip during human defense
       console.error('AI watchdog: turn hung, forcing summary');
       _aiBusy=false;_aiDefPhase=null;_aiSelf=false;G.shotDeclared=false;
       try{aiShowTurnSummary(()=>{_aiSelf=true;try{endTurn();}finally{_aiSelf=false;if(G.ap!==_aiSlot){_aiBusy=false;}}});}
       catch(e){console.error('watchdog summary failed:',e);}
       // 5_08: if still hung after 10s, force endTurn outright (Tim)
       setTimeout(()=>{
-        if(typeof G!=='undefined'&&G.ap===_aiSlot&&_aiDefPhase!=='humanDef'){ // 5_10
+        const _fightOpen2=document.getElementById('chuck-fight-panel')&&document.getElementById('chuck-fight-panel').classList.contains('show');
+        if(typeof G!=='undefined'&&G.ap===_aiSlot&&_aiDefPhase!=='humanDef'&&!_fightOpen2){ // 5_10; v7.64: skip during fight card (Tim)
           console.error('AI watchdog: forcing endTurn');
           try{_aiSelf=true;endTurn();}catch(e2){console.error('watchdog endTurn failed:',e2);}
           finally{_aiSelf=false;_aiBusy=false;_aiDefPhase=null;renderAll();}
@@ -6889,27 +6891,31 @@ async function aiTurnMain(){
   AP().z.reserve.forEach(d=>{d.committed=false;});
   // 2_51: no "takes the turn" note — summary keeps only the action lines
   try{
-    await aiSleep(900);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48: never hold the board when the turn moved on
+    await aiSleep(AI_BEAT);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // v7.46: AI_BEAT (Tim)
     _aiSelf=true;try{rollAll();}finally{_aiSelf=false;}
     _aiRrNudge=true;updateRRNudge(); // 4_24: nudge-only — a full renderAll would detach the rolling dice (Tim)
-    await aiSleep(1100);if(!aiIsTurn()){_aiBusy=false;_aiRrNudge=false;renderAll();return;} // 2_48
+    await aiSleep(AI_BEAT);if(!aiIsTurn()){_aiBusy=false;_aiRrNudge=false;renderAll();return;} // v7.46: AI_BEAT (Tim)
     aiDoReroll(P);
     _aiRrNudge=false;updateRRNudge(); // 4_24: nudge-only — preserves the reroll animation (Tim)
-    await aiSleep(800);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
+    await aiSleep(AI_BEAT);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // v7.46: AI_BEAT (Tim)
     // 5_44: faceoff winner bonus reroll on 10:00 (Tim)
     // 5_82: bonus pill shows on Chuck's 10:00 too (Tim)
     // 5_87: hold flag keeps pill visible through renders (Tim's bug report)
-    if(G.clock===10&&G.ap===G.foWinner){_bonusPillHold=true;const _bp=document.getElementById('bonus-pill');if(_bp)_bp.classList.add('show');aiDoReroll(P,true);await aiSleep(1200);_bonusPillHold=false;if(_bp)_bp.classList.remove('show');if(!aiIsTurn()){_aiBusy=false;renderAll();return;}}
+    if(G.clock===10&&G.ap===G.foWinner){_bonusPillHold=true;const _bp=document.getElementById('bonus-pill');if(_bp)_bp.classList.add('show');aiDoReroll(P,true);await aiSleep(AI_BEAT);_bonusPillHold=false;if(_bp)_bp.classList.remove('show');if(!aiIsTurn()){_aiBusy=false;renderAll();return;}} // v7.46: AI_BEAT (Tim)
     // 2_150: HC reroll gets its own visible beat — pause so the player sees the
     // dice reroll (animation + pill) before assignment continues
-    if(aiDoHcReroll(P)){await aiSleep(900);if(!aiIsTurn()){_aiBusy=false;renderAll();return;}}
+    if(aiDoHcReroll(P)){await aiSleep(AI_BEAT);if(!aiIsTurn()){_aiBusy=false;renderAll();return;}} // v7.46: AI_BEAT (Tim)
     if(await aiDoFight()){if(!aiIsTurn()){_aiBusy=false;renderAll();return;}} // 4_94: await fight reveal (Tim)
     try{await aiDoAssign(P);}catch(e){if(e.message==='ai-turn-ended'){_aiBusy=false;renderAll();return;}throw e;} // v7.41: awaited for pacing (Tim)
     // v7.30: purge blanks (incl. PEN) to iced after all rerolls/assignments (Tim)
     {const _ap2=AP();[..._ap2.z.rs].forEach(d=>{if(d.face&&d.face.t==='BLANK')assignDie(d,'iced');});}
-    await aiSleep(800);if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // 2_48
+    // v7.62: removed dead AI_BEAT sleep — assign's last beat already spaces it,
+    // and the buy's first pill is the next visual (Tim's "double beat" catch)
+    if(!aiIsTurn()){_aiBusy=false;renderAll();return;}
     try{await aiDoBuy(P);}catch(e){if(e.message==='ai-turn-ended'){_aiBusy=false;renderAll();return;}throw e;} // v7.41: awaited for pacing (Tim)
-    if(!aiIsTurn()){_aiBusy=false;renderAll();return;} // v7.41: no pause, straight to shoot (Tim)
+    if(!aiIsTurn()){_aiBusy=false;renderAll();return;}
+    // v7.63: beat before the shot card — let the reserve/buy badges register (Tim)
+    await aiBeat(AI_BEAT);if(!aiIsTurn()){_aiBusy=false;renderAll();return;}
     const shot=await aiDoShoot(P);
     if(!shot){
       if(!aiIsTurn()){_aiBusy=false;renderAll();return;}
@@ -7119,10 +7125,10 @@ async function aiDoFight(){ // 4_94: fight reveal (Tim)
     const gi=ap.z.rs.indexOf(goonDie);if(gi!==-1)ap.z.rs.splice(gi,1);
     ap.z.iced.push(goonDie);
   }finally{_aiSelf=false;}
-  // reveal
-  document.getElementById('cf-sub').textContent=`Goon rolls 3 fight dice vs your ${t.die.key}'s 2. Ties lose.`;
-  const _cfZone=t.zone==='hot'?'Hot':t.zone==='defend'?'Defensive':t.zone; // v7.30: friendly zone (Tim)
-  document.getElementById('cf-tgt-ctx').innerHTML=`${fightDieMini(t.die)} from ${_cfZone}`; // v7.30: real die (Tim)
+  // reveal (v7.47: cf-sub removed — Tim)
+  const _cfZone=t.zone==='hot'?'HOT':t.zone==='defend'?'DEF':t.zone==='cold'?'COLD':t.zone; // v7.64: short caps (Tim)
+  document.getElementById('cf-tgt-ctx').innerHTML=''; // v7.64: mini die removed (Tim)
+  document.getElementById('cf-target-zone').textContent=`From ${_cfZone}`; // v7.64: zone by large die up top (Tim)
   document.getElementById('cf-goon').innerHTML=dieWrapHTML(goonDie,false,true,false);
   document.getElementById('cf-target').innerHTML=dieWrapHTML(t.die,false,true,false);
   document.getElementById('chuck-fight-panel').classList.add('show');
@@ -7208,23 +7214,18 @@ async function scrambleDefense(finalDice, finalTokens, maxDice){
   const el=document.getElementById('bsel-info');
   if(!el)return;
   _scrambling=true;
+  // v7.42: real-time sleep — aiSleep runs on the AI speed knob (2.5s on Normal),
+  // which turned the 80ms scramble ticks into one long freeze (Tim's catch)
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   try{
-  const startTime=Date.now();
-  const duration=1000; // 1s scramble
-  const tick=80; // update every 80ms
-  // Cycle random values
-  while(Date.now()-startTime<duration){
-    const rDice=Math.floor(Math.random()*(maxDice+1));
-    const rTok=finalTokens>0?Math.floor(Math.random()*(finalTokens+1)):0;
-    const tokStr=rTok>0?` + <span style="font-size:1.3em;font-weight:900">${rTok}</span> 🛡️`:'';
-    el.innerHTML=`<span class="combat-pulse">⚔️ <span style="font-size:1.3em;font-weight:900">${rDice}</span> combat dice${tokStr}</span>`;
-    await aiSleep(tick);
-    // v7.41: no aiIsTurn check here — during defend it's the human's turn (Tim)
-  }
+  // v7.45: pinwheel shields (Tim) — 6 🛡️ spinning, fanned 45° apart,
+  // then lands on the real result
+  el.innerHTML=`<span class="combat-pulse"><span style="letter-spacing:6px"><span class="pinwheel">🛡️</span> <span class="pinwheel" style="animation-delay:-.025s">🛡️</span> <span class="pinwheel" style="animation-delay:-.05s">🛡️</span> <span class="pinwheel" style="animation-delay:-.075s">🛡️</span> <span class="pinwheel" style="animation-delay:-.1s">🛡️</span> <span class="pinwheel" style="animation-delay:-.125s">🛡️</span></span></span>`;
+  await sleep(1200); // pinwheel spin time
   // Land on final choice
   const tokStr=finalTokens>0?` + <span style="font-size:1.3em;font-weight:900">${finalTokens}</span> 🛡️`:'';
   el.innerHTML=`<span class="combat-pulse">⚔️ <span style="font-size:1.3em;font-weight:900">${finalDice}</span> combat ${finalDice===1?'die':'dice'}${tokStr}</span>`;
-  await aiSleep(800); // beat before combat
+  await sleep(2000); // v7.45: longer read time (Tim)
   }finally{_scrambling=false;} // v7.41: always clear, even if interrupted (Tim)
 }
 async function aiBeat(ms){
@@ -7238,15 +7239,16 @@ async function aiDoAssign(P){
   const zone=G.clock>2?'Cold':'Hot';
   _aiSelf=true;
   try{
-    // PEN faces — always use while the pool has dice
+    // PEN faces — always use while the pool has dice (individual beats — each is notable)
     // 2_148: narrate it — the player needs to know a Penalty die hit their bag
     let nPen=0;
-    for(const d of [...ap.z.rs]){if(d.face&&d.face.t==='PEN'&&G.penaltyPool>0){assignDie(d,'pen-give');nPen++;await aiBeat(200);}}
+    for(const d of [...ap.z.rs]){if(d.face&&d.face.t==='PEN'&&G.penaltyPool>0){assignDie(d,'pen-give');nPen++;await aiBeat(AI_BEAT);}}
     if(nPen)aiPill(`🔲 sent ${nPen} Penalty ${nPen===1?'die':'dice'} to your bag`); // 5_94: 🔲 for penalty (Tim)
     // 2_92: Coach assignment order (Tim's spec) —
     // 1. shoot → 2. block → 3. shutout → 4. ADV → 5. PEN → 6. wild → 7. energy (next)
-    // 1. SHOOT faces → cold/hot (costed: pay if able, else ice immediately — 4_21, Tim)
-    // v7.41: shooters move all at once like auto-assign (Tim)
+    // v7.46: SHOOT + BLOCK move together — one combined beat (Tim)
+    // 1+2. SHOOT faces → cold/hot, BLOCK faces → defend (costed: pay if able, else ice — 4_21, Tim)
+    // 4_105: on 01:00 (last turn), don't advance block dice — nothing left to block (Tim)
     for(const d of [...ap.z.rs]){
       const f=d.face;if(!f||f.t!=='S')continue;
       if(f.c){
@@ -7254,10 +7256,6 @@ async function aiDoAssign(P){
         else{assignDie(d,'iced');}
       }else{assignDie(d,'shoot');nS++;}
     }
-    if(nS)await aiBeat(200);
-    // 2. BLOCK faces → defend (costed: pay if able, else ice immediately — 4_21, Tim)
-    // 4_105: on 01:00 (last turn), don't advance block dice — nothing left to block (Tim)
-    // v7.41: blockers move all at once like auto-assign (Tim)
     for(const d of [...ap.z.rs]){
       const f=d.face;if(!f||f.t!=='B')continue;
       if(G.clock===1){assignDie(d,'iced');continue;}
@@ -7266,53 +7264,66 @@ async function aiDoAssign(P){
         else{assignDie(d,'iced');}
       }else{assignDie(d,'block');nB++;}
     }
-    if(nB)await aiBeat(200);
-    // 3. SHUTOUT → gain block tokens (costed: pay 1e else ice; free: just take — 4_101, Tim)
+    // v7.61: badges fire with the dice — like Auto Assign Shoot/Block (Tim)
+    // (non-wild only; wilds assign later and stay silent)
+    const _dw=n=>n===1?'die':'dice';
+    if(nS)aiPill(`🔵 assigned ${nS} ${_dw(nS)} to ${zone} zone`); // v7.30: just Hot/Cold, no 'offensive' (Tim)
+    if(nB)aiPill(`🔴 assigned ${nB} ${_dw(nB)} to defensive zone`);
+    if(nS||nB)await aiBeat(AI_BEAT);
+    // 3. SHUTOUT → gain block tokens — all at once, one beat (v7.46, Tim)
+    // (costed: pay 1e else ice; free: just take — 4_101, Tim)
+    let nSO=0,soTok=0;
     for(const d of [...ap.z.rs]){
       const f=d.face;if(!f||f.t!=='SO')continue;
       if(!f.c){
-        ap.tok.block+=f.v;
+        ap.tok.block+=f.v;soTok+=f.v;
         ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);
         addLog(`${ap.name}: Shutout → +${f.v} Block Tokens (${ap.tok.block} total).`,'imp');
-        await aiBeat(200);
+        nSO++;
       }else if(aiTotalE()>=1){
-        aiSpendE(1,false);ap.tok.block+=f.v;
+        aiSpendE(1,false);ap.tok.block+=f.v;soTok+=f.v;
         ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);
         addLog(`${ap.name}: Shutout → +${f.v} Block Tokens (1⚡ paid, ${ap.tok.block} total).`,'imp');
-        await aiBeat(200);
-      }else{assignDie(d,'iced');await aiBeat(200);}
+        nSO++;
+      }else{assignDie(d,'iced');nSO++;}
     }
-    // 4. ADV → most-pips cold die to hot (10:00 or empty cold: ice it)
+    if(nSO)aiPill(`🥅 shutout: +${soTok} block token${soTok===1?'':'s'}`); // v7.61 (Tim)
+    if(nSO)await aiBeat(AI_BEAT);
+    // 4. ADV → most-pips cold die to hot (10:00 or empty cold: ice it) — all at once, one beat (v7.46, Tim)
     // 3_70: narrate the advance — Chuck bar pill + turn summary (Tim; was game-log only)
-    let nAdv=0;
+    let nAdv=0;let nAdvMoved=0;
     for(const d of [...ap.z.rs]){
       const f=d.face;if(!f||f.t!=='ADV')continue;
-      if(G.clock!==10&&ap.z.cold.length){assignDie(d,'adv');aiResolveAdv();nAdv++;await aiBeat(200);}
-      else{assignDie(d,"iced");await aiBeat(200);}
+      if(G.clock!==10&&ap.z.cold.length){assignDie(d,'adv');aiResolveAdv();nAdv++;nAdvMoved++;}
+      else{assignDie(d,"iced");nAdvMoved++;}
     }
     if(nAdv)aiPill(`🔼 advanced ${nAdv} ${nAdv===1?'die':'dice'} Cold → Hot`);
+    if(nAdvMoved)await aiBeat(AI_BEAT);
     // 5. PEN — handled above (pool empty → sits, ices at end of turn)
-    // 6. WILD → zone with fewest pips (offensive = cold+hot vs defensive; tie → offensive)
+    // 6. WILD → zone with fewest pips — all at once, one beat (v7.46, Tim)
+    // (offensive = cold+hot vs defensive; tie → offensive)
     // 4_29 (Tim): on his 01:00 offensive turn, Wilds ALWAYS shoot — last chance for goals.
     // 02:00 keeps normal logic (he'll be defending your 01:00).
+    let nW=0;
     for(const d of [...ap.z.rs]){
       const f=d.face;if(!f||f.t!=='W')continue;
-      if(G.clock===1){assignDie(d,'shoot');nS++;await aiBeat(200);continue;}
+      if(G.clock===1){assignDie(d,'shoot');nS++;nW++;continue;}
       const off=[...ap.z.cold,...ap.z.hot].reduce((s,x)=>s+((x.face&&x.face.t==='S')?x.face.v:0),0);
       const def=ap.z.defend.reduce((s,x)=>s+((x.face&&x.face.t==='B')?x.face.v:0),0);
       if(off<=def){assignDie(d,'shoot');nS++;}else{assignDie(d,'block');nB++;}
-      await aiBeat(200);
+      nW++;
     }
+    if(nW)await aiBeat(AI_BEAT);
     // 7. ENERGY → stays in R&S for the buy phase (2_52b); resolved next
-    // 4_51/4_77 (Tim): FT — ices like a blank if no fight happened (fight moves goon to iced already)
-    for(const d of [...ap.z.rs]){if(d.face&&d.face.t==='FT'){assignDie(d,'iced');await aiBeat(200);}}
+    // 4_51/4_77 (Tim): FT — ices like a blank if no fight happened — all at once, one beat (v7.46, Tim)
+    // (fight moves goon to iced already)
+    let nFT=0;
+    for(const d of [...ap.z.rs]){if(d.face&&d.face.t==='FT'){assignDie(d,'iced');nFT++;}}
+    if(nFT)await aiBeat(AI_BEAT);
   }finally{_aiSelf=false;}
   renderAll();
-  const dieWord=n=>n===1?'die':'dice'; // 2_52
-  // 2_145: one bullet per zone instead of a combined "X · Y" line
-  if(nS)aiPill(`🔵 assigned ${nS} ${dieWord(nS)} to ${zone} zone`); // v7.30: just Hot/Cold, no 'offensive' (Tim)
-  if(nB)aiPill(`🔴 assigned ${nB} ${dieWord(nB)} to defensive zone`);
   // 3_57: a held roll stays in the background (game log only) — no summary card, no bar icon (Tim)
+  // v7.61: SHOOT/BLOCK pills now fire with the dice above (Tim)
   if(!nS&&!nB)addLog(`${ap.name} holds its roll.`);
 }
 // 2_52: AI spends the HC die FIRST — it can't go to reserve, so leftover HC energy is wasted
@@ -7563,7 +7574,7 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
       if(isLateP3){
         // 1. Sellout ≤3E (P3 01:00: F/shoot sellouts only)
         const _so=aiLateP3Sellout();
-        if(_so){aiBuyTier(false,_so);await aiBeat(400);continue;} // v7.41: pacing (Tim)
+        if(_so){aiBuyTier(false,_so);await aiBeat(AI_BEAT);continue;} // v7.46: AI_BEAT (Tim)
         // 2. Token
         if(E>=3){
           let tt;try{tt=aiPickTokenType();}catch(e){break;}
@@ -7571,17 +7582,17 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
           if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
 
           else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
-          await aiBeat(400);continue; // v7.41: pacing (Tim)
+          await aiBeat(AI_BEAT);continue; // v7.46: AI_BEAT (Tim)
         }
         // 3. Reserve (highest pip)
         const _re=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&d.face.t==='E').sort((a,b)=>b.face.v-a.face.v)[0];
         if(_re&&ap.z.reserve.length<2){
           ap.z.reserve.push(ap.z.rs.splice(ap.z.rs.indexOf(_re),1)[0]);
-          addLog(`${ap.name}: Reserved ${_re.key} (${_re.face.v}E).`);await aiBeat(200);continue; // v7.41: pacing (Tim)
+          addLog(`${ap.name}: Reserved ${_re.key} (${_re.face.v}E).`);await aiBeat(AI_BEAT);continue; // v7.46: AI_BEAT (Tim)
         }
         // 4. T1/T2 at 2-away from sellout (setup for next turn)
         const _setup=aiSetupBuy();
-        if(_setup){aiBuyTier(false,_setup);await aiBeat(400);continue;} // v7.41: pacing (Tim)
+        if(_setup){aiBuyTier(false,_setup);await aiBeat(AI_BEAT);continue;} // v7.46: AI_BEAT (Tim)
         break; // 5. Nothing left — leftover energy falls to iced
       }
       // 5_44: no cap (Tim)
@@ -7601,12 +7612,12 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
         try{aiSpendE(3,false);}catch(e){console.error('AI token spend failed:',e);break;}
         if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
         else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
-        await aiBeat(400); // v7.41: pacing (Tim)
+        await aiBeat(AI_BEAT); // v7.46: AI_BEAT (Tim)
         // 5_44: no tracking (Tim)
       }else{
         let ok=false;
         try{ok=aiBuyTier();}catch(e){console.error('AI buy failed:',e);break;}
-        if(ok)await aiBeat(400); // v7.41: pacing (Tim)
+        if(ok)await aiBeat(AI_BEAT); // v7.46: AI_BEAT (Tim)
         if(!ok){
           // 5_17: buy failed — heads: bank largest R&S energy; tails: buy cheapest available.
           // Either way, loop back and re-evaluate (Tim) — only the top-of-loop checks end buying.
@@ -7619,7 +7630,7 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
             }
           }else{
             try{aiBuyTier(true);}catch(e){console.error('AI cheapest buy failed:',e);}
-            await aiBeat(400); // v7.41: pacing (Tim)
+            await aiBeat(AI_BEAT); // v7.46: AI_BEAT (Tim)
           }
           continue;
         }
@@ -7832,7 +7843,7 @@ async function aiDefendTurn(){
       tokTries--;
       if(d100()<=5){adjBT(1);matched++;blkPips++;}
     }
-    const dicePips=blockers.reduce((s,d)=>s+(d.face?d.face.v:0),0); // 3_31: report pips (= blocking combat dice), not dice count
+    const dicePips=blockers.reduce((s,d)=>s+(d.face?d.face.v:0),0)+clockBlockBonus(); // v7.48: landed total includes clock auto-block (Tim's catch)
     // v7.41: slot machine IS the reveal (Tim) — choice stays hidden during "studies",
     // scramble flickers, THEN highlights + total land together
     const _maxPips=OPP().z.defend.reduce((s,d)=>s+(d.face?d.face.v:0),0)+clockBlockBonus();
