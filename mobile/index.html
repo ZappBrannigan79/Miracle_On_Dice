@@ -1004,7 +1004,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.65</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.71</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1160,7 +1160,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.65</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.71</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2837,7 +2837,8 @@ function showOnlineTurnSummary(){
   if(!el){el=document.createElement('div');el.id='ai-pill';document.body.appendChild(el);}
   clearTimeout(el._t);
   el.classList.add('summary');
-  el.innerHTML=`<div class="ai-sum-head">👤 <b>${oppName.toUpperCase()}'S TURN SUMMARY</b></div>`+
+  const _poss2=/s$/i.test(oppName.trim())?"'":"'s"; // v7.66: plural names get just ' (Tim)
+  el.innerHTML=`<div class="ai-sum-head">👤 <b>${oppName.toUpperCase()}${_poss2.toUpperCase()} TURN SUMMARY</b></div>`+
     `<div class="ai-sum-notes">${allNotes.map(n=>`<div>${capNote(n)}</div>`).join('')}</div>`+
     `<button class="abtn prim" id="online-take-turn">Start Turn ▸</button>`;
   el.classList.add('show');
@@ -3710,6 +3711,7 @@ function refreshBenchPhase(){
   const loserName=G.players[bp.loser].name;
   if(iAmLoser){
     waitLine.style.display='none';area.style.display='block';
+    const _blH=document.getElementById('bench-status-line');if(_blH)_blH.style.display='none'; // v7.68: hide stale opponent status when I'm benching (Tim)
     renderBenchPickDice();
     if(cbtn){cbtn.style.display='none';} // v7.30: removed — SEND TO BENCH covers it (Tim)
   }else{
@@ -3754,7 +3756,7 @@ function renderBenchPickDice(){
   const leftovers=bp.ids.length-bp.need;
   document.getElementById('bench-pick-note').textContent=
     leftovers>0?`Tap ${bp.need} to save — the other ${leftovers} go to the Iced Zone.`
-               :`Tap the ${bp.need===1?'die':'dice'} to send ${bp.need===1?'it':'them'} to your bench.`;
+               :''; // v7.67: redundant instruction removed (Tim)
   updateBenchConfirm();
 }
 function updateBenchConfirm(){
@@ -4629,7 +4631,8 @@ function renderBoard(){
     aplblEl2.innerHTML=`<span class="so-yourturn" style="font-size:.9em;padding:6px 22px;letter-spacing:2px;">YOUR TURN</span>`; // v7.30: slightly smaller (Tim)
   } else {
     const myTurnIndicator = _onlineActive && !isMyTurn() ? ' ⏳' : '';
-    aplblEl2.textContent=`${tLbl}'s Turn${myTurnIndicator}`;
+    const _poss=/s$/i.test(tLbl.trim())?"'":"'S"; // v7.66: plural names get just ' (Tim); v7.71: all caps (Tim)
+    aplblEl2.textContent=`${tLbl}${_poss} TURN${myTurnIndicator}`;
   }
   // Update scoreboard names with team names if available
   const sn1=document.getElementById('sn1');
@@ -4841,7 +4844,8 @@ function renderActions(){
     // Combined assign + buy phase — no "Done Assigning" needed
     // 4_28 (Tim): turn winding down (shot taken, or no shot available w/ RS clear) —
     // End Turn becomes the pulsing gold primary; shop stays tappable but goes quiet.
-    const windingDown=((G.combatDone&&G.shotDeclared)||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length))&&(!_aiActive||G.ap===_mySlot); // 4_48; v7.60: not on Chuck's turn (Tim)
+    const _humanTurn=_onlineActive?G.ap===_mySlot:G.ap===0; // v7.69: _mySlot is null in Vs AI (Tim's catch)
+    const windingDown=((G.combatDone&&G.shotDeclared)||(ap.z.rs.length===0&&!ap.z.hot.length&&!ap.z.shoot.length))&&_humanTurn; // 4_48; v7.60: not on Chuck's turn (Tim)
     const shopBtn=mk('SHOP',openShop,hasE&&!windingDown?'prim':'sec',false,hasE&&!windingDown); // v7.30: short (Tim)
     if(!hasE)shopBtn.style.opacity='.4';
     if(ap.z.hot.length||ap.z.shoot.length){
@@ -6914,8 +6918,7 @@ async function aiTurnMain(){
     if(!aiIsTurn()){_aiBusy=false;renderAll();return;}
     try{await aiDoBuy(P);}catch(e){if(e.message==='ai-turn-ended'){_aiBusy=false;renderAll();return;}throw e;} // v7.41: awaited for pacing (Tim)
     if(!aiIsTurn()){_aiBusy=false;renderAll();return;}
-    // v7.63: beat before the shot card — let the reserve/buy badges register (Tim)
-    await aiBeat(AI_BEAT);if(!aiIsTurn()){_aiBusy=false;renderAll();return;}
+    // v7.70: no extra beat — last buy or 💲 reserve already had one (Tim)
     const shot=await aiDoShoot(P);
     if(!shot){
       if(!aiIsTurn()){_aiBusy=false;renderAll();return;}
@@ -7661,7 +7664,7 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
   }finally{
     _aiSelf=false;
     // 2_121: single combined reserve line for the summary ("reserved x dice")
-    if(_aiReserveBanked>0)aiPill(`💲 reserved ${_aiReserveBanked} ${_aiReserveBanked===1?'die':'dice'}`); // 5_104: 💲 not 🏦 (Tim)
+    if(_aiReserveBanked>0){aiPill(`💲 reserved ${_aiReserveBanked} ${_aiReserveBanked===1?'die':'dice'}`);await aiBeat(AI_BEAT);} // 5_104: 💲 not 🏦 (Tim); v7.70: beat so badge registers (Tim)
   }
 }
 // 4_02: smart token need (Tim) — which token type does Chuck need more?
