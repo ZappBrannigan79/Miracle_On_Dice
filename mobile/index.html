@@ -1004,7 +1004,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.73</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.83</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1160,7 +1160,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.73</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.83</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3850,7 +3850,7 @@ function showCombatResult(r){
     // to sit below this line showed it mid-roll.)
     G.combatAnimDone=true; // 5_97: animation complete, bench UI may show (Tim)
     refreshBenchPhase(); // bench-pending override wins, as before 2_40
-    aiMaybeBench(); // 2_45: Vs AI hook — AI benches its best dice
+    // v7.74: Chuck benches in combatContinue (after CONTINUE tap) — not here (Tim's spoiler catch)
   });
 }
 // Only the shooter advances past the combat result — this also closes the
@@ -3864,6 +3864,7 @@ function combatContinue(){
   if(_bp&&!_bp.done&&!_aiPicking){toast('Waiting for the bench choice…');if(_ccb)_ccb.disabled=false;return;}
   G.combatDone=true;
   if(_onlineActive)pushState();
+  aiMaybeBench(); // v7.74: Chuck benches after CONTINUE — panel closed, no spoiler (Tim)
   closeCombat();
 }
 function closeCombat(){document.getElementById('combat-panel').classList.remove('show');renderAll();aiMaybeResume();} // 2_45: Vs AI hook
@@ -4528,23 +4529,27 @@ function updateRRNudge(){
     // v7.73: side-by-side — Select (2/3 gold pulse) + Reroll None (1/3 plain) — Tim
     const _row=document.createElement('div');
     _row.style.cssText='display:flex;gap:8px;';
+    // v7.79: swapped — None left (1/3), Select right (2/3 gold) — Tim
+    const _none=document.createElement('button');
+    _none.className='abtn sec';
+    _none.style.flex='1';_none.style.whiteSpace='nowrap';_none.style.fontSize='.85em'; // v7.78: single line, thinner (Tim)
+    _none.textContent='Reroll None'; // v7.77: no icons — clean text (Tim)
+    _none.addEventListener('click',()=>{
+      appConfirm({title:'Skip reroll?',msg:'Are you sure you want to skip the reroll?',yes:'Skip',no:'Go back'})
+        .then(ok=>{if(ok)skipRR();});
+    }); // v7.79: are-you-sure (Tim)
+    _row.appendChild(_none);
     const b=document.createElement('button');
     // 5_57: bonus reroll back to original gold pulse (Tim)
     b.className='abtn prim pulsing-orange rr-confirm';
-    b.style.flex='2';
+    b.style.flex='2';b.style.whiteSpace='nowrap';b.style.fontSize='.85em'; // v7.78: single line, thinner (Tim)
     // 5_52: button IS the bonus notification (Tim)
     // 5_79: button back to normal, red pill shows bonus (Tim)
-    b.textContent=_isBonus?'🎲 Select Dice To Reroll':'🎲 Reroll Selected Dice';
+    b.textContent=_isBonus?'Select Dice To Reroll':'Reroll Selected Dice'; // v7.77: no icons — clean text (Tim)
     const _bp=document.getElementById('bonus-pill');
     if(_bp)_bp.classList.toggle('show',_isBonus);
     b.addEventListener('click',confirmRRSel);
     _row.appendChild(b);
-    const _none=document.createElement('button');
-    _none.className='abtn sec';
-    _none.style.flex='1';
-    _none.textContent='🚫 Reroll None';
-    _none.addEventListener('click',skipRR);
-    _row.appendChild(_none);
     el.appendChild(_row);
     el.classList.add('show');
   }else{ el.classList.remove('show'); el.innerHTML=''; const _bp=document.getElementById('bonus-pill'); if(_bp&&!_bonusPillHold)_bp.classList.remove('show'); }
@@ -6919,10 +6924,12 @@ async function aiTurnMain(){
     // 2_150: HC reroll gets its own visible beat — pause so the player sees the
     // dice reroll (animation + pill) before assignment continues
     if(aiDoHcReroll(P)){await aiSleep(AI_BEAT);if(!aiIsTurn()){_aiBusy=false;renderAll();return;}} // v7.46: AI_BEAT (Tim)
+    // v7.83: blank purge FIRST after all rerolls — half-beat, no badge (Tim)
+    {const _ap2=AP();const _blanks=[..._ap2.z.rs].filter(d=>d.face&&d.face.t==='BLANK');
+    if(_blanks.length){_blanks.forEach(d=>assignDie(d,'iced'));renderAll();await aiSleep(AI_BEAT/2);if(!aiIsTurn()){_aiBusy=false;renderAll();return;}}}
     if(await aiDoFight()){if(!aiIsTurn()){_aiBusy=false;renderAll();return;}} // 4_94: await fight reveal (Tim)
     try{await aiDoAssign(P);}catch(e){if(e.message==='ai-turn-ended'){_aiBusy=false;renderAll();return;}throw e;} // v7.41: awaited for pacing (Tim)
-    // v7.30: purge blanks (incl. PEN) to iced after all rerolls/assignments (Tim)
-    {const _ap2=AP();[..._ap2.z.rs].forEach(d=>{if(d.face&&d.face.t==='BLANK')assignDie(d,'iced');});}
+
     // v7.62: removed dead AI_BEAT sleep — assign's last beat already spaces it,
     // and the buy's first pill is the next visual (Tim's "double beat" catch)
     if(!aiIsTurn()){_aiBusy=false;renderAll();return;}
@@ -6983,6 +6990,7 @@ function aiRerollTable(){
   if(G.clock===1){
     rs.forEach(d=>{
       const f=d.face;if(!f)return;
+      if(d.key==='Penalty')return; // v7.81: penalty die never rerolled — every side is the same (Tim)
       if(f.t==='S')return;
       if(f.t==='W')return;
       if(d.key==='HC'&&f.t==='RR')return;
@@ -7012,7 +7020,8 @@ function aiRerollTable(){
   // ── 2. BLANK ── always reroll
   // 4_44: Chuck rerolls goon FIGHT faces 100% too (Tim) — he never fights
   const keepFT=aiShouldKeepFT(); // 4_77
-  rs.forEach(d=>{if(!d.face)return;if(d.face.t==='BLANK')picked.add(d);else if(d.face.t==='FT'&&!keepFT)picked.add(d);});
+  rs.forEach(d=>{if(!d.face)return;if(d.key==='Penalty')return; // v7.81: penalty die never rerolled (Tim)
+if(d.face.t==='BLANK')picked.add(d);else if(d.face.t==='FT'&&!keepFT)picked.add(d);});
   // ── 3. HC non-energy (RR/ADV/PEN) ──
   rs.forEach(d=>{
     if(d.key!=='HC'||picked.has(d))return;
@@ -7482,6 +7491,7 @@ function aiBuyTier(cheapest,specific){
   // 5_42: reserve rookies count too (Tim)
   if(!aiHasTrashFodder())return false;
   aiSpendE(cost,false);
+  renderAll(); // v7.80: energy visibly ices WITH the buy badge (Tim)
   // 5_10: secure fodder AFTER payment — spent dice are in iced now (matches human v5.05 flow)
   let rook=ap.z.iced.filter(d=>d.key==='Rookie')[0];
   if(!rook){
@@ -7563,9 +7573,9 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
   _aiSelf=true;
   _aiReserveBanked=0; // 2_121: combined reserve count for a single summary line
   try{
-    // 2_93: pre-buy banking — each energy die may go straight to reserve first
-    // 5_13: skipped on P3 02:00/01:00, nothing carries to OT (Tim)
-    if(!(G.period===3&&(G.clock===2||G.clock===1)))aiBankReserve();
+    // v7.82: pre-buy banking REMOVED — it yanked energy to reserve invisibly before
+    // the buy loop, so dice vanished before their buy/reserve badges (Tim's catch).
+    // The post-buy sweep already banks leftovers visibly with the 💲 badge.
     if(aiTotalE()<1)return;
     // 5_13: simplified buy table (Tim) — no draft/trade split, just buy vs token.
     // Chuck buys until energy is spent, reserved, or no legal buy exists.
@@ -7592,6 +7602,7 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
         if(E>=3){
           let tt;try{tt=aiPickTokenType();}catch(e){break;}
           try{aiSpendE(3,false);}catch(e){break;}
+          renderAll(); // v7.80: energy visibly ices WITH the token badge (Tim)
           if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
 
           else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
@@ -7623,6 +7634,7 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
         try{tt=aiPickTokenType();}catch(e){console.error('AI token pick failed:',e);break;}
         // 5_44: no cap, use picked type (Tim)
         try{aiSpendE(3,false);}catch(e){console.error('AI token spend failed:',e);break;}
+        renderAll(); // v7.80: energy visibly ices WITH the token badge (Tim)
         if(tt==='shoot'){ap.tok.shoot++;addLog(`${ap.name}: Bought Shoot Token (3E).`,'imp');aiPill(`🎯 bought a Shoot token`);}
         else{ap.tok.block++;addLog(`${ap.name}: Bought Block Token (3E).`,'imp');aiPill(`🛡️ bought a Block token`);}
         await aiBeat(AI_BEAT); // v7.46: AI_BEAT (Tim)
@@ -7887,25 +7899,23 @@ function aiMaybeResume(){
 }
 // Called from the combat settle: the AI benches its best dice (tier order F>D>G>Rookie).
 function aiMaybeBench(){
+  // v7.74: synchronous — runs in combatContinue after panel closes (Tim's spoiler catch)
+  // (was aiLater 1500ms — the delay let the die move while panel was open)
   if(!(_aiActive&&G.benchPick&&!G.benchPick.done&&G.benchPick.loser===_aiSlot))return;
-  aiLater(()=>{
-    const bp=G.benchPick;if(!bp||bp.done)return;
-    const p=G.players[bp.loser];
-    const ranked=p.z[bp.zone].filter(d=>bp.ids.includes(d.id)).sort((a,b)=>aiBenchRank(b)-aiBenchRank(a));
-    _aiSelf=true;
-    try{
-      _benchSel=ranked.slice(0,bp.need).map(d=>d.id);
-      confirmBenchPick();
-      const msg=`🪑 benched ${Math.min(bp.need,ranked.length)} ${bp.need===1?'die':'dice'}`;
-      aiPill(msg); // stashes the note; shows a step pill now, or joins the live card
-      // v7.30: update shot-card status line (Tim)
-      const _bl=document.getElementById('bench-status-line');
-      if(_bl){_bl.style.display='block';_bl.textContent=`Chuck benched ${Math.min(bp.need,ranked.length)} ${bp.need===1?'die':'dice'}.`;}
-      // 2_48: when the AI's own shot just ended, the turn-summary card carries
-      // this note — no separate pill. (On the human's turn, recap it at once.)
-      if(!aiSummaryCardLive()&&!(G.ap===_aiSlot&&G.shotDeclared))aiShowSummary();
-    }finally{_aiSelf=false;}
-  },1500);
+  const bp=G.benchPick;if(!bp||bp.done)return;
+  const p=G.players[bp.loser];
+  const ranked=p.z[bp.zone].filter(d=>bp.ids.includes(d.id)).sort((a,b)=>aiBenchRank(b)-aiBenchRank(a));
+  _aiSelf=true;
+  try{
+    _benchSel=ranked.slice(0,bp.need).map(d=>d.id);
+    confirmBenchPick();
+    const msg=`🪑 benched ${Math.min(bp.need,ranked.length)} ${bp.need===1?'die':'dice'}`;
+    aiPill(msg); // stashes the note for the turn-end summary
+    // v7.30: update shot-card status line (Tim)
+    const _bl=document.getElementById('bench-status-line');
+    if(_bl){_bl.style.display='block';_bl.textContent=`Chuck benched ${Math.min(bp.need,ranked.length)} ${bp.need===1?'die':'dice'}.`;}
+    // Note joins _aiTurnNotes; turn-end summary carries it. No separate aiShowSummary() here.
+  }finally{_aiSelf=false;}
 }
 
 // ── Faceoff auto-drive ──
@@ -8060,6 +8070,11 @@ function resumeGame(){
     // transitional states: re-open their UI
     if(G.fo){try{showFaceoff();}catch(e){}}
     else if(G.benchPick){try{refreshBenchPhase();}catch(e){}}
+    else if(G.phase===3&&!(_aiActive&&G.ap===_aiSlot)){
+      // v7.76: human reroll phase survived — restore the reroll UI (Tim's catch)
+      _rrMode=true;_rrDieId=null;
+      try{renderAll();}catch(e){}
+    }
     else if(_aiActive&&G.ap===_aiSlot){
       // AI's turn: restart it clean (its pre-turn save is the restore point)
       setTimeout(()=>{try{aiTurnMain();}catch(e){}},600);
