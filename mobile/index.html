@@ -1004,7 +1004,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.83</span></div>
+    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.86</span></div>
     <div class="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1080,9 +1080,12 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       </div>
     </div>
 
-    <div style="text-align:center;margin-top:8px;margin-bottom:4px;font-size:.72em;color:#555;letter-spacing:.5px">
+    <div style="text-align:center;margin-top:8px;margin-bottom:2px;font-size:.72em;color:#555;letter-spacing:.5px">
       © 2026 Tim Wherry — Miracle on Dice
     </div>
+    <div style="text-align:center;margin-bottom:4px;font-size:.72em;color:#555;letter-spacing:.5px">
+      🎲 Playtester &amp; contributor: Erbee McCream
+    </div> <!-- v7.84: Erbee McCream credit (Tim) -->
     <!-- SHOOTOUT SETUP -->
     <div class="team-builder" id="so-panel">
       <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:12px">
@@ -1160,7 +1163,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.83</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.86</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -6727,7 +6730,9 @@ function renderCombatPill(){
   const show=_aiActive&&((!resolved&&_aiDefPhase==='aiDef'&&!!_aiStepMsg)||aiBenching);
   if(!show){el.style.display='none';return;}
   const P=aiP();
-  el.innerHTML=`${P.icon} <b>${P.name}</b> — ${aiBenching?'🪑 benching dice…':_aiStepMsg}`;
+  // v7.86: bench line is icon-free plain text (Tim) — was "🪑 benched X dice"
+  if(aiBenching){el.textContent=`${P.name} benched ${bp.need} ${bp.need===1?'die':'dice'}`;}
+  else{el.innerHTML=`${P.icon} <b>${P.name}</b> — ${_aiStepMsg}`;}
   el.style.display='block';
 }
 // 2_48: mid-turn recap — auto-dismissing pill at every speed
