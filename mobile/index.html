@@ -22,10 +22,25 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-height:100vh;overflow-x:hidden;}
+/* v7.145: skated-ice texture — scratches + glass + frost (Tim) */
+body{background-color:#0d1f33;background-attachment:fixed;background-image:
+  radial-gradient(130% 100% at 50% 45%, transparent 55%, rgba(190,225,255,.28) 80%, rgba(215,240,255,.45) 100%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cg fill='none' stroke='%23ffffff'%3E%3Cpath d='M-20 90 Q 160 30 330 100 T 640 80' stroke-opacity='0.13'/%3E%3Cpath d='M-20 200 Q 200 150 380 210 T 640 190' stroke-opacity='0.10'/%3E%3Cpath d='M-20 320 Q 180 270 360 330 T 640 300' stroke-opacity='0.12'/%3E%3Cpath d='M-20 440 Q 220 390 420 450 T 640 430' stroke-opacity='0.09'/%3E%3Cpath d='M-20 540 Q 200 500 400 560' stroke-opacity='0.10'/%3E%3Cpath d='M70 -20 Q 130 180 70 380' stroke-opacity='0.11'/%3E%3Cpath d='M210 -20 Q 170 220 250 420' stroke-opacity='0.09'/%3E%3Cpath d='M360 -20 Q 320 200 390 400' stroke-opacity='0.12'/%3E%3Cpath d='M500 -20 Q 460 180 530 360' stroke-opacity='0.10'/%3E%3Cpath d='M120 260 Q 200 200 300 250' stroke-opacity='0.16'/%3E%3Cpath d='M330 120 Q 420 80 500 140' stroke-opacity='0.15'/%3E%3Cpath d='M180 420 Q 280 380 380 430' stroke-opacity='0.15'/%3E%3Cpath d='M450 300 Q 520 260 580 320' stroke-opacity='0.16'/%3E%3Cpath d='M60 520 Q 140 470 230 520' stroke-opacity='0.13'/%3E%3Cpath d='M500 520 Q 560 480 620 530' stroke-opacity='0.12'/%3E%3C/g%3E%3C/svg%3E"),
+  linear-gradient(115deg, transparent 40%, rgba(190,230,255,.16) 48%, rgba(190,230,255,.06) 55%, transparent 63%),
+  radial-gradient(120% 90% at 50% 0%, #132741 0%, #0d1f33 60%);}
+/* v7.151: skated-ice texture on cards too (Tim) */
+/* v7.155: extended to ALL cards (Tim) — shot card + halves have their own backgrounds */
+.setup-box,.panel-box,.team-builder,.combat-box,.sog-half,.ov-box,.lcard,.preset-card{position:relative;}
+.setup-box::before,.panel-box::before,.team-builder::before,.m-oppbd::before,#ai-pill.summary::before,.combat-box::before,.sog-half::before,.ov-box::before,.lcard::before,.preset-card::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background-image:
+  radial-gradient(130% 100% at 50% 45%, transparent 55%, rgba(190,225,255,.20) 82%, rgba(215,240,255,.32) 100%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cg fill='none' stroke='%23ffffff'%3E%3Cpath d='M-20 90 Q 160 30 330 100 T 640 80' stroke-opacity='0.13'/%3E%3Cpath d='M-20 200 Q 200 150 380 210 T 640 190' stroke-opacity='0.10'/%3E%3Cpath d='M-20 320 Q 180 270 360 330 T 640 300' stroke-opacity='0.12'/%3E%3Cpath d='M-20 440 Q 220 390 420 450 T 640 430' stroke-opacity='0.09'/%3E%3Cpath d='M-20 540 Q 200 500 400 560' stroke-opacity='0.10'/%3E%3Cpath d='M70 -20 Q 130 180 70 380' stroke-opacity='0.11'/%3E%3Cpath d='M210 -20 Q 170 220 250 420' stroke-opacity='0.09'/%3E%3Cpath d='M360 -20 Q 320 200 390 400' stroke-opacity='0.12'/%3E%3Cpath d='M500 -20 Q 460 180 530 360' stroke-opacity='0.10'/%3E%3Cpath d='M120 260 Q 200 200 300 250' stroke-opacity='0.16'/%3E%3Cpath d='M330 120 Q 420 80 500 140' stroke-opacity='0.15'/%3E%3Cpath d='M180 420 Q 280 380 380 430' stroke-opacity='0.15'/%3E%3Cpath d='M450 300 Q 520 260 580 320' stroke-opacity='0.16'/%3E%3Cpath d='M60 520 Q 140 470 230 520' stroke-opacity='0.13'/%3E%3Cpath d='M500 520 Q 560 480 620 530' stroke-opacity='0.12'/%3E%3C/g%3E%3C/svg%3E"),
+  linear-gradient(115deg, transparent 40%, rgba(190,230,255,.12) 48%, rgba(190,230,255,.04) 55%, transparent 63%);}
+
 .screen{display:none;}.screen.active{display:flex;flex-direction:column;min-height:100vh;}
 
 /* SETUP */
-#setup{align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#0d1f33,#1a3a5c);}
+#setup{align-items:center;justify-content:center;padding:20px;background:transparent;} /* v7.145: body ice texture shows through (Tim) */
 .setup-box{background:rgba(255,255,255,.05);border:1px solid var(--gold);border-radius:12px;padding:26px 32px;max-width:880px;width:100%;} /* 3_90: condensed (Tim) */
 .setup-title{text-align:center;font-size:2.2em;font-weight:900;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;}
 .setup-sub{text-align:center;color:#aaa;margin-bottom:20px;font-size:.95em;}
@@ -351,6 +366,32 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0d1f33;color:#fff;min-h
 .opp-zone-d{color:#aaa;font-size:.74em;}
 
 /* PANELS */
+/* ═══════════════ v7.142 JERSEY button theme (Tim) ═══════════════ */
+.abtn{border-radius:6px!important;font-weight:900!important;letter-spacing:1px!important;}
+.abtn.prim{background:linear-gradient(180deg,#ffd75e,#c9a227)!important;color:#0b0e14!important;border:none!important;}
+.abtn.sec{background:#1c2230!important;color:#ffd75e!important;border:1px solid #c9a227!important;}
+.abtn.blue{background:linear-gradient(180deg,#7ea8ff,#3a63d4)!important;color:#fff!important;border:none!important;}
+.abtn.succ{background:linear-gradient(180deg,#7ee2a0,#2e9e5b)!important;color:#06230f!important;border:none!important;}
+.abtn.warn,.abtn.red{background:linear-gradient(180deg,#ff8a8a,#d43a3a)!important;color:#fff!important;border:none!important;}
+.abtn.prim:hover,.abtn.blue:hover,.abtn.succ:hover,.abtn.warn:hover,.abtn.red:hover{filter:brightness(1.08)!important;}
+.abtn.sec:hover{background:#242e42!important;}
+.btn-mode{border-radius:6px!important;font-weight:900!important;}
+.btn-sm{background:#1c2230!important;color:#ffd75e!important;border:1px solid #c9a227!important;font-weight:800!important;}
+.btn-sm.danger{background:#2a1414!important;color:#ff8a8a!important;border-color:#d43a3a!important;}
+.btn-buy{background:linear-gradient(180deg,#ffd75e,#c9a227)!important;color:#0b0e14!important;border:none!important;font-weight:900!important;}
+.btn-buy.tok-buy-s{background:linear-gradient(180deg,#7ea8ff,#3a63d4)!important;color:#fff!important;border:none!important;} /* v7.156: shoot = blue (Tim) */
+.btn-buy.tok-buy-b{background:linear-gradient(180deg,#ff8a8a,#d43a3a)!important;color:#fff!important;border:none!important;} /* v7.156: block = red (Tim) */
+.btn-ov{background:linear-gradient(180deg,#ffd75e,#c9a227)!important;color:#0b0e14!important;border:none!important;}
+.btn-start{background:linear-gradient(180deg,#ffd75e,#c9a227)!important;color:#0b0e14!important;border:none!important;}
+.btn-start.jblue{background:linear-gradient(180deg,#7ea8ff,#3a63d4)!important;color:#fff!important;} /* v7.144: join blue */
+
+.onTab{flex:1;padding:10px;font-size:.85em;font-weight:900;letter-spacing:1px;border-radius:6px;cursor:pointer;font-family:inherit;}
+.onTab.host{background:linear-gradient(180deg,#ffd75e,#c9a227);color:#0b0e14;border:none;} /* v7.149: host back to gold (Tim) */
+.onTab.host:not(.sel){background:#1c2230;color:#ffd75e;border:1px solid #c9a227;}
+.onTab.join{background:linear-gradient(180deg,#7ea8ff,#3a63d4);color:#fff;border:none;}
+.onTab.join:not(.sel){background:#1c2230;color:#7ea8ff;border:1px solid #3a63d4;} /* v7.147: host/join tabs (Tim) */
+.btn-cb{background:#1c2230!important;color:#ffd75e!important;border:1px solid #c9a227!important;}
+/* ═══════════════ end v7.142 ═══════════════ */
 .panel-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;padding:20px;}
 .panel-overlay.show{display:flex;}
 .panel-box{background:#0f2035;border:1px solid var(--gold);border-radius:12px;padding:20px;max-width:780px;width:100%;max-height:87vh;overflow-y:auto;}
@@ -933,11 +974,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 #m-bar[data-n="3"] .abtn, #m-bar[data-n="3"] .m-oppbtn{font-size:.85em!important;letter-spacing:-.3px;padding:12px 4px!important;}
 #m-bar[data-n="4"] .abtn, #m-bar[data-n="4"] .m-oppbtn{font-size:.78em!important;letter-spacing:-.3px;padding:12px 3px!important;}
 
-/* v5.158: faded hockey rink behind mini zone grid (Tim) */
+/* v5.158 rink drawing REMOVED (Tim, Oct 19) — the skated-ice texture replaces it */
 #m-zonegrid{position:relative;padding:14px 10px;}
-#m-zonegrid::before{content:'';position:absolute;inset:0;
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 120' preserveAspectRatio='none'%3E%3Crect x='3' y='3' width='194' height='114' rx='28' fill='none' stroke='%233a5a8a' stroke-width='1.5' opacity='.3'/%3E%3Cline x1='100' y1='3' x2='100' y2='117' stroke='%233a5a8a' stroke-width='1.5' opacity='.3'/%3E%3Ccircle cx='100' cy='60' r='18' fill='none' stroke='%233a5a8a' stroke-width='1.5' opacity='.3'/%3E%3Ccircle cx='100' cy='60' r='3' fill='%233a5a8a' opacity='.3'/%3E%3Ccircle cx='45' cy='35' r='10' fill='none' stroke='%233a5a8a' stroke-width='1' opacity='.22'/%3E%3Ccircle cx='45' cy='85' r='10' fill='none' stroke='%233a5a8a' stroke-width='1' opacity='.22'/%3E%3Ccircle cx='155' cy='35' r='10' fill='none' stroke='%233a5a8a' stroke-width='1' opacity='.22'/%3E%3Ccircle cx='155' cy='85' r='10' fill='none' stroke='%233a5a8a' stroke-width='1' opacity='.22'/%3E%3C/svg%3E") center/100% 100% no-repeat;
-  pointer-events:none;z-index:0;}
 #m-zonegrid .m-mini{position:relative;z-index:1;transform:scale(.94);}
 
 /* v5.175: game over popup — rectangle with rounded corners, not oval (Tim) */
@@ -1046,84 +1084,75 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.137</span></div>
-    <div class="setup-sub">Hockey Bag Building Game</div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.156</span></div>
+    <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
-      <button onclick="resumeGame()" style="width:100%;background:#f8bd55;color:#0a0f1e;border:none;border-radius:10px;padding:12px;font-size:.95em;font-weight:800;cursor:pointer;">▶ Resume Game</button>
+      <button onclick="resumeGame()" style="width:100%;background:linear-gradient(180deg,#ffd75e,#c9a227);color:#0b0e14;border:none;border-radius:6px;padding:12px;font-size:.95em;font-weight:900;letter-spacing:1px;cursor:pointer;">RESUME GAME</button>
       <div style="margin-top:6px;">
         <span id="resume-info" style="font-size:.75em;color:#aaa;"></span>
       </div>
       <!-- 2_140: labeled Discard button — the old ✕ was 10px, grey-on-navy, ~14px tap target -->
-      <button onclick="discardSave()" style="margin-top:8px;background:transparent;border:1px solid #6e5555;color:#c99292;border-radius:8px;padding:9px 22px;font-size:.8em;font-weight:700;cursor:pointer;">Discard saved game</button>
+      <button onclick="discardSave()" style="margin-top:8px;background:#2a1414;border:1px solid #d43a3a;color:#ff8a8a;border-radius:6px;padding:9px 22px;font-size:.8em;font-weight:800;letter-spacing:1px;cursor:pointer;">DISCARD SAVED GAME</button>
     </div>
     <div class="setup-btns" id="mode-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 20px;">
-      <button class="btn-mode btn-qs" onclick="showQS()">🤖 Full Game vs AI</button>
-      <button class="btn-mode" style="background:transparent;color:#c85500;border:2px solid #c85500;" onclick="showShootoutSetup()">🥅 Shootout Mini Game</button>
-      <button class="btn-mode" style="background:rgba(100,200,100,.12);color:#66cc66;border:2px solid #66cc66;" onclick="showOnlineSetup()">🌐 Play Online vs Friend</button>
-      <div style="display:flex;justify-content:center;margin-top:6px;">
-        <button class="btn-mode" style="width:220px;background:rgba(200,168,75,.1);color:var(--gold-light);border:2px solid var(--gold);font-size:.85em;padding:10px 28px;" onclick="openQuickRules()">⚡ Quick Rules</button>
+      <button class="btn-mode" style="background:linear-gradient(180deg,#ffd75e,#c9a227);color:#0b0e14;border:none;" onclick="showQS()">FULL GAME VS AI</button>
+      <button class="btn-mode" style="background:linear-gradient(180deg,#ff8a8a,#d43a3a);color:#fff;border:none;" onclick="showShootoutSetup()">SHOOTOUT MINI GAME</button>
+      <button class="btn-mode" style="background:linear-gradient(180deg,#7ee2a0,#2e9e5b);color:#06230f;border:none;" onclick="showOnlineSetup()">PLAY ONLINE VS FRIEND</button>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:6px;">
+        <button class="btn-mode" style="flex:1;background:#1c2230;color:#ffd75e;border:1px solid #c9a227;font-size:.82em;padding:10px 8px;" onclick="openQuickRules()">QUICK RULES</button>
+        <span id="art-choice" style="flex:1;display:flex;">
+          <button id="art-style-btn" class="btn-mode" style="flex:1;background:#1c2230;color:#ffd75e;border:1px solid #c9a227;font-size:.78em;padding:10px 4px;white-space:nowrap;" onclick="openArtPanel()">ART: <b id="art-style-lbl">CUSTOM</b></button>
+        </span>
       </div>
-    </div> <!-- 4_98: centered quick rules only (Tim) -->
-    <div id="art-choice" style="text-align:center;margin:0 auto 16px;max-width:320px;">
-      <div style="font-size:.72em;color:#888;letter-spacing:2px;margin-bottom:6px;">DICE ART</div>
-      <div style="display:flex;gap:8px;justify-content:center;">
-        <button id="art-btn-app" class="btn-mode" style="flex:1;font-size:.85em;padding:10px 8px;" onclick="setDiceArt('app')">STANDARD</button>
-        <button id="art-btn-tabletop" class="btn-mode" style="flex:1;font-size:.85em;padding:10px 8px;" onclick="setDiceArt('tabletop')">CUSTOM</button>
-      </div>
-    </div>
+    </div> <!-- v7.142: jersey theme, no emojis, rules+art row (Tim) -->
     <!-- 2_120: slim mode header — replaces the three buttons once a mode is chosen -->
     <!-- 2_120: tapping the banner goes back to the mode list (no separate Back button) -->
-    <div id="mode-header" style="display:none;max-width:320px;margin:0 auto 12px;">
+    <div id="mode-header" style="display:none;max-width:320px;margin:0 auto;">
       <div id="mode-header-banner" style="cursor:pointer;" onclick="backToModes()" title="Back to game modes"></div>
-      <!-- 2_143: hint that the banner is the back button -->
-      <div style="text-align:center;font-size:.7em;color:#777;margin-top:6px;">↑ tap the title above to go back</div>
+      <div style="text-align:center;font-size:.72em;color:#888;margin-top:8px;">&#8593; tap the button above to go back</div>
+
     </div>
   </div>
     <!-- ONLINE SETUP PANEL -->
     <div class="team-builder" id="online-panel">
-      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:14px">
+      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:12px">
         Host a game and share the room code, or join a friend's game.
       </div>
-      <div style="display:flex;gap:12px;justify-content:center;margin-bottom:16px;flex-wrap:wrap">
-        <div style="background:rgba(100,200,100,.08);border:1px solid #66cc6644;border-radius:10px;padding:16px;flex:1;min-width:200px;max-width:280px">
-          <div style="font-size:.9em;font-weight:700;color:#66cc66;margin-bottom:10px;text-align:center">🏠 Host a Game</div>
-          <div style="font-size:.8em;color:#aaa;margin-bottom:10px;text-align:center">Choose your team, then create a room. Share the code with your opponent.</div>
-          <div style="margin-bottom:8px">
-            <div style="font-size:.75em;color:#888;margin-bottom:4px">Your name:</div>
-            <input id="online-host-name" type="text" placeholder="Player 1" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px 10px;font-size:.85em">
-          </div>
-          <div style="margin-bottom:10px">
-            <div style="font-size:.75em;color:#888;margin-bottom:4px">Your team:</div>
-            <select id="online-host-team" style="width:100%;background:#1a2d45;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px;font-size:.82em"></select>
-          </div>
-          <button class="btn-start" style="width:100%;padding:10px;font-size:.85em" onclick="hostOnlineGame()">Host Full Game →</button>
-          <button class="btn-start" style="width:100%;padding:10px;font-size:.85em;margin-top:8px" onclick="hostShootout()">🥅 Host Shootout</button>
-        </div>
-        <div style="background:rgba(100,150,255,.08);border:1px solid #4488ff44;border-radius:10px;padding:16px;flex:1;min-width:200px;max-width:280px">
-          <div style="font-size:.9em;font-weight:700;color:#88aaff;margin-bottom:10px;text-align:center">🔗 Join a Game</div>
-          <div style="font-size:.8em;color:#aaa;margin-bottom:10px;text-align:center">Enter the room code your opponent shared with you.</div>
-          <div style="margin-bottom:8px">
-            <div style="font-size:.75em;color:#888;margin-bottom:4px">Your name:</div>
-            <input id="online-join-name" type="text" placeholder="Player 2" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px 10px;font-size:.85em">
-          </div>
-          <div style="margin-bottom:8px">
-            <div style="font-size:.75em;color:#888;margin-bottom:4px">Your team:</div>
-            <select id="online-join-team" style="width:100%;background:#1a2d45;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px;font-size:.82em"></select>
-          </div>
-          <div style="margin-bottom:10px">
-            <div style="font-size:.75em;color:#888;margin-bottom:4px">Room code:</div>
-            <input id="online-room-code" type="text" placeholder="ABC123" maxlength="6"
-              style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px 10px;font-size:1.2em;text-transform:uppercase;letter-spacing:4px;text-align:center">
-          </div>
-          <button class="btn-start" style="width:100%;padding:10px;font-size:.85em;background:#4488ff" onclick="joinOnlineGame()">Join Full Game →</button>
-          <button class="btn-start" style="width:100%;padding:10px;font-size:.85em;margin-top:8px;background:#4488ff" onclick="joinShootout()">🥅 Join Shootout</button>
+      <div style="margin-bottom:8px">
+        <div style="font-size:.75em;color:#888;margin-bottom:4px">Your name:</div>
+        <input id="online-name" type="text" placeholder="Player 1" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px 10px;font-size:.85em">
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:.75em;color:#888;margin-bottom:4px">Your team:</div>
+        <select id="online-team" style="width:100%;background:#1a2d45;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px;font-size:.82em"></select>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button id="ontab-host" class="onTab host sel" onclick="switchOnlineTab('host')">HOST</button>
+        <button id="ontab-join" class="onTab join" onclick="switchOnlineTab('join')">JOIN</button>
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:.75em;color:#888;margin-bottom:4px">Room code:</div>
+        <input id="online-room-code" type="text" placeholder="ABC123" maxlength="6"
+          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px 10px;font-size:1.2em;text-transform:uppercase;letter-spacing:4px;text-align:center">
+      </div> <!-- v7.148: shared field — host code populates here (Tim) -->
+      <div id="onhost">
+        <div style="font-size:.8em;color:#aaa;margin-bottom:10px;text-align:center">Choose your team, then create a room. Share the code with your opponent.</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-start" style="flex:1;padding:11px 4px;font-size:.8em" onclick="hostOnlineGame()">HOST FULL GAME</button>
+          <button class="btn-start" style="flex:1;padding:11px 4px;font-size:.8em" onclick="hostShootout()">HOST SHOOTOUT</button>
         </div>
       </div>
+      <div id="onjoin" style="display:none">
+        <div style="font-size:.8em;color:#aaa;margin-bottom:10px;text-align:center">Enter the room code your opponent shared with you.</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-start jblue" style="flex:1;padding:11px 4px;font-size:.8em" onclick="joinOnlineGame()">JOIN FULL GAME</button>
+          <button class="btn-start jblue" style="flex:1;padding:11px 4px;font-size:.8em" onclick="joinShootout()">JOIN SHOOTOUT</button>
+        </div>
+      </div> <!-- v7.147: host/join tabs, shared fields (Tim) -->
       <!-- Lobby waiting area -->
       <div id="online-lobby" style="display:none;text-align:center;padding:16px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.1)">
         <div id="online-lobby-msg" style="font-size:1em;color:var(--gold);font-weight:700;margin-bottom:8px"></div>
-        <div id="online-room-display" style="font-size:2em;font-weight:900;color:white;letter-spacing:8px;margin-bottom:8px"></div>
         <div id="online-lobby-status" style="font-size:.82em;color:#aaa;margin-bottom:12px"></div>
         <button class="abtn sec" onclick="cancelOnlineGame()" style="font-size:.8em">Cancel</button>
       </div>
@@ -1212,7 +1241,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.137</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.156</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1224,10 +1253,10 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       ⏰ <span id="ftb-text">FINAL TURN OF PERIOD</span> ⏰
     </div>
     <div class="bar-right">
-      <button class="btn-sm" onclick="openShop()">🛒 Buy</button>
-      <button class="btn-sm" onclick="openQuickRules()">📖 Rules</button>
-      <button class="btn-sm" onclick="openLineup()">📋 Lineup</button>
-      <button class="btn-sm danger" onclick="appConfirm({title:'Start a new game?',msg:'Your current game will be abandoned.',yes:'New game',no:'Keep playing'}).then(ok=>{if(ok)location.reload();})">↩ Reset</button>
+      <button class="btn-sm" onclick="openShop()">BUY</button>
+      <button class="btn-sm" onclick="openQuickRules()">RULES</button>
+      <button class="btn-sm" onclick="openLineup()">LINEUP</button>
+      <button class="btn-sm danger" onclick="appConfirm({title:'Start a new game?',msg:'Your current game will be abandoned.',yes:'New game',no:'Keep playing'}).then(ok=>{if(ok)location.reload();})">RESET</button>
     </div>
   </div>
   <div class="phase-bar" id="pbar"></div>
@@ -1271,7 +1300,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <!-- SWAPPED: opp-area moved here where qa-box used to be -->
         <div class="opp-area" style="border:2px solid rgba(175,200,240,.7);box-shadow:0 0 10px rgba(140,170,220,.18),inset 0 0 12px rgba(140,170,220,.06);background:rgba(0,0,0,.15) url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120' viewBox='0 0 200 120'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.07'%3E%3Cline x1='100' y1='0' x2='100' y2='120' stroke-width='3'/%3E%3Ccircle cx='100' cy='60' r='26' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E&quot;) center/contain no-repeat;border-radius:8px;padding:6px;display:flex;flex-direction:column;justify-content:center;">
           <div class="opp-title" id="opplbl">Opponent</div>
-          <div class="opp-sub"><span id="opptokS" style="display:flex;"></span><button onclick="openOppLineup()" style="flex:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#aaa;font-size:.72em;padding:3px 8px;cursor:pointer;">👁 View Lineup</button><span id="opptokB" style="display:flex;"></span></div>
+          <div class="opp-sub"><span id="opptokS" style="display:flex;"></span><button onclick="openOppLineup()" style="flex:none;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:#aaa;font-size:.72em;padding:3px 8px;cursor:pointer;">VIEW LINEUP</button><span id="opptokB" style="display:flex;"></span></div>
           <div class="opp-zones" id="oppzones"></div>
         </div>
       </div>
@@ -1454,6 +1483,16 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     </div>
   </div>
 </div>
+
+<!-- ART STYLE PICKER -->
+<div class="panel-overlay" id="art-style-panel">
+  <div class="panel-box" style="max-width:520px;max-height:85vh;overflow-y:auto">
+    <button class="panel-close" onclick="closeArtPanel()">&#10005;</button>
+    <div class="panel-title">&#127912; ART STYLE</div>
+    <div style="font-size:.8em;color:#aaa;text-align:center;margin-bottom:12px;">How dice &amp; tokens look on <b>your</b> screen. Purely cosmetic &mdash; the game plays the same either way.</div>
+    <div id="art-panel-options" style="display:flex;flex-direction:column;gap:12px;"></div>
+  </div>
+</div> <!-- v7.140: art preview card (Tim) -->
 
 <!-- FACEOFF -->
 <div class="overlay overlay-center" id="fo-overlay">
@@ -1731,6 +1770,7 @@ function initG(l1,l2,bag1=[],bag2=[]){
      advPending:false,
      periodFirstPlayer:0,
      penaltyPool:3, // shared pool of 3 penalty dice
+     chuckGoalieBought:false, // v7.153: retired (Tim's 40/20 goalie nudge replaces it)
      clock:10, // shared 10-min period clock, ticks 1 per turn
      players:[mkPlayer('Player 1',l1,bag1),mkPlayer('Player 2',l2,bag2)]};
   _rrMode=false;_rrDieId=null;
@@ -1841,22 +1881,26 @@ function showQS(){
 // 2_121: the banner itself is the back button (tap it to return to the mode list)
 function enterMode(mode){
   document.getElementById('mode-btns').style.display='none';
+  const _sb=document.querySelector('#setup .setup-box');if(_sb)_sb.style.padding='16px 32px'; // v7.152: tighter title box (Tim)
   document.getElementById('art-choice').style.display='none'; // v7.125: art toggle main-menu only (Tim)
+  document.getElementById('setup-title').style.display='none';document.getElementById('setup-sub').style.display='none'; // v7.144: slim setup screens (Tim)
   const mh=document.getElementById('mode-header');
   mh.style.display='block';
   const banners={
-    vsai:'<div class="btn-mode btn-qs" style="width:100%;text-align:center;">🤖 Full Game vs AI Chuck</div>',
-    shootout:'<div class="btn-mode" style="width:100%;text-align:center;background:transparent;color:#c85500;border:2px solid #c85500;">🥅 Shootout Mini Game</div>',
-    online:'<div class="btn-mode" style="width:100%;text-align:center;background:rgba(100,200,100,.12);color:#66cc66;border:2px solid #66cc66;">🌐 Play Online vs Friend</div>'
+    vsai:'<div class="btn-mode" style="width:100%;text-align:center;background:linear-gradient(180deg,#ffd75e,#c9a227);color:#0b0e14;border:none;">FULL GAME VS AI CHUCK</div>',
+    shootout:'<div class="btn-mode" style="width:100%;text-align:center;background:linear-gradient(180deg,#ff8a8a,#d43a3a);color:#fff;border:none;">SHOOTOUT MINI GAME</div>',
+    online:'<div class="btn-mode" style="width:100%;text-align:center;background:linear-gradient(180deg,#7ee2a0,#2e9e5b);color:#06230f;border:none;">PLAY ONLINE VS FRIEND</div>' // v7.142: jersey banners, no emojis (Tim)
   };
   document.getElementById('mode-header-banner').innerHTML=banners[mode]||'';
 }
 function backToModes(){
+  const _sb=document.querySelector('#setup .setup-box');if(_sb)_sb.style.padding=''; // v7.152
   ['qs-panel','custom-panel','so-panel','online-panel'].forEach(id=>
     document.getElementById(id)?.classList.remove('show'));
   document.getElementById('mode-header').style.display='none';
   document.getElementById('mode-btns').style.display='';
-  document.getElementById('art-choice').style.display=''; // v7.125
+  document.getElementById('art-choice').style.display='flex'; // v7.125; v7.144: restore flex explicitly
+  document.getElementById('setup-title').style.display='';document.getElementById('setup-sub').style.display=''; // v7.144
 }
 function showCustom(){
   document.getElementById('qs-panel').classList.remove('show');
@@ -2040,7 +2084,7 @@ function renderFoReadonly(){
     document.getElementById('fo-d2').innerHTML=fo.r2.map(v=>`<div class="fo-die" data-cart="shoot">${combatArtImg('shoot',v)}</div>`).join('');
     document.getElementById('fo-t1').textContent=fo.t1;
     document.getElementById('fo-t2').textContent=fo.t2;
-    document.getElementById('fo-win').textContent=`${G.players[fo.w].name} wins the faceoff! Takes EVEN minutes.`; // v7.30: ODD→EVEN fix (Tim)
+    document.getElementById('fo-win').innerHTML=`${G.players[fo.w].name} wins the faceoff! Takes EVEN minutes.`; // v7.30: ODD→EVEN fix (Tim)
     // 3_06 — the winner (even a joiner) picks their token; otherwise wait.
     renderFoChoiceState();
   }else{
@@ -2082,7 +2126,7 @@ function renderFoChoiceState(){
   const w=fo.w;
   // 3_07: once the prize token is chosen, the result line names it — the Vs AI
   // player sees which token Coach took without having to catch the step pill.
-  if(fo.choice)document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! Takes EVEN minutes +1 ${fo.choice==='shoot'?'🎯 Shoot':'🛡️ Block'} token.`; // v7.30: ODD→EVEN fix (Tim)
+  if(fo.choice)document.getElementById('fo-win').innerHTML=`${G.players[w].name} wins the faceoff! Takes EVEN minutes +1 ${fo.choice==='shoot'?tokImg('shoot','1.1em')+' Shoot':tokImg('block','1.1em')+' Block'} token.`; // v7.30: ODD→EVEN fix (Tim)
   const iAmWinner=!_onlineActive||_mySlot===w;
   const iAmHost=!_onlineActive||_mySlot===0;
   const choiceDiv=document.getElementById('fo-choice');
@@ -3057,12 +3101,12 @@ let _tradeCardIdx=-1;
 function awardBuyBonus(ap,card){
   if(card.key[0]==='G'){
     ap.tok.block++;
-    toast(`${ap.name} gains 1 Block 🛡️ Token (goalie purchase)!`);
+    toast(`${ap.name} gains 1 Block ${tokImg('block','1.1em')} Token (goalie purchase)!`);
     addLog(`${ap.name}: Goalie purchase → +1 Block Token (${ap.tok.block} total).`,'imp');
   }else if(!card.left){
     const tokType=card.key[0]==='F'?'shoot':'block';
     ap.tok[tokType]++;
-    toast(`${card.key} sold out! ${ap.name} gains 1 ${tokType==='shoot'?'Shoot 🎯':'Block 🛡️'} Token!`);
+    toast(`${card.key} sold out! ${ap.name} gains 1 ${tokType==='shoot'?'Shoot':'Block'} ${tokImg(tokType,'1.1em')} Token!`);
     addLog(`${ap.name}: ${card.key} sold out! Gained 1 ${tokType==='shoot'?'Shoot':'Block'} Token.`,'imp');
   }
 }
@@ -3506,12 +3550,12 @@ function openCombat(){
     // which locks their tokens and is what prompts the defender to block.
     if(_onlineActive&&isMyTurn()){
       if(G.shotLocked){rb.disabled=true;rb.textContent='Waiting for defender to resolve…';}
-      else{rb.textContent='🎯 Confirm Shot';rb.onclick=lockShot;}
+      else{rb.innerHTML='Confirm Shot';rb.onclick=lockShot;}
     }
     // 2_121: local Vs AI — human shooter with tokens gets a Confirm Shot step
     // before Coach defends (shot not locked yet).
     if(!_onlineActive&&_aiActive&&G.ap!==_aiSlot&&!G.shotLocked){
-      rb.textContent='🎯 Confirm Shot';rb.onclick=lockShot;
+      rb.innerHTML='Confirm Shot';rb.onclick=lockShot;
     }
   }
   // Token steppers lock once the shot is confirmed (online shooter only —
@@ -4147,13 +4191,13 @@ function openShop(){if(aiGuard())return;
   const tb={shoot:0,block:0}; // 5_44: cap removed (Tim)
   document.getElementById('trow').innerHTML=`
     <div style="display:flex;gap:8px;width:100%;margin-top:6px">
-      <button class="btn-buy" style="flex:1;background:rgba(26,109,212,.25);border-color:#4488dd;font-size:.82em;padding:8px 6px"
+      <button class="btn-buy tok-buy-s" style="flex:1;font-size:.82em;padding:8px 6px"
         onclick="buyTok('shoot')" ${avail>=3&&tb.shoot<1?'':'disabled'}>
-        ${tokImg('shoot','1.2em',true)} Buy Shoot Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.shoot}${tb.shoot>=1?' (max/turn)':''}</span>
+        ${tokImg('shoot','1.2em',true)} Buy Shoot Token<br><span style="font-size:.8em;color:#fff">3E — have: ${ap.tok.shoot}${tb.shoot>=1?' (max/turn)':''}</span>
       </button>
-      <button class="btn-buy" style="flex:1;background:rgba(180,30,30,.25);border-color:#cc4444;font-size:.82em;padding:8px 6px"
+      <button class="btn-buy tok-buy-b" style="flex:1;font-size:.82em;padding:8px 6px"
         onclick="buyTok('block')" ${avail>=3&&tb.block<1?'':'disabled'}>
-        ${tokImg('block','1.2em',true)} Buy Block Token<br><span style="font-size:.8em;color:#aaa">3E — have: ${ap.tok.block}${tb.block>=1?' (max/turn)':''}</span>
+        ${tokImg('block','1.2em',true)} Buy Block Token<br><span style="font-size:.8em;color:#fff">3E — have: ${ap.tok.block}${tb.block>=1?' (max/turn)':''}</span>
       </button>
     </div>`;
   document.getElementById('shop-panel').classList.add('show');
@@ -4193,9 +4237,30 @@ function fbClass(t,cost=false){
 function useTabletopArt(){try{return localStorage.getItem('modDiceArt')==='tabletop';}catch(e){return false;}} // v7.97: dice art choice (Tim)
 function setDiceArt(mode){try{localStorage.setItem('modDiceArt',mode);}catch(e){}renderArtChoice();} // v7.97
 function renderStaticTokArt(){const tt=useTabletopArt();const s=document.getElementById('fo-tok-shoot'),b=document.getElementById('fo-tok-block');if(s)s.innerHTML=(tt?tokImg('shoot','1.2em',true):'🎯')+' +1 SHOOT';if(b)b.innerHTML=(tt?tokImg('block','1.2em',true):'🛡️')+' +1 BLOCK';const _ts=document.getElementById('tok-lbl-shoot'),_bo=document.getElementById('tok-lbl-block-opp'),_bb=document.getElementById('tok-lbl-block');if(_ts)_ts.innerHTML=tt?tokImg('shoot','1.3em',true):'🎯';if(_bo)_bo.innerHTML=tt?tokImg('block','1.3em',true):'🛡️';if(_bb)_bb.innerHTML=tt?tokImg('block','1.3em',true):'🛡️';} // v7.101; v7.117: shot-card picker art (Tim)
-function renderArtChoice(){const tt=useTabletopArt();renderStaticTokArt();const a=document.getElementById('art-btn-app'),b=document.getElementById('art-btn-tabletop');if(!a||!b)return;
-  a.style.background=tt?'transparent':'var(--gold)';a.style.color=tt?'#888':'#0a0f1e';a.style.border='2px solid var(--gold)';
-  b.style.background=tt?'var(--gold)':'transparent';b.style.color=tt?'#0a0f1e':'#888';b.style.border='2px solid var(--gold)';} // v7.97
+function renderArtChoice(){const tt=useTabletopArt();renderStaticTokArt();const l=document.getElementById('art-style-lbl');if(l)l.textContent=tt?'CUSTOM':'STANDARD';} // v7.97; v7.140: single button label (Tim)
+function openArtPanel(){renderArtPanel();document.getElementById('art-style-panel').classList.add('show');} // v7.140
+function closeArtPanel(){document.getElementById('art-style-panel').classList.remove('show');} // v7.140
+function pickArtStyle(mode){setDiceArt(mode);closeArtPanel();} // v7.140
+function renderArtPanel(){ // v7.140: preview card with dice+token examples (Tim)
+  const tt=useTabletopArt(),el=document.getElementById('art-panel-options');if(!el)return;
+  const prev=(uri,bc,round)=>uri?`<img src="${uri}" draggable="false" alt="" style="width:46px;height:46px;object-fit:cover;${round?'border-radius:50%':'border-radius:8px'};border:2px solid ${bc};box-sizing:border-box;pointer-events:none;filter:saturate(.75);">`:'';
+  const flat=(t,v,bc)=>`<div class="die-body" style="width:46px;height:46px;border:3px solid ${bc};border-radius:12px;display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0;"><div class="face-badge"><span class="fb-l">${t}</span><span class="fb-n">${v}</span></div></div>`;
+  const flatCombat=(v,bc)=>`<div style="width:46px;height:46px;border:2px solid ${bc};border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.4em;font-weight:900;color:#fff;flex-shrink:0;box-sizing:border-box;background:rgba(255,255,255,.04);">${v}</div>`; // v7.141: flat combat die preview (Tim)
+  const tok=(e)=>`<span style="font-size:1.9em;line-height:1;">${e}</span>`;
+  const FA=(typeof FACE_ART!=='undefined')?FACE_ART:{},CA=(typeof COMBAT_ART!=='undefined')?COMBAT_ART:{},TA=(typeof TOKEN_ART!=='undefined')?TOKEN_ART:{};
+  const customDice=prev(FA['S|1'],'#5a78ff')+prev(FA['B|1'],'#ff6a6a')+prev(CA.shoot&&CA.shoot[3],'#5a78ff');
+  const customToks=prev(TA.shoot_plain,'#5a78ff',1)+prev(TA.block_plain,'#ff6a6a',1)+prev(TA.goal,'#ffd75e',1);
+  const stdDice=flat('S',1,'#0026ff')+flat('B',1,'#ff0000')+flatCombat(3,'#5a78ff'); // v7.141: combat die, not energy (Tim)
+  const stdToks=tok('&#127919;')+tok('&#128737;')+tok('&#128680;');
+  const card=(mode,title,dice,toks,active)=>`<div onclick="pickArtStyle('${mode}')" style="cursor:pointer;border:2px solid ${active?'var(--gold)':'#444'};border-radius:12px;padding:12px;text-align:center;background:${active?'rgba(200,168,75,.08)':'rgba(255,255,255,.02)'};">
+    <div style="font-weight:900;letter-spacing:3px;font-size:1em;color:${active?'var(--gold)':'#aaa'};">${title}${active?' &#10003;':''}</div>
+    <div style="font-size:.72em;color:#888;letter-spacing:2px;margin:8px 0 4px;">DICE</div>
+    <div style="display:flex;gap:10px;justify-content:center;">${dice}</div>
+    <div style="font-size:.72em;color:#888;letter-spacing:2px;margin:10px 0 4px;">TOKENS</div>
+    <div style="display:flex;gap:14px;justify-content:center;align-items:center;">${toks}</div>
+  </div>`;
+  el.innerHTML=card('app','STANDARD',stdDice,stdToks,!tt)+card('tabletop','CUSTOM',customDice,customToks,tt);
+}
 function artFaceHTML(die,f){ // ART-3: art img + notch tier for a face (Tim)
   if(!useTabletopArt())return null; // v7.97: App mode uses flat faces
   const uri=f&&faceArtFor(die,f);
@@ -4918,8 +4983,8 @@ function renderActions(){
     if((tc.def||0)>0) strip.push('🔴'); // defense batch — one icon like Chuck (Tim)
     if((tc.adv||0)>0) strip.push('🔼'); // ADV batch (Tim)
     if((tc.res||0)>0) strip.push('💲'); // reserve batch — matches Chuck's 💲 (Tim)
-    if((tc.tokS||0)>0) strip.push('🎯'); // shoot token batch (Tim)
-    if((tc.tokB||0)>0) strip.push('🛡️'); // block token batch (Tim)
+    if((tc.tokS||0)>0) strip.push(tokImg('shoot','1.2em',true)); // shoot token batch (Tim)
+    if((tc.tokB||0)>0) strip.push(tokImg('block','1.2em',true)); // block token batch (Tim)
     // v7.30: match Chuck's bar — full-width, header + icon strip (Tim)
     const stripHtml=`<div class="ai-strip nowrap" style="margin-top:4px">${strip.map(e=>`<span>${e}</span>`).join('')}</div>`;
     row.innerHTML=`<div class="watch-pill col full"><div class="ai-actions-hdr" style="white-space:nowrap;font-size:.9em;">⏳ WATCHING OPPONENT ⏳:</div>${stripHtml}</div>`; // v7.30: no wrap (Tim)
@@ -4948,7 +5013,7 @@ function renderActions(){
   // ── RR face-spend mode (phase 4) — show reroll confirm buttons ──
   if(_rrMode&&_rrDieId!==null){
     // 4_22: confirm lives in the RS zone now — bottom keeps just Cancel
-    mk('❌ Cancel',cancelRRSel,'sec'); // v7.88: "Cancel" not "Cancel Reroll" — it backs out & restores HC, doesn't skip (Tim)
+    mk('CANCEL',cancelRRSel,'sec'); // v7.88: "Cancel" not "Cancel Reroll" — it backs out & restores HC, doesn't skip (Tim)
     return;
   }
 
@@ -4960,7 +5025,7 @@ function renderActions(){
     } else {
       // Assignment already started — reroll no longer available
       mk('Reroll not available (dice already assigned)',()=>toast('Cannot reroll after assigning dice.'),'sec',true);
-      mk('➡️ Skip to Assign',skipRR,'prim');
+      mk('SKIP TO ASSIGN',skipRR,'prim');
     }
   } else if(G.phase===4){
     // Combined assign + buy phase — no "Done Assigning" needed
@@ -4980,7 +5045,7 @@ function renderActions(){
         declareShot();
       },'blue pulsing-blue');
     }
-    mk('END TURN',confirmEndTurn,windingDown?'prim':'sec',false,windingDown); // v7.30: text only (Tim)
+    mk('END TURN',confirmEndTurn,windingDown?'prim':'red',false,windingDown); // v7.30: text only (Tim)
   }
   renderCombatPill(); // 3_27: slim popup pill (AI defend beats only)
 }
@@ -5017,7 +5082,9 @@ function showConfirm(html,onYes,onNo){
   document.body.appendChild(bd);
 }
 function toast(msg,ms=2600){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  const t=document.getElementById('toast');
+  if(msg&&msg.indexOf('<img')>=0)t.innerHTML=msg;else t.textContent=msg; // v7.150: render token art (Tim's catch)
+  t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),ms);
 }
 function showScreen(id){
@@ -6081,6 +6148,13 @@ function isMyTurn(){ return !_onlineActive || G.ap===_mySlot; }
 function spectating(){ return _onlineActive && !isMyTurn(); }
 
 // ── SETUP SCREEN ──
+function switchOnlineTab(which){ // v7.147: host/join tabs (Tim)
+  const h=which==='host';
+  document.getElementById('ontab-host').classList.toggle('sel',h);
+  document.getElementById('ontab-join').classList.toggle('sel',!h);
+  document.getElementById('onhost').style.display=h?'':'none';
+  document.getElementById('onjoin').style.display=h?'none':'';
+}
 function showOnlineSetup(){
   ['qs-panel','custom-panel','so-panel'].forEach(id=>
     document.getElementById(id)?.classList.remove('show'));
@@ -6089,6 +6163,7 @@ function showOnlineSetup(){
   if(!wasShown){enterMode('online');}
   else{backToModes();return;}
   panel.classList.add('show');
+  switchOnlineTab('host'); // v7.147
   populateOnlineTeamSelects();
 }
 
@@ -6098,7 +6173,7 @@ function populateOnlineTeamSelects(){
     PRESETS.map((p,i)=>
     `<option value="${i}" style="background:#1a2d45;color:white;">${p.name} — ${p.division||''}</option>`
   ).join('');
-  ['online-host-team','online-join-team'].forEach(id=>{
+  ['online-team'].forEach(id=>{
     // 2_31: 🎲 Random Team is the default selection — zero clicks to jump in
     const el=document.getElementById(id);if(el){el.innerHTML=html;el.value='-1';}
   });
@@ -6112,7 +6187,7 @@ function genCode(){
 function showLobby(msg,code,status){
   document.getElementById('online-lobby').style.display='block';
   document.getElementById('online-lobby-msg').textContent=msg;
-  document.getElementById('online-room-display').textContent=code;
+  document.getElementById('online-room-code').value=code||''; // v7.148: host code populates shared field (Tim)
   document.getElementById('online-lobby-status').textContent=status;
 }
 
@@ -6123,8 +6198,8 @@ async function hostOnlineGame(){
   _hosting=true;
   try{
     teardownOnline(); // clean up any previous session/listeners first
-    const name=document.getElementById('online-host-name').value.trim()||'Player 1';
-    let teamIdx=parseInt(document.getElementById('online-host-team').value);
+    const name=document.getElementById('online-name').value.trim()||'Player 1';
+    let teamIdx=parseInt(document.getElementById('online-team').value);
     if(teamIdx<0)teamIdx=Math.floor(Math.random()*PRESETS.length); // 2_28: 🎲 Random Team
     const team=PRESETS[teamIdx];
     _roomCode=genCode(); _mySlot=0;
@@ -6163,8 +6238,8 @@ async function hostShootout(){
   _hosting=true;
   try{
     teardownOnline(); // clean up any previous session/listeners first
-    const name=document.getElementById('online-host-name').value.trim()||'Player 1';
-    let teamIdx=parseInt(document.getElementById('online-host-team').value);
+    const name=document.getElementById('online-name').value.trim()||'Player 1';
+    let teamIdx=parseInt(document.getElementById('online-team').value);
     if(teamIdx<0)teamIdx=Math.floor(Math.random()*PRESETS.length); // 🎲 Random Team
     const team=PRESETS[teamIdx];
     _roomCode=genCode(); _mySlot=0;
@@ -6202,8 +6277,8 @@ async function joinOnlineGame(){
   _joining=true;
   try{
     teardownOnline(); // clean up any previous session/listeners first
-    const name=document.getElementById('online-join-name').value.trim()||'Player 2';
-    let teamIdx=parseInt(document.getElementById('online-join-team').value);
+    const name=document.getElementById('online-name').value.trim()||'Player 2';
+    let teamIdx=parseInt(document.getElementById('online-team').value);
     const code=document.getElementById('online-room-code').value.trim().toUpperCase();
     if(code.length!==6){toast('Enter the 6-character room code.');return;}
     _roomCode=code; _mySlot=1;
@@ -6245,8 +6320,8 @@ async function joinShootout(){
   _joining=true;
   try{
     teardownOnline(); // clean up any previous session/listeners first
-    const name=document.getElementById('online-join-name').value.trim()||'Player 2';
-    let teamIdx=parseInt(document.getElementById('online-join-team').value);
+    const name=document.getElementById('online-name').value.trim()||'Player 2';
+    let teamIdx=parseInt(document.getElementById('online-team').value);
     const code=document.getElementById('online-room-code').value.trim().toUpperCase();
     if(code.length!==6){toast('Enter the 6-character room code.');return;}
     _roomCode=code; _mySlot=1;
@@ -6659,6 +6734,7 @@ function pullState(remote){
 function cancelOnlineGame(){
   teardownOnline(); // also bumps the generation, aborting any pending launch
   document.getElementById('online-lobby').style.display='none';
+  document.getElementById('online-room-code').value=''; // v7.149: clear stale code (Tim)
   document.getElementById('online-connecting-overlay')?.classList.remove('show');
   toast('Game cancelled.');
 }
@@ -7579,8 +7655,34 @@ function aiSpendForTrade(cost){
 // 2_121: cascades top-down to the highest AFFORDABLE tier (not just the single top tier)
 // 5_13: v5 has no trade/draft split — one buy path (Tim). P3 mid (10:00-07:00)
 // uses the sellout brain (aiTradePick); otherwise highest affordable tier.
+// v7.153: goalie nudge (Tim) — see aiBuyTier: 40% goalie-less / 20% has-goalie per tier buy.
+function aiOwnsGoalie(ap){
+  return [...ap.bag,...ap.z.iced,...ap.z.rs,...ap.z.cold,...ap.z.hot,...ap.z.defend,...ap.z.reserve,...ap.z.bench]
+    .some(d=>d.key&&/^G[3-6]$/.test(d.key)); // Goon ('Goon') is not a goalie
+}
+function aiCheapestGoalieTier(ap){
+  const E=aiTotalE();
+  let best=null;
+  ap.lineup.forEach((c,idx)=>{
+    if(!c||!c.key||c.key[0]!=='G'||!c.left)return;
+    const cost=(COSTS[c.key]||99);
+    if(cost>E)return;
+    if(!best||tierOf(c.key)<tierOf(best.key))best={key:c.key,idx,tier:tierOf(c.key)};
+  });
+  return best;
+}
 function aiBuyTier(cheapest,specific){
   const ap=AP();
+  // v7.153: goalie nudge (Tim) — on each tier buy, if a goalie tier is affordable:
+  // no goalie dice yet => 40% buy cheapest affordable goalie, else standard logic;
+  // already owns a goalie => 20% buy cheapest affordable goalie, else standard logic.
+  if(!specific){
+    const gg=aiCheapestGoalieTier(ap);
+    if(gg&&aiHasTrashFodder()&&Math.random()<(aiOwnsGoalie(ap)?0.20:0.40)){
+      const ok=aiBuyTier(false,gg);
+      return ok?true:false;
+    }
+  }
   const allTiers=aiTopTiers(0); // all, highest first
   const isMidP3=G.period===3&&G.clock>6; // 5_13: sellout priority (Tim)
   const t=specific||(cheapest?aiAffordableTier(allTiers.slice().reverse()) // 5_16: cheapest available (Tim)
@@ -8527,20 +8629,16 @@ window.addEventListener('DOMContentLoaded', () => {
       const o = OPP();
       const oppIdx = 1 - G.ap;
       let oppName = G.players[oppIdx] ? G.players[oppIdx].name : 'Opponent';
-      const teamFull = G.players[oppIdx] ? (G.players[oppIdx].teamName || '') : '';
       // v5.125: strip leading emoji from player name (who-emoji shown separately) — Tim
       oppName = oppName.replace(/^(\p{Extended_Pictographic}️?)\s*/u, '');
-      const wEmoji = (typeof whoEmoji === 'function') ? whoEmoji(oppIdx) : '🧑';
-      const tm = teamFull.match(/^(\p{Extended_Pictographic}️?)\s*/u);
-      const teamEmoji = tm ? tm[1] : '';
-      // Header
+      // Header (v7.150: no emojis in board header — Tim)
       const h = document.createElement('div'); h.className = 'm-oppbd-title';
-      h.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
-      h.innerHTML = `<span>${wEmoji}</span><span>${oppName.toUpperCase()}'S BOARD</span><span>${teamEmoji}</span>`;
+      h.style.cssText = 'display:flex;align-items:center;justify-content:center;';
+      h.innerHTML = `<span>${oppName.toUpperCase()}'S BOARD</span>`;
       pop.appendChild(h);
       // Token row
       const tokRow = document.createElement('div'); tokRow.className = 'm-oppbd-toks';
-      tokRow.innerHTML = `<div class="m-oppbd-tok shoot">🎯 ${o.tok.shoot}</div><div class="m-oppbd-tok block">🛡️ ${o.tok.block}</div>`;
+      tokRow.innerHTML = `<div class="m-oppbd-tok shoot">${typeof tokImg==="function"?tokImg("shoot","1.2em"):""} ${o.tok.shoot}</div><div class="m-oppbd-tok block">${typeof tokImg==="function"?tokImg("block","1.2em"):""} ${o.tok.block}</div>`; // v7.150: art-mode tokens (Tim)
       pop.appendChild(tokRow);
       // Zone grid: HOT, COLD, DEF, BENCH, RESERVE
       const zg = document.createElement('div'); zg.className = 'm-oppbd-zones';
@@ -8557,7 +8655,10 @@ window.addEventListener('DOMContentLoaded', () => {
         const z = document.createElement('div');
         z.className = 'm-oppbd-zone ' + cls;
         // v5.131: pip number centered with "pip" below, bold (Tim)
-        z.innerHTML = `<div class="m-oppbd-zl">${label}</div><div class="m-oppbd-zv">${pips}</div><div class="m-oppbd-zp">pip</div><div class="m-oppbd-zd">${dice.length} dice</div>`;
+        // v7.156b: bench shows dice count only — pips don't matter in bench (Tim)
+        z.innerHTML = (key === 'bench')
+          ? `<div class="m-oppbd-zl">${label}</div><div class="m-oppbd-zv big">${dice.length}</div><div class="m-oppbd-zp">dice</div>`
+          : `<div class="m-oppbd-zl">${label}</div><div class="m-oppbd-zv">${pips}</div><div class="m-oppbd-zp">pip</div><div class="m-oppbd-zd">${dice.length} dice</div>`;
         // v6.88: tap shows dice inline below the zones (Tim) — was a toast
         z.addEventListener('click', () => {
           const dd = pop.querySelector('.m-oppbd-dicedisplay');
@@ -8573,7 +8674,8 @@ window.addEventListener('DOMContentLoaded', () => {
             dice.forEach(d => {
               const w = document.createElement('div');
               w.className = 'm-oppbd-minidie';
-              w.innerHTML = (typeof dieWrapHTML === 'function') ? dieWrapHTML(d, false, false, false) : '';
+              // v7.156b: bench dice hide their faces ("?") like iced dice do (Tim)
+              w.innerHTML = (typeof dieWrapHTML === 'function') ? dieWrapHTML(d, false, key === 'bench', key === 'bench') : '';
               wrap.appendChild(w);
             });
           }
