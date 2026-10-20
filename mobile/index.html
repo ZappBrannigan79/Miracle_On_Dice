@@ -247,6 +247,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 /* 2_41: goal celebration + token pop */
 @keyframes goalpop{0%{transform:scale(.5);opacity:0;}45%{transform:scale(1.18);opacity:1;}75%{transform:scale(.94);}100%{transform:scale(1);}}
 .goalpop{animation:goalpop .65s ease-out;}
+
 @keyframes tokpop{0%{transform:scale(1);}40%{transform:scale(1.35);}100%{transform:scale(1);}}
 .tok-pill.tokpop{animation:tokpop .45s ease-out;}
 .face-badge{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;width:38px;height:38px;border-radius:6px;font-size:.67em;font-weight:900;line-height:1.1;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.5);pointer-events:none;}
@@ -500,6 +501,29 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .cresult{text-align:center;font-size:1.4em;font-weight:900;padding:11px;border-radius:8px;margin:9px 0;}
 .cresult.goal{background:rgba(26,58,139,.3);color:#88aaff;border:1px solid #4466cc;}
 .cresult.blocked{background:rgba(139,26,26,.3);color:#ffaaaa;border:1px solid #cc3333;}
+/* v7.162: GOAL jumbotron banner (mockup B) + scoreboard pop (mockup C) + SAVED thud + game-over moment (Tim) */
+.cresult.goal{position:relative;overflow:hidden;isolation:isolate;background:linear-gradient(165deg,#12283f,#0a1826);border:2px solid var(--gold);color:#ffd75e;font-size:2.1em;padding:17px 10px 14px;border-radius:12px;}
+.cresult.goal::before{content:"";position:absolute;top:50%;left:50%;width:175%;aspect-ratio:1;z-index:-1;background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,215,94,.13) 0deg 9deg, transparent 9deg 20deg);animation:jumboRays 26s linear infinite;}
+@keyframes jumboRays{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+.cresult.goal .jumbo-team{display:block;font-size:.4em;font-weight:900;letter-spacing:.14em;color:#fff;margin-top:6px;}
+.cresult.blocked{font-size:1.75em;padding:15px 10px;border-radius:12px;}
+.cresult.blocked.thud{animation:savedThud .5s ease-out;}
+@keyframes savedThud{0%{transform:translateY(-16px) scale(1.12);opacity:0;}55%{transform:translateY(2px) scale(.985);opacity:1;}75%{transform:translateY(-1px) scale(1.004);}100%{transform:none;}}
+.score-player{position:relative;}
+.score-goals.goalpop{animation:scorePop .95s ease-out;}
+@keyframes scorePop{0%{transform:scale(1);}30%{transform:scale(1.55);color:#ffd75e;text-shadow:0 0 16px rgba(255,190,60,.85);}100%{transform:scale(1);}}
+.goal-plus1{position:absolute;left:50%;top:-4px;transform:translateX(-50%);font-size:1.05em;font-weight:900;color:#ffd75e;text-shadow:0 0 10px rgba(255,190,60,.8);animation:plus1Float 1.15s ease-out forwards;pointer-events:none;z-index:5;}
+@keyframes plus1Float{0%{opacity:0;transform:translate(-50%,6px) rotate(-8deg);}25%{opacity:1;}100%{opacity:0;transform:translate(-50%,-26px) rotate(-8deg);}}
+#go-overlay .ov-box{background-image:repeating-conic-gradient(from -90deg at 50% 42%, rgba(255,215,94,.07) 0deg 10deg, transparent 10deg 22deg),radial-gradient(90% 60% at 50% 0%, rgba(255,190,60,.14), transparent 70%);}
+#go-overlay .ov-winner{font-size:1.75em;color:#ffd75e;text-shadow:0 0 18px rgba(255,180,40,.45);}
+#go-overlay .ov-score{font-size:3em;}
+/* v7.165: shootout cone as a fixed card background (Tim) — earlier it was a
+   sized-to-card layer that rescaled whenever the card height changed between
+   shots and read as a flicker. Now: SVG beam layer, fixed height from the card
+   top, over a flat dim layer; card height changes reveal/conceal nothing.
+   v7.166: beam base scooted up (Tim) — the wide end and the ice-pool oval now
+   land on the shooter dice row instead of down by the Roll Shot button. */
+#so-overlay .ov-box{position:relative;overflow:hidden;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='384' viewBox='0 0 720 384' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffecaa' stop-opacity='.30'/%3E%3Cstop offset='.55' stop-color='%23ffecaa' stop-opacity='.13'/%3E%3Cstop offset='1' stop-color='%23ffecaa' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='314,0 406,0 644,332 76,332' fill='url(%23b)'/%3E%3Cellipse cx='360' cy='334' rx='268' ry='29' fill='%23fff0be' opacity='.17'/%3E%3C/svg%3E"),linear-gradient(rgba(2,5,10,.38),rgba(2,5,10,.38));background-size:100% 384px,100% 100%;background-position:top center,0 0;background-repeat:no-repeat,no-repeat;}
 .block-sel-area h3{font-size:.8em;color:#ccc;margin-bottom:7px;}
 .block-sel-dice{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 22px;min-height:30px;} /* v7.30: breathing room (Tim) */
 /* 2_21 — opponent's (defender's) dice on the shooter's screen: visible but dimmed, not clickable */
@@ -1113,6 +1137,11 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 #m-sbrow .scoreboard{gap:8px;padding:6px 10px;justify-content:center;}
 #m-sbrow .score-player{flex:1 1 0;min-width:0;}
 #m-sbrow .score-name{max-width:118px;}
+
+/* v7.162: turn banner slide/fade when the turn changes (Tim) */
+@keyframes mTurnIn{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:none;}}
+#m-turnhead.m-turn-in{animation:mTurnIn .45s ease both;}
+@media (prefers-reduced-motion: reduce){#m-turnhead.m-turn-in{animation:none;}}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1123,7 +1152,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.161</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.167</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1280,7 +1309,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.161</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.167</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3983,8 +4012,8 @@ function showCombatResult(r){
   _shotCells.forEach(c=>c.dataset.cart='shoot');_saveCells.forEach(c=>c.dataset.cart='block'); // ART-2: combat art (Tim)
   animNumbers([..._shotCells,..._saveCells],[...r.sr,...r.br],()=>{
     // v7.30: totals + banner paint together (Tim's son caught totals landing early)
-    if(r.isGoal){banner.className='cresult goal';banner.innerHTML=goalImg('1.4em')+' GOAL! '+goalImg('1.4em');popGoal(banner);}
-    else{banner.className='cresult blocked';banner.textContent='🛡 SHOT BLOCKED';}
+    if(r.isGoal){banner.className='cresult goal';banner.innerHTML=goalImg('1.15em')+' GOAL! '+goalImg('1.15em')+'<span class="jumbo-team">'+teamLbl(G.ap)+' SCORE!</span>';popGoal(banner);scorePop(G.ap);}
+    else{banner.className='cresult blocked';banner.textContent='🛡 SAVED! 🛡';if(!_REDUCED_MOTION){banner.classList.remove('thud');void banner.offsetWidth;banner.classList.add('thud');}}
     requestAnimationFrame(()=>{
       document.getElementById('stotal').textContent=r.sTotal;
       document.getElementById('btotal').textContent=r.bTotal;
@@ -4351,6 +4380,15 @@ function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
 function popGoal(el){
   if(_REDUCED_MOTION||!el)return;
   el.classList.remove('goalpop');void el.offsetWidth;el.classList.add('goalpop');
+}
+// v7.162: scoreboard pop + floating +1 for the scorer (mockup C, Tim)
+function scorePop(pi){
+  if(_REDUCED_MOTION)return;
+  const el=document.getElementById(pi===0?'sg1':'sg2');
+  if(!el)return;
+  el.classList.remove('goalpop');void el.offsetWidth;el.classList.add('goalpop');
+  const host=el.closest('.score-player')||el.parentElement;
+  if(host){const s=document.createElement('span');s.className='goal-plus1';s.textContent='+1';host.appendChild(s);setTimeout(()=>s.remove(),1250);}
 }
 // Token pop: remembers last rendered counts per player+type; the pill pops
 // only when its number actually changed. Presentation only.
@@ -8555,6 +8593,18 @@ window.addEventListener('DOMContentLoaded', () => {
     setInterval(updHeadCounts, 1000);
     updHeadCounts();
   }
+  // v7.162: turn banner motion — slide/fade the turn header when the label changes (Tim)
+  (function(){
+    const th = $('m-turnhead'), lbl = $('aplbl');
+    if (!th || !lbl) return;
+    let last = lbl.textContent.trim();
+    new MutationObserver(() => {
+      const t = lbl.textContent.trim();
+      if (t === last) return; last = t;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      th.classList.remove('m-turn-in'); void th.offsetWidth; th.classList.add('m-turn-in');
+    }).observe(lbl, { childList: true, characterData: true, subtree: true });
+  })();
   move($('rr-banner'), scroll);
 
   // — STAGE: holds the active zone (any zone can be staged via mini tap) —
