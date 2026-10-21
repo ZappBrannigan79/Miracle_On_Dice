@@ -77,6 +77,20 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .qs-filter-btn{padding:4px 12px;font-size:.75em;font-weight:700;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#aaa;cursor:pointer;transition:all .15s;}
 .qs-filter-btn:hover{background:rgba(255,255,255,.15);color:white;}
 .qs-filter-btn.active{background:var(--gold);color:#111;border-color:var(--gold);}
+/* v8.2: team logo art (Tim) — patches + team cards from logos/ */
+.team-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-bottom:10px;}
+.team-grid button{min-width:0;overflow:hidden;padding:4px 2px 3px;border:2px solid rgba(255,255,255,.14);border-radius:10px;background:rgba(255,255,255,.03);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .15s;font-family:inherit;}
+.team-grid button:hover{border-color:rgba(200,168,75,.55);}
+.team-grid button.sel{border-color:var(--gold);background:rgba(200,168,75,.14);box-shadow:0 0 9px rgba(200,168,75,.35);}
+.team-grid button img{width:100%;max-width:52px;border-radius:50%;display:block;}
+.team-grid button span{font-size:.5em;color:#bbb;line-height:1.05;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.team-grid button.sel span{color:var(--gold);font-weight:700;}
+.team-grid button.rand{justify-content:center;font-size:1.2em;color:#fff;}
+.team-card-img{width:100%;border-radius:10px;border:1px solid rgba(255,255,255,.16);display:block;margin:2px 0 8px;}
+.sb-patch{width:25px;height:25px;border-radius:50%;vertical-align:-6px;margin-right:5px;}
+.go-patch{width:104px;height:104px;border-radius:50%;margin:0 auto 8px;box-shadow:0 0 22px rgba(200,168,75,.35);}
+.opp-patch{width:52px;height:52px;border-radius:50%;}
+@media (max-width:560px){.builder-grid{grid-template-columns:1fr;}} /* v8.2: setup columns stack on phones so the patch grid gets full width */
 /* 2_121: subtle pulse on AI speed buttons to draw the eye — stops once one is picked */
 /* 2_128: brightened per Tim — stronger glow + background swell */
 
@@ -1196,7 +1210,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.180</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.2b</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1239,6 +1253,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <div style="font-size:.75em;color:#888;margin-bottom:4px">Your team:</div>
         <select id="online-team" style="width:100%;background:#1a2d45;border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px;font-size:.82em"></select>
       </div>
+      <div id="online-team-preview" style="text-align:center;margin-bottom:12px"></div>
       <div style="display:flex;gap:8px;margin-bottom:12px;">
         <button id="ontab-host" class="onTab host sel" onclick="switchOnlineTab('host')">HOST</button>
         <button id="ontab-join" class="onTab join" onclick="switchOnlineTab('join')">JOIN</button>
@@ -1318,42 +1333,13 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       </div>
     </div>
 
-    <!-- CUSTOM BUILDER: 30-point budget -->
-    <div class="team-builder" id="custom-panel">
-      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:10px">Build your team: exactly 3 Forwards, 2 Defensemen, 1 Goalie — all 6 slots filled — within 25 points (HC is automatic, not counted). No duplicate tiers per position.</div>
-      <div class="builder-grid">
-        <div class="builder-player" id="cb-p1-panel">
-          <h3>Player 1 <span class="pts-badge" id="p1-pts">0/25 pts</span></h3>
-          <div class="builder-row"><label>Forward 1</label><select id="p1f1" onchange="updatePts(1)"></select></div>
-          <div class="builder-row"><label>Forward 2</label><select id="p1f2" onchange="updatePts(1)"><option value="">— (optional)</option></select></div>
-          <div class="builder-row"><label>Forward 3</label><select id="p1f3" onchange="updatePts(1)"><option value="">— (optional)</option></select></div>
-          <div class="builder-row"><label>Defense 1</label><select id="p1d1" onchange="updatePts(1)"></select></div>
-          <div class="builder-row"><label>Defense 2</label><select id="p1d2" onchange="updatePts(1)"><option value="">— (optional)</option></select></div>
-          <div class="builder-row"><label>Goalie</label><select id="p1g" onchange="updatePts(1)"></select></div>
-          <div class="builder-row" style="opacity:.6"><label>Head Coach</label><select disabled><option>HC (automatic each turn)</option></select></div>
-          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 19 Rookie dice + 1 Goon die (same for all players) <!-- v7.30: was 15 Rookies, Tim confirmed 19+1 Goon --></div>
-        </div>
-        <div class="builder-player" id="cb-p2-panel">
-          <h3>Player 2 <span class="pts-badge" id="p2-pts">0/25 pts</span></h3>
-          <div class="builder-row"><label>Forward 1</label><select id="p2f1" onchange="updatePts(2)"></select></div>
-          <div class="builder-row"><label>Forward 2</label><select id="p2f2" onchange="updatePts(2)"><option value="">— (optional)</option></select></div>
-          <div class="builder-row"><label>Forward 3</label><select id="p2f3" onchange="updatePts(2)"><option value="">— (optional)</option></select></div>
-          <div class="builder-row"><label>Defense 1</label><select id="p2d1" onchange="updatePts(2)"></select></div>
-          <div class="builder-row"><label>Defense 2</label><select id="p2d2" onchange="updatePts(2)"><option value="">— (optional)</option></select></div>
-          <div class="builder-row"><label>Goalie</label><select id="p2g" onchange="updatePts(2)"></select></div>
-          <div class="builder-row" style="opacity:.6"><label>Head Coach</label><select disabled><option>HC (automatic each turn)</option></select></div>
-          <div style="margin-top:10px;font-size:.78em;color:#666;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;">Starting bag: 19 Rookie dice + 1 Goon die (same for all players) <!-- v7.30: was 15 Rookies, Tim confirmed 19+1 Goon --></div>
-        </div>
-      </div>
-      <button class="btn-start" onclick="startCustom()">Start Custom Game →</button>
-    </div>
   </div>
 </div>
 
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.180</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.2b</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1634,6 +1620,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <div class="overlay overlay-center" id="go-overlay">
   <div class="ov-box">
     <h2>Game Over</h2>
+    <img id="go-patch" class="go-patch" style="display:none" alt="">
     <div class="ov-winner" id="go-win"></div>
     <div class="ov-score" id="go-score">0–0</div>
     <button class="btn-ov" onclick="showBagViewer()">🎒 View Final Bags</button>
@@ -1809,25 +1796,25 @@ const DEFS={
   // c:true = costs 1 Energy to advance to its zone
   Rookie:[{t:'E',v:1},{t:'E',v:2},{t:'S',v:1},{t:'B',v:1},{t:'BLANK',v:0},{t:'BLANK',v:0}], // 4_95: 2 blanks (Tim)
   Goon:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'FT',v:0},{t:'FT',v:0},{t:'FT',v:0}], // 5_44: 1E,1E,2E,FTx3 (Tim)
-  F1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:1,c:true},{t:'W',v:1}],
-  F2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:2,c:true},{t:'W',v:1}],
-  F3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:2},{t:'S',v:2,c:true},{t:'W',v:1}],
-  F4:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:2},{t:'S',v:2,c:true},{t:'W',v:2}],
-  F5:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:2},{t:'S',v:3,c:true},{t:'W',v:2}],
-  F6:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:3},{t:'S',v:3,c:true},{t:'W',v:2}],
+  F1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:1},{t:'S',v:1,c:true},{t:'W',v:1}], // v8.0: new face table (Tim)
+  F2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:1},{t:'S',v:2,c:true},{t:'W',v:1}], // v8.0: new face table (Tim)
+  F3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:1},{t:'S',v:2,c:true},{t:'W',v:2}], // v8.0: new face table (Tim)
+  F4:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:2},{t:'S',v:2,c:true},{t:'W',v:2}], // v8.0: new face table (Tim)
+  F5:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:2},{t:'S',v:3,c:true},{t:'W',v:2}], // v8.0: new face table (Tim)
+  F6:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:2},{t:'S',v:3,c:true},{t:'W',v:3}], // v8.0: new face table (Tim)
   F7:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:3},{t:'S',v:3,c:true},{t:'W',v:3}],
   F8:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:3},{t:'S',v:4,c:true},{t:'W',v:3}],
-  D1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:1},{t:'B',v:1,c:true},{t:'W',v:1}],
-  D2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:1},{t:'B',v:2,c:true},{t:'W',v:1}],
-  D3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:2},{t:'B',v:2,c:true},{t:'W',v:1}],
-  D4:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:2},{t:'B',v:2,c:true},{t:'W',v:2}],
-  D5:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:2},{t:'B',v:3,c:true},{t:'W',v:2}],
-  D6:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'W',v:2}],
+  D1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:1},{t:'B',v:1,c:true},{t:'W',v:1}], // v8.0: mirror of F, B for S (Tim)
+  D2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:1},{t:'B',v:2,c:true},{t:'W',v:1}], // v8.0: mirror of F, B for S (Tim)
+  D3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:1},{t:'B',v:2,c:true},{t:'W',v:2}], // v8.0: mirror of F, B for S (Tim)
+  D4:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:2},{t:'B',v:2,c:true},{t:'W',v:2}], // v8.0: mirror of F, B for S (Tim)
+  D5:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:2},{t:'B',v:3,c:true},{t:'W',v:2}], // v8.0: mirror of F, B for S (Tim)
+  D6:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:2},{t:'B',v:3,c:true},{t:'W',v:3}], // v8.0: mirror of F, B for S (Tim)
   D7:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'W',v:3}],
   D8:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'W',v:3}],
-  G3:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
-  G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}],
-  G5:[{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}], // v7.30: B4→B3, max 3 (Tim)
+  G3:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}], // v8.0: new face table (Tim)
+  G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}], // v8.0: new face table (Tim)
+  G5:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}], // v8.0: new face table (Tim)
   G6:[{t:'B',v:3},{t:'B',v:3},{t:'B',v:3},{t:'B',v:4},{t:'B',v:4,c:true},{t:'SO',v:2,c:true}],
   HC:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'RR',v:0},{t:'RR',v:0},{t:'ADV',v:0}], // v7.30: 1E,1E,2E,RR,RR,ADV — PEN swapped for ADV (Tim)
   Penalty:[{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0},{t:'BLANK',v:0}],
@@ -1892,73 +1879,68 @@ function AP(){return G.players[G.ap];}
 function OPP(){return G.players[1-G.ap];}
 
 // ═══════════════════ SETUP ═══════════════════
-// ── 24 PRE-BUILT TEAMS — 4 DIVISIONS, 6 TEAMS EACH ──
+// ── 30 PRE-BUILT TEAMS — v8.0: 21 pts, tiers 1–6 each used exactly once, no divisions (Tim) ──
 const PRESETS=[
-  // ── 5_83: 20 teams, 20pts, F/D 1-6, G 4-6 (Tim) ──
-  {name:'🚀 Rockets', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F2','F5','F6','D1','D3','G3','HC'], desc:'F2+F5+F6 | D1+D3 | G3'},
-  {name:'🔥 Inferno', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F5','F6','D1','D4','G3','HC'], desc:'F1+F5+F6 | D1+D4 | G3'},
-  {name:'☄️ Comets', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F2','F4','F6','D1','D3','G4','HC'], desc:'F2+F4+F6 | D1+D3 | G4'},
-  {name:'☠️ Bandits', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F3','F4','F5','D1','D2','G5','HC'], desc:'F3+F4+F5 | D1+D2 | G5'},
-  {name:'😈 Demons', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F2','F3','F6','D1','D4','G4','HC'], desc:'F2+F3+F6 | D1+D4 | G4'},
-  {name:'🐝 Hornets', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F2','F4','F5','D1','D5','G3','HC'], desc:'F2+F4+F5 | D1+D5 | G3'},
-  {name:'🌋 Volcanoes', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F4','F6','D2','D3','G4','HC'], desc:'F1+F4+F6 | D2+D3 | G4'},
-  {name:'👾 Invaders', division:'North', divEmoji:'🏔️', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F3','F4','F6','D1','D2','G4','HC'], desc:'F3+F4+F6 | D1+D2 | G4'},
-  {name:'🦅 Griffins', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F3','F6','D2','D5','G3','HC'], desc:'F1+F3+F6 | D2+D5 | G3'},
-  {name:'🦂 Scorpions', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F2','F6','D3','D4','G4','HC'], desc:'F1+F2+F6 | D3+D4 | G4'},
-  {name:'🐍 Vipers', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F2','F3','F5','D1','D4','G5','HC'], desc:'F2+F3+F5 | D1+D4 | G5'},
-  {name:'🐋 Orcas', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F3','F6','D1','D5','G4','HC'], desc:'F1+F3+F6 | D1+D5 | G4'},
-  {name:'🐺 Werewolves', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F2','F3','F5','D1','D6','G3','HC'], desc:'F2+F3+F5 | D1+D6 | G3'},
-  {name:'🥷 Ninjas', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F4','F5','D2','D3','G5','HC'], desc:'F1+F4+F5 | D2+D3 | G5'},
-  {name:'🧛 Vampires', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F5','F6','D1','D3','G4','HC'], desc:'F1+F5+F6 | D1+D3 | G4'},
-  {name:'🌪️ Twisters', division:'East', divEmoji:'🌅', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F2','F4','F6','D1','D2','G5','HC'], desc:'F2+F4+F6 | D1+D2 | G5'},
-  {name:'⚓ Anchors', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F2','F6','D3','D5','G3','HC'], desc:'F1+F2+F6 | D3+D5 | G3'},
-  {name:'🦏 Rhinos', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F3','F5','D2','D4','G5','HC'], desc:'F1+F3+F5 | D2+D4 | G5'},
-  {name:'🦉 Owls', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F2','F3','F4','D1','D6','G4','HC'], desc:'F2+F3+F4 | D1+D6 | G4'},
-  {name:'🐊 Crocs', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F2','F6','D2','D4','G5','HC'], desc:'F1+F2+F6 | D2+D4 | G5'},
-  {name:'🕷️ Spiders', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F4','F5','D2','D5','G3','HC'], desc:'F1+F4+F5 | D2+D5 | G3'},
-  {name:'🐗 Boars', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F2','F5','D3','D4','G5','HC'], desc:'F1+F2+F5 | D3+D4 | G5'},
-  {name:'🦀 Crabs', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F3','F4','D2','D6','G4','HC'], desc:'F1+F3+F4 | D2+D6 | G4'},
-  {name:'🧌 Trolls', division:'South', divEmoji:'🌊', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F3','F6','D1','D4','G5','HC'], desc:'F1+F3+F6 | D1+D4 | G5'},
-  {name:'⛰️ Mountains', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F2','F4','D4','D6','G3','HC'], desc:'F1+F2+F4 | D4+D6 | G3'},
-  {name:'🦬 Bison', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F3','F4','D1','D6','G5','HC'], desc:'F1+F3+F4 | D1+D6 | G5'},
-  {name:'🦑 Squids', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F2','F5','D3','D6','G3','HC'], desc:'F1+F2+F5 | D3+D6 | G3'},
-  {name:'🧊 Glaciers', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F2','F4','D3','D5','G5','HC'], desc:'F1+F2+F4 | D3+D5 | G5'},
-  {name:'❄️ Frost', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens', // 5_84: kid request (Tim)
-   lineup:['F1','F2','F5','D2','D6','G4','HC'], desc:'F1+F2+F5 | D2+D6 | G4'},
-  {name:'🌨️ Blizzard', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F2','F6','D2','D5','G4','HC'], desc:'F1+F2+F6 | D2+D5 | G4'},
-  {name:'🦎 Lizards', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F2','F3','F4','D1','D5','G5','HC'], desc:'F2+F3+F4 | D1+D5 | G5'},
-  {name:'👻 Phantoms', division:'West', divEmoji:'🌲', pts:20, bonusToks:0, bonusDesc:'No bonus tokens',
-   lineup:['F1','F2','F4','D2','D6','G5','HC'], desc:'F1+F2+F4 | D2+D6 | G5'}
+  {name:'🚀 Rockets', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F4','F5','D1','D6','G3','HC'], desc:'F2+F4+F5 | D1+D6 | G3'},
+  {name:'🔥 Inferno', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F4','F5','F6','D1','D2','G3','HC'], desc:'F4+F5+F6 | D1+D2 | G3'},
+  {name:'☄️ Comets', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F6','D3','D5','G4','HC'], desc:'F1+F2+F6 | D3+D5 | G4'},
+  {name:'☠️ Bandits', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F4','D3','D6','G5','HC'], desc:'F1+F2+F4 | D3+D6 | G5'},
+  {name:'😈 Demons', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F5','F6','D2','D3','G4','HC'], desc:'F1+F5+F6 | D2+D3 | G4'},
+  {name:'🐝 Hornets', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F4','F6','D1','D5','G3','HC'], desc:'F2+F4+F6 | D1+D5 | G3'},
+  {name:'🌋 Volcanoes', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F3','F5','D1','D6','G4','HC'], desc:'F2+F3+F5 | D1+D6 | G4'},
+  {name:'👾 Invaders', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F5','F6','D2','D4','G3','HC'], desc:'F1+F5+F6 | D2+D4 | G3'},
+  {name:'🦅 Griffins', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F5','F6','D1','D3','G4','HC'], desc:'F2+F5+F6 | D1+D3 | G4'},
+  {name:'🦂 Scorpions', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F5','D3','D6','G4','HC'], desc:'F1+F2+F5 | D3+D6 | G4'},
+  {name:'🐍 Vipers', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F6','D3','D4','G5','HC'], desc:'F1+F2+F6 | D3+D4 | G5'},
+  {name:'🐋 Orcas', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F3','F6','D1','D5','G4','HC'], desc:'F2+F3+F6 | D1+D5 | G4'},
+  {name:'🐺 Werewolves', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F5','F6','D1','D4','G3','HC'], desc:'F2+F5+F6 | D1+D4 | G3'},
+  {name:'🧛 Vampires', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F4','F6','D2','D5','G3','HC'], desc:'F1+F4+F6 | D2+D5 | G3'},
+  {name:'🌪️ Twisters', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F3','F6','D1','D4','G5','HC'], desc:'F2+F3+F6 | D1+D4 | G5'},
+  {name:'⚓ Anchors', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F4','D5','D6','G3','HC'], desc:'F1+F2+F4 | D5+D6 | G3'},
+  {name:'🦏 Rhinos', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F4','F6','D2','D3','G5','HC'], desc:'F1+F4+F6 | D2+D3 | G5'},
+  {name:'🦉 Owls', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F3','F6','D2','D5','G4','HC'], desc:'F1+F3+F6 | D2+D5 | G4'},
+  {name:'🐊 Crocs', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F3','F4','D1','D6','G5','HC'], desc:'F2+F3+F4 | D1+D6 | G5'},
+  {name:'🕷️ Spiders', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F5','D4','D6','G3','HC'], desc:'F1+F2+F5 | D4+D6 | G3'},
+  {name:'🦀 Crabs', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F3','F5','D2','D6','G4','HC'], desc:'F1+F3+F5 | D2+D6 | G4'},
+  {name:'🧌 Trolls', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F3','F4','F6','D1','D2','G5','HC'], desc:'F3+F4+F6 | D1+D2 | G5'},
+  {name:'⛰️ Mountains', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F6','D4','D5','G3','HC'], desc:'F1+F2+F6 | D4+D5 | G3'},
+  {name:'🦬 Bison', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F3','F6','D2','D4','G5','HC'], desc:'F1+F3+F6 | D2+D4 | G5'},
+  {name:'🦑 Squids', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F4','F5','D2','D6','G3','HC'], desc:'F1+F4+F5 | D2+D6 | G3'},
+  {name:'🧊 Glaciers', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F3','D4','D6','G5','HC'], desc:'F1+F2+F3 | D4+D6 | G5'},
+  {name:'❄️ Frost', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens', // 5_84: kid request (Tim)
+   lineup:['F1','F3','F4','D2','D6','G5','HC'], desc:'F1+F3+F4 | D2+D6 | G5'},
+  {name:'🌨️ Blizzard', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F1','F2','F3','D5','D6','G4','HC'], desc:'F1+F2+F3 | D5+D6 | G4'},
+  {name:'🦎 Lizards', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F2','F4','F6','D1','D3','G5','HC'], desc:'F2+F4+F6 | D1+D3 | G5'},
+  {name:'👻 Phantoms', division:'', divEmoji:'', pts:21, bonusToks:0, bonusDesc:'No bonus tokens',
+   lineup:['F3','F5','F6','D1','D2','G4','HC'], desc:'F3+F5+F6 | D1+D2 | G4'},
 ];;
 let _qsSel=[null,null]; // selected preset index per player
 let _qsManualPick=false; // 2_121: true once the user hand-picks a team (dropdown shows Random placeholder until then)
@@ -1967,6 +1949,20 @@ let _qsManualPick=false; // 2_121: true once the user hand-picks a team (dropdow
 // 🧊 Glaciers
 // 🏔️ North
 // F6+F5+F3 | D4+D3 | G4
+// v8.2: team logo helpers — art lives in logos/ beside the app; a missing file just hides itself
+function teamSlug(name){return (name||'').toLowerCase().replace(/[^a-z0-9]+/g,'');}
+function patchHTML(name,cls){return name?`<img class="${cls||''}" src="logos-${teamSlug(name)}.webp" alt="" onerror="this.remove()">`:'';}
+function teamCardHTML(p){return p?`<img class="team-card-img" src="logos-${teamSlug(p.name)}-card.webp" alt="${p.name} team card" loading="lazy" onerror="this.remove()">`:'';}
+function teamGridHTML(selIdx,manual){
+  let h=`<div class="team-grid"><button class="rand${manual?'':' sel'}" data-rand="1" title="Random Team">🎲<span>Random</span></button>`;
+  PRESETS.forEach((p,i)=>{h+=`<button class="${manual&&selIdx===i?'sel':''}" data-ti="${i}" title="${p.name}">${patchHTML(p.name)}<span>${p.name}</span></button>`;});
+  return h+'</div>';
+}
+function wireTeamGrid(el,onPick,onRandom){
+  el.querySelectorAll('[data-ti]').forEach(b=>b.addEventListener('click',()=>onPick(parseInt(b.dataset.ti,10))));
+  const r=el.querySelector('[data-rand]'); if(r)r.addEventListener('click',onRandom);
+}
+function showGoPatch(teamName){const g=document.getElementById('go-patch');if(!g)return;if(teamName){g.onerror=()=>{g.style.display='none';};g.src=`logos-${teamSlug(teamName)}.webp`;g.style.display='block';}else g.style.display='none';}
 function teamInfoHTML(p, isRandom){
   if(!p)return '';
   const divColor={'North':'#c82020','East':'#c8880a','South':'#1a6dd4','West':'#226622'}[p.division]||'#888';
@@ -1974,12 +1970,11 @@ function teamInfoHTML(p, isRandom){
   return `<div style="font-size:.85em;line-height:1.65;">`+
     (isRandom?`<div style="color:#aaa;">🎲 Random:</div>`:'')+
     `<div style="font-size:1.15em;font-weight:800;color:#fff;">${p.name}</div>`+
-    `<div style="color:${divColor};font-weight:700;">${p.divEmoji||''} ${p.division||''}</div>`+
+    (p.division?`<div style="color:${divColor};font-weight:700;">${p.divEmoji||''} ${p.division}</div>`:'')+
     `<div style="color:#aaa;">${lineup}</div>`+
   `</div>`;
 }
 function showQS(){
-  document.getElementById('custom-panel').classList.remove('show');
   const qp=document.getElementById('qs-panel');
   const wasShown=qp.classList.contains('show');
   // 2_121: slim header — hide mode buttons, show the chosen mode
@@ -2007,18 +2002,12 @@ function enterMode(mode){
 }
 function backToModes(){
   const _sb=document.querySelector('#setup .setup-box');if(_sb)_sb.style.padding=''; // v7.152
-  ['qs-panel','custom-panel','so-panel','online-panel'].forEach(id=>
+  ['qs-panel','so-panel','online-panel'].forEach(id=>
     document.getElementById(id)?.classList.remove('show'));
   document.getElementById('mode-header').style.display='none';
   document.getElementById('mode-btns').style.display='';
   document.getElementById('art-choice').style.display='flex'; // v7.125; v7.144: restore flex explicitly
   document.getElementById('setup-title').style.display='';document.getElementById('setup-sub').style.display=''; // v7.144
-}
-function showCustom(){
-  document.getElementById('qs-panel').classList.remove('show');
-  const cp=document.getElementById('custom-panel');
-  cp.classList.toggle('show');
-  if(cp.classList.contains('show'))populateSels();
 }
 function renderPresetCards(){
   // 2_121: compact dropdown instead of the full scrolling card list.
@@ -2033,29 +2022,11 @@ function renderPresetCards(){
       do{pick=Math.floor(Math.random()*PRESETS.length);}while(pick===other&&PRESETS.length>1);
       _qsSel[pi]=pick;
     }
-    const sel=document.createElement('select');
-    sel.id='qs-team-select';
-    sel.style.cssText='width:100%;background:#1a2d45;color:white;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px;font-size:.9em;cursor:pointer;';
-    const randOpt=document.createElement('option');
-    randOpt.value='-1';
-    randOpt.textContent='🎲 Random Team — surprise me';
-    randOpt.style.cssText='background:#1a2d45;color:white;';
-    if(!_qsManualPick)randOpt.selected=true; // 2_121: placeholder until hand-picked
-    sel.appendChild(randOpt);
-    PRESETS.forEach((p,i)=>{
-      const opt=document.createElement('option');
-      opt.value=String(i);
-      opt.textContent=`${p.name} — ${p.division||''} (${p.pts}pt)`;
-      opt.style.cssText='background:#1a2d45;color:white;';
-      if(_qsManualPick&&_qsSel[pi]===i)opt.selected=true;
-      sel.appendChild(opt);
-    });
-    sel.addEventListener('change',()=>{
-      const v=parseInt(sel.value,10);
-      if(v===-1){_qsManualPick=false;randomTeam(pi);} // randomTeam re-renders
-      else{_qsManualPick=true;selectPreset(pi,v);}
-    });
-    el.appendChild(sel);
+    el.innerHTML=teamGridHTML(_qsSel[pi],_qsManualPick);
+    wireTeamGrid(el,v=>{_qsManualPick=true;selectPreset(pi,v);},()=>{_qsManualPick=false;randomTeam(pi);});
+    const cardWrap=document.createElement('div');
+    cardWrap.innerHTML=teamCardHTML(PRESETS[_qsSel[pi]]);
+    el.appendChild(cardWrap);
     // 2_121: structured team display via shared helper
     const infoWrap=document.createElement('div');
     infoWrap.innerHTML=teamInfoHTML(PRESETS[_qsSel[pi]], !_qsManualPick);
@@ -2080,67 +2051,7 @@ function updateQSSummary(){
 }
 function startQS(){startAIGame();}
 
-// ── CUSTOM BUILDER ──
-function populateSels(){
-  ['1','2'].forEach(p=>{
-    ['f1','f2','f3'].forEach((f,i)=>{
-      const s=document.getElementById('p'+p+f);
-      if(i>0)s.add(new Option('— (optional)',''));
-      FWD.forEach(o=>s.add(new Option(o,o)));
-    });
-    ['d1','d2'].forEach((d,i)=>{
-      const s=document.getElementById('p'+p+d);
-      if(i>0)s.add(new Option('— (optional)',''));
-      DEF.forEach(o=>s.add(new Option(o,o)));
-    });
-    const g=document.getElementById('p'+p+'g');
-    GOA.forEach(o=>g.add(new Option(o,o)));
-  });
-  // Defaults
-  document.getElementById('p1f1').value='F7';document.getElementById('p1f2').value='F5';document.getElementById('p1f3').value='F1';
-  document.getElementById('p1d1').value='D4';document.getElementById('p1d2').value='D3';document.getElementById('p1g').value='G5';
-  document.getElementById('p2f1').value='F6';document.getElementById('p2f2').value='F4';document.getElementById('p2f3').value='F3';
-  document.getElementById('p2d1').value='D5';document.getElementById('p2d2').value='D3';document.getElementById('p2g').value='G4';
-  updatePts(1);updatePts(2);
-}
-function updatePts(p){
-  const v=id=>{const el=document.getElementById(id);return el?el.value:'';};
-  const keys=['f1','f2','f3','d1','d2','g'].map(s=>v('p'+p+s)).filter(k=>k);
-  const total=keys.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0);
-  const badge=document.getElementById('p'+p+'-pts');
-  badge.textContent=`${total}/25 pts`;
-  badge.className='pts-badge'+(total>25?' over':'');
-}
-// getBagExtras removed — starting bag is always 19 Rookies + 1 Goon (v7.30)
-function startCustom(){
-  resetAIFlags(); // 3_05: no AI-mode leakage from a previous game
-  const v=id=>{const el=document.getElementById(id);return el?el.value:'';};
-  const getL=p=>['f1','f2','f3','d1','d2','g'].map(s=>v('p'+p+s)).filter(k=>k); // HC is automatic, not in lineup
-  const l1=getL('1'),l2=getL('2');
-  // 2_32: only legal build is exactly 3F + 2D + 1G — all 6 slots must be filled
-  // (selects are position-locked, so 6 filled slots = 3F/2D/1G)
-  if(l1.length<6){toast('Player 1: fill all 6 slots — 3 Forwards, 2 Defensemen, 1 Goalie.');return;}
-  if(l2.length<6){toast('Player 2: fill all 6 slots — 3 Forwards, 2 Defensemen, 1 Goalie.');return;}
-  // Validate no duplicate tiers per position
-  const chkDups=(lineup,pname)=>{
-    const seen={};
-    for(const k of lineup){
-      if(k==='HC')continue;
-      const pos=k[0];const tier=k.slice(1);
-      const key=pos+tier;
-      if(seen[key]){toast(`${pname}: Duplicate ${k} — no two cards of same position+tier.`);return false;}
-      seen[key]=true;
-    }return true;
-  };
-  if(!chkDups(l1,'Player 1')||!chkDups(l2,'Player 2'))return;
-  // Validate points
-  const pts=lineup=>lineup.reduce((s,k)=>{const m=k.match(/\d+/);return s+(m?+m[0]:0);},0); // HC not in lineup, so no +3 adjustment needed
-  if(pts(l1)>25){toast(`Player 1 lineup is ${pts(l1)}pts — exceeds 25pt limit.`);return;}
-  if(pts(l2)>25){toast(`Player 2 lineup is ${pts(l2)}pts — exceeds 25pt limit.`);return;}
-  // Get bag extras
-  initG(l1,l2,[],[]);
-  beginGame(); // 5_03: no bonus tokens — all teams exactly 20pts (Tim)
-}
+// ── (custom builder removed in v8.1 — all 30 valid builds are presets now) ──
 function beginGame(){
   clearSave(); // 2_121: new game replaces any saved one
   renderAll();showScreen('game');showFaceoff();
@@ -4309,6 +4220,7 @@ function showGameOver(){
   }
   const win=p0.goals>p1.goals?p0.name:p1.name;
   document.getElementById('go-win').textContent=`🏆 ${win} wins!`;
+  showGoPatch(p0.goals>p1.goals?p0.teamName:p1.teamName); // v8.2
   document.getElementById('go-score').textContent=`${p0.goals} – ${p1.goals}`;
   document.getElementById('go-overlay').classList.add('show');
   // 2_155: a decided game purges the autosave — no stale Resume on the menu.
@@ -5021,8 +4933,8 @@ function renderBoard(){
   const sn1=document.getElementById('sn1');
   const sn2=document.getElementById('sn2');
   // 3_23: team name + who-emoji — no more (P1)/(P2) in the scoreboard header
-  if(sn1) sn1.textContent=teamLbl(0); // 4_05
-  if(sn2) sn2.textContent=teamLbl(1);
+  if(sn1) sn1.innerHTML=patchHTML(G.players[0].teamName,'sb-patch')+teamLbl(0); // v8.2: patch beside name
+  if(sn2) sn2.innerHTML=patchHTML(G.players[1].teamName,'sb-patch')+teamLbl(1);
   // v7.30: who-label below team name (Tim)
   const sw1=document.getElementById('sw1'); if(sw1) sw1.textContent=whoLbl(0);
   const sw2=document.getElementById('sw2'); if(sw2) sw2.textContent=whoLbl(1);
@@ -5573,7 +5485,6 @@ function soIAmShooter(){ if(_so.vsAI||_aiActive)return _so.shooterIdx!==_aiSlot;
 // ── SETUP ──
 function showShootoutSetup(){
   document.getElementById('qs-panel').classList.remove('show');
-  document.getElementById('custom-panel').classList.remove('show');
   const panel = document.getElementById('so-panel');
   const wasShown=panel.classList.contains('show');
   if(!wasShown){enterMode('shootout');}
@@ -5589,28 +5500,12 @@ function renderSOPresets(){
   el.innerHTML = '';
   // 2_63: Random Team is the default — pre-pick one so Start works immediately
   if(_so.sel1==null){_so.sel1=randTeamExcept(_so.aiIdx);} // 4_10
-  const sel=document.createElement('select');
-  sel.style.cssText='width:100%;background:#1a2d45;color:white;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:10px;font-size:.9em;cursor:pointer;';
-  const randOpt=document.createElement('option');
-  randOpt.value='-1';
-  randOpt.textContent='🎲 Random Team — surprise me';
-  randOpt.style.cssText='background:#1a2d45;color:white;';
-  if(!_soManualPick)randOpt.selected=true;
-  sel.appendChild(randOpt);
-  PRESETS.forEach((p,i)=>{
-    const opt=document.createElement('option');
-    opt.value=String(i);
-    opt.textContent=`${p.name} — ${p.division||''} (${p.pts}pt)`;
-    opt.style.cssText='background:#1a2d45;color:white;';
-    if(_soManualPick&&_so.sel1===i)opt.selected=true;
-    sel.appendChild(opt);
-  });
-  sel.addEventListener('change',()=>{
-    const v=parseInt(sel.value,10);
-    if(v===-1){_soManualPick=false;randomSOTeam(0);}
-    else{_soManualPick=true;_so.sel1=v;renderSOPresets();}
-  });
-  el.appendChild(sel);
+  el.style.maxHeight='none';el.style.overflow='visible'; // v8.2: patch grid needs full height
+  el.innerHTML=teamGridHTML(_so.sel1,_soManualPick);
+  wireTeamGrid(el,v=>{_soManualPick=true;_so.sel1=v;renderSOPresets();},()=>{_soManualPick=false;randomSOTeam(0);});
+  const cardWrap=document.createElement('div');
+  cardWrap.innerHTML=teamCardHTML(PRESETS[_so.sel1]);
+  el.appendChild(cardWrap);
   const infoWrap=document.createElement('div');
   infoWrap.innerHTML=teamInfoHTML(PRESETS[_so.sel1], !_soManualPick);
   el.appendChild(infoWrap);
@@ -5634,7 +5529,7 @@ function renderSOAITeam(){
   PRESETS.forEach((p,i)=>{
     const opt=document.createElement('option');
     opt.value=String(i);
-    opt.textContent=`${p.name} — ${p.division||''} (${p.pts}pt)`;
+    opt.textContent=`${p.name} (${p.pts}pt)`;
     opt.style.cssText='background:#1a2d45;color:white;';
     if(_soAiManualPick&&_so.aiIdx===i)opt.selected=true;
     sel.appendChild(opt);
@@ -5649,6 +5544,9 @@ function renderSOAITeam(){
   const infoWrap=document.createElement('div');
   infoWrap.innerHTML=teamInfoHTML(PRESETS[_so.aiIdx], !_soAiManualPick);
   el.appendChild(infoWrap);
+  const cardWrap=document.createElement('div');
+  cardWrap.innerHTML=teamCardHTML(PRESETS[_so.aiIdx]);
+  el.appendChild(cardWrap);
 }
 
 function launchShootoutPractice(){
@@ -6206,7 +6104,7 @@ function soShowFinal(){
   const _wi2=s0>s1?0:1;
   const _wt=document.getElementById('so-winner-team');
   const _wi=document.getElementById('so-winner-info');
-  if(_wt)_wt.textContent=soTeamLabel(_wi2);
+  if(_wt)_wt.innerHTML=patchHTML(_so.players[_wi2].teamName,'sb-patch')+soTeamLabel(_wi2); // v8.2
   if(_wi)_wi.textContent=`${soWhoLbl(_wi2)} — ${Math.max(s0,s1)} goal${Math.max(s0,s1)===1?'':'s'}`;
   // v7.108: winner's dice removed (Tim) — winner row shows it all
   renderSOScoreboard();
@@ -6258,7 +6156,8 @@ function openOppLineup(){
   const o=OPP();
   const panel=document.getElementById('opp-board-panel');
   document.getElementById('opp-board-title').textContent=`${slotLabel(1-G.ap)}'s Lineup`;
-  document.getElementById('opp-board-sub').innerHTML='';
+  const _ot=o.teamName;
+  document.getElementById('opp-board-sub').innerHTML=_ot?`<div style="text-align:center">${patchHTML(_ot,'opp-patch')}<div style="margin-top:4px;color:#ddd;font-size:1.05em">${_ot}</div></div>`:''; // v8.2
   const content=document.getElementById('opp-board-content');
   content.innerHTML='';
   const grid=document.createElement('div');
@@ -6351,7 +6250,7 @@ function switchOnlineTab(which){ // v7.147: host/join tabs (Tim)
   document.getElementById('onjoin').style.display=h?'none':'';
 }
 function showOnlineSetup(){
-  ['qs-panel','custom-panel','so-panel'].forEach(id=>
+  ['qs-panel','so-panel'].forEach(id=>
     document.getElementById(id)?.classList.remove('show'));
   const panel=document.getElementById('online-panel');
   const wasShown=panel.classList.contains('show');
@@ -6366,12 +6265,15 @@ function populateOnlineTeamSelects(){
   // 2_28: 🎲 Random Team option (value -1) at the top of each dropdown
   const html=`<option value="-1" style="background:#1a2d45;color:white;">🎲 Random Team</option>`+
     PRESETS.map((p,i)=>
-    `<option value="${i}" style="background:#1a2d45;color:white;">${p.name} — ${p.division||''}</option>`
+    `<option value="${i}" style="background:#1a2d45;color:white;">${p.name}</option>`
   ).join('');
   ['online-team'].forEach(id=>{
     // 2_31: 🎲 Random Team is the default selection — zero clicks to jump in
     const el=document.getElementById(id);if(el){el.innerHTML=html;el.value='-1';}
   });
+  // v8.2: team card preview under the online team picker
+  const _ots=document.getElementById('online-team');
+  if(_ots){const upd=()=>{const pv=document.getElementById('online-team-preview');if(!pv)return;const v=parseInt(_ots.value,10);pv.innerHTML=v>=0?teamCardHTML(PRESETS[v]):'';const ci=pv.querySelector('img');if(ci){ci.style.maxWidth='230px';ci.style.margin='0 auto';}};_ots.onchange=upd;upd();}
 }
 
 function genCode(){
@@ -6412,8 +6314,8 @@ async function hostOnlineGame(){
       if(snap.val()?.ready){
         ref.child('p1').off();
         const jn=snap.val().name, jt=snap.val().teamIdx, jtn=snap.val().teamName;
-        document.getElementById('online-lobby-status').textContent=
-          jn+' ('+jtn+') joined! Starting...';
+        document.getElementById('online-lobby-status').innerHTML=
+          patchHTML(jtn,'sb-patch')+jn+' ('+jtn+') joined! Starting...'; // v8.2
         setTimeout(()=>{ if(gen!==_onlineGen) return;
           try{ launchOnlineGame(teamIdx,jt,true,name,jn,ref); }
           catch(err){ try{ toast('Launch failed: '+(err.message||err)); }catch(_){}
@@ -6451,8 +6353,8 @@ async function hostShootout(){
       if(snap.val()?.ready){
         ref.child('p1').off();
         const jn=snap.val().name, jt=snap.val().teamIdx, jtn=snap.val().teamName;
-        document.getElementById('online-lobby-status').textContent=
-          jn+' ('+jtn+') joined! Starting shootout...';
+        document.getElementById('online-lobby-status').innerHTML=
+          patchHTML(jtn,'sb-patch')+jn+' ('+jtn+') joined! Starting shootout...'; // v8.2
         setTimeout(()=>{ if(gen!==_onlineGen) return;
           try{ launchOnlineShootout(teamIdx,jt,true,name,jn,ref); }
           catch(err){ try{ toast('Launch failed: '+(err.message||err)); }catch(_){}
@@ -6902,6 +6804,7 @@ function pullState(remote){
   // Game-over mirror: the other side never sees the local game-over overlay.
   if(_onlineActive&&G.gameOver&&!document.getElementById('go-overlay').classList.contains('show')){
     document.getElementById('go-win').textContent=`🏆 ${G.gameOver.win} wins!`;
+    const _gw=(G.players||[]).find(p=>p.name===G.gameOver.win); showGoPatch(_gw?_gw.teamName:null); // v8.2
     document.getElementById('go-score').textContent=`${G.gameOver.s0} – ${G.gameOver.s1}`;
     document.getElementById('go-overlay').classList.add('show');
   }
@@ -7213,7 +7116,7 @@ function renderAIPanelTeam(){
   PRESETS.forEach((p,i)=>{
     const opt=document.createElement('option');
     opt.value=String(i);
-    opt.textContent=`${p.name} — ${p.division||''} (${p.pts}pt)`;
+    opt.textContent=`${p.name} (${p.pts}pt)`;
     opt.style.cssText='background:#1a2d45;color:white;';
     if(_aiManualPick&&_aiTeamIdx===i)opt.selected=true;
     sel.appendChild(opt);
@@ -7228,6 +7131,9 @@ function renderAIPanelTeam(){
   const infoWrap=document.createElement('div');
   infoWrap.innerHTML=teamInfoHTML(PRESETS[_aiTeamIdx], !_aiManualPick);
   el.appendChild(infoWrap);
+  const cardWrap=document.createElement('div');
+  cardWrap.innerHTML=teamCardHTML(PRESETS[_aiTeamIdx]);
+  el.appendChild(cardWrap);
 }
 function startAIGame(){
   if(_qsSel[0]===null){toast('Select your team first.');return;}
@@ -7241,7 +7147,7 @@ function startAIGame(){
   G.players[1].teamName=p2.name;
   G.players[1].name=`${P.icon} ${P.name}`;
   addLog(`🤖 Vs AI Chuck: ${P.icon} ${P.name} (${P.tag}) sits across the table with ${p2.name}.`,'imp');
-  beginGame(); // 5_04: no bonus tokens — all teams exactly 20pts (Tim)
+  beginGame(); // 5_04: no bonus tokens — all teams exactly 21pts (Tim)
 }
 
 // ── Turn driver ──
