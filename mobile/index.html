@@ -107,7 +107,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .score-player{display:flex;flex-direction:column;align-items:center;}
 .score-who{font-size:.58em;color:#6b7690;font-weight:600;letter-spacing:.5px;margin-top:-2px;}
 .score-name{font-size:.68em;color:#aaa;letter-spacing:.3px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;} /* 3_24: room for team icon + name + who-emoji */
-.score-goals{font-size:1.8em;font-weight:900;color:#fff;line-height:1;}
+.score-goals{font-size:1.8em;font-weight:900;color:#fff;line-height:1;display:inline-block;min-width:1.3em;text-align:center;font-variant-numeric:tabular-nums;} /* v7.173 (Tim): fixed width — score 9→10 must not widen the column */
 .score-sep{font-size:1.2em;color:var(--gold);font-weight:700;}
 .period-info{display:flex;flex-direction:column;align-items:center;}
 .period-label{font-size:.7em;color:#aaa;text-transform:uppercase;}
@@ -245,8 +245,8 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 @keyframes socoinflip{0%{transform:rotateY(0deg) translateY(0) scale(1);}18%{transform:rotateY(630deg) translateY(-18px) scale(1.08);}38%{transform:rotateY(1260deg) translateY(3px) scale(1);}62%{transform:rotateY(1800deg) translateY(-10px) scale(1.05);}82%{transform:rotateY(2070deg) translateY(1px) scale(1);}100%{transform:rotateY(2160deg) translateY(0) scale(1);}}
 #so-coin{display:inline-block;font-size:2.4em;animation:socoinflip 1.7s cubic-bezier(.3,.6,.4,1);}
 /* 2_41: goal celebration + token pop */
-@keyframes goalpop{0%{transform:scale(.5);opacity:0;}45%{transform:scale(1.18);opacity:1;}75%{transform:scale(.94);}100%{transform:scale(1);}}
-.goalpop{animation:goalpop .65s ease-out;}
+@keyframes goalpop{0%{transform:scale(.3) rotate(-2deg);opacity:0;}40%{transform:scale(1.22) rotate(1deg);opacity:1;}55%{transform:scale(.96) rotate(0deg);}70%{transform:scale(1.06);}85%{transform:scale(.99);}100%{transform:scale(1);}}
+.goalpop{animation:goalpop .8s ease-out;}
 
 @keyframes tokpop{0%{transform:scale(1);}40%{transform:scale(1.35);}100%{transform:scale(1);}}
 .tok-pill.tokpop{animation:tokpop .45s ease-out;}
@@ -467,13 +467,14 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .tok-pill{display:inline-flex;align-items:center;gap:6px;font-size:.95em;font-weight:800;border-radius:10px;padding:4px 12px;border:2px solid;letter-spacing:.5px;line-height:1.2;}
 .tok-pill.tp-shoot{color:#a9c6ff;border-color:#3c78ff;background:rgba(60,120,255,.16);}
 .tok-pill.tp-block{color:#ffa3a3;border-color:#ff4646;background:rgba(255,70,70,.14);}
-.tok-pill .tp-n{font-size:1.2em;min-width:1em;text-align:center;}
+.tok-pill .tp-n{font-size:1.2em;width:1.3em;text-align:center;font-variant-numeric:tabular-nums;} /* v7.173 (Tim): fixed width — token count 9→10 must not widen the pill */
 .epips{display:inline-flex;align-items:center;gap:6px;font-size:.95em;font-weight:800;border-radius:10px;padding:4px 12px;border:2px solid;letter-spacing:.5px;line-height:1.2;color:#ffd97a;border-color:#c8a84b;background:rgba(200,168,75,.16);} /* 3_50: full gold pill treatment, matches tok-pill metrics */
 
 /* COMBAT */
 .combat-box{background:#0a1820;border:2px solid var(--gold);border-radius:12px;padding:14px;max-width:720px;width:100%;max-height:92vh;overflow-y:auto;} /* 2_147: scrollable so tall content never clips; 3_66: padding 18→14 */
-.combat-title{font-size:1.2em;font-weight:900;color:var(--gold);text-align:center;margin-bottom:10px;text-transform:uppercase;letter-spacing:2px;}
-.combat-clock{font-size:.68em;font-weight:900;letter-spacing:1px;color:#fff;border:2px solid #fff;border-radius:8px;padding:2px 9px;margin-left:6px;vertical-align:middle;white-space:nowrap;} /* 2_151: mini clock — white 10:00–05:00 */
+.combat-title{font-size:1.5em;font-weight:900;color:var(--gold);text-align:center;margin-bottom:3px;text-transform:uppercase;letter-spacing:2.5px;}
+.combat-clockrow{text-align:center;margin-bottom:9px;}
+.combat-clock{display:inline-block;font-size:.82em;font-weight:900;letter-spacing:1px;color:#fff;border:2px solid #fff;border-radius:8px;padding:2px 10px;white-space:nowrap;} /* 2_151: mini clock — white 10:00–05:00 */
 .combat-clock.hot{color:#ff6666;border-color:#ff3b3b;} /* 2_151: red 04:00–01:00, matches header */
 .combat-info{background:rgba(255,255,255,.05);border-radius:6px;padding:8px 12px;font-size:.8em;color:#ccc;margin-bottom:12px;line-height:1.6;}
 .combat-info strong{color:var(--gold);}
@@ -502,13 +503,27 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .cresult.goal{background:rgba(26,58,139,.3);color:#88aaff;border:1px solid #4466cc;}
 .cresult.blocked{background:rgba(139,26,26,.3);color:#ffaaaa;border:1px solid #cc3333;}
 /* v7.162: GOAL jumbotron banner (mockup B) + scoreboard pop (mockup C) + SAVED thud + game-over moment (Tim) */
-.cresult.goal{position:relative;overflow:hidden;isolation:isolate;background:linear-gradient(165deg,#12283f,#0a1826);border:2px solid var(--gold);color:#ffd75e;font-size:2.1em;padding:17px 10px 14px;border-radius:12px;}
-.cresult.goal::before{content:"";position:absolute;top:50%;left:50%;width:175%;aspect-ratio:1;z-index:-1;background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,215,94,.13) 0deg 9deg, transparent 9deg 20deg);animation:jumboRays 26s linear infinite;}
+.cresult.goal{position:relative;overflow:hidden;isolation:isolate;background:radial-gradient(120px 120px at var(--beamL,20%) var(--beamT,36%), rgba(255,90,50,.42), rgba(255,90,50,0) 70%),radial-gradient(120px 120px at var(--beamR,80%) var(--beamT,36%), rgba(255,90,50,.42), rgba(255,90,50,0) 70%),radial-gradient(62% 125% at 50% 50%, rgba(255,90,50,.4), rgba(255,90,50,0) 72%),linear-gradient(165deg,#4a0d0d,#20060a);border:2px solid #ff6a55;color:#ffd75e;font-size:2.45em;padding:17px 10px 14px;border-radius:12px;text-shadow:0 0 18px rgba(255,80,50,.55),0 3px 0 rgba(90,0,0,.8);box-shadow:0 0 26px rgba(255,60,40,.35),inset 0 0 34px rgba(255,60,40,.18);}
+.cresult.goal:not(.goalpop){animation:goalGlow 2.8s ease-in-out infinite alternate;}
+@keyframes goalGlow{from{box-shadow:0 0 18px rgba(255,60,40,.26),inset 0 0 26px rgba(255,60,40,.13);}to{box-shadow:0 0 36px rgba(255,60,40,.52),inset 0 0 42px rgba(255,60,40,.25);}}
+.cresult.goal::before{content:"";position:absolute;top:var(--beamT,36%);left:var(--beamL,20%);width:230%;aspect-ratio:1;z-index:-1;background:conic-gradient(from 0deg at 50% 50%,transparent 0deg,rgba(255,150,95,.38) 16deg,transparent 38deg,transparent 180deg,rgba(255,150,95,.2) 196deg,transparent 218deg);animation:beamSpin 7s linear infinite;}
+.cresult.goal::after{content:"";position:absolute;top:var(--beamT,36%);left:var(--beamR,80%);width:230%;aspect-ratio:1;z-index:-1;background:conic-gradient(from 0deg at 50% 50%,transparent 0deg,rgba(255,150,95,.38) 16deg,transparent 38deg,transparent 180deg,rgba(255,150,95,.2) 196deg,transparent 218deg);animation:beamSpinR 8.5s linear infinite;}
+@keyframes beamSpin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+@keyframes beamSpinR{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(-360deg);}}
 @keyframes jumboRays{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
+/* v7.175 (Tim): in-place thumps — the box stays put, beats a few times, settles */
+.cresult.goal .gsir{display:inline-block;}
+.cresult.goal.thumping{animation:goalGlow 2.8s ease-in-out infinite alternate,goalThump 1.15s ease-out;}
+@keyframes goalThump{0%{transform:scale(1);}12%{transform:scale(1.06) rotate(.6deg);}24%{transform:scale(.98) rotate(0deg);}36%{transform:scale(1.05) rotate(-.5deg);}48%{transform:scale(.99);}60%{transform:scale(1.03);}74%{transform:scale(1);}100%{transform:scale(1);}}
 .cresult.goal .jumbo-team{display:block;font-size:.4em;font-weight:900;letter-spacing:.14em;color:#fff;margin-top:6px;}
-.cresult.blocked{font-size:1.75em;padding:15px 10px;border-radius:12px;}
-.cresult.blocked.thud{animation:savedThud .5s ease-out;}
-@keyframes savedThud{0%{transform:translateY(-16px) scale(1.12);opacity:0;}55%{transform:translateY(2px) scale(.985);opacity:1;}75%{transform:translateY(-1px) scale(1.004);}100%{transform:none;}}
+.cresult.blocked{font-size:2em;padding:15px 10px;border-radius:12px;}
+.cresult.blocked.savthump{animation:savedGlow 2.8s ease-in-out infinite alternate,savedThumpBig 1.25s ease-out;}
+@keyframes savedGlow{from{box-shadow:0 0 14px rgba(204,51,51,.25),inset 0 0 20px rgba(204,51,51,.12);}to{box-shadow:0 0 28px rgba(204,51,51,.45),inset 0 0 34px rgba(204,51,51,.2);}}
+.cresult.blocked .sshd{display:inline-block;}
+.cresult.blocked.savthump .sshd{animation:shieldThump .7s ease-out .32s both;}
+.cresult.blocked.savthump .sshd2{animation-delay:.46s;}
+@keyframes shieldThump{0%{transform:scale(1);}35%{transform:scale(1.5) rotate(-8deg);}60%{transform:scale(.88) rotate(3deg);}100%{transform:scale(1);}} /* v7.176 (Tim): the shields thump too */
+@keyframes savedThumpBig{0%{transform:translateY(-30px) scale(1.3);opacity:0;}30%{transform:translateY(3px) scale(.94);opacity:1;}45%{transform:scale(1.09);}58%{transform:scale(.985);}70%{transform:scale(1.05);}84%{transform:scale(1);}100%{transform:scale(1);}} /* v7.176: slam, then decaying thumps like the goal box */
 .score-player{position:relative;}
 .score-goals.goalpop{animation:scorePop .95s ease-out;}
 @keyframes scorePop{0%{transform:scale(1);}30%{transform:scale(1.55);color:#ffd75e;text-shadow:0 0 16px rgba(255,190,60,.85);}100%{transform:scale(1);}}
@@ -648,6 +663,26 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 @keyframes winPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,215,94,0);}50%{box-shadow:0 0 18px 4px rgba(255,215,94,.55);}}
 #goon-fight-win{text-align:center;font-size:1.35em;font-weight:900;color:#7dff9a;margin:12px 0 4px;}
 #cf-win{text-align:center;font-size:1.35em;font-weight:900;color:#7dff9a;margin:12px 0 4px;} /* v7.30: match player's (Tim) */
+/* v7.177: fight celebration (Tim) — fist breaks through, cracks on a win, blood on a loss */
+.fx-host{position:relative;}
+.fx-layer{position:absolute;inset:0;pointer-events:none;z-index:6;}
+.fx-fist{position:absolute;left:50%;top:44%;font-size:110px;line-height:1;opacity:0;z-index:7;pointer-events:none;}
+.fx-fist.play{animation:fistHit 1.75s ease-in forwards;}
+@keyframes fistHit{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(4deg);}18%{opacity:1;transform:translate(-50%,-50%) scale(.55) rotate(2deg);}40%{opacity:1;transform:translate(-50%,-50%) scale(2.35) rotate(-5deg);}50%{opacity:.9;transform:translate(-50%,-50%) scale(1.45) rotate(-2deg);}66%{opacity:1;transform:translate(-50%,-50%) scale(2.3) rotate(-6deg);}76%{opacity:.9;transform:translate(-50%,-50%) scale(1.45) rotate(-2deg);}88%{opacity:1;transform:translate(-50%,-50%) scale(2.35) rotate(-4deg);}100%{opacity:0;transform:translate(-50%,-50%) scale(1.6) rotate(0deg);}} /* v7.178 (Tim): three punches */
+#goon-panel .panel-box.fx-beat,#chuck-fight-panel .panel-box.fx-beat{animation:fightBeat 1.75s ease-in-out;}
+@keyframes fightBeat{0%{transform:scale(1);}5%{transform:scale(1.025) rotate(.3deg);}10%{transform:scale(.995);}16%{transform:scale(1.03) rotate(-.3deg);}22%,38%{transform:scale(1);}41%{transform:translate(-3px,1px);}44%{transform:translate(3px,-1px);}47%{transform:translate(-1px,0);}50%,64%{transform:none;}67%{transform:translate(-3px,1px);}70%{transform:translate(3px,-1px);}73%{transform:translate(-1px,0);}76%,86%{transform:none;}89%{transform:translate(-3px,1px);}92%{transform:translate(2px,0);}95%,100%{transform:none;}} /* v7.178: a shake per punch */
+.fx-crack,.fx-splat{position:absolute;inset:0;width:100%;height:100%;opacity:0;}
+.fx-crack.show{animation:crackIn .5s ease-out forwards;}
+@keyframes crackIn{0%{opacity:0;transform:scale(.55);}35%{opacity:1;transform:scale(1.05);}100%{opacity:1;transform:scale(1);}}
+.fx-splat.show{opacity:1;}
+.fx-splat g{opacity:0;transform-origin:200px 252px;}
+.fx-splat.show g{animation:splatIn .5s ease-out forwards;}
+.fx-splat.show g.sg2{animation-delay:.12s;}.fx-splat.show g.sg3{animation-delay:.24s;}
+@keyframes splatIn{0%{opacity:0;transform:scale(.5);}60%{opacity:1;transform:scale(1.06);}100%{opacity:1;transform:scale(1);}}
+.fx-drop{animation:fxDrop .5s ease-out;}
+@keyframes fxDrop{0%{opacity:0;transform:translateY(-14px) scale(1.12);}55%{opacity:1;transform:translateY(2px) scale(.98);}100%{opacity:1;transform:none;}}
+.totcirc{transition:transform .3s ease,border-color .3s ease,color .3s ease;}
+.totcirc.fx-down{border-color:#ff7b6b !important;color:#ffb3a7;transform:rotate(-9deg);}
 .goon-outcome{text-align:center;color:#aab4d4;font-size:.9em;line-height:1.7;}
 .tgt-ctx{display:flex;align-items:center;justify-content:center;gap:7px;margin:2px 0 4px;font-size:.78em;color:#aab4d4;}
 .tgt-ctx-lg .tgt-die-mini .die-body{width:64px!important;height:64px!important;} /* v7.112: larger target (Tim) */
@@ -1142,6 +1177,15 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 @keyframes mTurnIn{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:none;}}
 #m-turnhead.m-turn-in{animation:mTurnIn .45s ease both;}
 @media (prefers-reduced-motion: reduce){#m-turnhead.m-turn-in{animation:none;}}
+
+/* v7.170b: BAG/ICED header pills fixed width (Tim) — no expand/collapse hiccup
+   when a count crosses from one digit to two */
+#m-bagcount,#m-icedcount{width:86px;flex:none;text-align:center;box-sizing:border-box;}
+
+/* v7.179: bonus reroll pill — the blanket stage rule (#m-stage .zone>*) had
+   flattened it into a full-width left-aligned bar; restore the centered
+   overlay pill with centered text (Tim) */
+#m-stage .zone .bonus-pill{position:absolute;left:50%;transform:translateX(-50%);text-align:center;}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1152,7 +1196,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.167</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.180</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1309,7 +1353,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.167</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v7.180</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1419,7 +1463,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- COMBAT PANEL -->
 <div class="panel-overlay" id="combat-panel">
   <div class="combat-box">
-    <div class="combat-title">⚔️ Shot on Goal <span class="combat-clock" id="combat-clock"></span><span id="shot-cancel-x" style="display:none;float:right;cursor:pointer;padding:0 8px;font-size:1.2em" onclick="cancelShot()">✕</span></div> <!-- v7.30: X to back out pre-lock (Tim) -->
+    <div class="combat-title">Shot on Goal<span id="shot-cancel-x" style="display:none;float:right;cursor:pointer;padding:0 8px;font-size:1.2em" onclick="cancelShot()">✕</span></div><div class="combat-clockrow"><span class="combat-clock" id="combat-clock"></span></div> <!-- v7.30: X to back out pre-lock (Tim) -->
     <div id="last-shot-banner" style="display:none;background:linear-gradient(135deg,#8a1a1a,#5a0a0a);border:2px solid #ff6666;border-radius:10px;padding:8px 12px;margin:8px 0;text-align:center;font-weight:800;font-size:.85em;color:#ffcccc;animation:nudgePulse 1.4s ease-in-out infinite;">⏰ LAST SHOT OF THE PERIOD — make it count!</div>
     <!-- 2_147: combat-info summary removed (all info duplicated elsewhere) -->
     <div id="block-sel-area">
@@ -1457,11 +1501,11 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       </div>
       <div class="cresult" id="crbanner"></div>
       <div id="bench-pick-area" style="display:none;margin-top:10px;border-top:1px solid rgba(255,255,255,.12);padding-top:14px;">
-        <div id="bench-pick-title" style="color:#ffd75e;font-weight:800;margin-bottom:12px;">🪑 Choose bench dice</div>
+        <div id="bench-pick-title" style="color:#ffd75e;font-weight:800;margin-bottom:12px;text-align:center;">Choose bench dice</div>
         <div id="bench-pick-dice" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:6px 0 32px;"></div> <!-- v7.94: note removed, space kept (Tim) -->
         <button class="abtn prim" id="bench-pick-confirm" style="width:100%" onclick="confirmBenchPick()">Send to Bench</button>
       </div>
-      <div id="bench-wait-line" style="display:none;color:#cdb87a;font-size:.9em;margin-top:10px;">⏳ <span id="bench-wait-name"></span> is choosing bench dice…</div>
+      <div id="bench-wait-line" style="display:none;color:#cdb87a;font-size:.9em;margin-top:10px;text-align:center;">⏳ <span id="bench-wait-name"></span> is choosing bench dice…</div>
       <button class="abtn prim" id="combat-continue-btn" style="width:100%;margin-top:8px" onclick="combatContinue()">Continue</button>
       <div id="bench-status-line" style="display:none;text-align:center;font-size:.82em;color:#aab4d4;margin-top:6px"></div> <!-- v7.30: bench status text (Tim) -->
     </div>
@@ -1720,7 +1764,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <div class="overlay" id="bag-overlay">
   <div class="panel-box" style="max-width:780px;max-height:88vh;overflow-y:auto;">
     <button class="panel-close" onclick="document.getElementById('bag-overlay').classList.remove('show')" style="float:right">✕</button>
-    <div class="panel-title">🎒 Final Bag Contents</div>
+    <div class="panel-title">Final Bag Contents</div>
     <div id="bag-viewer-content"></div>
   </div>
 </div>
@@ -2932,10 +2976,56 @@ function goonStartFight(die){
   document.getElementById('goon-result').style.display='none';
   document.getElementById('goon-fight').style.display='none'; // v7.30: clear old results (Tim)
   document.getElementById('goon-pick').style.display='block';
+  fightFxClear(document.querySelector('#goon-panel .panel-box')); // v7.180: picker always opens fresh
   document.getElementById('goon-panel').classList.add('show');
 }
 let _goonTarget=null;
 function goonCancelFight(){document.getElementById('goon-panel').classList.remove('show');_goonDie=null;_goonTarget=null;renderAll();}
+// v7.177: fight celebration (Tim) — dice roll during the card's thumps, the
+// fist flies in and the dice land on its impact; win cracks the glass, a loss
+// bursts the blood splat and hangs the goon's total red + crooked.
+const FX_CRACK='<svg class="fx-crack" viewBox="0 0 400 560" preserveAspectRatio="none"><g stroke="#ffffff" fill="none" stroke-linecap="round"><g opacity=".65" stroke-width="2.2"><polyline points="200,258 178,196 188,148 162,96 172,44"/><polyline points="200,258 232,200 224,146 254,92 244,36"/><polyline points="200,258 146,238 96,248 48,228 8,244"/><polyline points="200,258 256,240 308,252 356,234 394,250"/><polyline points="200,258 184,318 196,378 178,440"/><polyline points="200,258 226,314 214,382 236,446"/><polyline points="200,258 138,208 92,182 52,190"/><polyline points="200,258 264,210 312,186 354,196"/><polyline points="200,258 158,286 108,306 66,296"/><polyline points="200,258 246,290 298,308 342,296"/><polyline points="200,258 196,180 176,128"/><polyline points="200,258 214,332 248,392"/><polyline points="200,258 128,262 76,282"/><polyline points="200,258 282,262 334,246"/></g><g opacity=".38" stroke-width="1.4"><path d="M164,226 L186,244 L168,266 L192,282 L176,312"/><path d="M238,228 L218,250 L240,270 L224,300"/><path d="M150,282 L182,270 L192,296 L220,282 L238,306"/><path d="M172,180 L196,204 L224,178"/></g></g></svg>';
+const FX_SPLAT='<svg class="fx-splat" viewBox="0 0 400 560" preserveAspectRatio="none"><g class="sg1" fill="#b01a1a"><path fill-opacity=".55" d="M285,252 L286,263 L262,268 L304,294 L258,285 L250,290 L256,307 L276,351 L239,321 L225,316 L219,334 L206,328 L194,329 L183,329 L178,308 L171,304 L147,321 L138,313 L139,298 L108,303 L87,297 L135,269 L127,261 L123,252 L119,242 L134,235 L135,226 L135,216 L142,208 L140,193 L163,204 L162,185 L171,176 L187,193 L194,172 L205,182 L216,183 L221,198 L238,185 L247,190 L253,199 L259,208 L269,213 L278,221 L316,222 L273,243 Z"/><path fill-opacity=".5" d="M196,330 q4,28 0,52 q-5,-24 -2,-52 Z"/><path fill-opacity=".45" d="M228,322 q3,20 -1,38 q-4,-18 -2,-38 Z"/></g><g class="sg2" fill="#a01818" fill-opacity=".8"><circle cx="365" cy="274" r="6.0"/><circle cx="100" cy="170" r="4.0"/><circle cx="123" cy="155" r="5.5"/><circle cx="108" cy="303" r="4.1"/><circle cx="170" cy="376" r="5.8"/><circle cx="248" cy="126" r="1.9"/><circle cx="127" cy="179" r="2.7"/><circle cx="254" cy="146" r="4.3"/><circle cx="347" cy="296" r="4.7"/><circle cx="175" cy="154" r="4.3"/><circle cx="300" cy="200" r="5.8"/><circle cx="80" cy="293" r="4.8"/><circle cx="299" cy="126" r="1.8"/></g><g class="sg3" fill="#c22626" fill-opacity=".65"><circle cx="232" cy="385" r="3.7"/><circle cx="240" cy="371" r="5.5"/><circle cx="124" cy="355" r="3.7"/><circle cx="351" cy="205" r="5.5"/><circle cx="327" cy="211" r="2.4"/><circle cx="311" cy="330" r="4.5"/><circle cx="360" cy="265" r="2.7"/><circle cx="299" cy="348" r="4.9"/><circle cx="222" cy="152" r="2.2"/><circle cx="342" cy="174" r="1.7"/><circle cx="358" cy="186" r="2.5"/><circle cx="76" cy="347" r="5.1"/><circle cx="146" cy="125" r="5.2"/></g></svg>';
+function fightDrop(fn){return ()=>{if(_REDUCED_MOTION){fn();return;}setTimeout(fn,200);};} // v7.179: with the roll stretched x2.2 the dice settle AT the third punch — the drop follows 200ms later (Tim)
+function fightFxStart(box){
+  if(!box)return;
+  box.querySelectorAll('.fx-down').forEach(e=>e.classList.remove('fx-down'));
+  if(_REDUCED_MOTION)return;
+  box.classList.add('fx-host');
+  let fx=box.querySelector('.fx-layer');
+  if(!fx){fx=document.createElement('div');fx.className='fx-layer';fx.innerHTML='<div class="fx-fist">\uD83D\uDC4A</div>'+FX_CRACK+FX_SPLAT;box.appendChild(fx);}
+  fx.querySelector('.fx-crack').classList.remove('show');
+  fx.querySelector('.fx-splat').classList.remove('show');
+  // v7.178: reserve the result block's space up front — the card must not grow
+  // (and re-center) when the summary paints at the drop. Likely flicker source.
+  const _sum=box.querySelector('#goon-fight-summary,#cf-result');
+  if(_sum){_sum.style.display='block';_sum.style.visibility='hidden';_sum.style.minHeight='52px';}
+  const fist=fx.querySelector('.fx-fist');
+  box.classList.remove('fx-beat');void box.offsetWidth;box.classList.add('fx-beat');
+  fist.classList.remove('play');void fist.offsetWidth;fist.classList.add('play');
+  setTimeout(()=>{box.classList.remove('fx-beat');fist.classList.remove('play');},2050);
+}
+function fightFxClear(box){ // v7.180: wipe every trace of the celebration when a fight card closes
+  if(!box)return;
+  const fx=box.querySelector('.fx-layer');
+  if(fx){fx.querySelector('.fx-crack').classList.remove('show');fx.querySelector('.fx-splat').classList.remove('show');
+    const fist=fx.querySelector('.fx-fist');if(fist)fist.classList.remove('play');}
+  box.classList.remove('fx-beat');
+  box.querySelectorAll('.fx-down').forEach(e=>e.classList.remove('fx-down'));
+  const sum=box.querySelector('#goon-fight-summary,#cf-result');
+  if(sum){sum.style.visibility='';sum.style.minHeight='';}
+}
+function fightFxLand(box,won,goonTotEl,winEl){
+  if(!box)return;
+  const _sum2=box.querySelector('#goon-fight-summary,#cf-result');
+  if(_sum2)_sum2.style.visibility='visible';
+  if(goonTotEl)goonTotEl.classList.toggle('fx-down',!won);
+  if(_REDUCED_MOTION)return;
+  if(winEl){winEl.classList.remove('fx-drop');void winEl.offsetWidth;winEl.classList.add('fx-drop');}
+  const fx=box.querySelector('.fx-layer');if(!fx)return;
+  fx.querySelector('.fx-crack').classList.toggle('show',won);
+  fx.querySelector('.fx-splat').classList.toggle('show',!won);
+}
 function goonResolveFight(){
   const goonDie=_goonDie,t=_goonTarget;
   if(!goonDie||!t){toast('Pick a target first.');return;}
@@ -2965,8 +3055,10 @@ function goonResolveFight(){
   const _rsum=document.getElementById('goon-fight-summary');if(_rsum){_rsum.style.display='none';_rsum.innerHTML='';}
   const _rcont=document.getElementById('goon-fight-continue');if(_rcont){_rcont.disabled=true;_rcont.textContent='Continue ▸';_rcont.onclick=goonCloseFight;} // v7.30: reset to initiator handler+text (Tim)
   [...d1.children,...d2.children].forEach(c=>c.dataset.cart='fight'); // ART-2: combat art (Tim)
-  animNumbers([...d1.children,...d2.children],[...gr,...tr],()=>{
+  fightFxStart(document.querySelector('#goon-panel .panel-box')); // v7.177
+  animNumbers([...d1.children,...d2.children],[...gr,...tr],fightDrop(()=>{
     document.getElementById('goon-f1-total').textContent=gTot;
+    fightFxLand(document.querySelector('#goon-panel .panel-box'),won,document.getElementById('goon-f1-total'),document.getElementById('goon-fight-win')); // v7.177
     document.getElementById('goon-f2-total').textContent=tTot;
     // 4_45 (Tim): no set-aside — goon cycles with everyone else (iced win or lose).
     // v7.30: re-resolve by id (Tim's bug) — the captured goonDie may be stale after Firebase remapDie.
@@ -2997,7 +3089,7 @@ function goonResolveFight(){
     const _sub=document.querySelector('#goon-panel .panel-sub'); if(_sub)_sub.style.display='none';
     if(_cont){_cont.disabled=false;_cont.style.display='';_cont.onclick=goonCloseFight;} // v7.30: initiator handler (Tim)
     renderAll();
-  },CF_F); // v7.30: faces 4th (Tim's stuck-fight fix)
+  }),CF_F,2.2); // v7.30: faces 4th (Tim's stuck-fight fix)
 }
 
 // 5_98: Opponent watches a synced fight (Tim) — same animation, no buttons
@@ -3081,11 +3173,13 @@ function showFightWatch(fs){
   document.getElementById('goon-f2-total').closest('.sog-half').classList.remove('win');
   document.getElementById('goon-fight-win').textContent='👊 Fighting…';
   const _wrsum=document.getElementById('goon-fight-summary');if(_wrsum){_wrsum.style.display='none';_wrsum.innerHTML='';}
-  const _wrcont=document.getElementById('goon-fight-continue');if(_wrcont){_wrcont.disabled=false;_wrcont.style.display='';_wrcont.textContent='Close';_wrcont.onclick=()=>{document.getElementById('goon-panel').classList.remove('show');};} // v7.30: spectator closes own card (Tim) — fighter's Continue still advances the game
+  const _wrcont=document.getElementById('goon-fight-continue');if(_wrcont){_wrcont.disabled=false;_wrcont.style.display='';_wrcont.textContent='Close';_wrcont.onclick=()=>{fightFxClear(document.querySelector('#goon-panel .panel-box'));document.getElementById('goon-panel').classList.remove('show');};} // v7.30: spectator closes own card (Tim) — fighter's Continue still advances the game
   document.getElementById('goon-panel').classList.add('show');
   [...d1.children,...d2.children].forEach(c=>c.dataset.cart='fight'); // ART-2: combat art (Tim)
-  animNumbers([...d1.children,...d2.children],[...fs.gr,...fs.tr],()=>{
+  fightFxStart(document.querySelector('#goon-panel .panel-box')); // v7.177
+  animNumbers([...d1.children,...d2.children],[...fs.gr,...fs.tr],fightDrop(()=>{
     document.getElementById('goon-f1-total').textContent=fs.gTot;
+    fightFxLand(document.querySelector('#goon-panel .panel-box'),fs.won,document.getElementById('goon-f1-total'),document.getElementById('goon-fight-win')); // v7.177
     document.getElementById('goon-f2-total').textContent=fs.tTot;
     // 5_110: seamless — summary drops below dice, no card swap (Tim)
     const _wsum=document.getElementById('goon-fight-summary');
@@ -3101,9 +3195,9 @@ function showFightWatch(fs){
     }
     const _wsub2=document.querySelector('#goon-panel .panel-sub'); if(_wsub2)_wsub2.style.display='none';
     renderAll();
-  },CF_F); // v7.30: faces 4th (Tim's stuck-fight fix)
+  }),CF_F,2.2); // v7.30: faces 4th (Tim's stuck-fight fix)
 }
-function goonCloseFight(){document.getElementById('goon-panel').classList.remove('show');_goonDie=null;_goonTarget=null;G.fightSync=null;if(_onlineActive)pushState();renderAll();} // 5_98: clear fight sync (Tim)
+function goonCloseFight(){fightFxClear(document.querySelector('#goon-panel .panel-box'));document.getElementById('goon-panel').classList.remove('show');_goonDie=null;_goonTarget=null;G.fightSync=null;if(_onlineActive)pushState();renderAll();} // 5_98: clear fight sync (Tim)
 function sendBench(p,d){if(p.z.bench.length>=2)p.z.iced.push(d);else p.z.bench.push(d);}
 
 // ═══════════════════ ECONOMY (spin-down) ═══════════════════
@@ -3931,7 +4025,7 @@ function renderBenchPickDice(){
   const dice=p.z[bp.zone].filter(d=>bp.ids.includes(d.id));
   // Preserve any selections across re-renders (e.g. an unrelated pull mid-choice)
   _benchSel=_benchSel.filter(id=>bp.ids.includes(id)).slice(0,bp.need);
-  document.getElementById('bench-pick-title').textContent=`🪑 Choose ${bp.need} for your bench (bench ${p.z.bench.length}/2)`; // v7.72: 🪑 not 📦 (Tim)
+  document.getElementById('bench-pick-title').textContent=`Choose ${bp.need} for your bench (bench ${p.z.bench.length}/2)`; // v7.169: bench icon removed from this card heading (Tim) — stays in action bar + summary
   const row=document.getElementById('bench-pick-dice');row.innerHTML='';
   dice.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
@@ -4012,8 +4106,8 @@ function showCombatResult(r){
   _shotCells.forEach(c=>c.dataset.cart='shoot');_saveCells.forEach(c=>c.dataset.cart='block'); // ART-2: combat art (Tim)
   animNumbers([..._shotCells,..._saveCells],[...r.sr,...r.br],()=>{
     // v7.30: totals + banner paint together (Tim's son caught totals landing early)
-    if(r.isGoal){banner.className='cresult goal';banner.innerHTML=goalImg('1.15em')+' GOAL! '+goalImg('1.15em')+'<span class="jumbo-team">'+teamLbl(G.ap)+' SCORE!</span>';popGoal(banner);scorePop(G.ap);}
-    else{banner.className='cresult blocked';banner.textContent='🛡 SAVED! 🛡';if(!_REDUCED_MOTION){banner.classList.remove('thud');void banner.offsetWidth;banner.classList.add('thud');}}
+    if(r.isGoal){banner.className='cresult goal';banner.innerHTML='<span class="gsir">'+goalImg('1.15em')+'</span> GOAL! '+'<span class="gsir">'+goalImg('1.15em')+'</span><span class="jumbo-team">'+teamLbl(G.ap)+' SCORE!</span>';goalCelebrate(banner);scorePop(G.ap);}
+    else{banner.className='cresult blocked';banner.innerHTML='<span class="sshd">🛡</span> SAVED! <span class="sshd sshd2">🛡</span>';if(!_REDUCED_MOTION){banner.classList.remove('savthump');void banner.offsetWidth;banner.classList.add('savthump');}}
     requestAnimationFrame(()=>{
       document.getElementById('stotal').textContent=r.sTotal;
       document.getElementById('btotal').textContent=r.bTotal;
@@ -4377,9 +4471,33 @@ function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
 // ═══════════════════ 2_41: GOAL + TOKEN ANIMATIONS ═══════════════════
 // popGoal: restartable goal-banner celebration (re-adding the class alone
 // would not restart the animation on back-to-back goals).
+// v7.175 (Tim): no shrink — the celebration box thumps in place a few times,
+// then settles. The siren beams are aimed at the tokens: their spin centers
+// are measured off the two siren chips so the tokens look like they're flashing.
+function goalCelebrate(banner){
+  if(!banner)return;
+  try{
+    const imgs=banner.querySelectorAll('.gsir');
+    if(imgs.length>=2){
+      const br=banner.getBoundingClientRect();
+      if(br.width){
+        const c1=imgs[0].getBoundingClientRect(),c2=imgs[imgs.length-1].getBoundingClientRect();
+        const px=r=>((r.left+r.width/2-br.left)/br.width*100).toFixed(1)+'%';
+        const py=r=>((r.top+r.height/2-br.top)/br.height*100).toFixed(1)+'%';
+        banner.style.setProperty('--beamL',px(c1));
+        banner.style.setProperty('--beamR',px(c2));
+        banner.style.setProperty('--beamT',py(c1));
+      }
+    }
+  }catch(e){}
+  if(_REDUCED_MOTION)return;
+  banner.classList.remove('thumping');void banner.offsetWidth;banner.classList.add('thumping');
+  banner.addEventListener('animationend',()=>banner.classList.remove('thumping'),{once:true});
+}
 function popGoal(el){
   if(_REDUCED_MOTION||!el)return;
   el.classList.remove('goalpop');void el.offsetWidth;el.classList.add('goalpop');
+  el.addEventListener('animationend',()=>el.classList.remove('goalpop'),{once:true}); // v7.171: lets the goal banner's breathing glow resume after the slam
 }
 // v7.162: scoreboard pop + floating +1 for the scorer (mockup C, Tim)
 function scorePop(pi){
@@ -4462,7 +4580,7 @@ function animGameDice(dice,done){
 }
 // Animate plain number dice (combat dice, faceoff dice). `cells` are the
 // elements, `finals` the true numbers — settled in cascade order.
-function animNumbers(cells,finals,done,faces){ // v7.30: optional faces — fight dice tumble through real faces (Tim)
+function animNumbers(cells,finals,done,faces,durMul){ // v7.179: durMul stretches the roll (fights roll to the third punch, Tim) // v7.30: optional faces — fight dice tumble through real faces (Tim)
   const items=[];
   cells.forEach((el,i)=>{if(el&&finals[i]!=null)items.push({el:el,final:finals[i],art:el.dataset.cart?(v=>combatArtImg(el.dataset.cart,v)):null});}); // ART-2: combat art via data-cart (Tim)
   if(!items.length){if(done)done();return;}
@@ -4481,7 +4599,7 @@ function animNumbers(cells,finals,done,faces){ // v7.30: optional faces — figh
   // faceoff/combat never hang on "Rolling…" with no Continue button.
   const watchdog=setTimeout(finishAll,520+items.length*45+2500);
   items.forEach((it,i)=>{
-    const total=520+i*45,t0=performance.now();
+    const total=(520+i*45)*(durMul||1),t0=performance.now();
     it.el.classList.add('rolling');
     (function frame(now){
       if(finished)return;
@@ -5364,8 +5482,8 @@ function showBagViewer(){
     const posNames={F:'Forward',D:'Defenseman',G:'Goalie',HC:'Head Coach',GN:'Goon',Rookie:'Rookie',Penalty:'Penalty'}; // 4_44: Goon
     let html=`<div style="margin-bottom:14px;"> <!-- v7.30: tighter (Tim) -->
       <h3 style="color:var(--gold);font-size:.85em;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">
-        ${p.name} — ${totalNoPen} dice${penCount?` + ${penCount} Penalty`:''} &nbsp;
-        <span style="font-size:.75em;color:#888">(${p.goals} goal${p.goals!==1?'s':''})</span>
+        ${p.name} — ${totalNoPen} dice${penCount?` + ${penCount} Penalty`:''}
+        <span style="display:block;font-size:.75em;color:#888;margin-top:2px">(${p.goals} goal${p.goals!==1?'s':''})</span> <!-- v7.180: goals on their own line (Tim) -->
       </h3>
       <div style="display:flex;flex-wrap:wrap;gap:6px;">`;
     sorted.forEach(([key,count])=>{
@@ -7432,8 +7550,10 @@ async function aiDoFight(){ // 4_94: fight reveal (Tim)
   document.getElementById('cf-result').innerHTML='';
   await new Promise(res=>{
     [...cgd.children,...ctd.children].forEach(c=>c.dataset.cart='fight'); // ART-2: combat art (Tim)
-    animNumbers([...cgd.children,...ctd.children],[...gr,...tr],()=>{
+    fightFxStart(document.querySelector('#chuck-fight-panel .panel-box')); // v7.177
+    animNumbers([...cgd.children,...ctd.children],[...gr,...tr],fightDrop(()=>{
       document.getElementById('cf-goon-total').textContent=gTot;
+      fightFxLand(document.querySelector('#chuck-fight-panel .panel-box'),won,document.getElementById('cf-goon-total'),document.getElementById('cf-win')); // v7.177
       document.getElementById('cf-target-total').textContent=tTot;
       // v7.30: banner + half pulse + conditional outcome (Tim)
       if(won){
@@ -7447,14 +7567,14 @@ async function aiDoFight(){ // 4_94: fight reveal (Tim)
       }
       aiPill(won?`👊 Goon wins! ${t.die.key} iced`:`🔲 Goon loses — penalty die added`); // 5_81: 🔲 for penalty (Tim)
       res();
-    },CF_F); // v7.30: fight faces (Tim)
+    }),CF_F,2.2); // v7.30: fight faces (Tim)
   });
   await new Promise(res=>{_cfRes=res;});
   return true;
 }
 function openQuickRules(){document.getElementById('quick-rules-panel').classList.add('show');}
 function closeQuickRules(){document.getElementById('quick-rules-panel').classList.remove('show');}
-function closeChuckFight(){document.getElementById('chuck-fight-panel').classList.remove('show');if(_cfRes){_cfRes();_cfRes=null;}renderAll();}
+function closeChuckFight(){fightFxClear(document.querySelector('#chuck-fight-panel .panel-box'));document.getElementById('chuck-fight-panel').classList.remove('show');if(_cfRes){_cfRes();_cfRes=null;}renderAll();}
 let _cfRes=null; // 4_94
 function aiDoHcReroll(P){
   const ap=AP();
