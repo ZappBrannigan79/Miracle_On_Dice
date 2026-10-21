@@ -91,6 +91,11 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .go-patch{width:104px;height:104px;border-radius:50%;margin:0 auto 8px;box-shadow:0 0 22px rgba(200,168,75,.35);}
 .opp-patch{width:52px;height:52px;border-radius:50%;}
 @media (max-width:560px){.builder-grid{grid-template-columns:1fr;}} /* v8.2: setup columns stack on phones so the patch grid gets full width */
+.team-rand-btn{width:100%;padding:10px;margin:0 0 10px;border-radius:8px;border:2px solid rgba(255,255,255,.18);background:#1a2d45;color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.92em;}
+.team-rand-btn.sel{border-color:var(--gold);background:rgba(200,168,75,.15);color:var(--gold);}
+.team-sel-line{text-align:center;color:#ddd;font-size:.92em;margin:2px 0 8px;} /* v8.2c */
+#tc-overlay>div{border-radius:18px!important;padding:20px;} /* v8.2c: card popup is a rounded rect, not a capsule */
+#tc-img{max-height:62vh;object-fit:contain;}
 /* 2_121: subtle pulse on AI speed buttons to draw the eye — stops once one is picked */
 /* 2_128: brightened per Tim — stronger glow + background swell */
 
@@ -1210,7 +1215,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.2b</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.2c</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1339,7 +1344,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.2b</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.2c</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1625,6 +1630,14 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div class="ov-score" id="go-score">0–0</div>
     <button class="btn-ov" onclick="showBagViewer()">🎒 View Final Bags</button>
     <button class="btn-ov" onclick="location.reload()">New Game</button>
+  </div>
+</div>
+<!-- v8.2c: team card popup (tap a patch in the picker) -->
+<div class="overlay overlay-center" id="tc-overlay">
+  <div class="ov-box" style="max-width:330px;width:92%">
+    <img id="tc-img" style="width:100%;border-radius:10px;display:block" alt="">
+    <div id="tc-info" style="margin:8px 0"></div>
+    <button class="btn-ov" onclick="document.getElementById('tc-overlay').classList.remove('show')">Close</button>
   </div>
 </div>
 
@@ -1954,7 +1967,7 @@ function teamSlug(name){return (name||'').toLowerCase().replace(/[^a-z0-9]+/g,''
 function patchHTML(name,cls){return name?`<img class="${cls||''}" src="logos-${teamSlug(name)}.webp" alt="" onerror="this.remove()">`:'';}
 function teamCardHTML(p){return p?`<img class="team-card-img" src="logos-${teamSlug(p.name)}-card.webp" alt="${p.name} team card" loading="lazy" onerror="this.remove()">`:'';}
 function teamGridHTML(selIdx,manual){
-  let h=`<div class="team-grid"><button class="rand${manual?'':' sel'}" data-rand="1" title="Random Team">🎲<span>Random</span></button>`;
+  let h=`<div class="team-grid">`; // v8.2c: Random is a button below the grid, not a cell
   PRESETS.forEach((p,i)=>{h+=`<button class="${manual&&selIdx===i?'sel':''}" data-ti="${i}" title="${p.name}">${patchHTML(p.name)}<span>${p.name}</span></button>`;});
   return h+'</div>';
 }
@@ -1963,6 +1976,7 @@ function wireTeamGrid(el,onPick,onRandom){
   const r=el.querySelector('[data-rand]'); if(r)r.addEventListener('click',onRandom);
 }
 function showGoPatch(teamName){const g=document.getElementById('go-patch');if(!g)return;if(teamName){g.onerror=()=>{g.style.display='none';};g.src=`logos-${teamSlug(teamName)}.webp`;g.style.display='block';}else g.style.display='none';}
+function showTeamCard(p){if(!p)return;const o=document.getElementById('tc-overlay');if(!o)return;const img=document.getElementById('tc-img');img.onerror=()=>{img.style.display='none';};img.style.display='block';img.src=`logos-${teamSlug(p.name)}-card.webp`;document.getElementById('tc-info').innerHTML=teamInfoHTML(p,false);o.classList.add('show');} // v8.2c: tap a patch, get its card
 function teamInfoHTML(p, isRandom){
   if(!p)return '';
   const divColor={'North':'#c82020','East':'#c8880a','South':'#1a6dd4','West':'#226622'}[p.division]||'#888';
@@ -2023,14 +2037,16 @@ function renderPresetCards(){
       _qsSel[pi]=pick;
     }
     el.innerHTML=teamGridHTML(_qsSel[pi],_qsManualPick);
-    wireTeamGrid(el,v=>{_qsManualPick=true;selectPreset(pi,v);},()=>{_qsManualPick=false;randomTeam(pi);});
-    const cardWrap=document.createElement('div');
-    cardWrap.innerHTML=teamCardHTML(PRESETS[_qsSel[pi]]);
-    el.appendChild(cardWrap);
-    // 2_121: structured team display via shared helper
-    const infoWrap=document.createElement('div');
-    infoWrap.innerHTML=teamInfoHTML(PRESETS[_qsSel[pi]], !_qsManualPick);
-    el.appendChild(infoWrap);
+    wireTeamGrid(el,v=>{_qsManualPick=true;selectPreset(pi,v);showTeamCard(PRESETS[v]);});
+    const rb=document.createElement('button');
+    rb.className='team-rand-btn'+(_qsManualPick?'':' sel');
+    rb.textContent='🎲 Random Team';
+    rb.addEventListener('click',()=>{_qsManualPick=false;randomTeam(pi);});
+    el.appendChild(rb);
+    const sl=document.createElement('div');
+    sl.className='team-sel-line';
+    sl.innerHTML=(_qsManualPick?'Your team: ':'🎲 Random \u2192 ')+PRESETS[_qsSel[pi]].name;
+    el.appendChild(sl);
   });
   updateQSSummary();
 }
@@ -5502,13 +5518,16 @@ function renderSOPresets(){
   if(_so.sel1==null){_so.sel1=randTeamExcept(_so.aiIdx);} // 4_10
   el.style.maxHeight='none';el.style.overflow='visible'; // v8.2: patch grid needs full height
   el.innerHTML=teamGridHTML(_so.sel1,_soManualPick);
-  wireTeamGrid(el,v=>{_soManualPick=true;_so.sel1=v;renderSOPresets();},()=>{_soManualPick=false;randomSOTeam(0);});
-  const cardWrap=document.createElement('div');
-  cardWrap.innerHTML=teamCardHTML(PRESETS[_so.sel1]);
-  el.appendChild(cardWrap);
-  const infoWrap=document.createElement('div');
-  infoWrap.innerHTML=teamInfoHTML(PRESETS[_so.sel1], !_soManualPick);
-  el.appendChild(infoWrap);
+  wireTeamGrid(el,v=>{_soManualPick=true;_so.sel1=v;renderSOPresets();showTeamCard(PRESETS[v]);});
+  const rb=document.createElement('button');
+  rb.className='team-rand-btn'+(_soManualPick?'':' sel');
+  rb.textContent='🎲 Random Team';
+  rb.addEventListener('click',()=>{_soManualPick=false;randomSOTeam(0);});
+  el.appendChild(rb);
+  const sl=document.createElement('div');
+  sl.className='team-sel-line';
+  sl.innerHTML=(_soManualPick?'Your team: ':'🎲 Random \u2192 ')+PRESETS[_so.sel1].name;
+  el.appendChild(sl);
   if(_so.aiIdx===null||_so.aiIdx===undefined)_so.aiIdx=randTeamExcept(_so.sel1); // 4_10
   renderSOAITeam();
 }
@@ -5544,9 +5563,8 @@ function renderSOAITeam(){
   const infoWrap=document.createElement('div');
   infoWrap.innerHTML=teamInfoHTML(PRESETS[_so.aiIdx], !_soAiManualPick);
   el.appendChild(infoWrap);
-  const cardWrap=document.createElement('div');
-  cardWrap.innerHTML=teamCardHTML(PRESETS[_so.aiIdx]);
-  el.appendChild(cardWrap);
+  infoWrap.style.cursor='pointer'; // v8.2c: tap to view the card
+  infoWrap.addEventListener('click',()=>showTeamCard(PRESETS[_so.aiIdx]));
 }
 
 function launchShootoutPractice(){
@@ -7131,9 +7149,8 @@ function renderAIPanelTeam(){
   const infoWrap=document.createElement('div');
   infoWrap.innerHTML=teamInfoHTML(PRESETS[_aiTeamIdx], !_aiManualPick);
   el.appendChild(infoWrap);
-  const cardWrap=document.createElement('div');
-  cardWrap.innerHTML=teamCardHTML(PRESETS[_aiTeamIdx]);
-  el.appendChild(cardWrap);
+  infoWrap.style.cursor='pointer'; // v8.2c: tap Chuck's team to view its card
+  infoWrap.addEventListener('click',()=>showTeamCard(PRESETS[_aiTeamIdx]));
 }
 function startAIGame(){
   if(_qsSel[0]===null){toast('Select your team first.');return;}
