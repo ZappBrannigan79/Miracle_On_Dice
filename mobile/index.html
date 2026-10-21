@@ -146,7 +146,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .score-player{display:flex;flex-direction:column;align-items:center;}
 .score-who{font-size:.58em;color:#6b7690;font-weight:600;letter-spacing:.5px;margin-top:-2px;}
 .score-name{font-size:.8em;color:#e8eefc;font-weight:700;letter-spacing:.3px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
-.sb-bg{position:absolute;left:50%;top:62%;transform:translate(-50%,-50%);width:78px;height:78px;border-radius:50%;opacity:.24;pointer-events:none;z-index:0;} /* v8.5: patch watermark behind the score (Tim) */
+.sb-bg{display:block;width:40px;height:40px;border-radius:50%;margin:0 auto 2px;} /* v8.6: crest cap — Tim picked mock C over the watermark */
 .score-name,.score-who,.score-goals{position:relative;z-index:1;}
 .aplbl-patch{width:30px;height:30px;vertical-align:-8px;} /* 3_24: room for team icon + name + who-emoji */
 .score-goals{font-size:1.8em;font-weight:900;color:#fff;line-height:1;display:inline-block;min-width:1.3em;text-align:center;font-variant-numeric:tabular-nums;} /* v7.173 (Tim): fixed width — score 9→10 must not widen the column */
@@ -1238,7 +1238,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.5</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.6</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1366,7 +1366,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.5</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.6</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
