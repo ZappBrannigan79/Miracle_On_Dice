@@ -1279,7 +1279,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.18</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.19</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1402,7 +1402,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.18</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.19</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2143,6 +2143,7 @@ function showQS(){
   if(!wasShown){enterMode('vsai');}
   else{backToModes();return;}
   qp.classList.add('show');
+  _qsSel[0]=null;_aiTeamIdx=null; // v8.19: fresh picks on every entry (Tim)
   renderAIPanel();renderPresetCards();
 }
 // 2_121: mode header helpers
@@ -5638,6 +5639,7 @@ function showShootoutSetup(){
   if(!wasShown){enterMode('shootout');}
   else{backToModes();return;}
   panel.classList.add('show');
+  _so.sel1=null;_so.aiIdx=null; // v8.19: fresh picks on every entry (Tim)
   renderSOPresets();
 }
 
@@ -6311,6 +6313,7 @@ let _mySlot=null;      // 0 or 1 — which G.players index am I?
 let _onlineActive=false;
 let _isWriting=false;  // prevent echo when we write
 let _pendingRemote=null; // latest remote snapshot that arrived mid-write — drained after the write acks, so a turn flip can never be silently lost
+let _rejoining=false; // v8.19: host reclaiming a room after an app close (Tim)
 let _joinerReady=false;  // joiner's first-state init flag (hoisted so the shared deliver path can use it)
 let _lastRemoteSeq=-1; // last Firebase state seq pulled — turn-passing is seq-gated (clock-skew safe)
 let _pushSeq=0;        // increments on every pushState so receivers can pull each new state
@@ -6330,7 +6333,7 @@ function teardownOnline(){
   }
   _roomRef=null; _roomCode=null; _mySlot=null;
   _onlineActive=false; _soOnly=false; _isWriting=false; _pendingRemote=null; _joinerReady=false;
-  _lastRemoteSeq=-1; _pushSeq=0;
+  _lastRemoteSeq=-1; _pushSeq=0; _rejoining=false; // v8.19
   _sTok=0; _combatNonce=0; _lastCombatNonce=0;
   _lastSoRev=0; _benchSel=[];
   try{ document.getElementById('so-overlay').classList.remove('show'); }catch(e){}
@@ -6370,6 +6373,8 @@ function showOnlineSetup(){
   if(!wasShown){enterMode('online');}
   else{backToModes();return;}
   panel.classList.add('show');
+  _onlineTeamIdx=null; // v8.19: fresh pick on every entry (Tim)
+  const _savedName=localStorage.getItem('mod_name'); if(_savedName)document.getElementById('online-name').value=_savedName; // v8.19: name persists — rejoin matches on it
   switchOnlineTab('host'); // v7.147
   populateOnlineTeamSelects();
 }
@@ -6404,6 +6409,7 @@ async function hostOnlineGame(){
   try{
     teardownOnline(); // clean up any previous session/listeners first
     const name=document.getElementById('online-name').value.trim()||'Player 1';
+    localStorage.setItem('mod_name',name); // v8.19
     let teamIdx=_onlineTeamIdx; // v8.4: team box
     if(teamIdx==null){toast('Pick your team first — Random or Choose.');return;} // 2_28: 🎲 Random Team
     const team=PRESETS[teamIdx];
@@ -6444,6 +6450,7 @@ async function hostShootout(){
   try{
     teardownOnline(); // clean up any previous session/listeners first
     const name=document.getElementById('online-name').value.trim()||'Player 1';
+    localStorage.setItem('mod_name',name); // v8.19
     let teamIdx=_onlineTeamIdx; // v8.4: team box
     if(teamIdx==null){toast('Pick your team first — Random or Choose.');return;} // 🎲 Random Team
     const team=PRESETS[teamIdx];
@@ -6475,6 +6482,40 @@ async function hostShootout(){
   }finally{ _hosting=false; }
 }
 
+function resumeHostLobby(mode,room){ // v8.19: host returns before the opponent joined — re-arm the SAME room (Tim)
+  _mySlot=0;
+  const hostTeamIdx=room.p0.teamIdx, hostName=room.p0.name;
+  showLobby('Welcome back! Share this code with your opponent:',_roomCode,'Waiting for opponent...');
+  const ref=_roomRef, gen=_onlineGen;
+  ref.child('p1').on('value',snap=>{
+    if(snap.val()?.ready){
+      ref.child('p1').off();
+      const jn=snap.val().name, jt=snap.val().teamIdx, jtn=snap.val().teamName;
+      document.getElementById('online-lobby-status').innerHTML=
+        patchHTML(jtn,'sb-patch')+jn+' ('+jtn+') joined! '+(mode==='shootout'?'Starting shootout...':'Starting...');
+      setTimeout(()=>{ if(gen!==_onlineGen) return;
+        try{ if(mode==='shootout') launchOnlineShootout(hostTeamIdx,jt,true,hostName,jn,ref); else launchOnlineGame(hostTeamIdx,jt,true,hostName,jn,ref); }
+        catch(err){ try{ toast('Launch failed: '+(err.message||err)); }catch(_){}} },1200);
+    }
+  });
+}
+
+function launchOnlineRejoin(myTeamIdx,oppTeamIdx,ref){ // v8.19: host reclaim — rebuild from the room's live state, never reset it (Tim)
+  resetAIFlags(); // human-only — clear any Vs AI state
+  _roomRef=ref||_roomRef;
+  _onlineActive=true; _mySlot=0; _rejoining=true; _joinerReady=false;
+  document.getElementById('online-panel').classList.remove('show');
+  document.getElementById('online-lobby').style.display='none';
+  document.getElementById('online-connecting-overlay').classList.add('show');
+  document.getElementById('online-connecting-msg').textContent=
+    'Reconnected to room '+_roomCode+' — restoring your game...';
+  _roomRef.child('state').on('value',snap=>{
+    const remote=snap.val(); if(!remote) return;
+    if(_isWriting){ _pendingRemote=remote; return; }
+    _deliverRemote(remote);
+  });
+}
+
 // ── JOIN ──
 async function joinOnlineGame(){
   if(!initFirebase()) return;
@@ -6483,6 +6524,7 @@ async function joinOnlineGame(){
   try{
     teardownOnline(); // clean up any previous session/listeners first
     const name=document.getElementById('online-name').value.trim()||'Player 2';
+    localStorage.setItem('mod_name',name); // v8.19
     let teamIdx=_onlineTeamIdx; // v8.4: team box
     const code=document.getElementById('online-room-code').value.trim().toUpperCase();
     if(code.length!==6){toast('Enter the 6-character room code.');return;}
@@ -6492,6 +6534,20 @@ async function joinOnlineGame(){
     const room=snap.val();
     if(!room){toast('Room not found. Check the code.');return;}
     if(room.mode==='shootout'){toast("That's a shootout room — use 🥅 Join Shootout instead.");return;}
+    // v8.19: HOST RECLAIM — if the entered name matches the HOST's slot (p0),
+    // this is the host returning after leaving/closing the app. The old code
+    // only ever checked the guest slot and told the host "Room is full."
+    // If both slots carry the same name, fall through to the guest path.
+    const _p0n=(room.p0?.name||'').trim().toLowerCase(), _p1n=(room.p1?.name||'').trim().toLowerCase(), _myn=name.trim().toLowerCase();
+    if(room.p0?.ready&&_p0n===_myn&&_p1n!==_myn){
+      if(!room.p1?.ready){ resumeHostLobby('game',room); return; }
+      _mySlot=0;
+      toast('Welcome back, host — resuming your game…');
+      showLobby('Reconnected as host',code,'Resuming your game...');
+      const ref=_roomRef, gen=_onlineGen, p0t=room.p0.teamIdx, p1t=room.p1.teamIdx;
+      setTimeout(()=>{ if(gen!==_onlineGen) return; launchOnlineRejoin(p0t,p1t,ref); },600);
+      return;
+    }
     // Reconnect: the same player (matching name) may rejoin after a refresh —
     // their fresh client rebuilds from the room's live state via the normal
     // join path, so a stuck tab doesn't have to cost the whole game.
@@ -6526,6 +6582,7 @@ async function joinShootout(){
   try{
     teardownOnline(); // clean up any previous session/listeners first
     const name=document.getElementById('online-name').value.trim()||'Player 2';
+    localStorage.setItem('mod_name',name); // v8.19
     let teamIdx=_onlineTeamIdx; // v8.4: team box
     const code=document.getElementById('online-room-code').value.trim().toUpperCase();
     if(code.length!==6){toast('Enter the 6-character room code.');return;}
@@ -6535,6 +6592,17 @@ async function joinShootout(){
     const room=snap.val();
     if(!room){toast('Room not found. Check the code.');return;}
     if(room.mode!=='shootout'){toast("That's a full-game room — use Join Full Game instead.");return;}
+    // v8.19: HOST RECLAIM (shootout) — same rule as the full game above.
+    const _p0n=(room.p0?.name||'').trim().toLowerCase(), _p1n=(room.p1?.name||'').trim().toLowerCase(), _myn=name.trim().toLowerCase();
+    if(room.p0?.ready&&_p0n===_myn&&_p1n!==_myn){
+      if(!room.p1?.ready){ resumeHostLobby('shootout',room); return; }
+      _mySlot=0;
+      toast('Welcome back, host — resuming your shootout…');
+      showLobby('Reconnected as host',code,'Resuming your shootout...');
+      const ref=_roomRef, gen=_onlineGen, p0t=room.p0.teamIdx, p1t=room.p1.teamIdx;
+      setTimeout(()=>{ if(gen!==_onlineGen) return; launchOnlineShootout(p0t,p1t,true,room.p0.name,room.p1.name,ref,true); },600);
+      return;
+    }
     // Reconnect: same name may rejoin after a refresh and resume the shootout
     // from the room's live state; a different name is turned away.
     if(room.p1?.ready){
@@ -6619,7 +6687,7 @@ function launchOnlineGame(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName,ref){
 // rooms/<code>/so; the joiner mirrors it read-only. Same rails as the
 // real-game overtime shootout, minus the game (dedicated channel so no
 // full-game state is needed).
-function launchOnlineShootout(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName,ref){
+function launchOnlineShootout(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName,ref,rejoin){ // v8.19: rejoin = mirror the live shootout, never rebuild it
   resetAIFlags(); // 3_05: human-only — clear any Vs AI state
   _roomRef=ref||_roomRef; // pin to the room this launch was scheduled for
   _onlineActive=true; _mySlot=iAmHost?0:1; _soOnly=true;
@@ -6634,7 +6702,7 @@ function launchOnlineShootout(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName,ref){
     document.getElementById('online-connecting-overlay').classList.remove('show');
     soRenderSynced();
   });
-  if(iAmHost){
+  if(iAmHost&&!rejoin){
     const mkP=(nm,ti)=>{const pr=PRESETS[ti];
       return {name:nm, teamName:pr.name,
         shooterPool:pr.lineup.filter(k=>k[0]==='F'||k[0]==='D'),
@@ -6645,7 +6713,7 @@ function launchOnlineShootout(myTeamIdx,oppTeamIdx,iAmHost,myName,oppName,ref){
     // Joiner waits for the host's shootout state to arrive on rooms/<code>/so
     document.getElementById('online-connecting-overlay').classList.add('show');
     document.getElementById('online-connecting-msg').textContent=
-      'Connected to room '+_roomCode+' — waiting for host to start the shootout...';
+      rejoin?('Reconnected to room '+_roomCode+' — restoring your shootout...'):('Connected to room '+_roomCode+' — waiting for host to start the shootout...'); // v8.19
   }
 }
 
@@ -6672,9 +6740,9 @@ function _deliverRemote(remote){
   if(!remote) return;
   if(remote.seq<=_lastRemoteSeq) return; // already pulled this push
   _lastRemoteSeq=remote.seq;
-  if(_mySlot===1&&!_joinerReady){
+  if(!_joinerReady&&(_mySlot===1||_rejoining)){ // v8.19: returning host inits from live state too
     // First state received — now initialize G from host's state
-    _joinerReady=true;
+    _joinerReady=true; _rejoining=false; // v8.19
     clearTimeout(window._connectingDelayT); // v7.30: game started, cancel the delayed popup
     // Build lineup arrays from remote player data
     const l0=remote.players[0].lineup.map(c=>c.key);
