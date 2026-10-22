@@ -122,6 +122,9 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .builder-player{display:flex;flex-direction:column;}
 .builder-player .team-box{flex:1;min-height:150px;justify-content:center;}
 /* v8.15: online picker — team box left, button column right (Tim — mock V1) */
+.onstack{display:grid;}
+.onstack>*{grid-area:1/1;}
+.onstack>.tab-off{visibility:hidden;pointer-events:none;} /* v8.18 */
 .tb-side-row{display:flex;gap:10px;align-items:stretch;margin-bottom:10px;}
 .tb-side-box{flex:1.22;display:flex;}
 .tb-side-box .team-box{flex:1;margin-bottom:0;justify-content:center;}
@@ -1276,7 +1279,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.17</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.18</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1325,18 +1328,20 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <input id="online-room-code" type="text" placeholder="ABC123" maxlength="6"
           style="width:180px;display:block;margin:0 auto;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:white;padding:12px 10px;font-size:1.2em;text-transform:uppercase;letter-spacing:4px;text-align:center"> <!-- v8.16: sized to the 6-char code (Tim) -->
       </div> <!-- v7.148: shared field — host code populates here (Tim) -->
+      <div class="onstack"> <!-- v8.18: grid stack — host/join locked to the same height (Tim) -->
       <div id="onhost">
         <div style="display:flex;gap:8px;">
           <button class="btn-start" style="flex:1;padding:11px 4px;font-size:.8em" onclick="hostOnlineGame()">HOST FULL GAME</button>
           <button class="btn-start" style="flex:1;padding:11px 4px;font-size:.8em" onclick="hostShootout()">HOST SHOOTOUT</button>
         </div>
       </div>
-      <div id="onjoin" style="display:none">
+      <div id="onjoin" class="tab-off">
         <div style="font-size:.8em;color:#aaa;margin-bottom:10px;text-align:center">Enter the room code your opponent shared with you.</div>
         <div style="display:flex;gap:8px;">
           <button class="btn-start jblue" style="flex:1;padding:11px 4px;font-size:.8em" onclick="joinOnlineGame()">JOIN FULL GAME</button>
           <button class="btn-start jblue" style="flex:1;padding:11px 4px;font-size:.8em" onclick="joinShootout()">JOIN SHOOTOUT</button>
         </div>
+      </div>
       </div> <!-- v7.147: host/join tabs, shared fields (Tim) -->
       <!-- Lobby waiting area -->
       <div id="online-lobby" style="display:none;text-align:center;padding:16px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.1)">
@@ -1397,7 +1402,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.17</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.18</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -6354,8 +6359,8 @@ function switchOnlineTab(which){ // v7.147: host/join tabs (Tim)
   const h=which==='host';
   document.getElementById('ontab-host').classList.toggle('sel',h);
   document.getElementById('ontab-join').classList.toggle('sel',!h);
-  document.getElementById('onhost').style.display=h?'':'none';
-  document.getElementById('onjoin').style.display=h?'none':'';
+  document.getElementById('onhost').classList.toggle('tab-off',!h); // v8.18: visibility, not display — the stack keeps both heights (Tim)
+  document.getElementById('onjoin').classList.toggle('tab-off',h);
 }
 function showOnlineSetup(){
   ['qs-panel','so-panel'].forEach(id=>
