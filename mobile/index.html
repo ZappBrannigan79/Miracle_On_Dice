@@ -1276,7 +1276,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.15</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.17</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1321,12 +1321,11 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <button id="ontab-join" class="onTab join" onclick="switchOnlineTab('join')">JOIN</button>
       </div>
       <div style="margin-bottom:12px">
-        <div style="font-size:.75em;color:#888;margin-bottom:4px">Room code:</div>
+        <div style="font-size:.75em;color:#888;margin-bottom:4px;text-align:center">Room code:</div>
         <input id="online-room-code" type="text" placeholder="ABC123" maxlength="6"
-          style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px 10px;font-size:1.2em;text-transform:uppercase;letter-spacing:4px;text-align:center">
+          style="width:180px;display:block;margin:0 auto;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:white;padding:12px 10px;font-size:1.2em;text-transform:uppercase;letter-spacing:4px;text-align:center"> <!-- v8.16: sized to the 6-char code (Tim) -->
       </div> <!-- v7.148: shared field — host code populates here (Tim) -->
       <div id="onhost">
-        <div style="font-size:.8em;color:#aaa;margin-bottom:10px;text-align:center">Choose your team, then create a room. Share the code with your opponent.</div>
         <div style="display:flex;gap:8px;">
           <button class="btn-start" style="flex:1;padding:11px 4px;font-size:.8em" onclick="hostOnlineGame()">HOST FULL GAME</button>
           <button class="btn-start" style="flex:1;padding:11px 4px;font-size:.8em" onclick="hostShootout()">HOST SHOOTOUT</button>
@@ -1398,7 +1397,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.15</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.17</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1855,22 +1854,22 @@ const DEFS={
   // c:true = costs 1 Energy to advance to its zone
   Rookie:[{t:'E',v:1},{t:'E',v:2},{t:'S',v:1},{t:'B',v:1},{t:'BLANK',v:0},{t:'BLANK',v:0}], // 4_95: 2 blanks (Tim)
   Goon:[{t:'E',v:1},{t:'E',v:1},{t:'E',v:2},{t:'FT',v:0},{t:'FT',v:0},{t:'FT',v:0}], // 5_44: 1E,1E,2E,FTx3 (Tim)
-  F1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:1},{t:'S',v:1,c:true},{t:'W',v:1}], // v8.0: new face table (Tim)
-  F2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:1},{t:'S',v:2,c:true},{t:'W',v:1}], // v8.0: new face table (Tim)
-  F3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:1},{t:'S',v:2,c:true},{t:'W',v:2}], // v8.0: new face table (Tim)
-  F4:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:2},{t:'S',v:2,c:true},{t:'W',v:2}], // v8.0: new face table (Tim)
-  F5:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:2},{t:'S',v:3,c:true},{t:'W',v:2}], // v8.0: new face table (Tim)
-  F6:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:2},{t:'S',v:3,c:true},{t:'W',v:3}], // v8.0: new face table (Tim)
-  F7:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:3},{t:'S',v:3,c:true},{t:'W',v:3}],
-  F8:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'S',v:3},{t:'S',v:4,c:true},{t:'W',v:3}],
-  D1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:1},{t:'B',v:1,c:true},{t:'W',v:1}], // v8.0: mirror of F, B for S (Tim)
-  D2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:1},{t:'B',v:2,c:true},{t:'W',v:1}], // v8.0: mirror of F, B for S (Tim)
-  D3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:1},{t:'B',v:2,c:true},{t:'W',v:2}], // v8.0: mirror of F, B for S (Tim)
-  D4:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:2},{t:'B',v:2,c:true},{t:'W',v:2}], // v8.0: mirror of F, B for S (Tim)
-  D5:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:2},{t:'B',v:3,c:true},{t:'W',v:2}], // v8.0: mirror of F, B for S (Tim)
-  D6:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:2},{t:'B',v:3,c:true},{t:'W',v:3}], // v8.0: mirror of F, B for S (Tim)
-  D7:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'W',v:3}],
-  D8:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:3},{t:'B',v:3},{t:'B',v:4,c:true},{t:'W',v:3}],
+  F1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:1,c:true},{t:'W',v:1}], // v8.0: new face table (Tim)
+  F2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:2,c:true},{t:'W',v:1}], // v8.0: new face table (Tim)
+  F3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:1},{t:'S',v:2,c:true},{t:'W',v:2}], // v8.0: new face table (Tim)
+  F4:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:2},{t:'S',v:2,c:true},{t:'W',v:2}], // v8.0: new face table (Tim)
+  F5:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:2},{t:'S',v:3,c:true},{t:'W',v:2}], // v8.0: new face table (Tim)
+  F6:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:2},{t:'S',v:3,c:true},{t:'W',v:3}], // v8.0: new face table (Tim)
+  F7:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:3},{t:'S',v:3,c:true},{t:'W',v:3}],
+  F8:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'S',v:3},{t:'S',v:4,c:true},{t:'W',v:3}],
+  D1:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:1},{t:'B',v:1,c:true},{t:'W',v:1}], // v8.0: mirror of F, B for S (Tim)
+  D2:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:1},{t:'B',v:2,c:true},{t:'W',v:1}], // v8.0: mirror of F, B for S (Tim)
+  D3:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:1},{t:'B',v:2,c:true},{t:'W',v:2}], // v8.0: mirror of F, B for S (Tim)
+  D4:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:2},{t:'B',v:2,c:true},{t:'W',v:2}], // v8.0: mirror of F, B for S (Tim)
+  D5:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:2},{t:'B',v:3,c:true},{t:'W',v:2}], // v8.0: mirror of F, B for S (Tim)
+  D6:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:2},{t:'B',v:3,c:true},{t:'W',v:3}], // v8.0: mirror of F, B for S (Tim)
+  D7:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:3},{t:'B',v:3,c:true},{t:'W',v:3}],
+  D8:[{t:'E',v:1},{t:'E',v:2},{t:'E',v:2},{t:'B',v:3},{t:'B',v:4,c:true},{t:'W',v:3}],
   G3:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}], // v8.0: new face table (Tim)
   G4:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}], // v8.0: new face table (Tim)
   G5:[{t:'B',v:2},{t:'B',v:2},{t:'B',v:3},{t:'B',v:3},{t:'B',v:3,c:true},{t:'SO',v:2,c:true}], // v8.0: new face table (Tim)
