@@ -121,15 +121,13 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 /* v8.7: matchup layout B (Tim) — VS medallion on the seam, equal-height boxes, stacked box buttons */
 .builder-player{display:flex;flex-direction:column;}
 .builder-player .team-box{flex:1;min-height:150px;justify-content:center;}
-/* v8.14: online team strip (Tim — mock B) */
-.team-box.strip{flex-direction:row;align-items:center;gap:12px;padding:10px 12px;text-align:left;cursor:default;}
-.tb-tap{display:flex;align-items:center;gap:12px;flex:1;min-width:0;cursor:pointer;}
-.tb-patch-strip{width:62px;height:62px;border-radius:50%;flex-shrink:0;}
-.tb-q-strip{width:62px;height:62px;border-radius:50%;border:2px dashed rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:26px;color:#8fa3bf;flex-shrink:0;}
-.team-box.strip .tb-name{font-size:17px;font-weight:800;}
-.tb-hint{color:#8fa3bf;font-size:11px;margin-top:2px;}
-.tb-stack{display:flex;flex-direction:column;gap:6px;width:106px;flex-shrink:0;}
-.tb-stack .team-rand-btn{padding:7px 0;font-size:12.5px;line-height:1.2;margin:0;flex:none;}
+/* v8.15: online picker — team box left, button column right (Tim — mock V1) */
+.tb-side-row{display:flex;gap:10px;align-items:stretch;margin-bottom:10px;}
+.tb-side-box{flex:1.22;display:flex;}
+.tb-side-box .team-box{flex:1;margin-bottom:0;justify-content:center;}
+.tb-side-box .tb-patch{width:96px;height:96px;}
+.tb-side-col{flex:1;display:flex;flex-direction:column;gap:8px;justify-content:center;}
+.tb-side-col .team-rand-btn{flex:1;margin:0;display:flex;align-items:center;justify-content:center;}
 .builder-grid .qs-btn-row{flex-direction:column;width:100%;}
 .builder-grid .qs-btn-row .team-rand-btn{width:100%;flex:none;}
 /* v8.8: shootout scoreboard = matchup cells (Tim, mock B) */
@@ -1278,7 +1276,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.14</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.15</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1310,9 +1308,6 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
   </div>
     <!-- ONLINE SETUP PANEL -->
     <div class="team-builder" id="online-panel">
-      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:12px">
-        Host a game and share the room code, or join a friend's game.
-      </div>
       <div style="margin-bottom:8px">
         <div style="font-size:.75em;color:#888;margin-bottom:4px">Your name:</div>
         <input id="online-name" type="text" placeholder="Player 1" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:6px;color:white;padding:6px 10px;font-size:.85em">
@@ -1360,9 +1355,6 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     </div> <!-- v7.87: Erbee McCream credit text (Tim) -->
     <!-- SHOOTOUT SETUP -->
     <div class="team-builder" id="so-panel">
-      <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:12px">
-        Pick your roster, then face the AI in a 3-round shootout. The AI drafts its shooters and rolls automatically — you tap to take your shots.
-      </div>
       <div class="builder-grid"><div class="vs-medallion">VS</div>
         <div class="builder-player">
           <h3>Your Roster</h3>
@@ -1406,7 +1398,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.14</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.15</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2039,26 +2031,34 @@ function teamBoxHTML(idx){
   const p=PRESETS[idx];
   return `<div class="team-box filled">${patchHTML(p.name,'tb-patch')}<div class="tb-name">${plainTeamName(p.name)}</div></div>`; // v8.14: plain name (Tim)
 }
-function teamStripHTML(idx){
-  const btns=`<div class="tb-stack"><button class="team-rand-btn tb-srand">🎲 Random</button><button class="team-rand-btn tb-schoose">Choose</button></div>`;
-  if(idx===null||idx===undefined)return `<div class="team-box empty strip"><div class="tb-tap"><div class="tb-q-strip">?</div><div class="tb-mid"><div class="tb-name">No team yet</div><div class="tb-hint">tap to pick your team</div></div></div>${btns}</div>`;
-  const p=PRESETS[idx];
-  return `<div class="team-box filled strip"><div class="tb-tap">${patchHTML(p.name,'tb-patch-strip')}<div class="tb-mid"><div class="tb-name">${plainTeamName(p.name)}</div><div class="tb-hint">tap the patch to view the team card</div></div></div>${btns}</div>`;
-}
 function renderTeamBox(el,cfg){
   if(!el)return;
   el.innerHTML='';
-  if(cfg.strip){ // v8.14: horizontal strip (online panel — Tim, mock B)
-    const w=document.createElement('div');
-    w.innerHTML=teamStripHTML(cfg.get());
-    el.appendChild(w);
-    w.querySelector('.tb-tap').addEventListener('click',()=>{
+  if(cfg.side){ // v8.15: team box left + button column right (online panel — Tim, mock V1; replaces the v8.14 strip)
+    const rowEl=document.createElement('div');
+    rowEl.className='tb-side-row';
+    const boxWrap=document.createElement('div');
+    boxWrap.className='tb-side-box';
+    boxWrap.innerHTML=teamBoxHTML(cfg.get());
+    rowEl.appendChild(boxWrap);
+    boxWrap.querySelector('.team-box').addEventListener('click',()=>{
       const i=cfg.get();
       if(i===null||i===undefined)openTeamPicker(cfg);
       else showTeamCard(PRESETS[i]);
     });
-    w.querySelector('.tb-srand').addEventListener('click',()=>cfg.onRandom());
-    w.querySelector('.tb-schoose').addEventListener('click',()=>openTeamPicker(cfg));
+    const col=document.createElement('div');
+    col.className='tb-side-col';
+    const rb2=document.createElement('button');
+    rb2.className='team-rand-btn';
+    rb2.textContent='🎲 Random Team';
+    rb2.addEventListener('click',()=>cfg.onRandom());
+    const cb2=document.createElement('button');
+    cb2.className='team-rand-btn';
+    cb2.textContent='Choose Team';
+    cb2.addEventListener('click',()=>openTeamPicker(cfg));
+    col.appendChild(rb2);col.appendChild(cb2);
+    rowEl.appendChild(col);
+    el.appendChild(rowEl);
     return;
   }
   const wrap=document.createElement('div');
@@ -2108,7 +2108,7 @@ const SO_PLAYER_BOX={get:()=>_so.sel1,
 const SO_AI_BOX={get:()=>_so.aiIdx,
   onRandom:()=>{_soAiManualPick=false;_so.aiIdx=randTeamExcept(_so.sel1);renderSOAITeam();},
   onPick:v=>{_soAiManualPick=true;_so.aiIdx=v;renderSOAITeam();}};
-const ONLINE_BOX={strip:true,get:()=>_onlineTeamIdx, // v8.14
+const ONLINE_BOX={side:true,get:()=>_onlineTeamIdx, // v8.15
   onRandom:()=>{_onlineTeamIdx=Math.floor(Math.random()*PRESETS.length);renderOnlineTeamBox();},
   onPick:v=>{_onlineTeamIdx=v;renderOnlineTeamBox();}};
 function gateQSStart(){
