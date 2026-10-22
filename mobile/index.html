@@ -1279,7 +1279,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.19</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.20</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1293,7 +1293,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div class="setup-btns" id="mode-btns" style="flex-direction:column;align-items:stretch;max-width:320px;margin:0 auto 20px;">
       <button class="btn-mode" style="background:linear-gradient(180deg,#ffd75e,#c9a227);color:#0b0e14;border:none;" onclick="showQS()">FULL GAME VS AI</button>
       <button class="btn-mode" style="background:linear-gradient(180deg,#ff8a8a,#d43a3a);color:#fff;border:none;" onclick="showShootoutSetup()">SHOOTOUT MINI GAME</button>
-      <button class="btn-mode" style="background:linear-gradient(180deg,#7ee2a0,#2e9e5b);color:#06230f;border:none;" onclick="showOnlineSetup()">PLAY ONLINE VS FRIEND</button>
+      <button class="btn-mode" style="background:linear-gradient(180deg,#7ee2a0,#2e9e5b);color:#06230f;border:none;" onclick="showOnlineSetup('host')">HOST GAME VS FRIEND</button>
+      <button class="btn-mode" style="background:linear-gradient(180deg,#6f9bf5,#3a6ad8);color:#fff;border:none;" onclick="showOnlineSetup('join')">JOIN GAME VS FRIEND</button> <!-- v8.20: host/join split at the menu (Tim) -->
       <div style="display:flex;gap:8px;justify-content:center;margin-top:6px;">
         <button class="btn-mode" style="flex:1;background:#1c2230;color:#ffd75e;border:1px solid #c9a227;font-size:.82em;padding:10px 8px;" onclick="openQuickRules()">QUICK RULES</button>
         <span id="art-choice" style="flex:1;display:flex;">
@@ -1319,15 +1320,6 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <div style="font-size:.75em;color:#888;margin-bottom:4px">Your team:</div>
         <div id="online-team-box"></div>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:12px;">
-        <button id="ontab-host" class="onTab host sel" onclick="switchOnlineTab('host')">HOST</button>
-        <button id="ontab-join" class="onTab join" onclick="switchOnlineTab('join')">JOIN</button>
-      </div>
-      <div style="margin-bottom:12px">
-        <div style="font-size:.75em;color:#888;margin-bottom:4px;text-align:center">Room code:</div>
-        <input id="online-room-code" type="text" placeholder="ABC123" maxlength="6"
-          style="width:180px;display:block;margin:0 auto;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:white;padding:12px 10px;font-size:1.2em;text-transform:uppercase;letter-spacing:4px;text-align:center"> <!-- v8.16: sized to the 6-char code (Tim) -->
-      </div> <!-- v7.148: shared field — host code populates here (Tim) -->
       <div class="onstack"> <!-- v8.18: grid stack — host/join locked to the same height (Tim) -->
       <div id="onhost">
         <div style="display:flex;gap:8px;">
@@ -1336,16 +1328,23 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         </div>
       </div>
       <div id="onjoin" class="tab-off">
+      <div style="margin-bottom:12px">
+        <div style="font-size:.75em;color:#888;margin-bottom:4px;text-align:center">Room code:</div>
+        <input id="online-room-code" type="text" placeholder="ABC123" maxlength="6"
+          style="width:180px;display:block;margin:0 auto;box-sizing:border-box;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:white;padding:12px 10px;font-size:1.2em;text-transform:uppercase;letter-spacing:4px;text-align:center"> <!-- v8.16: sized to the 6-char code (Tim) -->
+      </div> <!-- v8.20: code entry lives in the join submenu now (Tim) -->
         <div style="font-size:.8em;color:#aaa;margin-bottom:10px;text-align:center">Enter the room code your opponent shared with you.</div>
         <div style="display:flex;gap:8px;">
           <button class="btn-start jblue" style="flex:1;padding:11px 4px;font-size:.8em" onclick="joinOnlineGame()">JOIN FULL GAME</button>
           <button class="btn-start jblue" style="flex:1;padding:11px 4px;font-size:.8em" onclick="joinShootout()">JOIN SHOOTOUT</button>
         </div>
+        <div style="font-size:.75em;color:#888;margin-top:10px;text-align:center">Rejoining a game you left? Enter its code with the same name — you'll land right back in it.</div> <!-- v8.20 (Tim) -->
       </div>
       </div> <!-- v7.147: host/join tabs, shared fields (Tim) -->
       <!-- Lobby waiting area -->
       <div id="online-lobby" style="display:none;text-align:center;padding:16px;background:rgba(255,255,255,.04);border-radius:10px;border:1px solid rgba(255,255,255,.1)">
         <div id="online-lobby-msg" style="font-size:1em;color:var(--gold);font-weight:700;margin-bottom:8px"></div>
+        <div id="online-lobby-code" style="font-size:1.9em;font-weight:900;letter-spacing:6px;color:var(--gold);margin:0 0 8px;"></div> <!-- v8.20 (Tim) -->
         <div id="online-lobby-status" style="font-size:.82em;color:#aaa;margin-bottom:12px"></div>
         <button class="abtn sec" onclick="cancelOnlineGame()" style="font-size:.8em">Cancel</button>
       </div>
@@ -1402,7 +1401,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.19</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.20</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2159,7 +2158,8 @@ function enterMode(mode){
   const banners={
     vsai:'<div class="btn-mode" style="width:100%;text-align:center;background:linear-gradient(180deg,#ffd75e,#c9a227);color:#0b0e14;border:none;">FULL GAME VS AI CHUCK</div>',
     shootout:'<div class="btn-mode" style="width:100%;text-align:center;background:linear-gradient(180deg,#ff8a8a,#d43a3a);color:#fff;border:none;">SHOOTOUT MINI GAME</div>',
-    online:'<div class="btn-mode" style="width:100%;text-align:center;background:linear-gradient(180deg,#7ee2a0,#2e9e5b);color:#06230f;border:none;">PLAY ONLINE VS FRIEND</div>' // v7.142: jersey banners, no emojis (Tim)
+    host:'<div class="btn-mode" style="width:100%;text-align:center;background:linear-gradient(180deg,#7ee2a0,#2e9e5b);color:#06230f;border:none;">HOST GAME VS FRIEND</div>',
+    join:'<div class="btn-mode" style="width:100%;text-align:center;background:linear-gradient(180deg,#6f9bf5,#3a6ad8);color:#fff;border:none;">JOIN GAME VS FRIEND</div>' // v8.20 (Tim)
   };
   document.getElementById('mode-header-banner').innerHTML=banners[mode]||'';
 }
@@ -6360,22 +6360,22 @@ function spectating(){ return _onlineActive && !isMyTurn(); }
 // ── SETUP SCREEN ──
 function switchOnlineTab(which){ // v7.147: host/join tabs (Tim)
   const h=which==='host';
-  document.getElementById('ontab-host').classList.toggle('sel',h);
-  document.getElementById('ontab-join').classList.toggle('sel',!h);
+  const _th=document.getElementById('ontab-host'), _tj=document.getElementById('ontab-join'); // v8.20: tab buttons retired — null-safe
+  if(_th)_th.classList.toggle('sel',h); if(_tj)_tj.classList.toggle('sel',!h);
   document.getElementById('onhost').classList.toggle('tab-off',!h); // v8.18: visibility, not display — the stack keeps both heights (Tim)
   document.getElementById('onjoin').classList.toggle('tab-off',h);
 }
-function showOnlineSetup(){
+function showOnlineSetup(mode){ // v8.20: mode = host | join, chosen at the menu (Tim)
   ['qs-panel','so-panel'].forEach(id=>
     document.getElementById(id)?.classList.remove('show'));
   const panel=document.getElementById('online-panel');
   const wasShown=panel.classList.contains('show');
-  if(!wasShown){enterMode('online');}
+  if(!wasShown){enterMode(mode==='join'?'join':'host');} // v8.20
   else{backToModes();return;}
   panel.classList.add('show');
   _onlineTeamIdx=null; // v8.19: fresh pick on every entry (Tim)
   const _savedName=localStorage.getItem('mod_name'); if(_savedName)document.getElementById('online-name').value=_savedName; // v8.19: name persists — rejoin matches on it
-  switchOnlineTab('host'); // v7.147
+  switchOnlineTab(mode==='join'?'join':'host'); // v8.20: preselect the chosen submenu
   populateOnlineTeamSelects();
 }
 
@@ -6397,6 +6397,7 @@ function genCode(){
 function showLobby(msg,code,status){
   document.getElementById('online-lobby').style.display='block';
   document.getElementById('online-lobby-msg').textContent=msg;
+  document.getElementById('online-lobby-code').textContent=code||''; // v8.20: the code, displayed (Tim)
   document.getElementById('online-room-code').value=code||''; // v7.148: host code populates shared field (Tim)
   document.getElementById('online-lobby-status').textContent=status;
 }
