@@ -1279,7 +1279,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.22</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.23</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1323,8 +1323,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div class="onstack"> <!-- v8.18: grid stack — host/join locked to the same height (Tim) -->
       <div id="onhost">
         <div style="display:flex;gap:8px;">
-          <button class="btn-start" style="flex:1;padding:11px 4px;font-size:.8em" onclick="hostOnlineGame()">HOST FULL GAME</button>
-          <button class="btn-start" style="flex:1;padding:11px 4px;font-size:.8em" onclick="hostShootout()">HOST SHOOTOUT</button>
+          <button class="btn-start" style="flex:1;padding:11px 4px;font-size:.8em" onclick="hostOnlineGame()">HOST<br>FULL GAME</button> <!-- v8.23: two-line compact (Tim) -->
+          <button class="btn-start" style="flex:1;padding:11px 4px;font-size:.8em" onclick="hostShootout()">HOST<br>SHOOTOUT</button>
         </div>
       </div>
       <div id="onjoin"> <!-- v8.22: tab-off retired -->
@@ -1335,8 +1335,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       </div> <!-- v8.20: code entry lives in the join submenu now (Tim) -->
         <div style="font-size:.8em;color:#aaa;margin-bottom:10px;text-align:center">Enter the room code your opponent shared with you.</div>
         <div style="display:flex;gap:8px;">
-          <button class="btn-start jblue" style="flex:1;padding:11px 4px;font-size:.8em" onclick="joinOnlineGame()">JOIN FULL GAME</button>
-          <button class="btn-start jblue" style="flex:1;padding:11px 4px;font-size:.8em" onclick="joinShootout()">JOIN SHOOTOUT</button>
+          <button class="btn-start jblue" style="flex:1;padding:11px 4px;font-size:.8em" onclick="joinOnlineGame()">JOIN<br>FULL GAME</button>
+          <button class="btn-start jblue" style="flex:1;padding:11px 4px;font-size:.8em" onclick="joinShootout()">JOIN<br>SHOOTOUT</button>
         </div>
         <div style="font-size:.75em;color:#888;margin-top:10px;text-align:center">Rejoining a game you left? Enter its code with the same name — you'll land right back in it.</div> <!-- v8.20 (Tim) -->
       </div>
@@ -1401,7 +1401,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.22</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.23</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
