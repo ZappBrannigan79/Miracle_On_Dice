@@ -49,7 +49,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .btn-qs{background:rgba(106,169,255,.10);color:#6aa9ff;border:2px solid #6aa9ff;}.btn-qs:hover{background:rgba(106,169,255,.22);}
 .btn-cb{background:transparent;color:var(--gold);border:2px solid var(--gold);}.btn-cb:hover{background:rgba(200,168,75,.15);}
 .team-builder{display:none;}.team-builder.show{display:block;}.pts-badge{font-size:.75em;}
-.builder-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;}
+.builder-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;position:relative;}
 .builder-player{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:16px;}
 /* 2_52: the team list column stretches to match the AI options column height */
 #qs-panel .builder-player{display:flex;flex-direction:column;}
@@ -90,7 +90,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .sb-patch{width:25px;height:25px;border-radius:50%;vertical-align:-6px;margin-right:5px;}
 .go-patch{width:104px;height:104px;border-radius:50%;margin:0 auto 8px;box-shadow:0 0 22px rgba(200,168,75,.35);}
 .opp-patch{width:52px;height:52px;border-radius:50%;}
-@media (max-width:560px){.builder-grid{grid-template-columns:1fr;}} /* v8.2: setup columns stack on phones so the patch grid gets full width */
+@media (max-width:560px){.builder-grid{gap:10px;}} /* v8.7: matchup stays side-by-side on phones (Tim, mock B) */ /* v8.2: setup columns stack on phones so the patch grid gets full width */
 .team-rand-btn{width:100%;padding:10px;margin:0 0 10px;border-radius:8px;border:2px solid rgba(255,255,255,.18);background:#1a2d45;color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.92em;}
 .team-rand-btn.sel{border-color:var(--gold);background:rgba(200,168,75,.15);color:var(--gold);}
 .team-sel-line{text-align:center;color:#ddd;font-size:.92em;margin:2px 0 8px;} /* v8.2c */
@@ -106,9 +106,9 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .qs-back-btn{display:inline-block;background:none;border:none;color:#9db4d0;font-size:.88em;cursor:pointer;padding:2px 0 10px;font-family:inherit;}
 .qs-back-btn:hover{text-decoration:underline;color:#fff;}
 /* v8.4: unified team boxes + picker modal (Tim) */
-.team-box{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px;border:2px dashed rgba(255,255,255,.22);border-radius:14px;background:rgba(255,255,255,.03);margin-bottom:10px;cursor:pointer;}
+.team-box{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 8px;border:2px dashed rgba(255,255,255,.22);border-radius:14px;background:rgba(255,255,255,.03);margin-bottom:10px;cursor:pointer;}
 .team-box.filled{border-style:solid;border-color:rgba(200,168,75,.45);}
-.tb-patch{width:118px;height:118px;border-radius:50%;}
+.tb-patch{width:100px;height:100px;border-radius:50%;}
 .tb-q{font-size:3.2em;font-weight:900;color:rgba(255,255,255,.35);line-height:1.05;}
 .tb-name{font-weight:800;color:#fff;font-size:1.02em;text-align:center;}
 .team-box.empty .tb-name{color:#8fa3bf;font-weight:600;}
@@ -116,6 +116,30 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .tp-grid{max-height:64vh;overflow-y:auto;padding:2px;}
 #tc-overlay{z-index:120;}
 #tp-overlay{z-index:110;}
+/* v8.7: matchup layout B (Tim) — VS medallion on the seam, equal-height boxes, stacked box buttons */
+.builder-player{display:flex;flex-direction:column;}
+.builder-player .team-box{flex:1;min-height:150px;justify-content:center;}
+.builder-grid .qs-btn-row{flex-direction:column;width:100%;}
+.builder-grid .qs-btn-row .team-rand-btn{width:100%;flex:none;}
+/* v8.8: shootout scoreboard = matchup cells (Tim, mock B) */
+.so-b-wrap{position:relative;display:flex;gap:8px;}
+.so-b-cell{flex:1;border-radius:12px;padding:10px 6px 9px;display:flex;flex-direction:column;align-items:center;}
+.so-b-blue{background:rgba(46,93,168,.45);}
+.so-b-red{background:rgba(150,40,40,.45);}
+.so-b-patch{width:56px;height:56px;border-radius:50%;}
+.so-b-name{font-weight:800;font-size:15px;color:#fff;margin-top:5px;letter-spacing:.5px;text-align:center;font-family:system-ui,sans-serif;}
+.so-b-who{font-size:.68em;color:#a9bcd8;font-family:system-ui,sans-serif;}
+.so-b-chips{display:flex;gap:5px;margin-top:8px;}
+.so-chip{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;font-family:system-ui,sans-serif;}
+.so-chip-sd{border-radius:7px;font-size:9.5px;color:#8fa3bf;}
+.so-chip.next{border-style:dashed;border-color:#f8bd55;}
+.so-b-tot{margin-top:8px;font-size:12px;color:#a9bcd8;letter-spacing:1px;font-family:system-ui,sans-serif;}
+.so-b-tot b{color:#f8bd55;font-size:20px;}
+.so-vs{top:38px;}
+/* v8.8: one fixed card size for every shootout phase; the phase area centers in the leftover space (Tim) */
+#so-overlay .ov-box{display:flex;flex-direction:column;min-height:636px;}
+#so-shooter-area,#so-result-area,#so-final-area{margin-top:auto!important;margin-bottom:auto;width:100%;}
+.vs-medallion{position:absolute;left:50%;top:114px;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f3d27a,#c8a84b 70%);color:#12233c;font-weight:900;font-size:15px;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;border:3px solid #101c2e;box-shadow:0 2px 10px rgba(0,0,0,.5);z-index:3;pointer-events:none;}
 /* 2_121: subtle pulse on AI speed buttons to draw the eye — stops once one is picked */
 /* 2_128: brightened per Tim — stronger glow + background swell */
 
@@ -580,7 +604,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
    top, over a flat dim layer; card height changes reveal/conceal nothing.
    v7.166: beam base scooted up (Tim) — the wide end and the ice-pool oval now
    land on the shooter dice row instead of down by the Roll Shot button. */
-#so-overlay .ov-box{position:relative;overflow:hidden;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='384' viewBox='0 0 720 384' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffecaa' stop-opacity='.30'/%3E%3Cstop offset='.55' stop-color='%23ffecaa' stop-opacity='.13'/%3E%3Cstop offset='1' stop-color='%23ffecaa' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='314,0 406,0 644,332 76,332' fill='url(%23b)'/%3E%3Cellipse cx='360' cy='334' rx='268' ry='29' fill='%23fff0be' opacity='.17'/%3E%3C/svg%3E"),linear-gradient(rgba(2,5,10,.38),rgba(2,5,10,.38));background-size:100% 384px,100% 100%;background-position:top center,0 0;background-repeat:no-repeat,no-repeat;}
+#so-overlay .ov-box{position:relative;overflow:hidden;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='636' viewBox='0 0 720 636' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffecaa' stop-opacity='.30'/%3E%3Cstop offset='.55' stop-color='%23ffecaa' stop-opacity='.13'/%3E%3Cstop offset='1' stop-color='%23ffecaa' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='314,0 406,0 664,428 56,428' fill='url(%23b)'/%3E%3Cellipse cx='360' cy='428' rx='292' ry='34' fill='%23fff0be' opacity='.17'/%3E%3C/svg%3E"),linear-gradient(rgba(2,5,10,.38),rgba(2,5,10,.38));background-size:100% 636px,100% 100%;background-position:top center,0 0;background-repeat:no-repeat,no-repeat;}
 .block-sel-area h3{font-size:.8em;color:#ccc;margin-bottom:7px;}
 .block-sel-dice{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 22px;min-height:30px;} /* v7.30: breathing room (Tim) */
 /* 2_21 — opponent's (defender's) dice on the shooter's screen: visible but dimmed, not clickable */
@@ -1238,7 +1262,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.6</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.8</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1323,7 +1347,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div style="font-size:.85em;color:#aaa;text-align:center;margin-bottom:12px">
         Pick your roster, then face the AI in a 3-round shootout. The AI drafts its shooters and rolls automatically — you tap to take your shots.
       </div>
-      <div class="builder-grid">
+      <div class="builder-grid"><div class="vs-medallion">VS</div>
         <div class="builder-player">
           <h3>Your Roster</h3>
           <div class="preset-cards" id="so-p1"></div>
@@ -1342,7 +1366,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div class="team-builder" id="qs-panel">
       <!-- 3_52: intro line removed (Tim) -->
       <!-- 2_51: division filters removed — all 24 teams always listed -->
-      <div class="builder-grid">
+      <div class="builder-grid"><div class="vs-medallion">VS</div>
         <div class="builder-player" id="qs-p1col">
           <h3>Your Roster</h3>
           <div class="preset-cards" id="qs-p1"></div>
@@ -1366,7 +1390,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.6</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.8</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1680,37 +1704,24 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <h2 id="so-title" style="font-size:1.2em;margin-bottom:6px;text-align:center">🥅 Shootout<br><span id="so-subtitle" style="font-size:.8em;opacity:.85"></span></h2>
 
     <!-- Scoreboard -->
-    <div id="so-scoreboard" style="margin-bottom:16px;overflow-x:auto">
-      <table id="so-table" style="width:100%;border-collapse:collapse;font-size:.82em;font-family:system-ui,sans-serif">
-        <thead>
-          <tr id="so-head-row">
-            <th style="text-align:left;padding:6px 10px;background:#0d1f33;color:white;width:140px">SHOOTOUT</th>
-            <th id="so-h1" style="padding:6px 4px;background:#0d1f33;color:white;width:28px">1</th>
-            <th id="so-h2" style="padding:6px 4px;background:#0d1f33;color:white;width:28px">2</th>
-            <th id="so-h3" style="padding:6px 4px;background:#0d1f33;color:white;width:28px">3</th>
-            <th id="so-h-sd" style="padding:6px 4px;background:#0d1f33;color:#555;width:32px">SD</th>
-            <th style="padding:6px 4px;background:#0d1f33;color:#c8a84b;font-weight:900;width:28px">T</th><!-- 4_08: total far right -->
-          </tr>
-        </thead>
-        <tbody>
-          <tr id="so-row-0">
-            <td id="so-name-0" style="padding:6px 10px;background:#1a3a5c;color:white;font-weight:900;text-align:left"><div id="so-who-0" style="font-size:.78em;color:#6b7690;font-weight:600;opacity:.85;"></div></td> <!-- 5_90: left-aligned (Tim) -->
-            <td id="so-cell-0-0" style="padding:6px 4px;background:#1a3a5c;text-align:center"></td>
-            <td id="so-cell-0-1" style="padding:6px 4px;background:#1a3a5c;text-align:center"></td>
-            <td id="so-cell-0-2" style="padding:6px 4px;background:#1a3a5c;text-align:center"></td>
-            <td id="so-cell-0-sd" style="padding:6px 4px;background:#1a3a5c;text-align:center"></td>
-            <td id="so-total-0" style="padding:6px 4px;background:#1a3a5c;color:#c8a84b;font-weight:900;text-align:center"></td>
-          </tr>
-          <tr id="so-row-1">
-            <td id="so-name-1" style="padding:6px 10px;background:#5a1010;color:white;font-weight:900;text-align:left"><div id="so-who-1" style="font-size:.78em;color:#6b7690;font-weight:600;opacity:.85;"></div></td>
-            <td id="so-cell-1-0" style="padding:6px 4px;background:#5a1010;text-align:center"></td>
-            <td id="so-cell-1-1" style="padding:6px 4px;background:#5a1010;text-align:center"></td>
-            <td id="so-cell-1-2" style="padding:6px 4px;background:#5a1010;text-align:center"></td>
-            <td id="so-cell-1-sd" style="padding:6px 4px;background:#5a1010;text-align:center"></td>
-            <td id="so-total-1" style="padding:6px 4px;background:#5a1010;color:#c8a84b;font-weight:900;text-align:center"></td>
-          </tr>
-        </tbody>
-      </table>
+    <div id="so-scoreboard" style="margin-bottom:16px">
+      <div class="so-b-wrap">
+        <div class="vs-medallion so-vs">VS</div>
+        <div class="so-b-cell so-b-blue">
+          <img class="so-b-patch" id="so-patch-0" alt="" onerror="this.style.display='none'">
+          <div class="so-b-name" id="so-name-0"></div>
+          <div class="so-b-who" id="so-who-0"></div>
+          <div class="so-b-chips"><span class="so-chip" id="so-cell-0-0"></span><span class="so-chip" id="so-cell-0-1"></span><span class="so-chip" id="so-cell-0-2"></span><span class="so-chip so-chip-sd" id="so-cell-0-sd">SD</span></div>
+          <div class="so-b-tot">TOTAL <b id="so-total-0">0</b></div>
+        </div>
+        <div class="so-b-cell so-b-red">
+          <img class="so-b-patch" id="so-patch-1" alt="" onerror="this.style.display='none'">
+          <div class="so-b-name" id="so-name-1"></div>
+          <div class="so-b-who" id="so-who-1"></div>
+          <div class="so-b-chips"><span class="so-chip" id="so-cell-1-0"></span><span class="so-chip" id="so-cell-1-1"></span><span class="so-chip" id="so-cell-1-2"></span><span class="so-chip so-chip-sd" id="so-cell-1-sd">SD</span></div>
+          <div class="so-b-tot">TOTAL <b id="so-total-1">0</b></div>
+        </div>
+      </div>
     </div>
 
     <!-- Active shooter turn info -->
@@ -5681,11 +5692,10 @@ function startShootout(practice){
   // Set scoreboard names
   [0,1].forEach(i=>{
     const nameEl = document.getElementById('so-name-'+i);
-    // v7.30: team name + who-label below (Tim)
     if(nameEl){
-      const whoEl = document.getElementById('so-who-'+i);
-      const whoHTML = whoEl ? whoEl.outerHTML : '';
-      nameEl.innerHTML = patchHTML(_so.players[i].teamName,'sb-patch') + soTeamPlain(i).toUpperCase() + whoHTML; // v8.5
+      nameEl.textContent = soTeamPlain(i).toUpperCase(); // v8.8: matchup-cell board (Tim, mock B)
+      const pEl = document.getElementById('so-patch-'+i);
+      if(pEl){ pEl.style.display=''; pEl.src='logos-'+teamSlug(_so.players[i].teamName)+'.webp'; }
       const w2 = document.getElementById('so-who-'+i);
       if(w2) w2.textContent = soWhoLbl(i);
     }
@@ -5782,8 +5792,9 @@ function soWhoLbl(si){const p=_so.players[si];if(!p)return '';const nm=bareName(
   if(_aiActive)return 'Player 1';return nm||('Player '+(si+1));} // v7.30 (Tim)
 function renderSOScoreboard(){
   // 3_62: one SD column — blank until a sudden-death shootout is decided, then winner ● / loser X (Tim)
-  const sdHead=document.getElementById('so-h-sd');
-  if(sdHead)sdHead.style.color=_so.suddenDeath?'#c8a84b':'#555';
+  // v8.8: SD chips glow gold once sudden death is live
+  [0,1].forEach(pi=>{ const sdC=document.getElementById('so-cell-'+pi+'-sd');
+    if(sdC && !(_so.phase==='final'&&_so.suddenDeath)) sdC.style.color=_so.suddenDeath?'#c8a84b':'#8fa3bf'; });
 
   // Totals
   [0,1].forEach(pi=>{
@@ -5809,9 +5820,16 @@ function renderSOScoreboard(){
       if(_so.phase==='final'&&_so.suddenDeath){
         const wIdx=_so.scores[0]>_so.scores[1]?0:1;
         sdCell.innerHTML=pi===wIdx?goalMark:missMark;
-      } else sdCell.innerHTML='';
+      } else sdCell.innerHTML='SD';
     }
   });
+
+  // v8.8: gold-dashed chip marks the shooter still to come (mock B)
+  document.querySelectorAll('.so-chip.next').forEach(c=>c.classList.remove('next'));
+  if(_so.phase!=='final'){
+    if(_so.suddenDeath){ const sc=document.getElementById('so-cell-'+_so.shooterIdx+'-sd'); if(sc)sc.classList.add('next'); }
+    else { const nc=document.getElementById('so-cell-'+_so.shooterIdx+'-'+(_so.round-1)); if(nc&&!nc.innerHTML)nc.classList.add('next'); }
+  }
 
   // Title: two lines, both centered (Tim)
   document.getElementById('so-subtitle').textContent = _so.suddenDeath
