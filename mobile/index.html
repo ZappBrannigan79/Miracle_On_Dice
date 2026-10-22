@@ -126,8 +126,8 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .so-b-cell{flex:1;border-radius:12px;padding:10px 6px 9px;display:flex;flex-direction:column;align-items:center;}
 .so-b-blue{background:rgba(46,93,168,.45);}
 .so-b-red{background:rgba(150,40,40,.45);}
-.so-b-patch{width:56px;height:56px;border-radius:50%;}
-.so-b-name{font-weight:800;font-size:15px;color:#fff;margin-top:5px;letter-spacing:.5px;text-align:center;font-family:system-ui,sans-serif;}
+.so-b-patch{width:68px;height:68px;border-radius:50%;}
+.so-b-name{font-weight:800;font-size:17px;color:#fff;margin-top:6px;letter-spacing:.5px;text-align:center;font-family:system-ui,sans-serif;}
 .so-b-who{font-size:.68em;color:#a9bcd8;font-family:system-ui,sans-serif;}
 .so-b-chips{display:flex;gap:5px;margin-top:8px;}
 .so-chip{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;font-family:system-ui,sans-serif;}
@@ -135,9 +135,9 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .so-chip.next{border-style:dashed;border-color:#f8bd55;}
 .so-b-tot{margin-top:8px;font-size:12px;color:#a9bcd8;letter-spacing:1px;font-family:system-ui,sans-serif;}
 .so-b-tot b{color:#f8bd55;font-size:20px;}
-.so-vs{top:38px;}
+.so-vs{top:44px;}
 /* v8.8: one fixed card size for every shootout phase; the phase area centers in the leftover space (Tim) */
-#so-overlay .ov-box{display:flex;flex-direction:column;min-height:636px;}
+#so-overlay .ov-box{display:flex;flex-direction:column;min-height:652px;}
 #so-shooter-area,#so-result-area,#so-final-area{margin-top:auto!important;margin-bottom:auto;width:100%;}
 .vs-medallion{position:absolute;left:50%;top:114px;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f3d27a,#c8a84b 70%);color:#12233c;font-weight:900;font-size:15px;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;border:3px solid #101c2e;box-shadow:0 2px 10px rgba(0,0,0,.5);z-index:3;pointer-events:none;}
 /* 2_121: subtle pulse on AI speed buttons to draw the eye — stops once one is picked */
@@ -604,7 +604,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
    top, over a flat dim layer; card height changes reveal/conceal nothing.
    v7.166: beam base scooted up (Tim) — the wide end and the ice-pool oval now
    land on the shooter dice row instead of down by the Roll Shot button. */
-#so-overlay .ov-box{position:relative;overflow:hidden;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='636' viewBox='0 0 720 636' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffecaa' stop-opacity='.30'/%3E%3Cstop offset='.55' stop-color='%23ffecaa' stop-opacity='.13'/%3E%3Cstop offset='1' stop-color='%23ffecaa' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='314,0 406,0 664,428 56,428' fill='url(%23b)'/%3E%3Cellipse cx='360' cy='428' rx='292' ry='34' fill='%23fff0be' opacity='.17'/%3E%3C/svg%3E"),linear-gradient(rgba(2,5,10,.38),rgba(2,5,10,.38));background-size:100% 636px,100% 100%;background-position:top center,0 0;background-repeat:no-repeat,no-repeat;}
+#so-overlay .ov-box{position:relative;overflow:hidden;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='652' viewBox='0 0 720 652' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffecaa' stop-opacity='.21'/%3E%3Cstop offset='.55' stop-color='%23ffecaa' stop-opacity='.09'/%3E%3Cstop offset='1' stop-color='%23ffecaa' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='314,0 406,0 664,448 56,448' fill='url(%23b)'/%3E%3Cellipse cx='360' cy='448' rx='292' ry='34' fill='%23fff0be' opacity='.12'/%3E%3C/svg%3E"),linear-gradient(rgba(2,5,10,.38),rgba(2,5,10,.38));background-size:100% 652px,100% 100%;background-position:top center,0 0;background-repeat:no-repeat,no-repeat;}
 .block-sel-area h3{font-size:.8em;color:#ccc;margin-bottom:7px;}
 .block-sel-dice{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 22px;min-height:30px;} /* v7.30: breathing room (Tim) */
 /* 2_21 — opponent's (defender's) dice on the shooter's screen: visible but dimmed, not clickable */
@@ -1262,7 +1262,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.8</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.9</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1390,7 +1390,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.8</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.9</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
