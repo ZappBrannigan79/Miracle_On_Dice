@@ -89,6 +89,18 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .team-card-img{width:100%;border-radius:10px;border:1px solid rgba(255,255,255,.16);display:block;margin:2px 0 8px;}
 .sb-patch{width:25px;height:25px;border-radius:50%;vertical-align:-6px;margin-right:5px;}
 .go-patch{width:104px;height:104px;border-radius:50%;margin:0 auto 8px;box-shadow:0 0 22px rgba(200,168,75,.35);}
+/* v8.31: final screen matchup layout (Tim) — View Final Bags stays below */
+.go-fin{display:flex;align-items:center;justify-content:space-between;gap:4px;margin:2px 0 10px;width:100%}
+.go-side{flex:1;text-align:center;min-width:0}
+.go-side .go-sname{font-weight:900;font-size:.95em;margin-top:2px;letter-spacing:.4px}
+.go-wside .go-sname{color:var(--gold)}
+.go-patch-lose{width:74px;height:74px;border-radius:50%;margin:0 auto}
+.go-lside{opacity:.5;filter:grayscale(.55)}
+.go-mid{text-align:center;margin-top:2px}
+.go-flbl{font-size:.66em;font-weight:800;color:#8fa3bf;letter-spacing:2.5px}
+.go-mid{padding:0 6px}
+.go-mid .ov-score{margin:0;font-size:1.9em;line-height:1.05}
+#go-win{margin:0 0 10px}
 .opp-patch{width:52px;height:52px;border-radius:50%;}
 @media (max-width:560px){.builder-grid{gap:10px;}} /* v8.7: matchup stays side-by-side on phones (Tim, mock B) */ /* v8.2: setup columns stack on phones so the patch grid gets full width */
 .team-rand-btn{width:100%;padding:10px;margin:0 0 10px;border-radius:8px;border:2px solid rgba(255,255,255,.18);background:#1a2d45;color:#fff;font-weight:700;cursor:pointer;font-family:inherit;font-size:.92em;}
@@ -217,7 +229,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .timer-box.hotzone{border-color:#ff3b3b;animation:clockpulse 1.4s ease-in-out infinite;} /* v7.30: synced to nudge tempo (Tim) */
 @keyframes nudgePulse{0%,100%{box-shadow:0 0 4px 1px rgba(255,214,110,.25);}50%{box-shadow:0 0 14px 3px rgba(255,214,110,.6);}} /* 3_38: one shared nudge pulse */
 @keyframes clockpulse{0%,100%{box-shadow:0 0 3px rgba(255,60,60,.35);}50%{box-shadow:0 0 16px rgba(255,60,60,.9);}}
-.timer-box.finalturn{border-color:#ff2222;border-width:3px;animation:clockpulse-loud 2s ease-in-out infinite;} /* v7.30: synced to heartbeat 2s (Tim) */
+.timer-box.finalturn{border-color:#ff2222;border-width:3px;animation:clockpulse-loud 1.2s ease-in-out infinite;} /* v7.30: synced to heartbeat 2s (Tim) */
 @keyframes clockpulse-loud{0%,100%{box-shadow:0 0 5px rgba(255,40,40,.5);}50%{box-shadow:0 0 24px rgba(255,40,40,1);}}
 .action-row{display:flex;gap:5px;flex-wrap:wrap;align-items:stretch;} /* 5_66: uniform button height (Tim) */
 .abtn{padding:13px;font-size:.95em;font-weight:700;border-radius:7px;border:none;cursor:pointer;text-transform:uppercase;letter-spacing:.5px;transition:all .15s;} /* 5_57: standardized to rr-confirm size (Tim) */
@@ -323,7 +335,15 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .cdie.rolling,.fo-die.rolling,.die-body.rolling{animation:dicewob2 .08s linear infinite;} /* v7.30: even faster shake (Tim) */
 /* 4_11: shootout coin flip (Tim) — spins like a tossed coin, then lands */
 @keyframes socoinflip{0%{transform:rotateY(0deg) translateY(0) scale(1);}18%{transform:rotateY(630deg) translateY(-18px) scale(1.08);}38%{transform:rotateY(1260deg) translateY(3px) scale(1);}62%{transform:rotateY(1800deg) translateY(-10px) scale(1.05);}82%{transform:rotateY(2070deg) translateY(1px) scale(1);}100%{transform:rotateY(2160deg) translateY(0) scale(1);}}
-#so-coin{display:inline-block;font-size:2.4em;animation:socoinflip 1.7s cubic-bezier(.3,.6,.4,1);}
+@keyframes socoinflipB{0%{transform:rotateY(180deg) translateY(0) scale(1);}18%{transform:rotateY(810deg) translateY(-18px) scale(1.08);}38%{transform:rotateY(1440deg) translateY(3px) scale(1);}62%{transform:rotateY(1980deg) translateY(-10px) scale(1.05);}82%{transform:rotateY(2250deg) translateY(1px) scale(1);}100%{transform:rotateY(2340deg) translateY(0) scale(1);}} /* v8.30: lands back-face up */
+#so-coin-wrap{perspective:700px;text-align:center}
+#so-coin{position:relative;width:120px;height:120px;margin:2px auto 0;transform-style:preserve-3d}
+#so-coin.coin-a{animation:socoinflip 1.7s cubic-bezier(.3,.6,.4,1);}
+#so-coin.coin-b{animation:socoinflipB 1.7s cubic-bezier(.3,.6,.4,1);}
+.coin-face{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffedb0,#ecc964 55%,#b8912f);border:3px solid #8a6d1f;box-shadow:inset 0 0 0 3px rgba(255,246,200,.55),0 6px 16px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.coin-face.cf-b{transform:rotateY(180deg)}
+.coin-face img{width:92%;height:92%;object-fit:contain;border-radius:50%;position:relative;z-index:1}
+.coin-init{position:absolute;font-weight:900;font-size:46px;color:rgba(122,90,20,.5)}
 /* 2_41: goal celebration + token pop */
 @keyframes goalpop{0%{transform:scale(.3) rotate(-2deg);opacity:0;}40%{transform:scale(1.22) rotate(1deg);opacity:1;}55%{transform:scale(.96) rotate(0deg);}70%{transform:scale(1.06);}85%{transform:scale(.99);}100%{transform:scale(1);}}
 .goalpop{animation:goalpop .8s ease-out;}
@@ -355,6 +375,9 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .fb-PEN{background:#eee;color:#222;}
 .fb-BLANK{background:linear-gradient(145deg,#3a3a3a,#1e1e1e);color:#999;border:1px solid #333;}
 .fb-UNK{background:rgba(255,255,255,.15);color:#888;}
+/* v8.30: iced frost (Tim) */
+.face-badge.fb-ICE{background:linear-gradient(150deg,#f2faff,#c3e0f4 55%,#93bce0);color:#5b84ad;box-shadow:inset 0 0 0 2px rgba(255,255,255,.7),inset 0 -9px 13px rgba(110,165,220,.5),inset 0 7px 10px rgba(255,255,255,.55)}
+.face-badge.fb-ICE:after{content:'❄';position:absolute;top:0;right:3px;font-size:9px;color:rgba(255,255,255,.95);text-shadow:0 0 3px rgba(140,190,240,.9)}
 /* v7.30: faded face symbols behind pips (Tim's mockup) */
 .face-badge{overflow:hidden;}
 /* v8.29: ADV at 10:00 — drawn 'no' mark over a dimmed face (Tim) */
@@ -516,8 +539,8 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 /* v7.30: heartbeat vignette for 02:00/01:00 turns (Tim) */
 #heartbeat{position:fixed;inset:0;pointer-events:none;z-index:9998;opacity:0;
   box-shadow:inset 0 0 60px 20px rgba(255,30,30,.0);transition:opacity .4s;}
-#heartbeat.on-2{opacity:1;animation:heartbeat 2s ease-in-out infinite;} /* v7.30: unified 2s (Tim) */
-#heartbeat.on-1{opacity:1;animation:heartbeat 2s ease-in-out infinite;} /* v7.30: unified 2s (Tim) */
+#heartbeat.on-2{opacity:1;animation:heartbeat 1.2s ease-in-out infinite;} /* v7.30: unified 2s (Tim) */
+#heartbeat.on-1{opacity:1;animation:heartbeat 1.2s ease-in-out infinite;} /* v7.30: unified 2s (Tim) */
 @keyframes heartbeat{
   0%{box-shadow:inset 0 0 50px 15px rgba(255,30,30,.0);}
   20%{box-shadow:inset 0 0 65px 22px rgba(255,30,30,.25);}  /* gentle swell */
@@ -724,6 +747,16 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .goon-die.rolling{animation:dicewob2 .13s linear infinite;}
 .fo-total{font-size:1.4em;font-weight:900;color:white;}
 .fo-winner{color:var(--gold);font-size:1em;font-weight:700;margin-bottom:14px;}
+/* v8.31: faceoff ceremony (Tim) */
+#fo-overlay .ov-box{position:relative;overflow:hidden}
+.fo-crest{width:54px;height:54px;object-fit:contain;border-radius:50%;display:block;margin:0 auto 3px}
+.fo-player.fo-won .fo-crest{width:72px;height:72px;filter:drop-shadow(0 0 12px rgba(248,189,85,.9))}
+.fo-player.fo-won .nm{color:var(--gold)}
+.fo-player.fo-won{background:radial-gradient(circle at 50% 32%,rgba(248,189,85,.20),transparent 72%);border-radius:14px}
+.fo-beams{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .5s}
+.fo-beams.w0{opacity:1;background:conic-gradient(from 0deg at 25% 38%,transparent 0deg,rgba(248,189,85,.16) 14deg,transparent 30deg,transparent 95deg,rgba(248,189,85,.12) 110deg,transparent 126deg,transparent 185deg,rgba(248,189,85,.16) 200deg,transparent 216deg,transparent 278deg,rgba(248,189,85,.12) 293deg,transparent 309deg)}
+.fo-beams.w1{opacity:1;background:conic-gradient(from 0deg at 75% 38%,transparent 0deg,rgba(248,189,85,.16) 14deg,transparent 30deg,transparent 95deg,rgba(248,189,85,.12) 110deg,transparent 126deg,transparent 185deg,rgba(248,189,85,.16) 200deg,transparent 216deg,transparent 278deg,rgba(248,189,85,.12) 293deg,transparent 309deg)}
+.fo-winner{font-size:1.14em;letter-spacing:1.6px;text-shadow:0 0 14px rgba(248,189,85,.45)}
 /* v7.30: Goon Fight Concept A (Tim) — green card, mirror halves, circle totals */
 #goon-panel .panel-box{background:linear-gradient(160deg,#0e2317,#0a1a10);border:2px solid #4caf5d;}
 #chuck-fight-panel .panel-box{background:linear-gradient(160deg,#0e2317,#0a1a10);border:2px solid #4caf5d;} /* v7.30: Chuck's card matches (Tim) */
@@ -1285,7 +1318,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.29</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.31</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1407,7 +1440,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.29</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.31</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1663,10 +1696,11 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- FACEOFF -->
 <div class="overlay overlay-center" id="fo-overlay">
   <div class="ov-box">
+    <div class="fo-beams" id="fo-beams"></div>
     <h2>⚡ Faceoff</h2><p id="fo-plbl">Period 1 — roll to determine who goes first.</p>
     <div class="fo-rolls">
-      <div class="fo-player"><div class="nm" id="fo-n1">P1</div><div class="fo-dice" id="fo-d1"></div><div class="fo-total" id="fo-t1">–</div></div>
-      <div class="fo-player"><div class="nm" id="fo-n2">P2</div><div class="fo-dice" id="fo-d2"></div><div class="fo-total" id="fo-t2">–</div></div>
+      <div class="fo-player"><img class="fo-crest" id="fo-crest-1" style="display:none" alt=""><div class="nm" id="fo-n1">P1</div><div class="fo-dice" id="fo-d1"></div><div class="fo-total" id="fo-t1">–</div></div>
+      <div class="fo-player"><img class="fo-crest" id="fo-crest-2" style="display:none" alt=""><div class="nm" id="fo-n2">P2</div><div class="fo-dice" id="fo-d2"></div><div class="fo-total" id="fo-t2">–</div></div>
     </div>
     <div class="fo-winner" id="fo-win"></div>
     <div class="fo-choice" id="fo-choice" style="display:none">
@@ -1687,10 +1721,12 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME OVER -->
 <div class="overlay overlay-center" id="go-overlay">
   <div class="ov-box">
-    <h2>Game Over</h2>
-    <img id="go-patch" class="go-patch" style="display:none" alt="">
+    <div class="go-fin">
+      <div class="go-side go-wside"><img id="go-patch" class="go-patch" style="display:none" alt=""><div class="go-sname" id="go-wname"></div></div>
+      <div class="go-side go-lside"><img id="go-patch-lose" class="go-patch-lose" style="display:none" alt=""><div class="go-sname" id="go-lname"></div></div>
+    </div>
+    <div class="go-mid"><div class="go-flbl">FINAL</div><div class="ov-score" id="go-score">0–0</div></div>
     <div class="ov-winner" id="go-win"></div>
-    <div class="ov-score" id="go-score">0–0</div>
     <button class="btn-ov" onclick="showBagViewer()">🎒 View Final Bags</button>
     <button class="btn-ov" onclick="location.reload()">New Game</button>
   </div>
@@ -1905,7 +1941,9 @@ function tokImg(kind,sz,plain){if(!useTabletopArt())return kind==='shoot'?'🎯'
 if(!uri)return kind==='shoot'?'🎯':'🛡️';sz=sz||'1.2em';const _tbc=kind==='shoot'?'#5a78ff':'#ff6a6a';return '<img src="'+uri+'" alt="" draggable="false" style="width:'+sz+';height:'+sz+';vertical-align:-.25em;pointer-events:none;filter:saturate(.75);border:2px solid '+_tbc+';border-radius:50%;">';} // v7.124: rebuilt, no border (Tim)
 function goalImg(sz){if(!useTabletopArt())return '\uD83D\uDEA8';const uri=TOKEN_ART.goal;if(!uri)return '\uD83D\uDEA8';sz=sz||'1.4em';return '<img src="'+uri+'" alt="" draggable="false" style="width:'+sz+';height:'+sz+';vertical-align:-.25em;pointer-events:none;filter:saturate(.75);border:2px solid #ffd75e;border-radius:50%;">';} // v7.124: rebuilt (Tim)
 function combatDieIcon(kind,sz){if(!useTabletopArt())return kind==='shoot'?'⚔️':'🛡️';const m=(typeof COMBAT_ART!=='undefined'&&COMBAT_ART[kind])||{};const uri=m[0];if(!uri)return kind==='shoot'?'⚔️':'🛡️';sz=sz||'1.5em';return `<img src="${uri}" alt="" draggable="false" style="width:${sz};height:${sz};vertical-align:middle;pointer-events:none;filter:saturate(.75);border:2px solid ${kind==='shoot'?'#5a78ff':kind==='block'?'#ff6a6a':'#4ae08a'};border-radius:4px;box-sizing:border-box;">`;} // v7.113: blank combat die icon (Tim); v7.115: size/align match token (Tim)
-function combatArtImg(kind,v){if(!useTabletopArt())return ''+v; // v7.97: App mode shows numbers
+function combatBlankHTML(kind){const bg={shoot:'#2a3fe0',block:'#c12727',fight:'#1faa1f'}[kind]||'#666';return `<div style="width:100%;height:100%;border-radius:5px;background:${bg};box-shadow:inset 0 0 0 2px rgba(255,255,255,.22),inset 0 -10px 16px rgba(0,0,0,.35),inset 0 8px 12px rgba(255,255,255,.16)"></div>`;} // v8.30: truly blank combat face (Tim) — proper blank art can replace this later
+function combatArtImg(kind,v){if(v===0)return combatBlankHTML(kind); // v8.30
+if(!useTabletopArt())return ''+v; // v7.97: App mode shows numbers
   const m=COMBAT_ART[kind]||{},uri=(m[v]!=null?m[v]:m[0]);
   if(!uri)return ''+v;
   return `<img src="${uri}" alt="" draggable="false" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:5px;pointer-events:none;">`;}
@@ -2216,6 +2254,9 @@ function showFaceoff(){
   _foReadonly=false;
   document.getElementById('fo-plbl').textContent=`Period ${G.period}`; // 3_08: roll is automatic — no instruction needed
   ['fo-n1','fo-n2'].forEach((id,i)=>document.getElementById(id).textContent=G.players[i].name);
+  document.querySelectorAll('#fo-overlay .fo-player').forEach(el=>el.classList.remove('fo-won')); // v8.31
+  const _fbm=document.getElementById('fo-beams');if(_fbm)_fbm.className='fo-beams'; // v8.31
+  foSetCrests(); // v8.31
   ['fo-d1','fo-d2','fo-win'].forEach(id=>document.getElementById(id).innerHTML='');
   ['fo-t1','fo-t2'].forEach(id=>document.getElementById(id).textContent='–');
   document.getElementById('fo-choice').style.display='none';
@@ -2313,9 +2354,23 @@ function foHeartbeatTick(){
 // 3_06 — Drives the faceoff overlay once the dice are rolled: the winner picks
 // a token (+1 Shoot or +1 Block), everyone else waits, and the host (table
 // creator) alone gets the Begin Period button once the pick is in.
+function foSetCrests(){ // v8.31: faceoff crests from the live matchup
+  [0,1].forEach(i=>{const c=document.getElementById('fo-crest-'+(i+1));const p=G.players&&G.players[i];
+    if(!c)return;
+    if(p&&(p.teamName||p.name)){c.onerror=()=>{c.style.display='none';};const _src='logos-'+teamSlug(p.teamName||p.name)+'.webp'+LOGO_V;if(c.getAttribute('src')!==_src)c.src=_src;c.style.display='block';}
+    else c.style.display='none';});
+}
+function foCeremony(){ // v8.31: winner glow + beams + crest pop (Tim) — presentation only
+  foSetCrests();
+  const fo=G.fo;const won=(fo&&fo.stage==='rolled')?fo.w:null;
+  document.querySelectorAll('#fo-overlay .fo-player').forEach((el,i)=>el.classList.toggle('fo-won',i===won));
+  const bm=document.getElementById('fo-beams');if(bm)bm.className='fo-beams'+(won===null?'':' w'+won);
+  if(won!==null){const c=document.getElementById('fo-crest-'+(won+1));if(c){c.classList.remove('goalpop');void c.offsetWidth;c.classList.add('goalpop');}}
+}
 function renderFoChoiceState(){
   const fo=G.fo;if(!fo||fo.stage!=='rolled')return;
   const w=fo.w;
+  foCeremony(); // v8.31
   // 3_07: once the prize token is chosen, the result line names it — the Vs AI
   // player sees which token Coach took without having to catch the step pill.
   if(fo.choice)document.getElementById('fo-win').innerHTML=`${G.players[w].name} wins the faceoff! Takes EVEN minutes +1 ${fo.choice==='shoot'?tokImg('shoot','1.1em')+' Shoot':tokImg('block','1.1em')+' Block'} token.`; // v7.30: ODD→EVEN fix (Tim)
@@ -4381,6 +4436,15 @@ function startNextPeriod(){
   // without this the other side never opens their faceoff screen for periods 2+.
   if(_onlineActive){G.fo={stage:'open',per:G.period};pushState();}
 }
+function setGoFinale(wp,lp,winTxt,scoreTxt){ // v8.31: winner hero + loser on stage (Tim)
+  document.getElementById('go-win').textContent=winTxt;
+  showGoPatch(wp?(wp.teamName||wp.name):null);
+  const wn=document.getElementById('go-wname');if(wn)wn.textContent=wp?plainTeamName(wp.teamName||wp.name||''):'';
+  const li=document.getElementById('go-patch-lose');
+  if(li){if(lp&&(lp.teamName||lp.name)){li.onerror=()=>{li.style.display='none';};li.src='logos-'+teamSlug(lp.teamName||lp.name)+'.webp'+LOGO_V;li.style.display='block';}else li.style.display='none';}
+  const ln=document.getElementById('go-lname');if(ln)ln.textContent=lp?plainTeamName(lp.teamName||lp.name||''):'';
+  document.getElementById('go-score').textContent=scoreTxt;
+}
 function showGameOver(){
   document.getElementById('pe-overlay').classList.remove('show');
   const[p0,p1]=G.players;
@@ -4390,9 +4454,7 @@ function showGameOver(){
     return;
   }
   const win=p0.goals>p1.goals?p0.name:p1.name;
-  document.getElementById('go-win').textContent=`🏆 ${win} wins!`;
-  showGoPatch(p0.goals>p1.goals?p0.teamName:p1.teamName); // v8.2
-  document.getElementById('go-score').textContent=`${p0.goals} – ${p1.goals}`;
+  setGoFinale(p0.goals>p1.goals?p0:p1,p0.goals>p1.goals?p1:p0,`🏆 ${win} wins!`,`${p0.goals} – ${p1.goals}`); // v8.31
   document.getElementById('go-overlay').classList.add('show');
   // 2_155: a decided game purges the autosave — no stale Resume on the menu.
   // G.gameOver is set locally too (was online-only) so the clear-guard in
@@ -4518,7 +4580,7 @@ function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
   let fbCls,faceHTML,isCost=false;
   // Iced zone (and benched — 3_99): always show grey "?" — face doesn't matter for gameplay
   if(inIced){
-    fbCls='fb-UNK';faceHTML='?';
+    fbCls='fb-UNK fb-ICE';faceHTML='?'; // v8.30: frost
   } else if(!die.face){
     fbCls='fb-UNK';faceHTML='?';
   } else {
@@ -4670,11 +4732,11 @@ function animNumbers(cells,finals,done,faces,durMul){ // v7.179: durMul stretche
   cells.forEach((el,i)=>{if(el&&finals[i]!=null)items.push({el:el,final:finals[i],art:el.dataset.cart?(v=>combatArtImg(el.dataset.cart,v)):null});}); // ART-2: combat art via data-cart (Tim)
   if(!items.length){if(done)done();return;}
   if(_REDUCED_MOTION||typeof requestAnimationFrame!=='function'){
-    items.forEach(it=>{it.el.textContent=it.final;it.el.classList.remove('rolling');});
+    items.forEach(it=>{it.el.textContent=(it.final===0?'':it.final);it.el.classList.remove('rolling');}); // v8.30: blank settles blank
     if(done)done();return;
   }
   let n=items.length,finished=false;
-  const _paint=(it,val)=>{if(it.art){it.el.classList.add('cdie-art');it.el.innerHTML=it.art(val);}else it.el.textContent=val;}; // ART-2
+  const _paint=(it,val)=>{if(it.art){it.el.classList.add('cdie-art');it.el.innerHTML=it.art(val);}else it.el.textContent=(val===0?'':val);}; // ART-2; v8.30: blank = blank
   const finishAll=()=>{ // 2_48: settle every cell exactly once
     if(finished)return;finished=true;
     items.forEach(it=>{_paint(it,it.final);it.el.classList.remove('rolling');});
@@ -5010,7 +5072,7 @@ function updateHeartbeat(){
   let hb=document.getElementById('heartbeat');
   if(!hb){hb=document.createElement('div');hb.id='heartbeat';document.body.appendChild(hb);}
   // v7.30: both players see it (Tim) — defender needs the urgency to commit blockers
-  const cls=(G.clock===2||G.clock===1)?'on-2':''; // unified 2s (v7.30)
+  const cls=((G.clock===2||G.clock===1)&&!G.fo&&!G.pe&&!G.gameOver)?'on-2':''; // v8.30: 1.2s quick beats; stop at period end (Tim)
   hb.className=cls;
 }
 function renderAll(){
@@ -5787,8 +5849,9 @@ function soCoinFlip(practice){
   const _fc=document.getElementById('so-first-card');
   // 4_11: coin flip — the coin spins, lands, then the result pops in (Tim).
   // 4_36: now fires in overtime too (real flip, rule overturned).
-  _fc.innerHTML='<div id="so-coin-wrap"><div id="so-coin">🪙</div><div style="font-size:.8em;color:#8fa3bf;font-weight:700">flipping…</div></div>'
-    +'<div id="so-flip-result" style="display:none">🪙 Coin flip<br><span style="color:#f8bd55">'+soTeamPlain(_so.firstShooter)+'</span> shoots first!</div>';
+  const _cfFace=(pi,cls)=>{const p=_so.players[pi]||{};const nm=p.teamName||p.name||'';return '<div class="coin-face '+cls+'"><span class="coin-init">'+(soTeamPlain(pi).charAt(0)||'?')+'</span><img src="logos-'+teamSlug(nm)+'.webp'+LOGO_V+'" alt="" draggable="false" onerror="this.style.display=\'none\'"></div>';};
+  _fc.innerHTML='<div id="so-coin-wrap"><div id="so-coin" class="'+(_so.firstShooter===1?'coin-b':'coin-a')+'">'+_cfFace(0,'cf-a')+_cfFace(1,'cf-b')+'</div><div style="font-size:.8em;color:#8fa3bf;font-weight:700;margin-top:10px">flipping…</div></div>'
+    +'<div id="so-flip-result" style="display:none"><img src="logos-'+teamSlug((_so.players[_so.firstShooter]||{}).teamName||'')+'.webp'+LOGO_V+'" alt="" draggable="false" style="width:42px;height:42px;border-radius:50%" onerror="this.style.display=\'none\'"><br>Coin flip<br><span style="color:#f8bd55">'+soTeamPlain(_so.firstShooter)+'</span> shoots first!</div>'; // v8.30: team-patch coin (Tim)
   setTimeout(()=>{
     if(_fcGen!==_soCardGen)return;
     const _cw=document.getElementById('so-coin-wrap'),_fr=document.getElementById('so-flip-result');
@@ -7029,9 +7092,9 @@ function pullState(remote){
   }
   // Game-over mirror: the other side never sees the local game-over overlay.
   if(_onlineActive&&G.gameOver&&!document.getElementById('go-overlay').classList.contains('show')){
-    document.getElementById('go-win').textContent=`🏆 ${G.gameOver.win} wins!`;
-    const _gw=(G.players||[]).find(p=>p.name===G.gameOver.win); showGoPatch(_gw?_gw.teamName:null); // v8.2
-    document.getElementById('go-score').textContent=`${G.gameOver.s0} – ${G.gameOver.s1}`;
+    const _gw=(G.players||[]).find(p=>p.name===G.gameOver.win);
+    const _gl=(G.players||[]).find(p=>p.name!==G.gameOver.win);
+    setGoFinale(_gw,_gl,`🏆 ${G.gameOver.win} wins!`,`${G.gameOver.s0} – ${G.gameOver.s1}`); // v8.31
     document.getElementById('go-overlay').classList.add('show');
   }
   // Shootout mirror: the shootout is driven shot-by-shot through G.so —
