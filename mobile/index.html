@@ -1281,7 +1281,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.26</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.27</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1403,7 +1403,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.26</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.27</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2202,7 +2202,7 @@ function beginGame(){
   renderAll();showScreen('game');showFaceoff();
   // Online: the joiner mirrors the faceoff read-only — without an explicit
   // signal their screen sits empty until the host rolls.
-  if(_onlineActive&&_mySlot===0){G.fo={stage:'open'};pushState();}
+  if(_onlineActive&&_mySlot===0){G.fo={stage:'open',per:G.period};pushState();}
 }
 
 // ═══════════════════ FACEOFF ═══════════════════
@@ -2276,7 +2276,7 @@ function doFaceoff(){if(aiGuard())return;
   // 3_06 — Faceoff prize: the winner takes ODD clock turns automatically and
   // then chooses +1 Shoot or +1 Block token. The token is granted in
   // pickFoChoice — NOT here; turn order is set in beginPeriodAfterFo.
-  G.fo={stage:'rolled',r1:r1,t1:t1,r2:r2,t2:t2,w:w,choice:null};
+  G.fo={stage:'rolled',per:G.period,r1:r1,t1:t1,r2:r2,t2:t2,w:w,choice:null};
   // Online: whoever rolls syncs it — the other side mirrors the faceoff read-only.
   if(_onlineActive){pushState();}
   document.getElementById('fo-t1').textContent=t1;document.getElementById('fo-t2').textContent=t2;
@@ -2365,6 +2365,7 @@ function beginPeriodAfterFo(){if(aiGuard())return;
   G.periodFirstPlayer=w; // 5_44: winner takes EVEN minutes — opens at 10:00 (Tim)
   G.foWinner=w; // 5_44: track for the 10:00 bonus reroll (Tim)
   G.ap=G.periodFirstPlayer;
+  _foDonePer=G.period; // v8.27
   G.fo=null; // faceoff over — the mirror closes on the other side
   document.getElementById('fo-overlay').classList.remove('show');
   startTurn();
@@ -4374,7 +4375,7 @@ function startNextPeriod(){
   document.getElementById('sp').textContent=G.period;showFaceoff();
   // Online: signal the joiner's read-only faceoff mirror (same as beginGame) —
   // without this the other side never opens their faceoff screen for periods 2+.
-  if(_onlineActive){G.fo={stage:'open'};pushState();}
+  if(_onlineActive){G.fo={stage:'open',per:G.period};pushState();}
 }
 function showGameOver(){
   document.getElementById('pe-overlay').classList.remove('show');
@@ -6338,6 +6339,7 @@ let _isWriting=false;  // prevent echo when we write
 let _pendingRemote=null; // latest remote snapshot that arrived mid-write — drained after the write acks, so a turn flip can never be silently lost
 let _rejoining=false; // v8.19: host reclaiming a room after an app close (Tim)
 let _joinerReady=false;  // joiner's first-state init flag (hoisted so the shared deliver path can use it)
+let _foDonePer=0; // v8.27: period whose faceoff this client has completed (begin seen/done)
 let _lastRemoteSeq=-1; // last Firebase state seq pulled — turn-passing is seq-gated (clock-skew safe)
 let _pushSeq=0;        // increments on every pushState so receivers can pull each new state
 let _onlineGen=0;      // bumps on every host/join/cancel — stale scheduled launches check this and abort
@@ -6355,7 +6357,7 @@ function teardownOnline(){
     try{ _roomRef.off(); }catch(e){}
   }
   _roomRef=null; _roomCode=null; _mySlot=null;
-  _onlineActive=false; _soOnly=false; _isWriting=false; _pendingRemote=null; _joinerReady=false;
+  _onlineActive=false; _soOnly=false; _isWriting=false; _pendingRemote=null; _joinerReady=false; _foDonePer=0; // v8.27
   _lastRemoteSeq=-1; _pushSeq=0; _rejoining=false; // v8.19
   _sTok=0; _combatNonce=0; _lastCombatNonce=0;
   _lastSoRev=0; _benchSel=[];
@@ -6848,12 +6850,28 @@ function remapZone(z){
   return out;
 }
 
+// v8.27 — Faceoff monotonicity guard: a push whose fo state is BEHIND the
+// local one is a stale snapshot (heartbeat echo, auto-push race) and gets
+// dropped whole. Forward is the only legal direction: none -> open ->
+// rolled -> choice set -> none (Begin). Tonight's heal is unaffected —
+// open -> rolled is forward, so a genuinely lost roll still lands.
+function _foRegresses(L,R){
+  if(!R) return false;                       // remote clear (Begin) is always forward
+  if(!L) return _foDonePer===R.per;          // local clear: stale only if we finished this period's faceoff
+  if(R.per!==L.per) return R.per<L.per;      // older period's faceoff = stale
+  const _rk=f=>f.stage==='rolled'?2:1;
+  if(_rk(R)<_rk(L)) return true;             // rolled -> open
+  if(L.stage==='rolled'&&R.stage==='rolled'&&L.choice&&!R.choice) return true; // pick-wipe
+  return false;
+}
 function pullState(remote){
   if(!remote) return;
+  if(_foRegresses(G.fo,remote.fo||null)) return; // v8.27: stale snapshot — a fresher push follows
   // v8.26: the shooter's Continue no longer force-closes the other side's shot
   // card (Tim) — each player dismisses result cards at their own pace (the
   // v7.30 policy); the board underneath is already current when they close it.
   // Apply full remote state to local G
+  const _foBefore=G.fo; // v8.27: for the done-marker below
   const _prevAp=G.ap; // 5_101: detect turn flip for summary (Tim)
   G.period=remote.period; G.ap=remote.ap; G.phase=remote.phase;
   G.clock=remote.clock; G.penaltyPool=remote.penaltyPool;
@@ -6869,6 +6887,7 @@ function pullState(remote){
     ids:remote.benchPick.ids||[],picked:remote.benchPick.picked||[],
     need:remote.benchPick.need||0,done:!!remote.benchPick.done}:null;
   G.periodFirstPlayer=remote.periodFirstPlayer; G.foWinner=remote.foWinner;
+  if(_foBefore&&_foBefore.stage==='rolled'&&!remote.fo)_foDonePer=remote.period; // v8.27: a Begin pull completes this period's faceoff locally
   if(remote.turnNotes) G.turnNotes=remote.turnNotes;
   // v7.30: turnCounts NOT synced (Tim) — local-only. See above.
   // v7.30: Turn flipped — reset local turnCounts so action bar starts blank (Tim).
