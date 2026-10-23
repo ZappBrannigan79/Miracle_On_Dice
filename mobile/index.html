@@ -1281,7 +1281,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.25</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.26</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1403,7 +1403,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.25</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.26</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2286,6 +2286,26 @@ function doFaceoff(){if(aiGuard())return;
   aiMaybeFoPick(); // 2_45: Vs AI hook
   });
 }
+// v8.26 — Faceoff heartbeat: while either side waits on the other during an
+// online faceoff, the WAITING side re-pushes its current state every 4s. The
+// roll and the token pick are one-shot pushes; if one is ever lost in the
+// seq/stash shuffle, the game deadlocks (host waits for a pick the joiner
+// never saw offered — Tim & Erber, Oct 22). Re-offering converts a lost push
+// into a few seconds' delay. The tick stops itself whenever nobody waits.
+let _foHeartbeatT=null;
+function startFoHeartbeat(){
+  if(!_onlineActive||_foHeartbeatT)return;
+  _foHeartbeatT=setInterval(foHeartbeatTick,4000);
+}
+function stopFoHeartbeat(){if(_foHeartbeatT){clearInterval(_foHeartbeatT);_foHeartbeatT=null;}}
+function foHeartbeatTick(){
+  const fo=G.fo;
+  if(!_onlineActive||!fo||fo.stage!=='rolled'){stopFoHeartbeat();return;}
+  const waitingForPick=_mySlot===0&&!fo.choice;     // host waits on the winner's token pick
+  const waitingForBegin=_mySlot!==0&&!!fo.choice;   // joiner waits on the host's Begin Period
+  if(waitingForPick||waitingForBegin)pushState();
+  else stopFoHeartbeat();
+}
 // 3_06 — Drives the faceoff overlay once the dice are rolled: the winner picks
 // a token (+1 Shoot or +1 Block), everyone else waits, and the host (table
 // creator) alone gets the Begin Period button once the pick is in.
@@ -2319,6 +2339,7 @@ function renderFoChoiceState(){
     waitEl.textContent=`Waiting for host to begin…`; // v7.30: ODD→EVEN fix
     waitEl.style.display='block';
   }
+  if(_onlineActive)startFoHeartbeat(); // v8.26: self-heal a lost roll/pick push
 }
 // 3_06 — The faceoff winner locks in their prize token (+1 Shoot or +1 Block).
 // A joiner-winner pushes the pick so the host sees it; the host applies it
@@ -4071,7 +4092,7 @@ function refreshBenchPhase(){
       document.getElementById('bench-wait-name').textContent=loserName;
       if(_bl)_bl.style.display='none';
     }
-    if(cbtn){cbtn.disabled=false;cbtn.textContent='Continue';}
+    if(cbtn){cbtn.disabled=!aiLoser;cbtn.textContent='Continue';} // v8.26: online — greyed while the loser benches (Tim); the wait line above says why. Vs AI unchanged
   }
   renderCombatPill(); // 3_35: show the Chuck-benching bar while his pick is pending
 }
@@ -6829,12 +6850,9 @@ function remapZone(z){
 
 function pullState(remote){
   if(!remote) return;
-  // The shooter clicked Continue on the combat result — mirror it: my Continue
-  // is greyed (only the shooter advances), so close my panel for me.
-  // (Checked before the field adoption below flips G.combatDone.)
-  if(remote.combatDone && !G.combatDone){
-    document.getElementById('combat-panel').classList.remove('show');
-  }
+  // v8.26: the shooter's Continue no longer force-closes the other side's shot
+  // card (Tim) — each player dismisses result cards at their own pace (the
+  // v7.30 policy); the board underneath is already current when they close it.
   // Apply full remote state to local G
   const _prevAp=G.ap; // 5_101: detect turn flip for summary (Tim)
   G.period=remote.period; G.ap=remote.ap; G.phase=remote.phase;
@@ -6866,8 +6884,7 @@ function pullState(remote){
     G.fightSync=remote.fightSync;
     showFightWatch(remote.fightSync);
   }else if(!remote.fightSync&&G.fightSync){
-    G.fightSync=null;
-    document.getElementById('goon-panel').classList.remove('show');
+    G.fightSync=null; // v8.26: spectator closes their own fight card (their Close button) — no force-close (Tim)
   }
   // 5_99: reroll animation sync (Tim) — opponent sees the tumble
   remote.players.forEach((rp,i)=>{
