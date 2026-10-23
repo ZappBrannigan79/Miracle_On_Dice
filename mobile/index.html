@@ -189,6 +189,12 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .epick-qdie.qnow{width:45px;height:45px;box-shadow:0 0 0 2px var(--gold),0 0 12px rgba(248,189,85,.65)}
 .epick-qcap{font-size:.84em;color:#ffd98a;margin-top:7px;font-weight:700}
 .epick-qof{margin-left:auto;background:var(--gold);color:#241a02;font-weight:900;font-size:.78em;border-radius:12px;padding:2px 9px}
+/* v8.35: queue slots hold the live dice, rendered exactly as in RS (Tim) */
+.epick-qslot{position:relative;border-radius:10px;padding:2px;line-height:1}
+.epick-qslot.qnow{box-shadow:0 0 0 2px var(--gold),0 0 12px rgba(248,189,85,.65)}
+.epick-qslot.qdone{opacity:.45}
+.epick-qslot.qdone:after{content:'✓';position:absolute;top:-6px;right:-6px;width:17px;height:17px;border-radius:50%;background:#1c5c1c;color:#7be495;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;border:1.5px solid #7be495;z-index:6}
+.epick-qslot .die-wrap{margin:0}
 .epicker-die{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
 .epicker-die .die-body{cursor:pointer;}
 .epicker-die .die-body:hover{transform:scale(1.1);}
@@ -1327,7 +1333,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.34</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.35</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1449,7 +1455,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.34</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.35</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2659,7 +2665,7 @@ function autoAdvanceCostQueue(queue,idx){
   if(!ap.z.rs.some(d=>d.id===dieId)){autoAdvanceCostQueue(queue,idx+1);return;}
   if(!hasEnergy1()){toast('No more energy to pay costs — remaining costed faces skipped.');renderAll();return;}
   const dd=queue[idx];
-  _epickQueueNext={items:queue.map(d=>({key:d.key,pos:d.pos,t:d.face?d.face.t:'?',v:d.face?d.face.v:0})),idx}; // v8.34
+  _epickQueueNext={items:queue.map(d=>({id:d.id,key:d.key,pos:d.pos,t:d.face?d.face.t:'?',v:d.face?d.face.v:0})),idx}; // v8.34
   const label=dd.face.t==='S'?`advance ${dd.key} Shoot to ${G.clock>2?'Cold':'Hot'} Zone`:`advance ${dd.key} Block to Defensive Zone`;
   openEPicker(1,label,()=>{
     const ap2=AP();
@@ -2806,7 +2812,7 @@ function assignDie(die,action){
     // Open energy picker — cost is 1E
     closeMenus();
     const dieId=die.id;
-    _epickQueueNext={items:[{key:die.key,pos:die.pos,t:die.face.t,v:die.face.v}],idx:0}; // v8.34
+    _epickQueueNext={items:[{id:die.id,key:die.key,pos:die.pos,t:die.face.t,v:die.face.v}],idx:0}; // v8.34
     openEPicker(1, `advance ${dLbl(die)} to Offensive Zone`, ()=>{
       // Re-resolve by id: a Firebase echo while the picker is open rebuilds
       // every die object (remapDie), orphaning the captured reference.
@@ -2826,7 +2832,7 @@ function assignDie(die,action){
   }else if(action==='block-cost'){
     closeMenus();
     const dieId=die.id;
-    _epickQueueNext={items:[{key:die.key,pos:die.pos,t:die.face.t,v:die.face.v}],idx:0}; // v8.34
+    _epickQueueNext={items:[{id:die.id,key:die.key,pos:die.pos,t:die.face.t,v:die.face.v}],idx:0}; // v8.34
     openEPicker(1, `advance ${dLbl(die)} to Defensive Zone`, ()=>{
       // Re-resolve by id (see shoot-cost).
       const ap2=AP();
@@ -5516,8 +5522,15 @@ function renderEPicker() {
       const _bc={F:'#4466cc',D:'#cc4444',G:'#888888',HC:'#c8a84b',GN:'#3fae3f',R:'#cccccc',P:'#555555'};
       const _cur=_q.items[_q.idx];
       _qEl.style.display='block';
+      const _ap2=AP();
+      const _allDice=Object.values(_ap2.z).filter(Array.isArray).flat();
       _qEl.innerHTML='<div class="epick-qwrap"><div class="epick-qstrip">'
-        +_q.items.map((it,i)=>`<div class="epick-qdie ${i<_q.idx?'qdone':(i===_q.idx?'qnow':'qtodo')}" style="border-color:${_bc[it.pos]||'#888'}">${it.t}${it.v||''}</div>`).join('')
+        +_q.items.map((it,i)=>{
+          const _st=i<_q.idx?'qdone':(i===_q.idx?'qnow':'qtodo');
+          const _d=_allDice.find(x=>x&&x.id===it.id);
+          if(_d)return `<div class="epick-qslot ${_st}">${dieWrapHTML(_d,_ap2.z.rs.includes(_d))}</div>`; // v8.35: the die itself, exactly as in RS
+          return `<div class="epick-qdie ${_st}" style="border-color:${_bc[it.pos]||'#888'}">${it.t}${it.v||''}</div>`;
+        }).join('')
         +`<span class="epick-qof">${_q.idx+1} of ${_q.items.length}</span></div>`
         +`<div class="epick-qcap">Now advancing: <b>${_cur.key} · ${_cur.t==='S'?'Shoot':'Block'} ${_cur.v} ⚡</b></div></div>`;
     } else { _qEl.style.display='none'; _qEl.innerHTML=''; }
