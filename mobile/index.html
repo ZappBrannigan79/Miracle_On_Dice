@@ -652,7 +652,21 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .cresult.goal.goalflash{animation:goalFlash .8s ease-out;}
 @keyframes lampFlash{0%{box-shadow:0 0 0 0 rgba(255,40,30,0)}16%{box-shadow:0 0 90px 24px rgba(255,40,30,.55)}100%{box-shadow:0 0 0 0 rgba(255,40,30,0)}}
 .lampflash{animation:lampFlash .8s ease-out;}
-.panel-overlay.show .combat-box.lampflash{animation:lampFlash .8s ease-out;} /* outranks the modCardIn entry rule (0,4,0) — otherwise the card flash never plays */
+.panel-overlay.show .combat-box.lampflash{animation:lampFlash .8s ease-out;}
+/* v8.47: GOAL full-screen BEACON SWEEP (Tim, mock B — no corner bulbs): rotating beams + red vignette BEHIND the card; the card itself is untouched */
+#so-overlay .ov-box{isolation:isolate}
+.goal-fx{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:-1}
+.goal-fx .gfx-disc{position:absolute;width:250vw;height:250vw;border-radius:50%;opacity:0;background:repeating-conic-gradient(from 0deg,rgba(255,64,40,.5) 0deg 10deg,transparent 10deg 24deg);-webkit-mask-image:radial-gradient(circle,#000 0%,transparent 66%);mask-image:radial-gradient(circle,#000 0%,transparent 66%)}
+.goal-fx .gfx-disc.L{left:-125vw;top:-125vw}
+.goal-fx .gfx-disc.R{right:-125vw;top:-125vw}
+.goal-fx.play .gfx-disc.L{animation:gfxSpin 1.5s linear 3,gfxFade 4.4s ease forwards}
+.goal-fx.play .gfx-disc.R{animation:gfxSpinR 1.5s linear 3,gfxFade 4.4s ease forwards}
+@keyframes gfxSpin{to{transform:rotate(360deg)}}
+@keyframes gfxSpinR{to{transform:rotate(-360deg)}}
+@keyframes gfxFade{0%{opacity:0}10%{opacity:.85}78%{opacity:.7}100%{opacity:0}}
+.goal-fx .gfx-vig{position:absolute;inset:0;box-shadow:inset 0 0 110px 34px rgba(255,35,20,.5);opacity:0}
+.goal-fx.play .gfx-vig{animation:gfxVig .5s ease-in-out 8 alternate forwards}
+@keyframes gfxVig{from{opacity:.3}to{opacity:.95}} /* outranks the modCardIn entry rule (0,4,0) — otherwise the card flash never plays */
 @keyframes goalThump{0%{transform:scale(1);}12%{transform:scale(1.06) rotate(.6deg);}24%{transform:scale(.98) rotate(0deg);}36%{transform:scale(1.05) rotate(-.5deg);}48%{transform:scale(.99);}60%{transform:scale(1.03);}74%{transform:scale(1);}100%{transform:scale(1);}}
 .cresult.goal .jumbo-team{display:block;font-size:.4em;font-weight:900;letter-spacing:.14em;color:#fff;margin-top:6px;}
 .cresult.blocked{font-size:2em;padding:15px 10px;border-radius:12px;}
@@ -1350,7 +1364,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.46</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.47</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1472,7 +1486,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.46</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.47</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1585,6 +1599,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 
 <!-- COMBAT PANEL -->
 <div class="panel-overlay" id="combat-panel">
+  <div class="goal-fx"><div class="gfx-disc L"></div><div class="gfx-disc R"></div><div class="gfx-vig"></div></div>
   <div class="combat-box">
     <div class="combat-title">Shot on Goal<span id="shot-cancel-x" style="display:none;float:right;cursor:pointer;padding:0 8px;font-size:1.2em" onclick="cancelShot()">✕</span></div><div class="combat-clockrow"><span class="combat-clock" id="combat-clock"></span></div> <!-- v7.30: X to back out pre-lock (Tim) -->
     <div id="last-shot-banner" style="display:none;background:linear-gradient(135deg,#8a1a1a,#5a0a0a);border:2px solid #ff6666;border-radius:10px;padding:8px 12px;margin:8px 0;text-align:center;font-weight:800;font-size:.85em;color:#ffcccc;animation:nudgePulse 1.4s ease-in-out infinite;">⏰ LAST SHOT OF THE PERIOD — make it count!</div>
@@ -1788,6 +1803,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <div class="overlay" id="so-overlay" style="align-items:flex-start;padding:20px;overflow-y:auto">
   <div id="so-first-card" style="display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;background:#0e1626;border:2px solid #f8bd55;border-radius:18px;padding:16px 26px;font-size:1.1em;font-weight:800;color:#fff;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.65);pointer-events:none;max-width:86vw"></div>
   <div class="ov-box" style="max-width:720px;width:100%;margin:auto;padding:20px">
+  <div class="goal-fx"><div class="gfx-disc L"></div><div class="gfx-disc R"></div><div class="gfx-vig"></div></div>
 
     <!-- Header -->
     <h2 id="so-title" style="font-size:1.2em;margin-bottom:6px;text-align:center">🥅 Shootout<br><span id="so-subtitle" style="font-size:.8em;opacity:.85"></span></h2>
@@ -4678,8 +4694,17 @@ function flashGoal(el,cardEl){ // v8.40: LAMP FLASH (Tim) — banner bursts in, 
   const offB=e=>{if(e.target===el&&e.animationName==='goalFlash'){el.classList.remove('goalflash');el.removeEventListener('animationend',offB);}};
   el.addEventListener('animationend',offB);
   if(cardEl){cardEl.classList.remove('lampflash');void cardEl.offsetWidth;cardEl.classList.add('lampflash');
-    const offC=e=>{if(e.target===cardEl&&e.animationName==='lampFlash'){cardEl.classList.remove('lampflash');cardEl.removeEventListener('animationend',offC);}};
-    cardEl.addEventListener('animationend',offC);}
+    cardEl.addEventListener('animationend',e=>{if(e.target===cardEl&&e.animationName==='lampFlash')cardEl.classList.remove('lampflash');},{once:true});}
+  // v8.47: full-screen beacon sweep behind the card (Tim — mock B, no corner bulbs)
+  try{
+    let host=el;
+    while(host&&!host.querySelector(':scope>.goal-fx'))host=host.parentElement;
+    const fx=host&&host.querySelector(':scope>.goal-fx');
+    if(fx){fx.classList.remove('play');void fx.offsetWidth;fx.classList.add('play');
+      const run=(fx._gfxRun=(fx._gfxRun||0)+1);
+      const offFx=e=>{if(e.animationName==='gfxFade'&&fx._gfxRun===run){fx.classList.remove('play');fx.removeEventListener('animationend',offFx);}};
+      fx.addEventListener('animationend',offFx);}
+  }catch(e){}
 }
 // v7.162: scoreboard pop + floating +1 for the scorer (mockup C, Tim)
 function scorePop(pi){
