@@ -370,6 +370,8 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 /* 2_41: goal celebration + token pop */
 @keyframes goalpop{0%{transform:scale(.3) rotate(-2deg);opacity:0;}40%{transform:scale(1.22) rotate(1deg);opacity:1;}55%{transform:scale(.96) rotate(0deg);}70%{transform:scale(1.06);}85%{transform:scale(.99);}100%{transform:scale(1);}}
 .goalpop{animation:goalpop .8s ease-out;}
+@keyframes foWinPop{0%{transform:scale(.39) rotate(-2deg);opacity:0;}40%{transform:scale(1.59) rotate(1deg);opacity:1;}55%{transform:scale(1.25) rotate(0deg);}70%{transform:scale(1.38);}85%{transform:scale(1.29);}100%{transform:scale(1.3);}}
+.fowinpop{animation:foWinPop .8s ease-out;} /* v8.38: goalpop x1.3 — lands exactly on the .fo-won resting scale */
 
 @keyframes tokpop{0%{transform:scale(1);}40%{transform:scale(1.35);}100%{transform:scale(1);}}
 .tok-pill.tokpop{animation:tokpop .45s ease-out;}
@@ -645,11 +647,11 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .cresult.goal .gsir{display:inline-block;}
 .cresult.goal.thumping{animation:goalGlow 2.8s ease-in-out infinite alternate,goalThump 1.15s ease-out;}
 /* v8.37: GOAL SLAM (Tim) — the banner hammers in; the card takes the impact */
-@keyframes goalSlam{0%{transform:scale(2.3) rotate(-2.5deg);opacity:0;filter:brightness(2)}30%{opacity:1}46%{transform:scale(.93) rotate(.4deg);filter:brightness(1.4)}62%{transform:scale(1.05) rotate(0deg);filter:brightness(1.1)}78%{transform:scale(.985)}100%{transform:scale(1);filter:brightness(1)}}
-.goalslam{animation:goalSlam .55s cubic-bezier(.22,1.2,.36,1);}
-.cresult.goal.goalslam{animation:goalSlam .55s cubic-bezier(.22,1.2,.36,1);}
-@keyframes cardShake{0%,100%{transform:translate(0,0)}16%{transform:translate(-5px,2px) rotate(-.3deg)}34%{transform:translate(5px,-1px) rotate(.2deg)}52%{transform:translate(-3px,1px)}70%{transform:translate(2px,0)}86%{transform:translate(-1px,0)}}
-.slamshake{animation:cardShake .45s ease-out;}
+@keyframes goalSlam{0%{transform:scale(2.3) rotate(-2.5deg);opacity:0;filter:brightness(1.7)}12%{opacity:1;transform:scale(2.28) rotate(-2.4deg)}38%{transform:scale(2.08) rotate(-1.2deg);filter:brightness(1.25)}58%{transform:scale(.93) rotate(.4deg);filter:brightness(1.5)}74%{transform:scale(1.05) rotate(0deg);filter:brightness(1.08)}88%{transform:scale(.99)}100%{transform:scale(1);filter:brightness(1)}}30%{opacity:1}46%{transform:scale(.93) rotate(.4deg);filter:brightness(1.4)}62%{transform:scale(1.05) rotate(0deg);filter:brightness(1.1)}78%{transform:scale(.985)}100%{transform:scale(1);filter:brightness(1)}}
+.goalslam{animation:goalSlam .95s cubic-bezier(.22,1.2,.36,1);}
+.cresult.goal.goalslam{animation:goalSlam .95s cubic-bezier(.22,1.2,.36,1);}
+@keyframes cardShake{0%,52%{transform:translate(0,0)}60%{transform:translate(-5px,2px) rotate(-.3deg)}70%{transform:translate(5px,-1px) rotate(.2deg)}80%{transform:translate(-3px,1px)}90%{transform:translate(2px,0)}100%{transform:translate(0,0)}}16%{transform:translate(-5px,2px) rotate(-.3deg)}34%{transform:translate(5px,-1px) rotate(.2deg)}52%{transform:translate(-3px,1px)}70%{transform:translate(2px,0)}86%{transform:translate(-1px,0)}}
+.slamshake{animation:cardShake .95s ease-out;} /* v8.39: shake holds until the banner's crash lands (~58%) */
 @keyframes goalThump{0%{transform:scale(1);}12%{transform:scale(1.06) rotate(.6deg);}24%{transform:scale(.98) rotate(0deg);}36%{transform:scale(1.05) rotate(-.5deg);}48%{transform:scale(.99);}60%{transform:scale(1.03);}74%{transform:scale(1);}100%{transform:scale(1);}}
 .cresult.goal .jumbo-team{display:block;font-size:.4em;font-weight:900;letter-spacing:.14em;color:#fff;margin-top:6px;}
 .cresult.blocked{font-size:2em;padding:15px 10px;border-radius:12px;}
@@ -779,7 +781,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 /* v8.31: faceoff ceremony (Tim) */
 #fo-overlay .ov-box{position:relative;overflow:hidden}
 .fo-crest{width:80px;height:80px; /* v8.33: bigger still (Tim) */object-fit:contain;border-radius:50%;display:block;margin:0 auto 3px}
-.fo-player.fo-won .fo-crest{width:104px;height:104px; /* v8.33 */filter:drop-shadow(0 0 12px rgba(248,189,85,.9))}
+.fo-player.fo-won .fo-crest{transform:scale(1.3); /* v8.38: 104px as transform, not layout — the loser can't be pushed (Tim) */filter:drop-shadow(0 0 12px rgba(248,189,85,.9))}
 .fo-player.fo-won .nm{color:var(--gold)}
 .fo-player.fo-won{background:radial-gradient(circle at 50% 32%,rgba(248,189,85,.20),transparent 72%);border-radius:14px}
 .fo-beams{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .5s}
@@ -1347,7 +1349,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.37</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.39</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1469,7 +1471,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.37</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.39</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2284,6 +2286,7 @@ function beginGame(){
 // The side that isn't rolling watches read-only (greyed-out button).
 let _foReadonly=false;
 function showFaceoff(){
+  updateHeartbeat(); // v8.38: kill lingering beats the moment the faceoff card opens
   _foReadonly=false;
   document.getElementById('fo-plbl').textContent=`Period ${G.period}`; // 3_08: roll is automatic — no instruction needed
   ['fo-n1','fo-n2'].forEach((id,i)=>document.getElementById(id).textContent=G.players[i].name);
@@ -2396,12 +2399,13 @@ function foSetCrests(){ // v8.31: faceoff crests from the live matchup
     else c.style.display='none';});
 }
 function foCeremony(){ // v8.31: winner glow + beams + crest pop (Tim) — presentation only
+  updateHeartbeat(); // v8.38: the settle re-evaluates the beats (overlay gate)
   foSetCrests();
   const fo=G.fo;const won=(fo&&fo.stage==='rolled')?fo.w:null;
   document.querySelectorAll('#fo-overlay .fo-player').forEach((el,i)=>el.classList.toggle('fo-won',i===won));
   const bm=document.getElementById('fo-beams');if(bm)bm.className='fo-beams'+(won===null?'':' w'+won);
   if(won===null)_foCeremonyW=null;
-  else if(won!==_foCeremonyW){_foCeremonyW=won;const c=document.getElementById('fo-crest-'+(won+1));if(c){c.classList.remove('goalpop');void c.offsetWidth;c.classList.add('goalpop');}} // v8.33: pop once
+  else if(won!==_foCeremonyW){_foCeremonyW=won;const c=document.getElementById('fo-crest-'+(won+1));if(c){c.classList.remove('fowinpop');void c.offsetWidth;c.classList.add('fowinpop');}} // v8.33: pop once
 }
 function renderFoChoiceState(){
   const fo=G.fo;if(!fo||fo.stage!=='rolled')return;
@@ -5084,7 +5088,8 @@ function updateHeartbeat(){
   let hb=document.getElementById('heartbeat');
   if(!hb){hb=document.createElement('div');hb.id='heartbeat';document.body.appendChild(hb);}
   // v7.30: both players see it (Tim) — defender needs the urgency to commit blockers
-  const cls=((G.clock===2||G.clock===1)&&!G.fo&&!G.pe&&!G.gameOver)?'on-2':''; // v8.30: 1.2s quick beats; stop at period end (Tim)
+  const _foUp=(()=>{const o=document.getElementById('fo-overlay');return o&&o.classList.contains('show');})(); // v8.38: faceoff card up = beats off (clock still reads 01:00 until the period begins)
+  const cls=((G.clock===2||G.clock===1)&&!G.fo&&!G.pe&&!G.gameOver&&!_foUp)?'on-2':''; // v8.30: 1.2s quick beats; stop at period end (Tim)
   hb.className=cls;
 }
 function renderAll(){
