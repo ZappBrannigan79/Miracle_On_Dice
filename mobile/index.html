@@ -535,11 +535,16 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .shop-head{display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
 .shop-iced-btn{display:block;margin:0 auto 10px;background:rgba(120,170,255,.10);border:1px solid rgba(140,180,255,.45);color:#bcd4ff;border-radius:16px;padding:6px 16px;font-size:.9em;font-weight:700;cursor:pointer;}
 .shop-iced-backdrop{position:absolute;inset:0;background:rgba(4,8,18,.78);display:flex;align-items:center;justify-content:center;z-index:6;border-radius:14px;}
-.shop-iced-card{background:#0d1526;border:1px solid var(--gold);border-radius:14px;padding:16px;max-width:92%;max-height:88%;overflow:auto;text-align:center;box-shadow:0 10px 34px rgba(0,0,0,.55);}
+.shop-iced-card{background:#0d1526;border:1px solid var(--gold);border-radius:14px;padding:16px;width:min(340px,92vw);max-height:88%;overflow:auto;text-align:center;box-shadow:0 10px 34px rgba(0,0,0,.55);}
 .shop-iced-title{font-weight:800;color:#ffe9a8;letter-spacing:.4px;margin-bottom:6px;}
-.shop-iced-rookies{color:#9fd0ff;font-size:.92em;margin-bottom:10px;}
-.shop-iced-rookies.none{color:#8a93a5;}
+.shop-iced-buys{display:inline-block;border:1px solid var(--gold);background:rgba(200,168,75,.13);border-radius:999px;padding:5px 13px;color:#bcd4ff;font-weight:700;font-size:.82em;letter-spacing:.8px;margin:2px auto 4px;}
+.shop-iced-buys b{color:var(--gold-light);font-size:1.2em;margin-left:5px;}
+.shop-iced-section{font-size:.72em;font-weight:800;letter-spacing:1.4px;color:#bcd4ff;text-align:left;margin:10px 2px 5px;border-bottom:1px solid #22304d;padding-bottom:3px;}
+.shop-iced-section.ice{color:#a8c8e8;}
 .shop-iced-dice{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px;}
+.shop-iced-dice.left{justify-content:flex-start;margin-bottom:2px;}
+.shop-iced-empty{color:#788397;font-size:.88em;padding:9px 2px;}
+.shop-iced-note{color:#8a93a5;font-size:.84em;line-height:1.35;margin:9px 0 1px;}
 .shop-iced-close{background:var(--gold);border:none;color:#231a02;font-weight:800;border-radius:10px;padding:8px 18px;cursor:pointer;} /* 4_91 */
 .shop-head .panel-title{margin:0;}
 .energy-pill{background:rgba(200,168,75,.15);border:1px solid var(--gold);border-radius:20px;padding:8px 20px;font-size:1.05em;color:var(--gold-light);font-weight:700;white-space:nowrap;animation:energyPulse 2s ease-in-out infinite;} /* 4_90: bigger (Tim) */
@@ -1372,7 +1377,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.54</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.56</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1494,7 +1499,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.54</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.56</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1590,7 +1595,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
   <div class="panel-box">
     <button class="panel-close" onclick="closeShop()">✕</button>
     <div class="shop-head"><div class="energy-pill" id="ebar"></div></div> <!-- 4_91: centered, no title (Tim) -->
-    <button class="shop-iced-btn" id="shop-iced-btn" onclick="openShopIced()">View Iced Zone</button> <!-- v8.52 (Tim) -->
+    <button class="shop-iced-btn" id="shop-iced-btn" onclick="openShopIced()">Rookie Check</button> <!-- v8.55 (Tim) -->
     <div class="card-grid" id="cgrid"></div>
     <div class="token-row" id="trow"></div>
   </div>
@@ -4559,19 +4564,26 @@ function openShop(){if(aiGuard())return;
     </div>`;
   document.getElementById('shop-panel').classList.add('show');
 }
-// v8.52: peek at your Iced zone from inside the shop — the rookie (trash fodder) count
-// drives buy-big-vs-buy-several decisions (Tim). Always computed fresh on open.
+// v8.55: Rookie Check (Tim's pick of the V3 mock) — the shop popup now shows ONLY rookies:
+// frosted in Iced (ready to trash) and live faces in Roll & Sort (fodder-in-waiting), with a
+// single BUYS COVERED pill = the two counts added. Always computed fresh on open.
 function openShopIced(){
   const ap=AP();if(!ap)return;
   closeShopIced();
   const panel=document.getElementById('shop-panel');if(!panel)return;
-  const rk=ap.z.iced.filter(d=>d.key==='Rookie').length;
+  const icedRk=ap.z.iced.filter(d=>d.key==='Rookie');
+  const rsRk=ap.z.rs.filter(d=>d.key==='Rookie');
+  const covered=icedRk.length+rsRk.length;
   const bd=document.createElement('div');
   bd.className='shop-iced-backdrop';bd.id='shop-iced-pop';
   bd.innerHTML=`<div class="shop-iced-card">
-    <div class="shop-iced-title">YOUR ICED ZONE — ${ap.z.iced.length} ${ap.z.iced.length===1?'DIE':'DICE'}</div>
-    <div class="shop-iced-rookies${rk?'':' none'}">${rk?`${rk} Rookie${rk>1?'s':''} in Iced — trash fodder for ${rk===1?'a die buy':'die buys'}`:'No rookies in Iced — no fodder for a die buy right now'}</div>
-    <div class="shop-iced-dice">${ap.z.iced.length?ap.z.iced.map(d=>dieWrapHTML(d,false,true,true)).join(''):'<div style="color:#888">Empty — nothing iced right now.</div>'}</div>
+    <div class="shop-iced-title">ROOKIE CHECK</div>
+    <div><span class="shop-iced-buys">BUYS COVERED<b>${covered}</b></span></div>
+    <div class="shop-iced-section ice">ICED</div>
+    <div class="shop-iced-dice left">${icedRk.length?icedRk.map(d=>dieWrapHTML(d,false,true,true)).join(''):'<div class="shop-iced-empty">None</div>'}</div>
+    <div class="shop-iced-section">ROLL & SORT</div>
+    <div class="shop-iced-dice left">${rsRk.length?rsRk.map(d=>dieWrapHTML(d,false,true,false)).join(''):'<div class="shop-iced-empty">None</div>'}</div>
+    <div class="shop-iced-note">RS rookies can be spent for energy first — whatever's left can be iced and trashed.</div>
     <button class="shop-iced-close" onclick="closeShopIced()">Back to Shop</button>
   </div>`;
   bd.addEventListener('click',e=>{if(e.target===bd)closeShopIced();});
