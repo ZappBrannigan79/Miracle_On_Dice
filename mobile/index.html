@@ -1364,7 +1364,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.47</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.48</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1486,7 +1486,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.47</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.48</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3576,8 +3576,8 @@ function completeBuy(cardIdx,trashDieId){
   const tr=ap.z.iced.splice(ti,1)[0];addLog(`${ap.name}: Trashed rookie (buy cost).`);
   document.getElementById('trash-panel').classList.remove('show');
   card.left--;
-  ap.z.iced.push(mkDie(card.key));
-  addLog(`${ap.name}: Bought ${card.key} → Iced Zone.`,'imp');
+  ap.bag.push(mkDie(card.key)); // v8.48 TRIAL: purchases land in the bag, not Iced (Tim)
+  addLog(`${ap.name}: Bought ${card.key} → Bag.`,'imp');
   noteTurn(`📝 bought ${card.key}`);
   awardBuyBonus(ap,card);
   renderAll();
@@ -3627,8 +3627,8 @@ function completeTrade(trashDieId){
   // Full cost already paid — just complete the purchase
   const ap2=AP();const card2=ap2.lineup[cardIdx];
   card2.left--;
-  ap2.z.iced.push(mkDie(card2.key));
-  addLog(`${ap2.name}: Bought ${card2.key} (Trade) → Iced Zone.`,'imp');
+  ap2.bag.push(mkDie(card2.key)); // v8.48 TRIAL: purchases land in the bag, not Iced (Tim)
+  addLog(`${ap2.name}: Bought ${card2.key} (Trade) → Bag.`,'imp');
   awardBuyBonus(ap2,card2);
   renderAll();
 }
@@ -8257,7 +8257,7 @@ function aiBuyTier(cheapest,specific){
   addLog(`${ap.name}: Bought ${t.key} for ${cost}E (trashed rookie).`,'imp');
   aiPill(`📝 bought ${t.key} for ${cost}E`);
   const card=ap.lineup[t.idx];card.left--;
-  ap.z.iced.push(mkDie(t.key));
+  ap.bag.push(mkDie(t.key)); // v8.48 TRIAL: purchases land in the bag, not Iced (Tim)
   awardBuyBonus(ap,card);
   return true;
 }
