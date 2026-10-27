@@ -1139,7 +1139,9 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 .m-mini{position:relative;}
 .m-cnt{position:absolute;top:4px;right:5px;background:rgba(242,193,78,.92);color:#131313;font-size:9.5px;font-weight:900;border-radius:8px;padding:0 5px;line-height:15px;z-index:2;} /* v8.63: mini count badge */
 .tgt-die-mini.m3{transform:scale(.44);margin:-16px -16px;} /* v8.63: 3-across mini dice */
-.m-qdie{width:26px;height:26px;border-radius:7px;background:linear-gradient(145deg,#46536b,#2b3648);border:1.5px solid #6d7f9e;color:#e8eefb;font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center;} /* v8.62: bench mini ? tile */
+.m-qdie{width:26px;height:26px;border-radius:7px;background:linear-gradient(145deg,#46536b,#2b3648);border:1.5px solid #6d7f9e;color:#e8eefb;font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center;} /* v8.62: bench mini ? tile (retired v8.66) */
+.tgt-die-mini.m-rsv{transform:scale(.5);margin:-15px -14px;} /* v8.66: bench mini die, reserve-sized (Tim) */
+.tgt-die-mini.m-rsv .die-tier-lbl{display:block;} /* v8.66: bench mini names its tier (Tim) */
 .m-mini-count{font-size:1.7em;font-weight:900;color:#8b96b0;}
 .m-mini.z-def{border-color:rgba(255,80,80,.5);}.m-mini.z-def .m-mini-lbl{color:#ff8080;}
 .m-mini.z-rs{border-color:rgba(160,120,80,.5);}.m-mini.z-rs .m-mini-lbl{color:#c09060;}
@@ -1392,7 +1394,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.65</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.66</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1514,7 +1516,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.65</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.66</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4230,7 +4232,7 @@ function renderBenchPickDice(){
   const dice=p.z[bp.zone].filter(d=>bp.ids.includes(d.id));
   // Preserve any selections across re-renders (e.g. an unrelated pull mid-choice)
   _benchSel=_benchSel.filter(id=>bp.ids.includes(id)).slice(0,bp.need);
-  document.getElementById('bench-pick-title').textContent=`Choose ${bp.need} for your bench (bench ${p.z.bench.length}/2)`; // v7.169: bench icon removed from this card heading (Tim) — stays in action bar + summary
+  document.getElementById('bench-pick-title').textContent=`Choose ${bp.need} for your bench (bench ${p.z.bench.length}/1)`; // v8.66: denominator caught up with the max-1 trial (Tim) // v7.169: bench icon removed from this card heading (Tim) — stays in action bar + summary
   const row=document.getElementById('bench-pick-dice');row.innerHTML='';
   dice.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
@@ -9261,8 +9263,9 @@ window.addEventListener('DOMContentLoaded', () => {
         const dice = ap.z[zoneKey];
         if ((zoneKey === 'bench' || zoneKey === 'reserve') && dice.length) {
           // v8.62 trial: an occupied bench/reserve mini shows the die itself (Tim) -
-          // bench as the '?' tile, reserve as its real face
-          if (zoneKey === 'bench') dots.innerHTML = '<div class="m-qdie">?</div>';
+          // reserve as its real face. v8.66: bench as the die with a BLANK face
+          // (its tier + color/halo, no rolled face - like the shootout shooters, Tim)
+          if (zoneKey === 'bench') { try { const bd = Object.assign({}, dice[0], { face: { t: 'BLANK' } }); dots.innerHTML = '<span class="tgt-die-mini m-rsv">' + dieWrapHTML(bd, false, true, false) + '</span>'; } catch (e) { dots.innerHTML = ''; } }
           else { try { dots.innerHTML = '<span class="tgt-die-mini">' + dieWrapHTML(dice[0], false, true, false) + '</span>'; } catch (e) { dots.innerHTML = ''; } }
           pips.textContent = '';
           return;
