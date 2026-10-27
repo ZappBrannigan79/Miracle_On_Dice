@@ -407,8 +407,6 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .face-badge{overflow:hidden;}
 /* v8.29: ADV at 10:00 — drawn 'no' mark over a dimmed face (Tim) */
 .die-body.adv10 .face-badge{opacity:.42;filter:grayscale(.45)}
-.adv-no{position:absolute;inset:4px;border:4px solid rgba(224,49,49,.95);border-radius:50%;pointer-events:none;z-index:5}
-.adv-no:after{content:'';position:absolute;left:50%;top:-4px;width:4px;height:calc(100% + 8px);margin-left:-2px;background:rgba(224,49,49,.95);border-radius:2px;transform:rotate(45deg)}
 .face-badge::before{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   font-size:2.1em;opacity:.30;pointer-events:none;line-height:1;}
 .fb-S::before{content:'🏒';}
@@ -912,7 +910,10 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .persona-card.sel{border-color:#ffd75e;background:rgba(255,215,94,.08)}
 #ai-persona-cards{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 #commit-all-slot button{margin-top:8px;} /* v7.30: breathing room (Tim) */
-.pinwheel{animation:pinwheelSpin .2s linear infinite;display:inline-block;}@keyframes pinwheelSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.decide-scan{display:inline-flex;gap:10px;align-items:center;}
+.decide-scan .ds-sh{font-size:28px;line-height:1;display:inline-block;filter:grayscale(1) brightness(.55);animation:dsGlow 1.2s linear infinite;}
+.decide-scan .ds-sh:nth-child(2){animation-delay:.14s}.decide-scan .ds-sh:nth-child(3){animation-delay:.28s}.decide-scan .ds-sh:nth-child(4){animation-delay:.42s}.decide-scan .ds-sh:nth-child(5){animation-delay:.56s}
+@keyframes dsGlow{0%,55%,100%{filter:grayscale(1) brightness(.55);transform:scale(1);}12%{filter:none;transform:scale(1.22);}24%{filter:grayscale(.4) brightness(.85);transform:scale(1.05);}}
 
 /* ============================================================
    MIRACLE ON DICE — MOBILE OVERRIDE LAYER (v1)
@@ -1125,6 +1126,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 .m-dot.R{background:#fff;}.m-dot.HC{background:#ffd75e;}.m-dot.GN{background:#55ff55;}
 .m-dot.P{background:#555;}
 .m-mini-pips{font-size:.68em;color:#8b96b0;font-weight:700;}
+.m-qdie{width:26px;height:26px;border-radius:7px;background:linear-gradient(145deg,#46536b,#2b3648);border:1.5px solid #6d7f9e;color:#e8eefb;font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center;} /* v8.62: bench mini ? tile */
 .m-mini-count{font-size:1.7em;font-weight:900;color:#8b96b0;}
 .m-mini.z-def{border-color:rgba(255,80,80,.5);}.m-mini.z-def .m-mini-lbl{color:#ff8080;}
 .m-mini.z-rs{border-color:rgba(160,120,80,.5);}.m-mini.z-rs .m-mini-lbl{color:#c09060;}
@@ -1377,7 +1379,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.57</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.62</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1499,7 +1501,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.57</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.62</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1553,8 +1555,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <div class="zone z-iced"><div class="zone-lbl">🧊 Iced Zone</div><div class="zone-dice" id="z-iced"></div></div>
       </div>
    <div class="bottom-strip">
-        <div class="zone z-bench"><div class="zone-lbl">🪑 Bench (max 2)</div><div class="zone-dice" id="z-bench"></div></div>
-        <div class="zone z-reserve"><div class="zone-lbl">💾 Reserve (max 2)</div><div class="zone-dice" id="z-reserve"></div></div>
+        <div class="zone z-bench"><div class="zone-lbl">🪑 Bench (max 1)</div><div class="zone-dice" id="z-bench"></div></div>
+        <div class="zone z-reserve"><div class="zone-lbl">💾 Reserve (max 1)</div><div class="zone-dice" id="z-reserve"></div></div>
         <!-- SWAPPED: opp-area moved here where qa-box used to be -->
         <div class="opp-area" style="border:2px solid rgba(175,200,240,.7);box-shadow:0 0 10px rgba(140,170,220,.18),inset 0 0 12px rgba(140,170,220,.06);background:rgba(0,0,0,.15) url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='120' viewBox='0 0 200 120'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.07'%3E%3Cline x1='100' y1='0' x2='100' y2='120' stroke-width='3'/%3E%3Ccircle cx='100' cy='60' r='26' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E&quot;) center/contain no-repeat;border-radius:8px;padding:6px;display:flex;flex-direction:column;justify-content:center;">
           <div class="opp-title" id="opplbl">Opponent</div>
@@ -1739,7 +1741,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <p><strong style="color:var(--gold)">🎲 Turn:</strong> Advance → Draw 6 → Roll & Assign → Shoot (optional) → Buy → End Turn.</p>
       <p><strong style="color:var(--gold)">⚡ Energy:</strong> Spend E faces to buy dice, buy tokens (3E each), or pay costed (⚡) faces.</p>
       <p><strong style="color:var(--gold)">🏒 Shooting:</strong> Commit S-dice + shoot tokens. Defender commits B-dice + block tokens + clock bonus (+1/+2/+3). Roll combat dice — most hits wins.</p>
-      <p><strong style="color:var(--gold)">🛒 Buying:</strong> Pay cost + trash an iced rookie, die to Iced. Tokens 3E each (no limit). Sell out a card for a bonus token. Goalies give +1 Block token per buy.</p>
+      <p><strong style="color:var(--gold)">🛒 Buying:</strong> Pay cost + trash an iced rookie, die to Bag. Tokens 3E each (no limit). Sell out a card for a bonus token. Goalies give +1 Block token per buy.</p>
       <p><strong style="color:var(--gold)">👊 Fighting:</strong> Goon with FT can fight an opponent's die (3v2, ties lose). Win: target iced. Lose: penalty die to your bag. Goon ices either way.</p>
       <p><strong style="color:var(--gold)">🎲 Dice:</strong> Rookie E1/E2/S1/B1/blank/blank. Forwards shoot, Defensemen block, Goalies block + shutout (SO2, costed).</p>
       <p><strong style="color:var(--gold)">⏰ Clock:</strong> 10:00→01:00. Red zone 02:00–01:00 only — 10:00–03:00 is cold/white (block bonus +1, +2 at 02:00, +3 at 01:00). Tie after 3 periods → shootout.</p>
@@ -2775,7 +2777,7 @@ function getOpts(die){
       // No reserve option for HC
       o.push({l:`HC Energy (${f.v}E) — available for spending this turn`,a:'hc-energy-info'});
     }else{
-      if(ap.z.reserve.length<2)o.push({l:`Save ${f.v}E in Reserve`,a:'reserve'});
+      if(ap.z.reserve.length<1)o.push({l:`Save ${f.v}E in Reserve`,a:'reserve'});
     }
   }else if(f.t==='S'){
     const z=G.clock>2?'Cold':'Hot';
@@ -2896,7 +2898,7 @@ function assignDie(die,action){
   }else if(action==='reserve'){
     if(die.key==='HC'){toast('Head Coach die cannot enter Reserve — it is set aside automatically.');return;}
     if(die.face.t!=='E'&&!die.energyPending){toast('Reserve: Energy faces only.');return;}
-    if(ap.z.reserve.length>=2){toast('Reserve full! (max 2)');return;}
+    if(ap.z.reserve.length>=1){toast('Reserve full! (max 1)');return;}
     ap.z.rs.splice(idx,1);ap.z.reserve.push(die);die.energyPending=false;
     addLog(`${ap.name}: ${dLbl(die)} saved in Reserve.`);
     if(_onlineActive) G.turnCounts.res++; // v7.30: wired (Tim)
@@ -3386,7 +3388,7 @@ function showFightWatch(fs){
   }),CF_F,2.2); // v7.30: faces 4th (Tim's stuck-fight fix)
 }
 function goonCloseFight(){fightFxClear(document.querySelector('#goon-panel .panel-box'));document.getElementById('goon-panel').classList.remove('show');_goonDie=null;_goonTarget=null;G.fightSync=null;if(_onlineActive)pushState();renderAll();} // 5_98: clear fight sync (Tim)
-function sendBench(p,d){if(p.z.bench.length>=2)p.z.iced.push(d);else p.z.bench.push(d);}
+function sendBench(p,d){if(p.z.bench.length>=1)p.z.iced.push(d);else p.z.bench.push(d);}
 
 // ═══════════════════ ECONOMY (spin-down) ═══════════════════
 // Returns available energy from RS (energy faces + wild-energy pending) + reserve
@@ -4102,7 +4104,7 @@ function resolveCombat(){
     ap.tok.shoot=Math.max(0,ap.tok.shoot-shootTokensUsed);
     opp.tok.block=Math.max(0,opp.tok.block-blockTokensUsed);
     // Defender lost: they choose which assigned block dice go to the bench
-    // (max 2 — the rest ice). Dice stay in the defend zone until confirmed.
+    // (max 1 — the rest ice). Dice stay in the defend zone until confirmed.
     // v7.30: fall back to defend zone if bDice empty (Tim's bug — block IDs may not sync)
     const _bIds=bDice.length?bDice.map(d=>d.id):opp.z.defend.map(d=>d.id);
     setupBenchPick(1-G.ap,'defend',_bIds);
@@ -4111,7 +4113,7 @@ function resolveCombat(){
     bDice.forEach(d=>{const i=opp.z.defend.indexOf(d);if(i!==-1)opp.z.defend.splice(i,1);opp.z.iced.push(d);});
     opp.tok.block=Math.max(0,opp.tok.block-blockTokensUsed);
     ap.tok.shoot=Math.max(0,ap.tok.shoot-shootTokensUsed);
-    // Shooter lost: they choose which shoot dice go to the bench (max 2).
+    // Shooter lost: they choose which shoot dice go to the bench (max 1).
     // Dice stay in the shoot zone until confirmed.
     setupBenchPick(G.ap,'shoot',ap.z.shoot.map(d=>d.id));
   }
@@ -4130,14 +4132,15 @@ function resolveCombat(){
   }finally{_combatResolving=false;}
 }
 // ═══════════════════ BENCH CHOICE (loser of the shot) ═══════════════════
-// Rulebook §9/§10: the loser's assigned dice head to the bench; if more than 2
-// would go at once the player chooses 2 and the rest go to the Iced Zone.
+// v8.62 TRIAL (Tim; revert = v8.61): Bench and Reserve are max 1 (were 2).
+// Rulebook §9/§10: the loser's assigned dice head to the bench; if more than 1
+// would go at once the player chooses 1 and the rest go to the Iced Zone.
 let _benchSel=[];
 function setupBenchPick(loserSlot,zone,ids){
   G.benchPick=null;
   if(!ids.length)return;
   const p=G.players[loserSlot];
-  const need=Math.min(Math.max(0,2-p.z.bench.length),ids.length);
+  const need=Math.min(Math.max(0,1-p.z.bench.length),ids.length);
   if(need<=0){ // bench full — no choice to make, everything ices
     ids.forEach(id=>{const z=p.z[zone],i=z.findIndex(d=>d.id===id);if(i!==-1)p.z.iced.push(z.splice(i,1)[0]);});
     addLog(`${p.name}: bench full — ${ids.length} die/dice to the Iced Zone.`);
@@ -4390,7 +4393,7 @@ function endTurn(){if(aiGuard())return;
   // Clean RS: send remaining to iced EXCEPT reserve-eligible energy that player wants to keep
   // 2_120: Leftover energy in RS after buy → fill remaining reserve slots, biggest first (was: only 1)
   const rsE=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='E'||d.energyPending));
-  const rsSpace=2-ap.z.reserve.length;
+  const rsSpace=1-ap.z.reserve.length;
   if(rsE.length&&rsSpace>0){
     const toSave=rsE.sort((a,b)=>b.face.v-a.face.v).slice(0,rsSpace);
     toSave.forEach(d=>{
@@ -4696,12 +4699,11 @@ function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
   if(_artHtml){fbCls='fb-ART';faceHTML=_artHtml;_tierStyle=' style="display:none"';}
   const energyBadge=(!inIced&&die.energyPending)?`<div class="energy-inuse">⚡${die.face?die.face.v:''}</div>`:'';
   const costStrip=(!inIced&&isCost&&inRS)?`<div class="cost-strip">costs 1⚡</div>`:'';
-  const advBlocked=inRS&&die.face&&die.face.t==='ADV'&&typeof G!=='undefined'&&G&&G.clock===10; // v8.29: ADV has no play at 10:00 (Tim)
-  const advNoHtml=advBlocked?'<div class="adv-no"></div>':'';
+  const advBlocked=inRS&&die.face&&die.face.t==='ADV'&&typeof G!=='undefined'&&G&&G.clock===10; // v8.29: ADV has no play at 10:00 (Tim). v8.59: slash overlay removed, and animGameDice strips this dim during the tumble so it can't spoil the roll (Tim)
   const shakeCls=_shakeIds.has(die.id)?' rolling':''; // v7.30: render-time shake (Tim)
   return`<div class="die-wrap ${pc}" data-id="${die.id}">
     <div class="die-body ${selCls}${isCost&&!inIced?' has-cost':''}${shakeCls}${advBlocked?' adv10':''}">
-      <div class="face-badge ${fbCls}">${faceHTML}</div>${advNoHtml}
+      <div class="face-badge ${fbCls}">${faceHTML}</div>
 <!-- v7.30: ⛔ marker removed — PEN face instead (Tim) -->
       ${energyBadge}${costStrip}
     </div>
@@ -4844,9 +4846,10 @@ function animGameDice(dice,done){
     const total=900+i*70,t0=performance.now();
     it.b.classList.add('rolling');
     if(it.bd)it.bd.classList.add('rolling');
+    if(it.bd&&it.bd.classList.contains('adv10')){it.adv=true;it.bd.classList.remove('adv10');} // v8.59: dead-ADV dim would spoil the tumble (Tim)
     (function frame(now){
       const t=(now||performance.now())-t0;
-      if(t>=total){it.b.innerHTML=it.fh;it.b.className=it.fc;if(it.bd)it.bd.classList.remove('rolling');if(--n===0&&done)done();return;}
+      if(t>=total){it.b.innerHTML=it.fh;it.b.className=it.fc;if(it.bd){it.bd.classList.remove('rolling');if(it.adv)it.bd.classList.add('adv10');}if(--n===0&&done)done();return;}
       // v7.30: always pick a DIFFERENT face (Tim) — no repeats, faster-looking shuffle
       let fi=(Math.random()*it.faces.length)|0;
       if(fi===it.last)fi=(fi+1)%it.faces.length;
@@ -4995,7 +4998,7 @@ function getHumanOpts(die){
   if(!f||aiGuard())return null;
   if(f.t==='E'){
     if(die.key==='HC')return[{l:'Open Shop',a:'open-shop'},{l:'Set Aside',a:'hc-set-aside'}];
-    const full=ap.z.reserve.length>=2;
+    const full=ap.z.reserve.length>=1;
     return[{l:'Open Shop',a:'open-shop'},{l:full?'Reserve (full)':'Reserve',a:'reserve',dis:full},{l:'Ice',a:'iced'}];
   }
   if(f.t==='W'){
@@ -5669,9 +5672,8 @@ function _advIceIt(){
   _advMaybeClose();
 }
 function _advMaybeClose(){
-  if(_advSess&&_advSess.items.every(it=>it.status!=='wait')){
-    setTimeout(()=>{if(_advSess)_advDone();},800);
-  }
+  // v8.60: no auto-close (Tim) — the 800ms vanish after the last die read as a glitch.
+  // The card now stays until the player taps DONE, like every other confirm in the game.
 }
 function _advDone(){
   _advSess=null;
@@ -8013,7 +8015,7 @@ function aiDoHcReroll(P){
     if(rrd){ // 4_72: no assignmentStarted gate for AI — human-UI flag only (Tim)
       const rrpicks=aiRerollTable().filter(d=>d!==rrd);
       const keepFT2=aiShouldKeepFT(); // 4_77
-      const blanks=ap.z.rs.filter(d=>d!==rrd&&!d.spun&&d.face&&(d.face.t==='BLANK'||(d.face.t==='FT'&&!keepFT2))); // 4_68+4_77
+      const blanks=ap.z.rs.filter(d=>d!==rrd&&!d.spun&&d.key!=='Penalty'&&d.face&&(d.face.t==='BLANK'||(d.face.t==='FT'&&!keepFT2))); // 4_68+4_77; v8.59: penalty die excluded — every side is PEN, rerolling it is pointless (Tim)
       blanks.forEach(d=>{if(!rrpicks.includes(d))rrpicks.push(d);});
       if(rrpicks.length){
         assignDie(rrd,'rr');
@@ -8040,10 +8042,10 @@ async function scrambleDefense(finalDice, finalTokens, maxDice){
   // which turned the 80ms scramble ticks into one long freeze (Tim's catch)
   const sleep=ms=>new Promise(r=>setTimeout(r,ms));
   try{
-  // v7.45: pinwheel shields (Tim) — 6 🛡️ spinning, fanned 45° apart,
-  // then lands on the real result
-  el.innerHTML=`<span class="combat-pulse"><span style="letter-spacing:6px"><span class="pinwheel">🛡️</span> <span class="pinwheel" style="animation-delay:-.025s">🛡️</span> <span class="pinwheel" style="animation-delay:-.05s">🛡️</span> <span class="pinwheel" style="animation-delay:-.075s">🛡️</span> <span class="pinwheel" style="animation-delay:-.1s">🛡️</span> <span class="pinwheel" style="animation-delay:-.125s">🛡️</span></span></span>`;
-  await sleep(1200); // pinwheel spin time
+  // v8.61: The Scan (Tim's pick over the v7.45 pinwheels) — a glow sweeps his
+  // blockers one by one while he decides, then lands on the real result
+  el.innerHTML=`<span class="decide-scan"><span class="ds-sh">🛡️</span><span class="ds-sh">🛡️</span><span class="ds-sh">🛡️</span><span class="ds-sh">🛡️</span><span class="ds-sh">🛡️</span></span>`;
+  await sleep(1200); // scan sweep time
   // Land on final choice
   const tokStr=finalTokens>0?` + <span style="font-size:1.3em;font-weight:900">${finalTokens}</span> ${tokImg('block','1.3em')}`:''; // v7.133: token art (Tim)
   el.innerHTML=`<span class="combat-pulse"><span style="font-size:1.3em;font-weight:900">${finalDice}</span> COMBAT ${finalDice===1?'DIE':'DICE'}${tokStr}</span>`; // v7.113
@@ -8207,7 +8209,7 @@ function aiBankReserve(){
   let banked=0;
   [...ap.z.rs].forEach(d=>{
     if(!d.face||d.face.t!=='E'||d.key==='HC')return;
-    if(ap.z.reserve.length>=2)return;
+    if(ap.z.reserve.length>=1)return;
     const p=d.face.v>=3?10:d.face.v===2?20:30;
     if(d100()<=p){
       ap.z.rs.splice(ap.z.rs.indexOf(d),1);
@@ -8438,7 +8440,7 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
         }
         // 3. Reserve (highest pip)
         const _re=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&d.face.t==='E').sort((a,b)=>b.face.v-a.face.v)[0];
-        if(_re&&ap.z.reserve.length<2){
+        if(_re&&ap.z.reserve.length<1){
           ap.z.reserve.push(ap.z.rs.splice(ap.z.rs.indexOf(_re),1)[0]);
           addLog(`${ap.name}: Reserved ${_re.key} (${_re.face.v}E).`);await aiBeat(AI_BEAT);continue; // v7.46: AI_BEAT (Tim)
         }
@@ -8476,7 +8478,7 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
           // Either way, loop back and re-evaluate (Tim) — only the top-of-loop checks end buying.
           if(Math.random()<0.5){
             const e2=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&d.face.t==='E').sort((a,b)=>b.face.v-a.face.v)[0];
-            if(e2&&ap.z.reserve.length<2){
+            if(e2&&ap.z.reserve.length<1){
               const ei=ap.z.rs.indexOf(e2);
               if(ei!==-1){ap.z.rs.splice(ei,1);e2.committed=true;ap.z.reserve.push(e2);_aiReserveBanked++;}
               renderAll();
@@ -8493,13 +8495,13 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
     // 2_93: post-buy sweep — leftover R&S energy fills remaining reserve slots, biggest first
     // 2_121: hardened — do the move directly (not via assignDie) to avoid silent guard drops; log the outcome
     const rsEnergy=ap.z.rs.filter(d=>d.key!=='HC'&&d.face&&(d.face.t==='E'||d.energyPending));
-    const space=2-ap.z.reserve.length;
+    const space=1-ap.z.reserve.length;
     if(rsEnergy.length&&space>0){
       const toBank=rsEnergy.sort((a,b)=>b.face.v-a.face.v).slice(0,space);
       let banked=0;
       toBank.forEach(d=>{
         const idx=ap.z.rs.indexOf(d);
-        if(idx!==-1&&ap.z.reserve.length<2){
+        if(idx!==-1&&ap.z.reserve.length<1){
           ap.z.rs.splice(idx,1);d.energyPending=false;d.committed=true;ap.z.reserve.push(d);
           addLog(`${ap.name}: Banked ${d.face.v}E to Reserve (post-buy sweep).`,'imp');
           banked++;
@@ -9243,6 +9245,14 @@ window.addEventListener('DOMContentLoaded', () => {
         const ap = AP();
         if (!ap || !ap.z[zoneKey]) return;
         const dice = ap.z[zoneKey];
+        if ((zoneKey === 'bench' || zoneKey === 'reserve') && dice.length) {
+          // v8.62 trial: an occupied bench/reserve mini shows the die itself (Tim) -
+          // bench as the '?' tile, reserve as its real face
+          if (zoneKey === 'bench') dots.innerHTML = '<div class="m-qdie">?</div>';
+          else { try { dots.innerHTML = '<span class="tgt-die-mini">' + dieWrapHTML(dice[0], false, true, false) + '</span>'; } catch (e) { dots.innerHTML = ''; } }
+          pips.textContent = '';
+          return;
+        }
         dots.innerHTML = dice.map(d => {
           const pc = d.pos === 'F' ? 'F' : d.pos === 'D' ? 'D' : d.pos === 'G' ? 'G'
             : d.pos === 'R' ? 'R' : d.pos === 'HC' ? 'HC' : d.pos === 'GN' ? 'GN' : 'P';
