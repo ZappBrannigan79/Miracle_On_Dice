@@ -1348,7 +1348,9 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 #m-clockrow #timerbox.finalturn .timer-row span:first-child{color:#ff5f45!important;} /* red only in the final-turn window */
 #m-clockrow .block-bonus{color:#ffb52e;opacity:.9;}
 /* v8.74: bonus line fills the box, style A (Tim) — big, bold, gentle pulse at every clock */
-#m-clockrow .block-bonus{font-size:20px;font-weight:900;letter-spacing:1.5px;margin-top:2px;animation:bbPulse 2.4s ease-in-out infinite;}
+#m-clockrow .block-bonus{font-size:15px;font-weight:900;letter-spacing:1px;margin-top:2px;white-space:nowrap;animation:bbPulse 2.4s ease-in-out infinite;}
+/* v8.75: bonus line wrapped on-device (Tim) — trim the box's inner padding for width; the box itself does not grow */
+#m-clockrow #timerbox{padding-left:6px;padding-right:6px;}
 @keyframes bbPulse{0%,100%{opacity:.78;text-shadow:0 0 2px rgba(255,181,46,.3);}50%{opacity:1;text-shadow:0 0 9px rgba(255,181,46,.75);}}
 
 /* v7.161c: cards ease in (Tim, brainstorm 3) */
@@ -1397,7 +1399,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.74</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.75</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1519,7 +1521,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.74</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.75</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
