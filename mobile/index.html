@@ -390,10 +390,10 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
    its own color with a soft glow, the regular color kept as a 2px inset ring.
    Selected dice are untouched: .sel/.sel-rr force the white border + white glow
    with !important, and these rules skip .sel/.sel-rr anyway. Penalty excluded. */
-.pos-F .die-body:not(.sel):not(.sel-rr){border-color:#3fa9ff;box-shadow:inset 0 0 0 2px #0026ff,0 0 10px rgba(63,169,255,.75);}
+.pos-F .die-body:not(.sel):not(.sel-rr){border-color:#3fa9ff;box-shadow:inset 0 0 0 2px #2b6bff,0 0 10px rgba(63,169,255,.75);} /* v8.71: mid-blue inner ring (Tim) */
 .pos-D .die-body:not(.sel):not(.sel-rr){border-color:#ff4757;box-shadow:inset 0 0 0 2px #ff0000,0 0 10px rgba(255,71,87,.75);}
 .pos-R .die-body:not(.sel):not(.sel-rr){border-color:#ffffff;box-shadow:inset 0 0 0 2px #cfd6e4,0 0 9px rgba(255,255,255,.55);}
-.pos-G .die-body:not(.sel):not(.sel-rr){border-color:#dff3ff;box-shadow:inset 0 0 0 2px #c0c0c0,0 0 10px rgba(190,230,255,.65);}
+.pos-G .die-body:not(.sel):not(.sel-rr){border-color:#aeb9c9;box-shadow:inset 0 0 0 2px #c0c0c0,0 0 13px rgba(174,185,201,.9);} /* v8.71: glowing grey halo (Tim) */
 .pos-HC .die-body:not(.sel):not(.sel-rr){border-color:#ff9a1f;box-shadow:inset 0 0 0 2px #ff6a00,0 0 10px rgba(255,154,31,.8);}
 .pos-GN .die-body:not(.sel):not(.sel-rr){border-color:#2bff5e;box-shadow:inset 0 0 0 2px #00c90d,0 0 10px rgba(43,255,94,.7);}
 .fb-ART::before{display:none!important;}
@@ -1394,7 +1394,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.70</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.71</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1516,7 +1516,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.70</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.71</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
