@@ -1399,7 +1399,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.75</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.76</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1521,7 +1521,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.75</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.76</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2408,15 +2408,17 @@ function doFaceoff(){if(aiGuard())return;
   document.getElementById('fo-t1').textContent='–';document.getElementById('fo-t2').textContent='–';
   document.getElementById('fo-win').textContent='🎲 Rolling…';
   animNumbers([..._fd1.children,..._fd2.children],[...r1,...r2],()=>{
-  // 3_06 — Faceoff prize: the winner takes ODD clock turns automatically and
-  // then chooses +1 Shoot or +1 Block token. The token is granted in
-  // pickFoChoice — NOT here; turn order is set in beginPeriodAfterFo.
-  G.fo={stage:'rolled',per:G.period,r1:r1,t1:t1,r2:r2,t2:t2,w:w,choice:null};
+  // v8.76 — Faceoff prize (Tim): automatic +1 Shoot token, no pick. choice is
+  // set to 'shoot' so the Begin Period gate and mirror render keep their shape;
+  // the token is granted HERE, before the push, so both sides sync it atomically.
+  // (Was 3_06: winner chose +1 Shoot or +1 Block in pickFoChoice.)
+  G.fo={stage:'rolled',per:G.period,r1:r1,t1:t1,r2:r2,t2:t2,w:w,choice:'shoot'};
+  G.players[w].tok.shoot+=1;
   // Online: whoever rolls syncs it — the other side mirrors the faceoff read-only.
   if(_onlineActive){pushState();}
   document.getElementById('fo-t1').textContent=t1;document.getElementById('fo-t2').textContent=t2;
   document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! Takes EVEN minutes.`;
-  addLog(`Faceoff: P1=${t1}, P2=${t2} — ${G.players[w].name} wins, takes EVEN minutes.`,'imp');
+  addLog(`Faceoff: P1=${t1}, P2=${t2} — ${G.players[w].name} wins, takes EVEN minutes +1 Shoot token.`,'imp');
   renderFoChoiceState();
   aiMaybeFoPick(); // 2_45: Vs AI hook
   });
@@ -8775,17 +8777,10 @@ function aiMaybeAutoFaceoff(){
 }
 function aiMaybeFoPick(){
   if(!(_aiActive&&G.fo&&G.fo.w===_aiSlot))return;
-  setTimeout(()=>{
-    // 3_06: Coach takes whichever token he's shorter on; tie → Shoot (the old default prize).
-    const _aip=G.players[_aiSlot];const c=_aip.tok.block<_aip.tok.shoot?'block':'shoot';
-    _aiSelf=true;
-    try{
-      if(pickFoChoice(c)){ // 2_48: only narrate/schedule when the pick actually landed
-        aiPill(`🪙 wins the faceoff, takes +1 ${c==='shoot'?'🎯 Shoot':'🛡️ Block'} token`);
-        // 2_146: no auto-begin — the faceoff screen waits for the player to tap Begin Period
-      }
-    }finally{_aiSelf=false;}
-  },aiPace(1100));
+  // v8.76: the prize is automatic now (+1 Shoot, granted at the settle in
+  // doFaceoff) — this beat only narrates it. No auto-begin (2_146): the
+  // faceoff screen still waits for the player to tap Begin Period.
+  setTimeout(()=>{_aiSelf=true;try{aiPill(`🪙 wins the faceoff, takes +1 🎯 Shoot token`);}finally{_aiSelf=false;}},aiPace(1100));
 }
 
 // ── Shootout auto-drive ──
