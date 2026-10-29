@@ -1347,12 +1347,15 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 #m-clockrow .timer-row span:first-child{color:#fff!important;letter-spacing:.22em;font-weight:800;} /* v7.161d: label white 10:00-03:00 (Tim) */
 #m-clockrow #timerbox.finalturn .timer-row span:first-child{color:#ff5f45!important;} /* red only in the final-turn window */
 #m-clockrow .block-bonus{color:#ffb52e;opacity:.9;}
+/* v8.74: bonus line fills the box, style A (Tim) — big, bold, gentle pulse at every clock */
+#m-clockrow .block-bonus{font-size:20px;font-weight:900;letter-spacing:1.5px;margin-top:2px;animation:bbPulse 2.4s ease-in-out infinite;}
+@keyframes bbPulse{0%,100%{opacity:.78;text-shadow:0 0 2px rgba(255,181,46,.3);}50%{opacity:1;text-shadow:0 0 9px rgba(255,181,46,.75);}}
 
 /* v7.161c: cards ease in (Tim, brainstorm 3) */
 @keyframes modCardIn{from{opacity:0;transform:translateY(10px) scale(.985);}to{opacity:1;transform:translateY(0) scale(1);}}
 .panel-overlay.show .panel-box,.panel-overlay.show .combat-box,.panel-overlay.show .ov-box{animation:modCardIn .18s ease-out;}
 .m-oppbd,.m-iced-pop{animation:modCardIn .18s ease-out;}
-@media (prefers-reduced-motion: reduce){.panel-overlay.show .panel-box,.panel-overlay.show .combat-box,.panel-overlay.show .ov-box,.m-oppbd,.m-iced-pop{animation:none;}}
+@media (prefers-reduced-motion: reduce){.panel-overlay.show .panel-box,.panel-overlay.show .combat-box,.panel-overlay.show .ov-box,.m-oppbd,.m-iced-pop,#m-clockrow .block-bonus{animation:none;}}
 
 /* v7.161c: close-button chips (Tim, brainstorm 6) — dark circle, gold rim */
 .panel-close{width:34px;height:34px;border-radius:50%;background:#1c2230;border:1.5px solid rgba(200,168,75,.65);color:#f5e6c0;font-size:1.02em;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;}
@@ -1394,7 +1397,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.73</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.74</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1516,7 +1519,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.73</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.74</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2828,13 +2831,10 @@ function getOpts(die){
     if(G.penaltyPool>0)o.push({l:`Give opponent a Penalty die (pool: ${G.penaltyPool} left)`,a:'pen-give'});
     else o.push({l:'Penalty pool empty — no penalty dice available',a:'pen-pool-empty'});
   }else if(f.t==='ADV'){
-    if(G.clock===10){
-      o.push({l:'⏭️ ADV — unavailable on 10:00 turn (opponent has no defenders yet)',a:'adv-blocked'});
-    }else{
-      const hasCold=ap.z.cold.length>0;
-      if(hasCold)o.push({l:`⏭️ ADV — advance Cold Zone die to Hot (${ap.z.cold.length} available)`,a:'adv'});
-      else o.push({l:'⏭️ ADV — no Cold dice — Set Aside',a:'iced'}); // v7.30: (Tim) Set Aside option
-    }
+    // v8.74: ADV is live at 10:00 too (Tim trial) — the +3 clock bonus covers the early breakaway
+    const hasCold=ap.z.cold.length>0;
+    if(hasCold)o.push({l:`⏭️ ADV — advance Cold Zone die to Hot (${ap.z.cold.length} available)`,a:'adv'});
+    else o.push({l:'⏭️ ADV — no Cold dice — Set Aside',a:'iced'}); // v7.30: (Tim) Set Aside option
   }else if(f.t==='BLANK'){
     // 2_24: blanks are individually clickable — one-click 'iced' (the HC guard lives in assignDie)
     o.push({l:'Send to Iced',a:'iced'});
@@ -3996,7 +3996,7 @@ function armDieceEgg(){
     });
   });
 }
-function clockBlockBonus(){return G.clock>=3?1:(G.clock===2?2:(G.clock===1?3:0));} // 5_93: matches v5.91 hot zone (proactive)
+function clockBlockBonus(){return (G.clock===10||G.clock===1)?3:(G.clock===2?2:1);} // v8.74: 10:00 = +3 (Tim trial) // 5_93: matches v5.91 hot zone (proactive)
 let _shotDefViewOnly=false; // v7.30: shooter-view flag for tracker (Tim)
 function renderBselInfo(){
   if(_scrambling)return; // v7.41: don't clobber the slot machine (Tim)
@@ -4080,7 +4080,7 @@ function resolveCombat(){
   if(_onlineActive&&!G.shotLocked){toast('Waiting for the shooter to confirm their shot…');return;}
   const ap=AP(),opp=OPP();
   const bDice=opp.z.defend.filter(d=>G.blockSelIds.includes(d.id));
-  const bonus=G.clock===1?3:G.clock===2?2:1; // 5_91 (Tim)
+  const bonus=(G.clock===10||G.clock===1)?3:G.clock===2?2:1; // v8.74: 10:00 = +3 (Tim trial)
   // COMBAT DICE COUNT: each die grants combat dice equal to its pip value
   // Tokens = automatic +1 each (not extra dice)
   const numShootDice=ap.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
@@ -4715,7 +4715,7 @@ function dieWrapHTML(die,inRS=false,_unused=true,inIced=false){
   if(_artHtml){fbCls='fb-ART';faceHTML=_artHtml;_tierStyle=' style="display:none"';}
   const energyBadge=(!inIced&&die.energyPending)?`<div class="energy-inuse">⚡${die.face?die.face.v:''}</div>`:'';
   const costStrip=(!inIced&&isCost&&inRS)?`<div class="cost-strip">costs 1⚡</div>`:'';
-  const advBlocked=inRS&&die.face&&die.face.t==='ADV'&&typeof G!=='undefined'&&G&&G.clock===10; // v8.29: ADV has no play at 10:00 (Tim). v8.59: slash overlay removed, and animGameDice strips this dim during the tumble so it can't spoil the roll (Tim)
+  const advBlocked=false; // v8.74: ADV live at 10:00 (Tim trial) — the v8.29 adv10 dim is retired, machinery dormant. Was: // v8.29: ADV has no play at 10:00 (Tim). v8.59: slash overlay removed, and animGameDice strips this dim during the tumble so it can't spoil the roll (Tim)
   const shakeCls=_shakeIds.has(die.id)?' rolling':''; // v7.30: render-time shake (Tim)
   return`<div class="die-wrap ${pc}" data-id="${die.id}">
     <div class="die-body ${selCls}${isCost&&!inIced?' has-cost':''}${shakeCls}${advBlocked?' adv10':''}">
@@ -4945,7 +4945,7 @@ function renderZone(zid,arr,opts={}){
       // v8.49: a fight die with no targets reads as spent (Tim)
       if(die.face&&die.face.t==='FT'&&!_goonFightUsed&&!hasFightTarget()){body.style.opacity='.45';body.title='No fight targets';}
       // v8.51: a dead ADV die reads as spent the same way (Tim)
-      if(die.face&&die.face.t==='ADV'&&(G.clock===10||AP().z.cold.length===0)){body.style.opacity='.45';body.title=G.clock===10?'ADV — unavailable on 10:00 turn':'No dice in Cold Zone to advance';}
+      if(die.face&&die.face.t==='ADV'&&AP().z.cold.length===0){body.style.opacity='.45';body.title='No dice in Cold Zone to advance';} // v8.74: 10:00 no longer dead (Tim trial)
       if(hopts&&hopts.length){
         body.style.cursor='pointer';
         // v7.30: HC one-clicks to set-aside when it's the ONLY die in RS (Tim)
@@ -5027,7 +5027,7 @@ function getHumanOpts(die){
     if(!hasFightTarget())return[{l:'👊 Start Fight — no targets',a:'goon-fight',dis:true},{l:'Ice it',a:'iced'}];
     return[{l:'👊 Start Fight',a:'goon-fight'},{l:'Ice it',a:'iced'}];
   }
-  if(f.t==='ADV'&&(G.clock===10||ap.z.cold.length===0)){
+  if(f.t==='ADV'&&ap.z.cold.length===0){ // v8.74: 10:00 no longer dead (Tim trial)
     // v8.51: dead ADV — the die itself renders faded in Roll & Sort (same treatment as a
     // targetless fight die), so the popover drops its disabled reason rows: just the exit.
     // Live ADV still one-clicks via getOpts below. (Tim)
@@ -5339,7 +5339,7 @@ function renderBoard(){
   tv.className='timer-val'+(G.clock<=2?' hot':''); // 5_91 (Tim) // 4_60: red 04:00-01:00 (Tim)
   // 2_38: block bonus readout + clock border by window (white 10:00-05:00, pulsing red 04:00-01:00)
   const bb=document.getElementById('blkbonus');
-  const bonus=G.clock===1?3:(G.clock===2?2:1); // 5_91 (Tim)
+  const bonus=(G.clock===10||G.clock===1)?3:(G.clock===2?2:1); // v8.74: 10:00 = +3 (Tim trial)
   if(bb)bb.textContent=bonus>0?('+'+bonus+' BLOCK BONUS'):'';
   const tbx=document.getElementById('timerbox');
   if(tbx){tbx.classList.toggle('hotzone',false);tbx.classList.toggle('finalturn',G.clock===2||G.clock===1);} // v7.30: 2s pulse on 02:00+01:00, both screens (Tim)
@@ -8145,12 +8145,12 @@ async function aiDoAssign(P){
       nW++;
     }
     if(nW)await aiBeat(AI_BEAT);
-    // 5. ADV → most-pips cold die to hot (10:00 or empty cold: ice it) — all at once, one beat (v7.46, Tim)
+    // 5. ADV → most-pips cold die to hot (empty cold: ice it) — all at once, one beat (v7.46, Tim; v8.74: live at 10:00)
     // 3_70: narrate the advance — Chuck bar pill + turn summary (Tim; was game-log only)
     let nAdv=0;let nAdvMoved=0;
     for(const d of [...ap.z.rs]){
       const f=d.face;if(!f||f.t!=='ADV')continue;
-      if(G.clock!==10&&ap.z.cold.length){assignDie(d,'adv');aiResolveAdv();nAdv++;nAdvMoved++;}
+      if(ap.z.cold.length){assignDie(d,'adv');aiResolveAdv();nAdv++;nAdvMoved++;} // v8.74: Chuck advances at 10:00 too (Tim trial)
       else{assignDie(d,"iced");nAdvMoved++;}
     }
     if(nAdv)aiPill(`🔼 advanced ${nAdv} ${nAdv===1?'die':'dice'} Cold → Hot`);
@@ -8542,7 +8542,7 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
 //   minus his own wall (clock autos + defend pips + block tokens)
 function aiTokenNeed(){
   const ap=AP(),opp=OPP();
-  const clkBonus=G.clock===1?3:G.clock>2?1:2;
+  const clkBonus=(G.clock===10||G.clock===1)?3:G.clock>2?1:2;
   const pips=(arr,t)=>arr.reduce((s,d)=>s+(d.face&&t.includes(d.face.t)?d.face.v:0),0);
   const myOff=pips([...ap.z.hot,...ap.z.cold],['S','W']);
   const myDef=pips(ap.z.defend,['B','W']);
@@ -8599,7 +8599,7 @@ async function aiDoShoot(P){
   // D = clock autos + defend-zone pips + available block tokens. Desperation
   // (losing by 2+): targets shift +1.
   const opp=OPP();
-  const clkBonus=G.clock===1?3:G.clock>2?1:2;
+  const clkBonus=(G.clock===10||G.clock===1)?3:G.clock>2?1:2;
   const defPips=opp.z.defend.filter(d=>d.face&&(d.face.t==='B'||d.face.t==='W')).reduce((s,d)=>s+d.face.v,0);
   const D=clkBonus+defPips+opp.tok.block;
   const desperation=(opp.goals-ap.goals)>1;
@@ -8674,7 +8674,7 @@ async function aiDefendTurn(){
     // reset anyway): ALL defend dice in, tokens deterministic — none spent if
     // already +2 up, otherwise spent straight to +2, no d100.
     const atkPips=atk.z.shoot.reduce((s,d)=>s+(d.face?d.face.v:0),0)+(_sTok||0);
-    const clkBonus=G.clock===1?3:G.clock>2?1:2;
+    const clkBonus=(G.clock===10||G.clock===1)?3:G.clock>2?1:2;
     const blockers=[];
     let blkPips=clkBonus; // automatic block pips
     const desperate=G.clock===1||G.clock===2; // 5_25: every 02:00/01:00, all periods — dice all-in, last defense before sweep (Tim)
