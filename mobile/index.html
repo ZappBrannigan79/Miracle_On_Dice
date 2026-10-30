@@ -808,14 +808,14 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .fo-player{text-align:center;}
 .fo-player .nm{font-size:.8em;color:#aaa;margin-bottom:5px;text-transform:uppercase;position:relative;z-index:3; /* v8.64: name layer sits above the crest */}
 .fo-dice{display:flex;gap:5px;margin-bottom:5px;justify-content:center;}
-.fo-die{width:42px;height:42px;background:#1a3488;border:2px solid #4466cc;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:1.3em;font-weight:900;color:white;}
+.fo-die{width:56px;height:56px; /* v8.81: 56px with the bigger crests (Tim) */background:#1a3488;border:2px solid #4466cc;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:1.3em;font-weight:900;color:white;}
 .goon-die{width:42px;height:42px;background:radial-gradient(circle at 35% 35%,#3fae3f,#1c5c1c);border:2px solid #7bdb7b;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:1.3em;font-weight:900;color:white;} /* 4_53: fight dice go green (Tim) */
 .goon-die.rolling{animation:dicewob2 .13s linear infinite;}
 .fo-total{font-size:1.4em;font-weight:900;color:white;}
 .fo-winner{color:var(--gold);font-size:1em;font-weight:700;margin-bottom:14px;}
 /* v8.31: faceoff ceremony (Tim) */
 #fo-overlay .ov-box{position:relative;overflow:hidden}
-.fo-crest{width:80px;height:80px; /* v8.33: bigger still (Tim) */object-fit:contain;border-radius:50%;display:block;margin:0 auto 6px;transform-origin:50% 88%; /* v8.64: growth anchored near the bottom edge — the winner crest no longer swallows the name under it (Tim) */}
+.fo-crest{width:124px;height:124px; /* v8.81: 124px (Tim's C pick from size mocks; was 80px) */object-fit:contain;border-radius:50%;display:block;margin:0 auto 6px;transform-origin:50% 88%; /* v8.64: growth anchored near the bottom edge — the winner crest no longer swallows the name under it (Tim) */}
 .fo-player.fo-won .fo-crest{animation:foHaloPulse 1.8s ease-in-out infinite} /* v8.77: no size pop (Tim) — bright halo + pulse only */
 @keyframes foHaloPulse{0%,100%{filter:drop-shadow(0 0 9px rgba(248,189,85,.75))}50%{filter:drop-shadow(0 0 17px rgba(248,189,85,1))}}
 #fo-overlay.fo-done .fo-player:not(.fo-won) .fo-crest{opacity:.55;filter:grayscale(.35) brightness(.85)} /* v8.77: loser fades a bit (Tim) */
@@ -1402,7 +1402,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.80</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.81</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1524,7 +1524,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.80</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.81</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
