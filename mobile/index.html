@@ -837,6 +837,8 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 @keyframes soWinPulse{0%,100%{box-shadow:0 0 0 2px rgba(255,215,94,.8),0 0 14px rgba(255,215,94,.3)}50%{box-shadow:0 0 0 2px rgba(255,215,94,1),0 0 26px rgba(255,215,94,.5)}}
 #so-winner-crest.cel-pop{animation:foPopLand .75s ease-out,foRingOut .85s ease-out .08s 1,foHaloPulse 1.8s ease-in-out .75s infinite} /* v8.82: shootout winner celebration (Tim) */
 .so-hero-crest .fo-sparks{top:67px}
+#bench-pick-dice .die-body{transition:opacity .25s ease,filter .25s ease} /* v8.85 */
+#bench-pick-dice .die-body.bp-dim{opacity:.45;filter:grayscale(.65)} /* v8.85: pick full — unpicked dice fade so the eye moves on (Tim) */
 @keyframes foHaloPulse{0%,100%{filter:drop-shadow(0 0 9px rgba(248,189,85,.75))}50%{filter:drop-shadow(0 0 17px rgba(248,189,85,1))}}
 #fo-overlay.fo-done .fo-player:not(.fo-won) .fo-crest{opacity:.55;filter:grayscale(.35) brightness(.85)} /* v8.77: loser fades a bit (Tim) */
 .fo-player.fo-won .nm{color:var(--gold)}
@@ -1422,7 +1424,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.82</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.85</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1544,7 +1546,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.82</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.85</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1860,7 +1862,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 
 <!-- SHOOTOUT OVERLAY -->
 <div class="overlay" id="so-overlay" style="align-items:flex-start;padding:20px;overflow-y:auto">
-  <div id="so-first-card" style="display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;background:#0e1626;border:2px solid #f8bd55;border-radius:18px;padding:16px 26px;font-size:1.1em;font-weight:800;color:#fff;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.65);pointer-events:none;max-width:86vw"></div>
+  <div id="so-first-card" style="display:none;position:fixed;left:50%;top:64%;transform:translate(-50%,-50%);z-index:9999;background:#0e1626;border:2px solid #f8bd55;border-radius:18px;padding:16px 26px;font-size:1.1em;font-weight:800;color:#fff;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.65);pointer-events:none;max-width:86vw"></div>
   <div class="ov-box" style="max-width:720px;width:100%;margin:auto;padding:20px">
   <div class="goal-fx"><div class="gfx-disc L"></div><div class="gfx-disc R"></div><div class="gfx-vig"></div></div>
 
@@ -3354,7 +3356,7 @@ function goonResolveFight(){
     const _sub=document.querySelector('#goon-panel .panel-sub'); if(_sub)_sub.style.display='none';
     if(_cont){_cont.disabled=false;_cont.style.display='';_cont.onclick=goonCloseFight;} // v7.30: initiator handler (Tim)
     renderAll();
-  }),CF_F,2.2); // v7.30: faces 4th (Tim's stuck-fight fix)
+  }),CF_F,2.2,true); // v7.30: faces 4th (Tim's stuck-fight fix)
 }
 
 // 5_98: Opponent watches a synced fight (Tim) — same animation, no buttons
@@ -3460,7 +3462,7 @@ function showFightWatch(fs){
     }
     const _wsub2=document.querySelector('#goon-panel .panel-sub'); if(_wsub2)_wsub2.style.display='none';
     renderAll();
-  }),CF_F,2.2); // v7.30: faces 4th (Tim's stuck-fight fix)
+  }),CF_F,2.2,true); // v7.30: faces 4th (Tim's stuck-fight fix)
 }
 function goonCloseFight(){fightFxClear(document.querySelector('#goon-panel .panel-box'));document.getElementById('goon-panel').classList.remove('show');_goonDie=null;_goonTarget=null;G.fightSync=null;if(_onlineActive)pushState();renderAll();} // 5_98: clear fight sync (Tim)
 function sendBench(p,d){if(p.z.bench.length>=1)p.z.iced.push(d);else p.z.bench.push(d);}
@@ -4316,6 +4318,8 @@ function updateBenchConfirm(){
   const b=document.getElementById('bench-pick-confirm');
   b.textContent=`Send to Bench (${_benchSel.length}/${bp?bp.need:0})`;
   b.disabled=!bp; // v7.30: always enabled (Tim) — under-select gets an "are you sure?"
+  const _bpr=document.getElementById('bench-pick-dice'); // v8.85: pick full → fade the unpicked dice (Tim)
+  if(_bpr){const _full=!!(bp&&_benchSel.length>=bp.need);_bpr.querySelectorAll('.die-body').forEach(db=>db.classList.toggle('bp-dim',_full&&!db.classList.contains('sel')));}
 }
 async function confirmBenchPick(){
   const bp=G.benchPick;
@@ -4940,8 +4944,8 @@ function animGameDice(dice,done){
 }
 // Animate plain number dice (combat dice, faceoff dice). `cells` are the
 // elements, `finals` the true numbers — settled in cascade order.
-function animNumbersRS(cells,finals,done){animNumbers(cells,finals,done,null,1.73);} // v8.82: RS-length tumble — ~900ms per die, ~78ms stagger (Tim: all rolls mimic the RS roll)
-function animNumbers(cells,finals,done,faces,durMul){ // v7.179: durMul stretches the roll (fights roll to the third punch, Tim) // v7.30: optional faces — fight dice tumble through real faces (Tim)
+function animNumbersRS(cells,finals,done){animNumbers(cells,finals,done,null,1.73,true);} // v8.82 RS-length tumble; v8.84: all dice land together (Tim) — RS's own one-at-a-time landing is animGameDice, untouched
+function animNumbers(cells,finals,done,faces,durMul,uniform){ // v8.84: uniform=true — every die gets the base total, so the set lands together (Tim) // v7.179: durMul stretches the roll (fights roll to the third punch, Tim) // v7.30: optional faces — fight dice tumble through real faces (Tim)
   const items=[];
   cells.forEach((el,i)=>{if(el&&finals[i]!=null)items.push({el:el,final:finals[i],art:el.dataset.cart?(v=>combatArtImg(el.dataset.cart,v)):null});}); // ART-2: combat art via data-cart (Tim)
   if(!items.length){if(done)done();return;}
@@ -4960,7 +4964,7 @@ function animNumbers(cells,finals,done,faces,durMul){ // v7.179: durMul stretche
   // faceoff/combat never hang on "Rolling…" with no Continue button.
   const watchdog=setTimeout(finishAll,520+items.length*45+2500);
   items.forEach((it,i)=>{
-    const total=(520+i*45)*(durMul||1),t0=performance.now();
+    const total=(uniform?520:(520+i*45))*(durMul||1),t0=performance.now(); // v8.84: uniform landing
     it.el.classList.add('rolling');
     (function frame(now){
       if(finished)return;
@@ -6216,7 +6220,7 @@ function soCoinFlip(practice){
   const _fbox=document.querySelector('#so-overlay .ov-box');
   const _ftop=_fbox?_fbox.getBoundingClientRect().top:0;
   // v8.11: coin card sits center-screen — it just pops up and disappears (Tim; supersedes the 3_87 dock)
-  _fc.style.bottom='auto';_fc.style.top='50%';_fc.style.transform='translate(-50%,-50%)';
+  _fc.style.bottom='auto';_fc.style.top='64%';_fc.style.transform='translate(-50%,-50%)'; // v8.83: sits in the blank space below the team boxes, not over them (Tim)
   _fc.style.display='block';
   setTimeout(()=>{
     if(_fcGen!==_soCardGen)return; // a newer shootout started
@@ -8075,7 +8079,7 @@ async function aiDoFight(){ // 4_94: fight reveal (Tim)
       }
       aiPill(won?`👊 Goon wins! ${t.die.key} iced`:`🔲 Goon loses — penalty die added`); // 5_81: 🔲 for penalty (Tim)
       res();
-    }),CF_F,2.2); // v7.30: fight faces (Tim)
+    }),CF_F,2.2,true); // v7.30: fight faces (Tim)
   });
   await new Promise(res=>{_cfRes=res;});
   return true;
