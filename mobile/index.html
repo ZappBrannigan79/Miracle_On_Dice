@@ -370,8 +370,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 /* 2_41: goal celebration + token pop */
 @keyframes goalpop{0%{transform:scale(.3) rotate(-2deg);opacity:0;}40%{transform:scale(1.22) rotate(1deg);opacity:1;}55%{transform:scale(.96) rotate(0deg);}70%{transform:scale(1.06);}85%{transform:scale(.99);}100%{transform:scale(1);}}
 .goalpop{animation:goalpop .8s ease-out;}
-@keyframes foWinPop{0%{transform:scale(.39) rotate(-2deg);opacity:0;}40%{transform:scale(1.59) rotate(1deg);opacity:1;}55%{transform:scale(1.25) rotate(0deg);}70%{transform:scale(1.38);}85%{transform:scale(1.29);}100%{transform:scale(1.3);}}
-.fowinpop{animation:foWinPop .8s ease-out;} /* v8.38: goalpop x1.3 — lands exactly on the .fo-won resting scale */
+/* v8.77: foWinPop/.fowinpop retired (Tim) — the winner crest no longer pops or scales; see foHaloPulse */
 
 @keyframes tokpop{0%{transform:scale(1);}40%{transform:scale(1.35);}100%{transform:scale(1);}}
 .tok-pill.tokpop{animation:tokpop .45s ease-out;}
@@ -817,13 +816,17 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 /* v8.31: faceoff ceremony (Tim) */
 #fo-overlay .ov-box{position:relative;overflow:hidden}
 .fo-crest{width:80px;height:80px; /* v8.33: bigger still (Tim) */object-fit:contain;border-radius:50%;display:block;margin:0 auto 6px;transform-origin:50% 88%; /* v8.64: growth anchored near the bottom edge — the winner crest no longer swallows the name under it (Tim) */}
-.fo-player.fo-won .fo-crest{transform:scale(1.3); /* v8.38: 104px as transform, not layout — the loser can't be pushed (Tim) */filter:drop-shadow(0 0 12px rgba(248,189,85,.9))}
+.fo-player.fo-won .fo-crest{animation:foHaloPulse 1.8s ease-in-out infinite} /* v8.77: no size pop (Tim) — bright halo + pulse only */
+@keyframes foHaloPulse{0%,100%{filter:drop-shadow(0 0 9px rgba(248,189,85,.75))}50%{filter:drop-shadow(0 0 17px rgba(248,189,85,1))}}
+#fo-overlay.fo-done .fo-player:not(.fo-won) .fo-crest{opacity:.55;filter:grayscale(.35) brightness(.85)} /* v8.77: loser fades a bit (Tim) */
 .fo-player.fo-won .nm{color:var(--gold)}
 .fo-player.fo-won{background:radial-gradient(circle at 50% 32%,rgba(248,189,85,.20),transparent 72%);border-radius:14px}
 .fo-beams{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .5s}
 .fo-beams.w0{opacity:1;background:conic-gradient(from 0deg at 25% 38%,transparent 0deg,rgba(248,189,85,.16) 14deg,transparent 30deg,transparent 95deg,rgba(248,189,85,.12) 110deg,transparent 126deg,transparent 185deg,rgba(248,189,85,.16) 200deg,transparent 216deg,transparent 278deg,rgba(248,189,85,.12) 293deg,transparent 309deg)}
 .fo-beams.w1{opacity:1;background:conic-gradient(from 0deg at 75% 38%,transparent 0deg,rgba(248,189,85,.16) 14deg,transparent 30deg,transparent 95deg,rgba(248,189,85,.12) 110deg,transparent 126deg,transparent 185deg,rgba(248,189,85,.16) 200deg,transparent 216deg,transparent 278deg,rgba(248,189,85,.12) 293deg,transparent 309deg)}
-.fo-winner{font-size:1.14em;letter-spacing:1.6px;text-shadow:0 0 14px rgba(248,189,85,.45)}
+.fo-winner{font-size:16px;letter-spacing:.5px;font-weight:900;text-shadow:0 0 14px rgba(248,189,85,.45)} /* v8.77: headline size (Tim) */
+.fo-prize{margin-top:8px;font-size:15.5px;color:#ffe9a8;font-weight:800;letter-spacing:.3px} /* v8.77 (Tim) */
+.fo-hk{font-size:.85em} .fo-hk.fo-flip{display:inline-block;transform:scaleX(-1)} /* v8.77: mirrored sticks (Tim) */
 /* v7.30: Goon Fight Concept A (Tim) — green card, mirror halves, circle totals */
 #goon-panel .panel-box{background:linear-gradient(160deg,#0e2317,#0a1a10);border:2px solid #4caf5d;}
 #chuck-fight-panel .panel-box{background:linear-gradient(160deg,#0e2317,#0a1a10);border:2px solid #4caf5d;} /* v7.30: Chuck's card matches (Tim) */
@@ -1399,7 +1402,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.76</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.78</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1521,7 +1524,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.76</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.78</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1784,7 +1787,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <div class="overlay overlay-center" id="fo-overlay">
   <div class="ov-box">
     <div class="fo-beams" id="fo-beams"></div>
-    <h2>⚡ Faceoff</h2><p id="fo-plbl">Period 1 — roll to determine who goes first.</p>
+    <h2><span class="fo-hk">🏒</span> Faceoff <span class="fo-hk fo-flip">🏒</span></h2><p id="fo-plbl">Period 1 — roll to determine who goes first.</p>
     <div class="fo-rolls">
       <div class="fo-player"><img class="fo-crest" id="fo-crest-1" style="display:none" alt=""><div class="nm" id="fo-n1">P1</div><div class="fo-dice" id="fo-d1"></div><div class="fo-total" id="fo-t1">–</div></div>
       <div class="fo-player"><img class="fo-crest" id="fo-crest-2" style="display:none" alt=""><div class="nm" id="fo-n2">P2</div><div class="fo-dice" id="fo-d2"></div><div class="fo-total" id="fo-t2">–</div></div>
@@ -2387,7 +2390,7 @@ function renderFoReadonly(){
     document.getElementById('fo-d2').innerHTML=fo.r2.map(v=>`<div class="fo-die" data-cart="shoot">${combatArtImg('shoot',v)}</div>`).join('');
     document.getElementById('fo-t1').textContent=fo.t1;
     document.getElementById('fo-t2').textContent=fo.t2;
-    document.getElementById('fo-win').innerHTML=`${G.players[fo.w].name} wins the faceoff! Takes EVEN minutes.`; // v7.30: ODD→EVEN fix (Tim)
+    document.getElementById('fo-win').innerHTML=foWinHTML(fo.w); // v8.77: team-name headline (Tim)
     // 3_06 — the winner (even a joiner) picks their token; otherwise wait.
     renderFoChoiceState();
   }else{
@@ -2406,6 +2409,7 @@ function doFaceoff(){if(aiGuard())return;
   _fd1.innerHTML=r1.map(()=>`<div class="fo-die" data-cart="shoot">?</div>`).join('');
   _fd2.innerHTML=r2.map(()=>`<div class="fo-die" data-cart="shoot">?</div>`).join('');
   document.getElementById('fo-t1').textContent='–';document.getElementById('fo-t2').textContent='–';
+  document.getElementById('fo-overlay').classList.remove('fo-done'); // v8.77: fresh roll — nobody faded yet
   document.getElementById('fo-win').textContent='🎲 Rolling…';
   animNumbers([..._fd1.children,..._fd2.children],[...r1,...r2],()=>{
   // v8.76 — Faceoff prize (Tim): automatic +1 Shoot token, no pick. choice is
@@ -2417,7 +2421,7 @@ function doFaceoff(){if(aiGuard())return;
   // Online: whoever rolls syncs it — the other side mirrors the faceoff read-only.
   if(_onlineActive){pushState();}
   document.getElementById('fo-t1').textContent=t1;document.getElementById('fo-t2').textContent=t2;
-  document.getElementById('fo-win').textContent=`${G.players[w].name} wins the faceoff! Takes EVEN minutes.`;
+  document.getElementById('fo-win').innerHTML=foWinHTML(w); // v8.77: team-name headline (Tim)
   addLog(`Faceoff: P1=${t1}, P2=${t2} — ${G.players[w].name} wins, takes EVEN minutes +1 Shoot token.`,'imp');
   renderFoChoiceState();
   aiMaybeFoPick(); // 2_45: Vs AI hook
@@ -2459,8 +2463,13 @@ function foCeremony(){ // v8.31: winner glow + beams + crest pop (Tim) — prese
   const fo=G.fo;const won=(fo&&fo.stage==='rolled')?fo.w:null;
   document.querySelectorAll('#fo-overlay .fo-player').forEach((el,i)=>el.classList.toggle('fo-won',i===won));
   const bm=document.getElementById('fo-beams');if(bm)bm.className='fo-beams'+(won===null?'':' w'+won);
-  if(won===null)_foCeremonyW=null;
-  else if(won!==_foCeremonyW){_foCeremonyW=won;const c=document.getElementById('fo-crest-'+(won+1));if(c){c.classList.remove('fowinpop');void c.offsetWidth;c.classList.add('fowinpop');}} // v8.33: pop once
+  const _ov=document.getElementById('fo-overlay');if(_ov)_ov.classList.toggle('fo-done',won!==null); // v8.77: gates the loser fade
+  if(won===null)_foCeremonyW=null; // v8.77: win pop retired (Tim)
+}
+function foWinHTML(w){ // v8.77: team-name headline (Tim) — plural names take WIN/BEGIN
+  const tn=(teamPlain(w)||'').toUpperCase();
+  const pl=/S$/.test(tn);
+  return `${tn} ${pl?'WIN':'WINS'} THE FACEOFF<br>AND ${pl?'BEGIN':'BEGINS'} THE PERIOD!<div class="fo-prize">${tokImg('shoot','1.15em')} +1 Shoot token ${tokImg('shoot','1.15em')}</div>`;
 }
 function renderFoChoiceState(){
   const fo=G.fo;if(!fo||fo.stage!=='rolled')return;
@@ -2468,7 +2477,7 @@ function renderFoChoiceState(){
   foCeremony(); // v8.31
   // 3_07: once the prize token is chosen, the result line names it — the Vs AI
   // player sees which token Coach took without having to catch the step pill.
-  if(fo.choice)document.getElementById('fo-win').innerHTML=`${G.players[w].name} wins the faceoff! Takes EVEN minutes +1 ${fo.choice==='shoot'?tokImg('shoot','1.1em')+' Shoot':tokImg('block','1.1em')+' Block'} token.`; // v7.30: ODD→EVEN fix (Tim)
+  if(fo.choice)document.getElementById('fo-win').innerHTML=foWinHTML(w); // v8.77: team-name headline (Tim)
   const iAmWinner=!_onlineActive||_mySlot===w;
   const iAmHost=!_onlineActive||_mySlot===0;
   const choiceDiv=document.getElementById('fo-choice');
@@ -8710,13 +8719,13 @@ async function aiDefendTurn(){
     // 5_23: tokens always follow normal rules (Tim) — even on 01:00 all-in
     while(blkPips<atkPips+1&&_bTok<me.tok.block){adjBT(1);matched++;blkPips++;} // auto to +1
     let tokTries=me.tok.block-_bTok;
-    while(blkPips<atkPips+2&&tokTries>0){ // 4_81: 50% each, one by one, to +2 (Tim)
+    while(blkPips<atkPips+2&&tokTries>0){ // v8.78: 60% each, one by one, to +2 (Tim's bump from 50%)
       tokTries--;
-      if(d100()<=50){adjBT(1);matched++;blkPips++;}
+      if(d100()<=60){adjBT(1);matched++;blkPips++;}
     }
-    while(blkPips<atkPips+3&&tokTries>0){ // v7.30: 5% each, one by one, to +3 (Tim)
+    while(blkPips<atkPips+3&&tokTries>0){ // v8.78: 10% each, one by one, to +3 (Tim's bump from 5%)
       tokTries--;
-      if(d100()<=5){adjBT(1);matched++;blkPips++;}
+      if(d100()<=10){adjBT(1);matched++;blkPips++;}
     }
     const dicePips=blockers.reduce((s,d)=>s+(d.face?d.face.v:0),0)+clockBlockBonus(); // v7.48: landed total includes clock auto-block (Tim's catch)
     // v7.41: slot machine IS the reveal (Tim) — choice stays hidden during "studies",
