@@ -205,7 +205,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 #epicker-ice.epick-ice-lit{background:#2a5a7d!important;color:#fff!important;border-color:#cfeeff!important}
 .epicker-die{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;}
 .epicker-die .die-body{cursor:pointer;}
-.epicker-die .die-body:hover{transform:scale(1.1);}
+/* v8.80: epicker hover zoom removed too — enlargement is selection-only now (Tim) */
 .epicker-die .pip-count{font-size:.7em;color:#aaa;text-align:center;}
 .epicker-die .pip-count span{color:var(--gold);font-weight:700;}
 .epicker-progress{background:rgba(255,255,255,.06);border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:.82em;color:#ccc;}
@@ -336,8 +336,8 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 /* DICE */
 .die-wrap{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;display:flex;flex-direction:column;align-items:center;gap:9px;position:relative;flex-shrink:0;cursor:default;} /* 4_41: tier label is an absolute corner badge now — no layout shift, halo-safe (Tim) */
 .die-body{width:54px;height:54px;border-radius:12px; /* 2_42: rounded squares, like the faceoff dice */display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.4);transition:all .15s;position:relative;flex-shrink:0;user-select:none;}
-.die-body:hover{transform:scale(1.07);}
-.die-body.sel{box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;transform:scale(1.1);border-color:#ffffff!important;} /* 3_38: thinner, softer halo */
+/* v8.80: enlargement follows SELECTION, not hover (Tim) — the scale lives in the .sel/.sel-rr rules below, unified at 1.08 by his mock pick */
+.die-body.sel{box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;transform:scale(1.08);border-color:#ffffff!important;} /* 3_38 halo; v8.80: scale unified at 1.08 (Tim) */
 .die-body.sel-rr{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;transform:scale(1.08);} /* 3_38: thinner, softer halo */
 /* 4_55 (Tim): neon selection halos by die color */
 .pos-F .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;} /* 4_56: faded+thinner (Tim) */
@@ -1402,7 +1402,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.78</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.80</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1524,7 +1524,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.78</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.80</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
