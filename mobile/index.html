@@ -922,7 +922,8 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .tgt-ctx{display:flex;align-items:center;justify-content:center;gap:7px;margin:2px 0 4px;font-size:.78em;color:#aab4d4;}
 .tgt-ctx-lg .tgt-die-mini .die-body,#goon-f1-ctx .tgt-die-mini .die-body{width:64px!important;height:64px!important;} /* v7.112: larger target (Tim); v8.127: goon die matches the target's size (Tim) */
 .tgt-ctx-lg .tgt-die-mini .face-badge,#goon-f1-ctx .tgt-die-mini .face-badge{width:52px!important;height:52px!important;font-size:1.1em;}
-.from-lbl{font-size:.85em;opacity:.65;} /* v8.127: the from-zone label, slightly smaller + faded (Tim) */
+.from-lbl{font-size:.85em;opacity:.65;}
+.vs-circle{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;flex:none;border-radius:50%;border:2px solid var(--gold);background:rgba(0,0,0,.45);color:var(--gold);font-weight:900;font-style:italic;} /* v8.128: the vs badge on fight cards (Tim) */ /* v8.127: the from-zone label, slightly smaller + faded (Tim) */
 .tgt-ctx-lg{display:flex;flex-direction:column;align-items:center;gap:4px;max-width:80px;text-align:center;font-size:.85em;} /* v7.30: target context (Tim) */
 .tgt-die-mini{display:inline-block;transform:scale(.55);transform-origin:center;margin:-13px -11px;pointer-events:none;} /* v7.30: real die, scaled (Tim) */
 .tgt-die-mini .die-tier-lbl{display:none;} /* v7.30: tier already in label (Tim) */
@@ -1460,7 +1461,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.127</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.129</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1582,7 +1583,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.127</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.129</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1789,19 +1790,19 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- CHUCK FIGHT REVEAL (4_94, Tim; v7.30: green card to match goon-panel) -->
 <div class="panel-overlay" id="chuck-fight-panel">
   <div class="panel-box" style="max-width:480px">
-    <div class="panel-title" style="text-align:center;font-size:1.9em">👊 GOON FIGHT <span class="fo-flip">👊</span></div> <!-- v8.124: same treatment (Tim) -->
+    <div class="panel-title" style="text-align:center;font-size:1.9em">👊 FIGHT <span class="fo-flip">👊</span></div> <!-- v8.124: same treatment (Tim) -->
     <div style="display:flex;gap:16px;justify-content:center;align-items:center;margin:12px 0">
-      <div style="text-align:center"><div id="cf-goon"></div><div style="font-size:.85em;opacity:.8;margin-top:4px">GOON</div></div>
-      <div style="font-size:1.5em">⚔️</div>
-      <div style="text-align:center"><div id="cf-target"></div><div id="cf-target-zone" style="font-size:.85em;opacity:.8;margin-top:4px"></div></div>
+      <div style="text-align:center"><div id="cf-goon"></div><div class="from-lbl" style="margin-top:4px">GOON</div></div>
+      <div class="vs-circle">vs</div>
+      <div style="text-align:center"><div id="cf-target"></div><div id="cf-target-zone" class="from-lbl" style="margin-top:4px"></div></div>
     </div> <!-- v7.47: labels removed (Tim) -->
     <div id="cf-fight" style="margin-top:10px">
       <div class="sog-half sog-grn">
-        <div class="goon-half-label nm">Chuck's Goon</div>
+        <div class="goon-half-label nm">GOON</div>
         <div class="goon-fight-row"><div class="fo-dice" id="cf-goon-dice"></div><div class="totcirc grn" id="cf-goon-total">–</div></div>
       </div>
       <div class="sog-half sog-wht">
-        <div class="goon-half-label nm">Your die</div>
+        <div class="goon-half-label nm">TARGET</div>
         <div class="tgt-ctx" id="cf-tgt-ctx"></div>
         <div class="goon-fight-row"><div class="fo-dice" id="cf-target-dice"></div><div class="totcirc wht" id="cf-target-total">–</div></div>
       </div>
@@ -2013,7 +2014,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- 4_44: GOON FIGHT panel (Tim) -->
 <div class="panel-overlay" id="goon-panel">
   <div class="panel-box" style="max-width:560px;max-height:92vh;overflow-y:auto">
-    <div class="panel-title" style="text-align:center;font-size:1.9em">👊 GOON FIGHT <span class="fo-flip">👊</span></div> <!-- v8.124: big centered bookended title (Tim) -->
+    <div class="panel-title" style="text-align:center;font-size:1.9em">👊 FIGHT <span class="fo-flip">👊</span></div> <!-- v8.124: big centered bookended title (Tim) -->
     <div class="panel-sub" style="text-align:center;letter-spacing:2px;font-weight:800">PICK YOUR TARGET</div> <!-- v8.124 (Tim) -->
     <div id="goon-pick">
       <div id="goon-targets"></div>
@@ -2024,13 +2025,18 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       </div> <!-- v7.30: centered (Tim) -->
     </div>
     <div id="goon-fight" style="display:none;margin-top:10px">
+      <div id="goon-vs-head" style="display:none;gap:16px;justify-content:center;align-items:center;margin:4px 0 12px">
+        <div style="text-align:center"><div id="goon-h-goon"></div><div class="from-lbl" style="margin-top:4px">GOON</div></div>
+        <div class="vs-circle">vs</div>
+        <div style="text-align:center"><div id="goon-h-tgt"></div><div class="from-lbl" id="goon-h-zone" style="margin-top:4px"></div></div>
+      </div> <!-- v8.128: Chuck-style face-off header (Tim) -->
       <div class="sog-half sog-grn">
         <div class="goon-half-label nm" id="goon-f1-name">Goon</div>
-        <div class="goon-fight-row"><div class="fo-dice" id="goon-f1-dice"></div><div class="goon-rgrp"><div class="tgt-ctx" id="goon-f1-ctx"></div><div class="totcirc grn" id="goon-f1-total">–</div></div></div>
+        <div class="goon-fight-row"><div class="fo-dice" id="goon-f1-dice"></div><div class="goon-rgrp"><div class="totcirc grn" id="goon-f1-total">–</div></div></div>
       </div>
       <div class="sog-half sog-wht">
         <div class="goon-half-label nm" id="goon-f2-name">Target</div>
-        <div class="goon-fight-row"><div class="fo-dice" id="goon-f2-dice"></div><div class="goon-rgrp"><div class="tgt-ctx tgt-ctx-lg" id="goon-f2-ctx"></div><div class="totcirc wht" id="goon-f2-total">–</div></div></div>
+        <div class="goon-fight-row"><div class="fo-dice" id="goon-f2-dice"></div><div class="goon-rgrp"><div class="totcirc wht" id="goon-f2-total">–</div></div></div>
       </div>
       <div class="fo-winner" id="goon-fight-win"></div>
       <div id="goon-fight-summary" style="display:none;text-align:center;margin-top:12px"></div> <!-- 5_110: seamless (Tim) -->
@@ -3370,9 +3376,9 @@ function goonResolveFight(){
   document.getElementById('goon-pick').style.display='none';
   document.getElementById('goon-fight').style.display='block';
   document.getElementById('goon-f1-name').textContent='GOON'; // v8.124 (Tim)
-  document.getElementById('goon-f1-ctx').innerHTML=fightDieMini(goonDie); // v8.124: the Goon die beside its total (Tim, mock A) // v7.30: team emoji, not 🧑 (Tim)
+  document.getElementById('goon-vs-head').style.display='flex';document.getElementById('goon-h-goon').innerHTML=dieWrapHTML(goonDie,false,true,false); // v8.124: the Goon die beside its total (Tim, mock A) // v7.30: team emoji, not 🧑 (Tim)
   document.getElementById('goon-f2-name').textContent='TARGET'; // v8.124 (Tim) // v7.30
-  document.getElementById('goon-f2-ctx').innerHTML=`${fightDieMini(t.die)}<span class="from-lbl">from ${t.label}</span>`; // v7.30: real die (Tim); v7.112: wrapped label
+  document.getElementById('goon-h-tgt').innerHTML=dieWrapHTML(t.die,false,true,false);document.getElementById('goon-h-zone').textContent='FROM '+(t.label==='Defensive'?'DEF':t.label.toUpperCase()); // v7.30: real die (Tim); v7.112: wrapped label
   const d1=document.getElementById('goon-f1-dice'),d2=document.getElementById('goon-f2-dice');
   d1.innerHTML=gr.map(()=>`<div class="goon-die">?</div>`).join('');
   d2.innerHTML=tr.map(()=>`<div class="goon-die">?</div>`).join(''); // 4_53 green
@@ -3490,9 +3496,10 @@ function showFightWatch(fs){
   document.getElementById('goon-pick').style.display='none';
   document.getElementById('goon-fight').style.display='block';
   document.getElementById('goon-result').style.display='none';
+  {const _subW=document.querySelector('#goon-panel .panel-sub'); if(_subW)_subW.style.display='none';} // v8.128: no PICK YOUR TARGET over a watched fight (mirrors the local resolve)
   document.getElementById('goon-f1-name').textContent='GOON'; // v8.124 (Tim) // v7.30: team emoji (Tim)
   document.getElementById('goon-f2-name').textContent='TARGET'; // v8.124 (Tim) // v7.30
-  document.getElementById('goon-f2-ctx').innerHTML=`${fightDieMini({face:fs.targetFace,key:fs.targetKey,pos:fs.targetPos,id:'tgtctx'})}<span class="from-lbl">from ${fs.targetZone||''}</span>`; // v7.30: real die (Tim); v7.112: wrapped label
+  document.getElementById('goon-vs-head').style.display='flex';document.getElementById('goon-h-tgt').innerHTML=dieWrapHTML({face:fs.targetFace,key:fs.targetKey,pos:fs.targetPos,id:'tgtctx'},false,true,false);document.getElementById('goon-h-zone').textContent='FROM '+((fs.targetZone==='defend')?'DEF':String(fs.targetZone||'').toUpperCase());{const _gd=Object.values(G.players[G.ap].z).flat().find(d=>d&&d.key==='Goon');if(_gd)document.getElementById('goon-h-goon').innerHTML=dieWrapHTML(_gd,false,true,false);} // v7.30: real die (Tim); v7.112: wrapped label
   const d1=document.getElementById('goon-f1-dice'),d2=document.getElementById('goon-f2-dice');
   d1.innerHTML=fs.gr.map(()=>`<div class="goon-die">?</div>`).join('');
   d2.innerHTML=fs.tr.map(()=>`<div class="goon-die">?</div>`).join('');
@@ -8289,7 +8296,7 @@ async function aiDoFight(){ // 4_94: fight reveal (Tim)
   // reveal (v7.47: cf-sub removed — Tim)
   const _cfZone=t.zone==='hot'?'HOT':t.zone==='defend'?'DEF':t.zone==='cold'?'COLD':t.zone; // v7.64: short caps (Tim)
   document.getElementById('cf-tgt-ctx').innerHTML=''; // v7.64: mini die removed (Tim)
-  document.getElementById('cf-target-zone').textContent=`From ${_cfZone}`; // v7.64: zone by large die up top (Tim)
+  document.getElementById('cf-target-zone').textContent=`FROM ${_cfZone}`; // v7.64: zone by large die up top (Tim)
   document.getElementById('cf-goon').innerHTML=dieWrapHTML(goonDie,false,true,false);
   document.getElementById('cf-target').innerHTML=dieWrapHTML(t.die,false,true,false);
   document.getElementById('chuck-fight-panel').classList.add('show');
