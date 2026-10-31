@@ -539,6 +539,17 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .panel-box{background:#0f2035;border:1px solid var(--gold);border-radius:12px;padding:20px;max-width:780px;width:100%;max-height:87vh;overflow-y:auto;}
 .panel-title{font-size:1.1em;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;}
 .panel-sub{font-size:.8em;color:#aaa;margin-bottom:14px;}
+.qr-wrap{font-size:.86em;line-height:1.5;color:#ddd} /* v8.130: in-app Quick Reference (Tim) */
+.qr-sec{color:var(--gold);font-weight:900;letter-spacing:1.5px;font-size:1.05em;margin:16px 0 5px;border-bottom:1px solid rgba(248,189,85,.35);padding-bottom:3px}
+.qr-sec.first{margin-top:0}
+.qr-wrap ul{margin:0;padding-left:15px}
+.qr-wrap li{margin:4px 0}
+.qr-wrap strong{color:#fff}
+.qr-tbl{width:100%;border-collapse:collapse;margin:2px 0 7px}
+.qr-tbl th{background:rgba(248,189,85,.16);color:var(--gold);padding:4px 7px;text-align:left;font-size:.95em}
+.qr-tbl td{padding:4px 7px;border-top:1px solid rgba(255,255,255,.09)}
+.qr-faces p{margin:4px 0}
+.qr-note{text-align:center;color:#8fa3c0;font-size:.85em;margin-top:16px}
 .panel-close{float:right;background:none;border:none;color:#aaa;font-size:1.4em;cursor:pointer;}
 .panel-close:hover{color:white;}
 .shop-head{display:flex;align-items:center;justify-content:center;margin-bottom:10px;}
@@ -1110,7 +1121,7 @@ body{min-height:100vh;min-height:100dvh;}
 #so-forward-choices{gap:16px!important;}
 #so-forward-choices .die-body{width:78px!important;height:78px!important;}
 #so-forward-choices .art-tier-blank{top:19%!important;} /* v8.98: the 78px picker dice made the tier text center higher (35%) than on the result-card heroes (40%) — same % top, bigger badge. 19% centers it at 40%, matching the heroes (Tim) */
-#so-overlay #so-roll-btn{width:100%;padding:16px;font-size:1em;}
+#so-overlay #so-roll-btn{width:100%;padding:16px;font-size:1.45em;} /* v8.130: SHOOT fills its button (Tim) */
 
 /* ---- misc touch polish ---- */
 button{min-height:44px;}
@@ -1461,7 +1472,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.129</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.130</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1478,10 +1489,8 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <button class="btn-mode" style="background:linear-gradient(180deg,#7ee2a0,#2e9e5b);color:#06230f;border:none;" onclick="showOnlineSetup('host')">HOST GAME VS FRIEND</button>
       <button class="btn-mode" style="background:linear-gradient(180deg,#6f9bf5,#3a6ad8);color:#fff;border:none;" onclick="showOnlineSetup('join')">JOIN GAME VS FRIEND</button> <!-- v8.20: host/join split at the menu (Tim) -->
       <div style="display:flex;gap:8px;justify-content:center;margin-top:6px;">
-        <button class="btn-mode" style="flex:1;background:#1c2230;color:#ffd75e;border:1px solid #c9a227;font-size:.82em;padding:10px 8px;" onclick="openQuickRules()">QUICK RULES</button>
-        <span id="art-choice" style="flex:1;display:flex;">
-          <button id="art-style-btn" class="btn-mode" style="flex:1;background:#1c2230;color:#ffd75e;border:1px solid #c9a227;font-size:.78em;padding:10px 4px;white-space:nowrap;" onclick="openArtPanel()">ART: <b id="art-style-lbl">CUSTOM</b></button>
-        </span>
+        <button class="btn-mode" style="flex:none;width:78%;background:#1c2230;color:#ffd75e;border:1px solid #c9a227;font-size:.82em;padding:10px 8px;" onclick="openQuickRules()">QUICK RULES</button>
+        
       </div>
     </div> <!-- v7.142: jersey theme, no emojis, rules+art row (Tim) -->
     <!-- 2_120: slim mode header — replaces the three buttons once a mode is chosen -->
@@ -1583,7 +1592,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.129</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.130</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1818,16 +1827,74 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
   <div class="panel-box" style="max-width:520px;max-height:85vh;overflow-y:auto">
     <button class="panel-close" onclick="closeQuickRules()">✕</button>
     <div class="panel-title">⚡ Quick Rules</div>
-    <div style="font-size:.82em;line-height:1.6;color:#ddd">
-      <p><strong style="color:var(--gold)">🎯 Goal:</strong> Score more goals than your opponent across 3 periods (10:00 clock, 5 turns each per period).</p>
-      <p><strong style="color:var(--gold)">🎲 Turn:</strong> Advance → Draw 6 → Roll & Assign → Shoot (optional) → Buy → End Turn.</p>
-      <p><strong style="color:var(--gold)">⚡ Energy:</strong> Spend E faces to buy dice, buy tokens (3E each), or pay costed (⚡) faces.</p>
-      <p><strong style="color:var(--gold)">🏒 Shooting:</strong> Commit S-dice + shoot tokens. Defender commits B-dice + block tokens + clock bonus (+1/+2/+3). Roll combat dice — most hits wins.</p>
-      <p><strong style="color:var(--gold)">🛒 Buying:</strong> Pay cost + trash an iced rookie, die to Bag. Tokens 3E each (no limit). Sell out a card for a bonus token. Goalies give +1 Block token per buy.</p>
-      <p><strong style="color:var(--gold)">👊 Fighting:</strong> Goon with FT can fight an opponent's die (3v2, ties lose). Win: target iced. Lose: penalty die to your bag. Goon ices either way.</p>
-      <p><strong style="color:var(--gold)">🎲 Dice:</strong> Rookie E1/E2/S1/B1/blank/blank. Forwards shoot, Defensemen block, Goalies block + shutout (SO2, costed).</p>
-      <p><strong style="color:var(--gold)">⏰ Clock:</strong> 10:00→01:00. Red zone 02:00–01:00 only — 10:00–03:00 is cold/white (block bonus +1, +2 at 02:00, +3 at 01:00). Tie after 3 periods → shootout.</p>
-      <p style="text-align:center;margin-top:10px"><a href="MiracleOnDice_Rulebook.pdf" target="_blank" style="color:var(--gold)">📖 Full Rulebook (PDF)</a><br><a href="MiracleOnDice_MobileAppGuide.pdf" target="_blank" style="color:var(--gold)">📱 Mobile App Guide (PDF)</a></p>
+    <div class="qr-wrap">
+      <div class="qr-sec first">SETUP &amp; TEAMS</div>
+      <ul>
+        <li>Pick <strong>1 of 30 prebuilt teams</strong> — no builder. Lineup: <strong>3 Forwards + 2 Defensemen + 1 Goalie + Head Coach</strong> = <strong>21 points</strong>, tiers <strong>1–6 once each</strong>.</li>
+        <li><strong>Starting bag: 20 Rookie dice + 1 Goon die.</strong> Buy position dice during play (Forward cards hold 4, Defensemen 3, Goalies 2). The <strong>HC die</strong> is never bought — it auto-rolls every turn.</li>
+        <li><strong>Faceoff</strong> (each period): both roll 2 Shoot dice; high total wins (ties reroll) the <strong>even clock turns</strong> (10:00, 8:00, 6:00, 4:00, 2:00) and <strong>+1 Shoot token</strong>.</li>
+      </ul>
+      <div class="qr-sec">YOUR TURN — 5 STEPS</div>
+      <ul>
+        <li><strong>1. ADVANCE</strong> — Move all your Cold Zone dice to the Hot Zone.</li>
+        <li><strong>2. DRAW</strong> — Draw <strong>6</strong> from your bag <strong>+ Bench die</strong> (max 1) <strong>+ the HC die</strong>. (A drawn Penalty die eats a slot as a blank.)</li>
+        <li><strong>3. ROLL &amp; ASSIGN</strong> — Roll everything into Roll &amp; Sort. <strong>One free reroll</strong> of any dice, <em>before</em> assigning anything. Then assign each die (see Faces). Buy any time you have Energy.</li>
+        <li><strong>4. SHOOT</strong> — Up to <strong>one shot</strong>: commit Hot Zone dice (see Combat).</li>
+        <li><strong>5. END</strong> — Clock ticks down 1:00. Unassigned dice → Iced; biggest leftover Energy die → Reserve if open.</li>
+      </ul>
+      <div class="qr-sec">FACES — WHAT DICE DO</div>
+      <ul>
+        <li><strong>E</strong> Energy — stays in Roll &amp; Sort as spending power. <strong>S</strong> Shoot → Cold Zone (Hot at 02:00–01:00). <strong>B</strong> Block → Defensive Zone.</li>
+        <li><strong>⚡ costed S/B</strong> — pay <strong>1 Energy pip</strong> (spin a die down 1), then advance. <strong>W</strong> Wild — declare Shoot or Block; no cost.</li>
+        <li><strong>RR</strong> Reroll — spend to reroll remaining Roll &amp; Sort dice, <em>even after assigning</em>; die → Iced (HC: set aside).</li>
+        <li><strong>SO ⚡</strong> (Goalie) — pay 1E, gain <strong>+2 Block tokens</strong>, die → Iced.</li>
+        <li><strong>ADV</strong> (HC) — move one Cold die to Hot <em>now</em> — legal even at <strong>10:00</strong>.</li>
+        <li><strong>FT</strong> (Goon) — start a fight (see Fights &amp; Penalties). <strong>Blank / PEN</strong> — nothing; → Iced at end of turn.</li>
+      </ul>
+      <div class="qr-sec">THE CLOCK</div>
+      <table class="qr-tbl"><tr><th>Clock</th><th>Shots place</th><th>Def. bonus</th></tr><tr><td>10:00</td><td>Cold</td><td>+3 Block</td></tr><tr><td>09:00–03:00</td><td>Cold</td><td>+1 Block</td></tr><tr><td>02:00</td><td>Hot</td><td>+2 Block</td></tr><tr><td>01:00</td><td>Hot</td><td>+3 Block</td></tr></table>
+      <ul>
+        <li>Only <strong>Hot Zone</strong> dice can shoot. Cold dice heat up at your next Advance step — plan a turn ahead (or use ADV).</li>
+        <li>The <strong>red window is 02:00–01:00 only</strong>: dice go straight to Hot and can shoot the same turn.</li>
+      </ul>
+      <div class="qr-sec">COMBAT — SHOT ON GOAL</div>
+      <ul>
+        <li><strong>Shooter</strong> locks in any Hot dice + <strong>Shoot tokens</strong> (+1 each). <strong>Defender</strong> then commits Defensive dice + <strong>Block tokens</strong> (+1 each) and adds the <strong>clock bonus</strong>.</li>
+        <li><strong>Roll:</strong> Shoot dice <strong>(3, 2, 1, 0, 0, 0)</strong> — one per committed Shoot pip. Block dice <strong>(2, 2, 1, 1, 0, 0)</strong> — one per Block pip <em>plus</em> the clock bonus. Tokens add flat +1s.</li>
+        <li><strong>GOAL</strong> if the shooter's total is higher. <strong>Tie or lower = SAVED</strong> — ties always go to the defense.</li>
+        <li><strong>Aftermath:</strong> winner's dice → their Iced. The <strong>loser</strong> picks up to <strong>1</strong> of their dice to <strong>Bench</strong>; the rest → Iced. <em>No benching after your last turn of a period.</em></li>
+      </ul>
+      <div class="qr-sec">BUYING — ANY TIME ON YOUR TURN</div>
+      <ul>
+        <li><strong>Position die: Energy = its tier</strong> (F5 = 5E). <strong>Token: 3E.</strong> Pay from Roll &amp; Sort dice and your Reserve die; dice spin down as you spend.</li>
+        <li><strong>Trash on buy:</strong> every die bought trashes <strong>1 Rookie</strong> from your Iced Zone (ice one first if needed) — no fodder, no buy. Bought dice go straight into your <strong>bag</strong>.</li>
+        <li><strong>Sell-out bonus:</strong> a card's <em>last</em> die comes with a free token (Shoot for Forwards, Block for Defensemen). <strong>Any Goalie die</strong> bought = a free Block token.</li>
+        <li><strong>Reserve (max 1):</strong> bank one Energy die between turns and periods — never the HC die. <strong>Bench (max 1):</strong> joins your next draw for free.</li>
+      </ul>
+      <div class="qr-sec">FIGHTS &amp; PENALTIES</div>
+      <ul>
+        <li>A Goon showing <strong>FT</strong> in Roll &amp; Sort may fight <strong>once per turn</strong>: pick an opposing die in <strong>Cold, Hot or Defensive</strong> (never a Goalie). Both roll fight dice <strong>(3, 2, 1, 0, 0, 0)</strong> — Goon rolls <strong>3</strong>, target <strong>2</strong>; <strong>ties go to the target</strong>.</li>
+        <li><strong>Goon wins:</strong> target → Iced. <strong>Goon loses:</strong> a <strong>Penalty die</strong> goes into <em>your</em> bag. The Goon Ices either way.</li>
+        <li><strong>Penalty die:</strong> a permanent blank clogging your bag all game — when drawn, tap to Ice it. Pool is <strong>unlimited</strong>.</li>
+      </ul>
+      <div class="qr-sec">PERIOD RESET &amp; WINNING</div>
+      <ul>
+        <li>After the 01:00 turn: <strong>all dice return to their bags</strong> — except <strong>Reserve dice and tokens, which persist</strong>. New faceoff, next period.</li>
+        <li><strong>Most goals after 3 periods wins.</strong> Tied? Go to the <strong>shootout</strong>.</li>
+      </ul>
+      <div class="qr-sec">DICE FACES</div>
+      <div class="qr-faces">
+        <p><strong>Forwards &amp; Defensemen</strong> (mirror dice): E1 E2 E2 + free S/B + costed S/B ⚡ + Wild. Pips by tier (free / costed / wild): <strong>1:</strong> 1/1⚡/W1 · <strong>2:</strong> 1/2⚡/W1 · <strong>3:</strong> 1/2⚡/W2 · <strong>4:</strong> 2/2⚡/W2 · <strong>5:</strong> 2/3⚡/W2 · <strong>6:</strong> 2/3⚡/W3</p>
+        <p><strong>Goalies:</strong> <strong>G3</strong> B2 B2 B2 B2 B3⚡ SO⚡ · <strong>G4</strong> B2 B2 B2 B3 B3⚡ SO⚡ · <strong>G5</strong> B2 B2 B3 B3 B3⚡ SO⚡ (SO⚡ = +2 Block tokens)</p>
+        <p><strong>Rookie:</strong> E1 E2 S1 B1 – – · <strong>Head Coach:</strong> E1 E1 E2 RR RR ADV · <strong>Goon:</strong> E1 E1 E2 FT FT FT · <strong>Penalty:</strong> PEN on every face</p>
+      </div>
+      <div class="qr-sec">SHOOTOUT — IF TIED AFTER 3 PERIODS</div>
+      <ul>
+        <li><strong>Coin flip</strong> decides who shoots first. Set aside <strong>one Goalie die</strong> to defend (a G3 if you own none).</li>
+        <li><strong>Draw 3 of your 5 skaters</strong> (one die per card) — only they shoot in regulation, each <strong>once</strong>. Roll the skater's die: its <strong>pips</strong> = Shoot dice (3, 2, 1, 0, 0, 0). Goalie rolls theirs: pips = Block dice (2, 2, 1, 1, 0, 0). Higher total = <strong>GOAL</strong>; tie = <strong>SAVED</strong>; blank face = 0 pips.</li>
+        <li><strong>3 rounds</strong>, alternating, <strong>NHL clinch</strong> (ends when the trailer can't catch up). Still tied? <strong>Sudden death</strong>: each turn draws <strong>1 shooter from all 5</strong> (repeats allowed) until one side scores and the other doesn't in the same round.</li>
+      </ul>
+      <div class="qr-note">Rules per Rulebook v4.4 and the current app.</div>
     </div>
   </div>
 </div>
@@ -4788,7 +4855,7 @@ function fbClass(t,cost=false){
   if(cost){return{S:'fb-SC',B:'fb-BC',W:'fb-WC',SO:'fb-SOC'}[t]||('fb-'+t);}
   return{E:'fb-E',S:'fb-S',B:'fb-B',W:'fb-W',RR:'fb-RR',ADV:'fb-ADV',SO:'fb-SO',FT:'fb-FT',PEN:'fb-PEN',BLANK:'fb-BLANK'}[t]||'fb-BLANK';
 }
-function useTabletopArt(){try{return localStorage.getItem('modDiceArt')==='tabletop';}catch(e){return false;}} // v7.97: dice art choice (Tim)
+function useTabletopArt(){return true;} // v8.130: custom art only — the art choice is retired (Tim)
 function setDiceArt(mode){try{localStorage.setItem('modDiceArt',mode);}catch(e){}renderArtChoice();} // v7.97
 function renderStaticTokArt(){const tt=useTabletopArt();const s=document.getElementById('fo-tok-shoot'),b=document.getElementById('fo-tok-block');if(s)s.innerHTML=(tt?tokImg('shoot','1.2em',true):'🎯')+' +1 SHOOT';if(b)b.innerHTML=(tt?tokImg('block','1.2em',true):'🛡️')+' +1 BLOCK';const _ts=document.getElementById('tok-lbl-shoot'),_bo=document.getElementById('tok-lbl-block-opp'),_bb=document.getElementById('tok-lbl-block');if(_ts)_ts.innerHTML=tt?tokImg('shoot','1.3em',true):'🎯';if(_bo)_bo.innerHTML=tt?tokImg('block','1.3em',true):'🛡️';if(_bb)_bb.innerHTML=tt?tokImg('block','1.3em',true):'🛡️';} // v7.101; v7.117: shot-card picker art (Tim)
 function renderArtChoice(){const tt=useTabletopArt();renderStaticTokArt();const l=document.getElementById('art-style-lbl');if(l)l.textContent=tt?'CUSTOM':'STANDARD';} // v7.97; v7.140: single button label (Tim)
