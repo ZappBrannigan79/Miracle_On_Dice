@@ -244,6 +244,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .active-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;flex-shrink:0;}
 .active-header .action-row{justify-self:end;}
 .active-label{font-size:1em;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;}
+.m-teamname-svg{display:inline-block;vertical-align:-6px;} /* v8.111: gradient name as SVG text — background-clip:text flickered the whole app on Android (Tim) */
 .timer-box{display:flex;flex-direction:column;align-items:center;gap:0;background:rgba(0,0,0,.45);padding:6px 18px 7px;border-radius:16px;border:3px solid #ffffff;}
 .timer-row{display:flex;align-items:center;gap:7px;}
 .timer-val{font-size:1.45em;font-weight:900;color:#ffffff;}
@@ -1425,12 +1426,12 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
    overlay pill with centered text (Tim) */
 #m-stage .zone .bonus-pill{position:absolute;left:50%;transform:translateX(-50%);text-align:center;}
 
-/* v8.107: turn label never wraps — patches slim to 22px and the label steps
-   down so patch + name + patch fits the center column (Tim) */
+/* v8.110: turn label is the bare team name at full size in its patch
+   gradient — player line retired, patches out (Tim) */
 #m-turnhead #aplbl{white-space:nowrap;}
-#m-turnhead .aplbl-patch{width:22px;height:22px;vertical-align:-5px;}
-#m-turnhead .active-label{font-size:.84em!important;} /* the turnrow rule is !important too — match it */
-@media (max-width:370px){#m-turnhead .active-label{font-size:.78em!important;}#m-turnhead .aplbl-patch{width:20px;height:20px;}}
+#m-turnrow .active-label{font-size:25px!important;font-weight:900;}
+@media (max-width:370px){#m-turnrow .active-label{font-size:22px!important;}}
+#m-wholbl{display:none!important;}
 
 /* v8.108: the two #m-top .game-title span rules that parked the old (c) span at right:52px are REMOVED — the (c) span is gone (Tim), and the rules were capturing the title's bookend stick span (first-of-type) and parking IT by the badge instead. */
 </style>
@@ -1443,7 +1444,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.109</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.111</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1565,7 +1566,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.109</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.111</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2194,6 +2195,7 @@ let _qsManualPick=false; // 2_121: true once the user hand-picks a team (dropdow
 function teamSlug(name){return (name||'').toLowerCase().replace(/[^a-z0-9]+/g,'');}
 const LOGO_V='?v=2'; // v8.11: bump this whenever the logo art changes — phones fetch the fresh pictures instead of showing saved copies (Tim)
 function patchHTML(name,cls){return name?`<img class="${cls||''}" src="logos-${teamSlug(name)}.webp${LOGO_V}" alt="" onerror="this.remove()">`:'';}
+const TEAM_GRAD={anchors:["#f4aca4","#ea331f"],bandits:["#f2c79b","#bf5831"],bison:["#eec4aa","#dc702e"],blizzard:["#aec3ea","#366dd4"],comets:["#efc5a9","#e07329"],crabs:["#f1bba7","#e45825"],crocs:["#e9d0af","#d19038"],demons:["#ff8a5c","#ad1f26"],frost:["#eef8ff","#79a8cc"],glaciers:["#acdcec","#33add6"],griffins:["#efc7a9","#de782b"],hornets:["#efc8a9","#de7a2c"],inferno:["#f5b8a3","#ed531c"],invaders:["#daecac","#a8d832"],lizards:["#ecdeac","#d8b331"],mountains:["#e7c6b1","#cc753d"],orcas:["#a6c5f2","#2474e5"],owls:["#edc8ab","#da7a2f"],phantoms:["#dcfcfb","#43a0a4"],rhinos:["#f7c169","#c85a1e"],rockets:["#f3c4a5","#e97020"],scorpions:["#ecc1ac","#d66933"],spiders:["#f5a3a7","#ed1c26"],squids:["#f3a5ab","#e72230"],trolls:["#ebc8ad","#d47a35"],twisters:["#e7c8b1","#cc7a3d"],vampires:["#f3a9a5","#e92b20"],vipers:["#b9e68f","#3f9e4d"],volcanoes:["#f1bba7","#e45a25"],werewolves:["#eee6fa","#8a6fae"]}; // v8.110: per-team gradient pairs sampled from the patches (Tim)
 function teamCardHTML(p){return p?`<img class="team-card-img" src="logos-${teamSlug(p.name)}-card.webp${LOGO_V}" alt="${p.name} team card" loading="lazy" onerror="this.remove()">`:'';}
 function teamGridHTML(selIdx,manual){
   let h=`<div class="team-grid">`; // v8.2c: Random is a button below the grid, not a cell
@@ -5405,7 +5407,15 @@ function renderBoard(){
   } else {
     const myTurnIndicator = _onlineActive && !isMyTurn() ? ' ⏳' : '';
     const _plain=teamPlain(G.ap); // v8.108: bare team name — no possessive, no TURN (Tim)
-    aplblEl2.innerHTML=patchHTML(G.players[G.ap].teamName,'sb-patch aplbl-patch')+`${_plain}`+patchHTML(G.players[G.ap].teamName,'sb-patch aplbl-patch')+myTurnIndicator; // v8.5: patch, no emoji; v8.107: patch bookends the label (Tim)
+    const _tg=TEAM_GRAD[teamSlug(G.players[G.ap].teamName)]||['#ffe9b0','#f8bd55'];
+    let _nameHTML='';
+    try{ // v8.111: SVG gradient text (no background-clip — it flickered Android on every repaint)
+      const _px=(window.innerWidth<=370?22:25),_mc=document.createElement('canvas').getContext('2d');
+      _mc.font='900 '+_px+'px system-ui,sans-serif';
+      const _tw=Math.ceil(_mc.measureText(_plain).width)+_plain.length+14,_th=_px+9;
+      _nameHTML=`<svg class="m-teamname-svg" width="${_tw}" height="${_th}" viewBox="0 0 ${_tw} ${_th}"><defs><linearGradient id="mtg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${_tg[0]}"/><stop offset="1" stop-color="${_tg[1]}"/></linearGradient></defs><text x="50%" y="${_px+1}" text-anchor="middle" fill="url(#mtg)" style="font-size:${_px}px;font-weight:900;letter-spacing:1px">${_plain}</text></svg>`;
+    }catch(e){ _nameHTML=`<span style="color:${_tg[1]}">${_plain}</span>`; }
+    aplblEl2.innerHTML=_nameHTML+myTurnIndicator; // v8.110: bare name in the team's patch gradient, patches retired (Tim)
   }
   // Update scoreboard names with team names if available
   const sn1=document.getElementById('sn1');
