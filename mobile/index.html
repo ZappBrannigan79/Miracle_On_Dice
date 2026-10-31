@@ -1434,6 +1434,12 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 #m-wholbl{display:none!important;}
 
 /* v8.108: the two #m-top .game-title span rules that parked the old (c) span at right:52px are REMOVED — the (c) span is gone (Tim), and the rules were capturing the title's bookend stick span (first-of-type) and parking IT by the badge instead. */
+
+/* v8.123: floating opponent's-turn pill (Tim) — own layer over the turn row,
+   opacity-only pulse (phone-safe). Display toggled by build.py's updTurnPill. */
+#m-turnpill{position:absolute;left:50%;top:-13px;transform:translateX(-50%);z-index:60;display:none;background:rgba(10,14,24,.92);color:#ffd75e;font-size:10.5px;font-weight:900;letter-spacing:1.2px;padding:4.5px 12px;border:1.5px solid #c9a227;border-radius:20px;white-space:nowrap;pointer-events:none;box-shadow:0 3px 10px rgba(0,0,0,.55)}
+#m-turnpill.on{display:block;animation:mTurnPulse 2s ease-in-out infinite}
+@keyframes mTurnPulse{0%,100%{opacity:1}50%{opacity:.55}}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1444,7 +1450,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.122</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.123</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1566,7 +1572,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.122</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.123</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -9443,6 +9449,32 @@ window.addEventListener('DOMContentLoaded', () => {
     topRow.appendChild(labelWrap);
     topRow.appendChild(icedSpan);
     th.insertBefore(topRow, th.firstChild);
+    // v8.123: floating OPPONENT'S TURN pill (Tim, mock pick D + hourglasses both
+    // sides) — lives on its own layer over the turn row; the header's size and
+    // the name's position never change. Shows while watching: Chuck's turn in
+    // Vs AI, or the opponent's turn in Vs Friend (spectating()).
+    topRow.style.position = 'relative';
+    const turnPill = document.createElement('div');
+    turnPill.id = 'm-turnpill';
+    turnPill.textContent = '⏳ OPPONENT’S TURN ';
+    const flipHg = document.createElement('span');
+    flipHg.className = 'fo-flip';
+    flipHg.textContent = '⏳';
+    turnPill.appendChild(flipHg);
+    topRow.appendChild(turnPill);
+    const updTurnPill = () => {
+      try {
+        let on = false;
+        if (typeof G !== 'undefined' && G && G.players) {
+          if (typeof spectating === 'function' && spectating()) on = true;
+          else if (typeof _aiActive !== 'undefined' && _aiActive && typeof _aiSlot !== 'undefined' && _aiSlot >= 0 && G.ap === _aiSlot) on = true;
+        }
+        const want = on ? 'on' : '';
+        if (turnPill.className !== want) turnPill.className = want;
+      } catch (e) {}
+    };
+    setInterval(updTurnPill, 300);
+    updTurnPill();
     // Token strip stays below (it's already in th, just ensure it's full width)
     const tokStrip = th.querySelector('.tok-strip');
     if (tokStrip) tokStrip.style.width = '100%';
