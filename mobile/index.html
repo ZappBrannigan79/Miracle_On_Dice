@@ -1444,7 +1444,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.111</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.114</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1566,7 +1566,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.111</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.114</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2194,6 +2194,27 @@ let _qsManualPick=false; // 2_121: true once the user hand-picks a team (dropdow
 // v8.2: team logo helpers — art lives in logos/ beside the app; a missing file just hides itself
 function teamSlug(name){return (name||'').toLowerCase().replace(/[^a-z0-9]+/g,'');}
 const LOGO_V='?v=2'; // v8.11: bump this whenever the logo art changes — phones fetch the fresh pictures instead of showing saved copies (Tim)
+let _mtgSeq=0; // v8.112: gradient team names everywhere team names are displayed (Tim)
+function gradNameSVG(teamName,px,maxW,up,fixedH){
+  const _slug=teamSlug(teamName||''),_tg=TEAM_GRAD[_slug]||['#ffe9b0','#f8bd55'],_id='mtg'+(++_mtgSeq);
+  const _txt=plainTeamName(teamName||'').toUpperCase(),_th=(fixedH||px+9);
+  return `<svg class="m-teamname-svg gn-svg" width="260" height="${_th}" viewBox="0 0 260 ${_th}" data-px="${px}" data-maxw="${maxW||0}" data-up="${up||0}" data-th="${_th}"><defs><linearGradient id="${_id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${_tg[0]}"/><stop offset="1" stop-color="${_tg[1]}"/></linearGradient></defs><text y="${px+1}" fill="url(#${_id})" style="font-size:${px}px;font-weight:900;letter-spacing:1px">${_txt}</text></svg>`;
+}
+function sizeGradNames(root){ // sizes each gradient-name svg from its text's TRUE rendered length — device fonts differ, estimates chop (v8.111 lesson)
+  (root||document).querySelectorAll('.gn-svg').forEach(sv=>{
+    const t=sv.querySelector('text'); if(!t)return;
+    try{
+      let L=t.getComputedTextLength(); if(!(L>0))return;
+      const px=+sv.dataset.px||25,maxW=+sv.dataset.maxw||0,up=+sv.dataset.up||0,th=+sv.dataset.th||px+9;
+      let npx=px;
+      if(maxW>0){ const sc=(maxW-8)/L; if(sc<1)npx=Math.max(11,Math.floor(px*sc)); else if(up>px)npx=Math.min(up,Math.floor(px*sc)); }
+      if(npx!==px){ t.style.fontSize=npx+'px'; L=t.getComputedTextLength(); }
+      t.setAttribute('x','4'); t.setAttribute('y',Math.round(th/2+npx*0.36));
+      const w=Math.ceil(L)+8;
+      sv.setAttribute('width',w); sv.setAttribute('height',th); sv.setAttribute('viewBox',`0 0 ${w} ${th}`);
+    }catch(e){}
+  });
+}
 function patchHTML(name,cls){return name?`<img class="${cls||''}" src="logos-${teamSlug(name)}.webp${LOGO_V}" alt="" onerror="this.remove()">`:'';}
 const TEAM_GRAD={anchors:["#f4aca4","#ea331f"],bandits:["#f2c79b","#bf5831"],bison:["#eec4aa","#dc702e"],blizzard:["#aec3ea","#366dd4"],comets:["#efc5a9","#e07329"],crabs:["#f1bba7","#e45825"],crocs:["#e9d0af","#d19038"],demons:["#ff8a5c","#ad1f26"],frost:["#eef8ff","#79a8cc"],glaciers:["#acdcec","#33add6"],griffins:["#efc7a9","#de782b"],hornets:["#efc8a9","#de7a2c"],inferno:["#f5b8a3","#ed531c"],invaders:["#daecac","#a8d832"],lizards:["#ecdeac","#d8b331"],mountains:["#e7c6b1","#cc753d"],orcas:["#a6c5f2","#2474e5"],owls:["#edc8ab","#da7a2f"],phantoms:["#dcfcfb","#43a0a4"],rhinos:["#f7c169","#c85a1e"],rockets:["#f3c4a5","#e97020"],scorpions:["#ecc1ac","#d66933"],spiders:["#f5a3a7","#ed1c26"],squids:["#f3a5ab","#e72230"],trolls:["#ebc8ad","#d47a35"],twisters:["#e7c8b1","#cc7a3d"],vampires:["#f3a9a5","#e92b20"],vipers:["#b9e68f","#3f9e4d"],volcanoes:["#f1bba7","#e45a25"],werewolves:["#eee6fa","#8a6fae"]}; // v8.110: per-team gradient pairs sampled from the patches (Tim)
 function teamCardHTML(p){return p?`<img class="team-card-img" src="logos-${teamSlug(p.name)}-card.webp${LOGO_V}" alt="${p.name} team card" loading="lazy" onerror="this.remove()">`:'';}
@@ -2436,7 +2457,7 @@ function renderFoReadonly(){
     document.getElementById('fo-d2').innerHTML=fo.r2.map(v=>`<div class="fo-die" data-cart="shoot">${combatArtImg('shoot',v)}</div>`).join('');
     document.getElementById('fo-t1').textContent=fo.t1;
     document.getElementById('fo-t2').textContent=fo.t2;
-    document.getElementById('fo-win').innerHTML=foWinHTML(fo.w); // v8.77: team-name headline (Tim)
+    document.getElementById('fo-win').innerHTML=foWinHTML(fo.w); sizeGradNames(document.getElementById('fo-win')); // v8.112 gradient sizing
     // 3_06 — the winner (even a joiner) picks their token; otherwise wait.
     renderFoChoiceState();
   }else{
@@ -2467,7 +2488,7 @@ function doFaceoff(){if(aiGuard())return;
   // Online: whoever rolls syncs it — the other side mirrors the faceoff read-only.
   if(_onlineActive){pushState();}
   document.getElementById('fo-t1').textContent=t1;document.getElementById('fo-t2').textContent=t2;
-  document.getElementById('fo-win').innerHTML=foWinHTML(w); // v8.77: team-name headline (Tim)
+  document.getElementById('fo-win').innerHTML=foWinHTML(w); sizeGradNames(document.getElementById('fo-win')); // v8.112 gradient sizing
   addLog(`Faceoff: P1=${t1}, P2=${t2} — ${G.players[w].name} wins, takes EVEN minutes +1 Shoot token.`,'imp');
   renderFoChoiceState();
   aiMaybeFoPick(); // 2_45: Vs AI hook
@@ -2542,7 +2563,7 @@ function soFlipCelebrate(fr){ // v8.82 V2 (Tim): coin lands big — pop/ring/spa
 function foWinHTML(w){ // v8.77: team-name headline (Tim) — plural names take WIN/BEGIN
   const tn=(teamPlain(w)||'').toUpperCase();
   const pl=/S$/.test(tn);
-  return `${tn} ${pl?'WIN':'WINS'} THE FACEOFF<br>AND ${pl?'BEGIN':'BEGINS'} THE PERIOD!<div class="fo-prize">${tokImg('shoot','1.15em')} +1 Shoot token ${tokImg('shoot','1.15em')}</div>`;
+  return `${gradNameSVG(G.players[w].teamName,16,320)} ${pl?'WIN':'WINS'} THE FACEOFF<br>AND ${pl?'BEGIN':'BEGINS'} THE PERIOD!<div class="fo-prize">${tokImg('shoot','1.15em')} +1 Shoot token ${tokImg('shoot','1.15em')}</div>`;
 }
 function renderFoChoiceState(){
   const fo=G.fo;if(!fo||fo.stage!=='rolled')return;
@@ -2550,7 +2571,7 @@ function renderFoChoiceState(){
   foCeremony(); // v8.31
   // 3_07: once the prize token is chosen, the result line names it — the Vs AI
   // player sees which token Coach took without having to catch the step pill.
-  if(fo.choice)document.getElementById('fo-win').innerHTML=foWinHTML(w); // v8.77: team-name headline (Tim)
+  if(fo.choice)document.getElementById('fo-win').innerHTML=foWinHTML(w); sizeGradNames(document.getElementById('fo-win')); // v8.112 gradient sizing
   const iAmWinner=!_onlineActive||_mySlot===w;
   const iAmHost=!_onlineActive||_mySlot===0;
   const choiceDiv=document.getElementById('fo-choice');
@@ -4599,11 +4620,12 @@ function startNextPeriod(){
 function setGoFinale(wp,lp,winTxt,scoreTxt){ // v8.31: winner hero + loser on stage (Tim)
   document.getElementById('go-win').textContent=winTxt;
   showGoPatch(wp?(wp.teamName||wp.name):null);
-  const wn=document.getElementById('go-wname');if(wn)wn.textContent=wp?plainTeamName(wp.teamName||wp.name||''):'';
+  const wn=document.getElementById('go-wname');if(wn){wn.innerHTML=wp?gradNameSVG(wp.teamName||wp.name,24,300):'';sizeGradNames(wn);} // v8.112: gradient (Tim)
   const li=document.getElementById('go-patch-lose');
   if(li){if(lp&&(lp.teamName||lp.name)){li.onerror=()=>{li.style.display='none';};li.src='logos-'+teamSlug(lp.teamName||lp.name)+'.webp'+LOGO_V;li.style.display='block';}else li.style.display='none';}
-  const ln=document.getElementById('go-lname');if(ln)ln.textContent=lp?plainTeamName(lp.teamName||lp.name||''):'';
+  const ln=document.getElementById('go-lname');if(ln){ln.innerHTML=lp?gradNameSVG(lp.teamName||lp.name,15,220):'';sizeGradNames(ln);} // v8.112: gradient (Tim)
   document.getElementById('go-score').textContent=scoreTxt;
+  requestAnimationFrame(()=>{ try{ sizeGradNames(document.getElementById('go-overlay')); }catch(e){} }); // v8.112: overlay shows after this runs — size the names once visible
 }
 function showGameOver(){
   updateHeartbeat(); // v8.41: no beats over the final screens
@@ -5408,21 +5430,21 @@ function renderBoard(){
     const myTurnIndicator = _onlineActive && !isMyTurn() ? ' ⏳' : '';
     const _plain=teamPlain(G.ap); // v8.108: bare team name — no possessive, no TURN (Tim)
     const _tg=TEAM_GRAD[teamSlug(G.players[G.ap].teamName)]||['#ffe9b0','#f8bd55'];
-    let _nameHTML='';
-    try{ // v8.111: SVG gradient text (no background-clip — it flickered Android on every repaint)
-      const _px=(window.innerWidth<=370?22:25),_mc=document.createElement('canvas').getContext('2d');
-      _mc.font='900 '+_px+'px system-ui,sans-serif';
-      const _tw=Math.ceil(_mc.measureText(_plain).width)+_plain.length+14,_th=_px+9;
-      _nameHTML=`<svg class="m-teamname-svg" width="${_tw}" height="${_th}" viewBox="0 0 ${_tw} ${_th}"><defs><linearGradient id="mtg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${_tg[0]}"/><stop offset="1" stop-color="${_tg[1]}"/></linearGradient></defs><text x="50%" y="${_px+1}" text-anchor="middle" fill="url(#mtg)" style="font-size:${_px}px;font-weight:900;letter-spacing:1px">${_plain}</text></svg>`;
-    }catch(e){ _nameHTML=`<span style="color:${_tg[1]}">${_plain}</span>`; }
-    aplblEl2.innerHTML=_nameHTML+myTurnIndicator; // v8.110: bare name in the team's patch gradient, patches retired (Tim)
+    try{ // v8.112: gradient name via the shared helper — sized from the real rendered text, scaled to fill the BAG↔ICED column (cap 32px, fixed height so the header never breathes)
+      // v8.112: available width = the turn ROW minus the BAG/ICED pills (aplbl itself shrink-wraps its content, so its own width is the previous name's — never measure it)
+      const _rowEl=aplblEl2.parentElement; let _colW=390;
+      if(_rowEl){ _colW=_rowEl.clientWidth-[..._rowEl.children].reduce((a,c)=>a+(c!==aplblEl2?c.offsetWidth:0),0)-16; }
+      aplblEl2.innerHTML=gradNameSVG(G.players[G.ap].teamName,(window.innerWidth<=370?22:25),0,32,41)+myTurnIndicator;
+      const _gsv=aplblEl2.querySelector('.gn-svg'); if(_gsv)_gsv.dataset.maxw=_colW;
+      sizeGradNames(aplblEl2);
+    }catch(e){ aplblEl2.innerHTML=`<span style="color:${_tg[1]}">${_plain.toUpperCase()}</span>`+myTurnIndicator; }
   }
   // Update scoreboard names with team names if available
   const sn1=document.getElementById('sn1');
   const sn2=document.getElementById('sn2');
   // 3_23: team name + who-emoji — no more (P1)/(P2) in the scoreboard header
-  if(sn1) sn1.textContent=teamPlain(0); // v8.5: plain name up top (Tim)
-  if(sn2) sn2.textContent=teamPlain(1);
+  if(sn1){ sn1.innerHTML=gradNameSVG(G.players[0].teamName,15,148); sizeGradNames(sn1); } // v8.112: gradient + caps (Tim)
+  if(sn2){ sn2.innerHTML=gradNameSVG(G.players[1].teamName,15,148); sizeGradNames(sn2); }
   const sbg1=document.getElementById('sbg1'),sbg2=document.getElementById('sbg2');
   if(sbg1){sbg1.style.display='';sbg1.src=`logos-${teamSlug(G.players[0].teamName)}.webp${LOGO_V}`;}
   if(sbg2){sbg2.style.display='';sbg2.src=`logos-${teamSlug(G.players[1].teamName)}.webp${LOGO_V}`;}
@@ -6221,7 +6243,7 @@ function startShootout(practice){
   [0,1].forEach(i=>{
     const nameEl = document.getElementById('so-name-'+i);
     if(nameEl){
-      nameEl.textContent = soTeamPlain(i).toUpperCase(); // v8.8: matchup-cell board (Tim, mock B)
+      nameEl.innerHTML = gradNameSVG(_so.players[i].teamName,17,150); sizeGradNames(nameEl); // v8.112: gradient (was caps plain) (Tim)
       const pEl = document.getElementById('so-patch-'+i);
       if(pEl){ pEl.style.display=''; pEl.src='logos-'+teamSlug(_so.players[i].teamName)+'.webp'+LOGO_V; }
       const w2 = document.getElementById('so-who-'+i);
@@ -6247,12 +6269,12 @@ function soCoinFlip(practice){
   // 4_36: now fires in overtime too (real flip, rule overturned).
   const _cfFace=(pi,cls)=>{const p=_so.players[pi]||{};const nm=p.teamName||p.name||'';return '<div class="coin-face '+cls+'"><span class="coin-init">'+(soTeamPlain(pi).charAt(0)||'?')+'</span><img src="logos-'+teamSlug(nm)+'.webp'+LOGO_V+'" alt="" draggable="false" onerror="this.style.display=\'none\'"></div>';};
   _fc.innerHTML='<div id="so-coin-wrap"><div id="so-coin-halo"><div id="so-coin" class="'+(_so.firstShooter===1?'coin-b':'coin-a')+'">'+_cfFace(0,'cf-a')+_cfFace(1,'cf-b')+'</div></div><div id="so-flip-cap" style="font-size:.8em;color:#8fa3bf;font-weight:700;margin-top:10px;height:26px">flipping…</div></div>'
-    +'<div id="so-flip-result" style="display:none;margin-top:10px;height:26px"><span class="so-flip-txt" style="display:inline-block"><span style="color:#f8bd55">'+soTeamPlain(_so.firstShooter)+'</span> shoots first!</span></div>'; // v8.100: the landed coin stays — the announcement goes below it (Tim)
+    +'<div id="so-flip-result" style="display:none;margin-top:10px;height:26px"><span class="so-flip-txt" style="display:inline-block">'+gradNameSVG(_so.players[_so.firstShooter].teamName,17,320)+'</span> shoots first!</span></div>'; // v8.100: the landed coin stays — the announcement goes below it (Tim)
   setTimeout(()=>{
     if(_fcGen!==_soCardGen)return;
     const _cap=document.getElementById('so-flip-cap'),_fr=document.getElementById('so-flip-result');
     if(_cap)_cap.style.display='none'; // v8.100: coin stays landed (Tim)
-    if(_fr){_fr.style.display='block';_fr.classList.add('so-txtpop');soFlipCelebrate(document.getElementById('so-coin-wrap'));} // v8.82 V2 celebration, retargeted to the coin in v8.100
+    if(_fr){_fr.style.display='block';_fr.classList.add('so-txtpop');sizeGradNames(_fr);soFlipCelebrate(document.getElementById('so-coin-wrap'));} // v8.82 V2 celebration, retargeted to the coin in v8.100
     _so.coinRevealed=true; renderSOScoreboard(); // v8.28: the marker may appear now — the result is public
     if(_onlineActive)soSyncPush();
   },1750);
@@ -6318,6 +6340,7 @@ function soWhoLbl(si){const p=_so.players[si];if(!p)return '';const nm=bareName(
   if(_aiActive&&typeof _aiSlot!=='undefined'&&si===_aiSlot)return nm||'AI Chuck';
   if(_aiActive)return 'Player 1';return nm||('Player '+(si+1));} // v7.30 (Tim)
 function renderSOScoreboard(){
+  [0,1].forEach(pi=>{ const _ne=document.getElementById('so-name-'+pi); if(_ne)sizeGradNames(_ne); }); // v8.112: cell names size here — startShootout sets them while hidden (Tim)
   // 3_62: one SD column — blank until a sudden-death shootout is decided, then winner ● / loser X (Tim)
   // v8.8: SD chips glow gold once sudden death is live
   [0,1].forEach(pi=>{ const sdC=document.getElementById('so-cell-'+pi+'-sd');
@@ -6392,7 +6415,7 @@ function soLightPick(key){ // v8.89: rail lights up — picked die goes gold wit
     }
   });
   const _sl=document.getElementById('so-shooter-label');
-  if(_sl&&!soIAmShooter())_sl.textContent=soTeamPlain(_so.shooterIdx)+' shoots with the '+key; // v8.5: plain team name
+  if(_sl&&!soIAmShooter()){_sl.innerHTML=gradNameSVG(_so.players[_so.shooterIdx].teamName,13,240)+' shoots with the '+key;sizeGradNames(_sl);} // v8.112: gradient name (was plain, v8.5)
 }
 function soStartShooterTurn(){
   renderSOScoreboard(); // v8.104: repaint at every turn start so the team glow lands on the new shooter immediately (Tim)
@@ -6735,18 +6758,20 @@ function soShowFinal(){
   const endedRound=_so.round-1;
   // 4_35 (Tim): overtime outro — game-winner framing + final bags (practice keeps shootout framing)
   const _isOT=!_so.practice;
-  document.getElementById('so-final-msg').textContent=_isOT
-    ? `${winner} wins the game!`
+  const _fm=document.getElementById('so-final-msg'); // v8.112: winner name in its gradient inside the line (Tim)
+  _fm.innerHTML=_isOT
+    ? `${gradNameSVG(_so.players[s0>s1?0:1].teamName,18,320)} wins the game!`
     : (_so.suddenDeath
-        ? `${winner} wins the Shootout in Round ${endedRound}!`
-        : `${winner} wins the Shootout!`);
+        ? `${gradNameSVG(_so.players[s0>s1?0:1].teamName,18,320)} wins the Shootout in Round ${endedRound}!`
+        : `${gradNameSVG(_so.players[s0>s1?0:1].teamName,18,320)} wins the Shootout!`);
+  sizeGradNames(_fm);
   document.getElementById('so-again-btn').style.display=_isOT?'none':'';
   document.getElementById('so-bags-btn').style.display=_isOT?'':'none';
   // v7.108: winner row (Tim) — trophy + centered winner info, no big pill, no dice
   const _wi2=s0>s1?0:1;
   const _wt=document.getElementById('so-winner-team');
   const _wi=document.getElementById('so-winner-info');
-  if(_wt)_wt.textContent=soTeamPlain(_wi2); // v8.12: hero crest — name only, no score line (the boxes show it) (Tim)
+  if(_wt){_wt.innerHTML=gradNameSVG(_so.players[_wi2].teamName,28,320);sizeGradNames(_wt);} // v8.112: gradient hero name (was plain, v8.12)
   const _wc=document.getElementById('so-winner-crest');
   if(_wc){_wc.style.display='';_wc.src=`logos-${teamSlug(_so.players[_wi2].teamName)}.webp${LOGO_V}`;}
   if(_wc){_wc.classList.remove('cel-pop');void _wc.offsetWidth;_wc.classList.add('cel-pop');const _hw=_wc.closest('.so-hero-crest');if(_hw)spawnSparks(_hw);} // v8.82: winner celebration — pop, ring, sparks (Tim)
@@ -8819,6 +8844,10 @@ async function aiDefendTurn(){
     _aiSelf=true;
     const atk=G.players[G.ap];
     const d100=()=>Math.floor(Math.random()*100)+1;
+    // v8.113: step 3 below is SUPERSEDED — dice now go exact-change first
+    // (smallest commitment that reaches +1), then a per-pip greed table
+    // (1pip 50/25, 2pip 40/20, 3pip 25/10), smallest first, position players
+    // before rookies on ties, and dice STOP at +3 like tokens (Tim).
     // 2_122: Tim's defend table —
     // 1. shooterTotal = shoot dice pips + declared shoot tokens
     // 2. automatics = clock bonus; if already >= shooterTotal+1, commit nothing
@@ -8839,17 +8868,38 @@ async function aiDefendTurn(){
         .filter(d=>d.face&&(d.face.t==='B'||d.face.t==='W'))
         .sort((a,b)=>b.face.v-a.face.v);
       for(const d of all){blockers.push(d);blkPips+=d.face.v;}
-    }else{ // 4_83: no free pass — always runs tiered logic (Tim)
+    }else{ // v8.113: exact change first, then smallest-first greed (Tim) — supersedes biggest-first (4_83)
       const candidates=[...me.z.defend]
-        .filter(d=>d.face&&(d.face.t==='B'||d.face.t==='W'))
-        .sort((a,b)=>b.face.v-a.face.v); // most pips first — a big die can clear +1/+2 alone
-      for(const d of candidates){
-        if(blkPips>=atkPips+1){ // 4_81: tiered past +1 (Tim)
-          // v7.30: 20%->25% between +2/+3 (Tim)
-          const pct=blkPips>=atkPips+3?5:(blkPips>=atkPips+2?25:50);
-          if(d100()>pct)continue;
+        .filter(d=>d.face&&(d.face.t==='B'||d.face.t==='W'));
+      const isRk=d=>d.key==='Rookie';
+      // Phase 1 — the guarantee: the smallest commitment that reaches shooter +1
+      // (clock bonus already in blkPips — if it covers +1 alone, no dice move).
+      // Subset rank: fewest wasted pips, then keep the biggest dice home, then
+      // fewest bodies, then position players before rookies (Tim: position dice
+      // should ice sooner so they recycle when the bag refills).
+      if(blkPips<atkPips+1){
+        const need=atkPips+1-blkPips,n=candidates.length;
+        const lex=(a,b)=>{ for(let j=0;j<a.length;j++){ if(a[j]!==b[j])return a[j]-b[j]; } return 0; };
+        let best=null,bestKey=null;
+        for(let m=1;m<(1<<n);m++){
+          let sum=0,mx=0,cnt=0,rk=0; const sub=[];
+          for(let i=0;i<n;i++){ if(m>>i&1){ const d=candidates[i]; sub.push(d); sum+=d.face.v; if(d.face.v>mx)mx=d.face.v; cnt++; if(isRk(d))rk++; } }
+          if(sum<need)continue;
+          const key=[sum-need,mx,cnt,rk];
+          if(!bestKey||lex(key,bestKey)<0){ bestKey=key; best=sub; }
         }
-        blockers.push(d);blkPips+=d.face.v; // automatic commit to +1, no d100
+        if(!best)best=candidates.slice(); // nothing reaches +1 — everything goes in trying
+        for(const d of best){ blockers.push(d); blkPips+=d.face.v; }
+      }
+      // Phase 2 — the greed: per-die % by ITS pips, smallest first (position
+      // players before rookies on equal pips); hard stop at +3 (no 5% tail).
+      const rest=candidates.filter(d=>!blockers.includes(d))
+        .sort((a,b)=>a.face.v-b.face.v||(isRk(a)?1:0)-(isRk(b)?1:0));
+      const RATE=[[50,25],[40,20],[25,10]]; // [rolling to +2, rolling to +3] for 1/2/3-pip dice (Tim)
+      for(const d of rest){
+        if(blkPips>=atkPips+3)break; // dice stop at +3, like tokens (Tim)
+        const pct=RATE[Math.min(3,Math.max(1,d.face.v))-1][blkPips>=atkPips+2?1:0];
+        if(d100()<=pct){ blockers.push(d); blkPips+=d.face.v; }
       }
     }
     // 4_38 (Tim): choice stays hidden while Chuck "studies" — G.blockSelIds is
@@ -8950,8 +9000,11 @@ async function aiShootoutTurn(){
       const used=_so.usedFwds[si];
       const avail=_so.players[si].forwards.filter(k=>!used.includes(k)&&(_so.players[si].shooterBag||[]).includes(k)); // v8.102: Chuck picks from his drawn hand too (Tim)
       // v8.46 (Tim): 60% best available (avg face value), else random of the rest
+      // v8.114 (Tim): while Chuck is BEHIND on shootout score, it's the best
+      // available every time — no coin flip — until he ties or goes ahead.
       const _avgF=k=>{const fs=DEFS[k]||[];return fs.length?fs.reduce((a,f)=>a+(f.v||0),0)/fs.length:0;};
-      _so.selectedFwd=(avail.length&&Math.random()<0.6)?avail.reduce((b,k)=>_avgF(k)>_avgF(b)?k:b,avail[0]):(avail[Math.floor(Math.random()*avail.length)]||_so.players[si].forwards[0]);
+      const _mustWin=_so.scores[si]<_so.scores[1-si];
+      _so.selectedFwd=(avail.length&&(_mustWin||Math.random()<0.6))?avail.reduce((b,k)=>_avgF(k)>_avgF(b)?k:b,avail[0]):(avail[Math.floor(Math.random()*avail.length)]||_so.players[si].forwards[0]);
       const rb=document.getElementById('so-roll-btn');if(rb)rb.disabled=false;
       // 2_63: highlight the AI's pick with the yellow selection ring (regulation only)
       soLightPick(_so.selectedFwd); // v8.89: C treatment — gold light + SHOOTING tag, others sink (Tim); was the white .sel + .7 lift
