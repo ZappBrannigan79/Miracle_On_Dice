@@ -859,6 +859,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .fo-winner{font-size:16px;letter-spacing:.5px;font-weight:900;text-shadow:0 0 14px rgba(248,189,85,.45)} /* v8.77: headline size (Tim) */
 .fo-prize{margin-top:8px;font-size:15.5px;color:#ffe9a8;font-weight:800;letter-spacing:.3px} /* v8.77 (Tim) */
 .fo-hk{font-size:.85em} .fo-hk.fo-flip{display:inline-block;transform:scaleX(-1)} /* v8.77: mirrored sticks (Tim) */
+.fo-flip{display:inline-block;transform:scaleX(-1)} /* v8.108: general mirror for bookend emoji (Tim) */
 /* v7.30: Goon Fight Concept A (Tim) — green card, mirror halves, circle totals */
 #goon-panel .panel-box{background:linear-gradient(160deg,#0e2317,#0a1a10);border:2px solid #4caf5d;}
 #chuck-fight-panel .panel-box{background:linear-gradient(160deg,#0e2317,#0a1a10);border:2px solid #4caf5d;} /* v7.30: Chuck's card matches (Tim) */
@@ -1129,7 +1130,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
   display:flex;flex-direction:column;justify-content:center;}
 .m-oppbox.off{border-color:rgba(80,120,255,.5);}
 .m-oppbox.def{border-color:rgba(255,80,80,.5);}
-.m-oppbox .m-opp-lbl{font-weight:800;letter-spacing:.5px;font-size:.9em;}
+.m-oppbox .m-opp-lbl{font-weight:800;letter-spacing:.2px;font-size:.8em;} /* v8.107: slimmer so the bookend emoji fit without wrapping (Tim) */
 .m-oppbox.off .m-opp-lbl{color:#7aa5ff;}
 .m-oppbox.def .m-opp-lbl{color:#ff8080;}
 .m-oppbox .m-opp-pips{font-size:1.3em;font-weight:900;color:#fff;}
@@ -1328,11 +1329,9 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 
 /* v5.136: © text to right with badge, title truly centered (Tim) */
 #m-top .game-title{width:100%!important;box-sizing:border-box!important;text-align:center!important;position:relative!important;display:block!important;}
-#m-top .game-title span[style*="2026 TW"]{position:absolute!important;right:52px!important;top:50%!important;transform:translateY(-50%)!important;opacity:.45!important;}
 #m-top .game-title .ver-badge{position:absolute!important;right:8px!important;top:50%!important;transform:translateY(-50%)!important;opacity:.45!important;}
 
 /* v5.137: fix © span selector — target by position (Tim) */
-#m-top .game-title span:first-of-type{position:absolute!important;right:52px!important;top:50%!important;transform:translateY(-50%)!important;opacity:.45!important;}
 
 /* v5.143: allow RS melt when HC RR is the only die left (Tim) */
 #m-stage.hc-only .zone.z-rs.rs-done{opacity:0!important;max-height:0!important;min-height:0!important;
@@ -1425,6 +1424,15 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
    flattened it into a full-width left-aligned bar; restore the centered
    overlay pill with centered text (Tim) */
 #m-stage .zone .bonus-pill{position:absolute;left:50%;transform:translateX(-50%);text-align:center;}
+
+/* v8.107: turn label never wraps — patches slim to 22px and the label steps
+   down so patch + name + patch fits the center column (Tim) */
+#m-turnhead #aplbl{white-space:nowrap;}
+#m-turnhead .aplbl-patch{width:22px;height:22px;vertical-align:-5px;}
+#m-turnhead .active-label{font-size:.84em!important;} /* the turnrow rule is !important too — match it */
+@media (max-width:370px){#m-turnhead .active-label{font-size:.78em!important;}#m-turnhead .aplbl-patch{width:20px;height:20px;}}
+
+/* v8.108: the two #m-top .game-title span rules that parked the old (c) span at right:52px are REMOVED — the (c) span is gone (Tim), and the rules were capturing the title's bookend stick span (first-of-type) and parking IT by the badge instead. */
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1435,7 +1443,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.106</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.108</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1557,7 +1565,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.106</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.108</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -5396,9 +5404,8 @@ function renderBoard(){
     aplblEl2.innerHTML=`<span class="so-yourturn" style="font-size:.9em;padding:6px 22px;letter-spacing:2px;">YOUR TURN</span>`; // v7.30: slightly smaller (Tim)
   } else {
     const myTurnIndicator = _onlineActive && !isMyTurn() ? ' ⏳' : '';
-    const _plain=teamPlain(G.ap);
-    const _poss=/s$/i.test(_plain)?"'":"'S"; // v7.66: plural names get just ' (Tim); v7.71: all caps (Tim)
-    aplblEl2.innerHTML=patchHTML(G.players[G.ap].teamName,'sb-patch aplbl-patch')+`${_plain}${_poss} TURN${myTurnIndicator}`; // v8.5: patch, no emoji
+    const _plain=teamPlain(G.ap); // v8.108: bare team name — no possessive, no TURN (Tim)
+    aplblEl2.innerHTML=patchHTML(G.players[G.ap].teamName,'sb-patch aplbl-patch')+`${_plain}`+patchHTML(G.players[G.ap].teamName,'sb-patch aplbl-patch')+myTurnIndicator; // v8.5: patch, no emoji; v8.107: patch bookends the label (Tim)
   }
   // Update scoreboard names with team names if available
   const sn1=document.getElementById('sn1');
@@ -5532,9 +5539,9 @@ function renderOpp(){
   if(osb){osb.innerHTML=`<div class="m-os-title">${whoEmoji(1-G.ap)} OPP</div><div class="m-os-line"><span class="m-os-chip m-os-off"><b>🏒 ${offPips}</b><small>${offDice} dice</small></span><span class="m-os-chip m-os-def2"><b>🥅 ${defPips}</b><small>${dp} dice</small></span></div>`;}
   // v7.30: split opp boxes (Tim's layout) — defense left of clock, offense right
   const mOff=document.getElementById('m-opp-off');
-  if(mOff){mOff.innerHTML=`<div class="m-opp-lbl">🏒 OPP OFF</div><div class="m-opp-pips">${offPips} pips</div><div class="m-opp-dice">${offDice} dice</div>`;}
+  if(mOff){mOff.innerHTML=`<div class="m-opp-lbl">🏒 OPP OFF <span class="fo-flip">🏒</span></div><div class="m-opp-pips">${offPips} pips</div><div class="m-opp-dice">${offDice} dice</div>`;}
   const mDef=document.getElementById('m-opp-def');
-  if(mDef){mDef.innerHTML=`<div class="m-opp-lbl">🥅 OPP DEF</div><div class="m-opp-pips">${defPips} pips</div><div class="m-opp-dice">${dp} dice</div>`;}
+  if(mDef){mDef.innerHTML=`<div class="m-opp-lbl">🥅 OPP DEF <span class="fo-flip">🥅</span></div><div class="m-opp-pips">${defPips} pips</div><div class="m-opp-dice">${dp} dice</div>`;}
 }
 function renderScore(){
   document.getElementById('sg1').textContent=G.players[0].goals;
@@ -9350,10 +9357,10 @@ window.addEventListener('DOMContentLoaded', () => {
   const zoneCfg = [
     ['z-defend', 'DEF. ZONE', 'z-def', true],
     ['z-rs', 'RS ZONE', 'z-rs', true],
-    ['z-hot', '🔥 HOT', 'z-hot', true],
+    ['z-hot', '🔥 HOT <span class="fo-flip">🔥</span>', 'z-hot', true],
     ['z-reserve', 'RESERVE', 'z-yel', true],
     ['z-bench', 'BENCH', 'z-wht', true],
-    ['z-cold', '❄️ COLD', 'z-cold', true],
+    ['z-cold', '❄️ COLD <span class="fo-flip">❄️</span>', 'z-cold', true],
   ];
   const minis = {};
   // Helper: create a mini zone element (tap -> stage)
