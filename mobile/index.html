@@ -1444,7 +1444,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.118</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.122</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1566,7 +1566,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.118</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.122</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1887,7 +1887,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
   <div class="goal-fx"><div class="gfx-disc L"></div><div class="gfx-disc R"></div><div class="gfx-vig"></div></div>
 
     <!-- Header -->
-    <h2 id="so-title" style="font-size:1.2em;margin-bottom:6px;text-align:center">🥅 Shootout<br><span id="so-subtitle" style="font-size:.8em;opacity:.85"></span></h2>
+    <h2 id="so-title" style="font-size:1.2em;margin-bottom:6px;text-align:center">🥅 Shootout <span class="fo-flip">🥅</span><br><span id="so-subtitle" style="font-size:.8em;opacity:.85"></span></h2>
 
     <!-- Scoreboard -->
     <div id="so-scoreboard" style="margin-bottom:16px">
@@ -2084,9 +2084,9 @@ if(!useTabletopArt())return ''+v; // v7.97: App mode shows numbers
   const bg={shoot:'#2a3fe0',block:'#c12727',fight:'#1faa1f'}[kind]||'#666'; // v8.96: 80% seat; v8.97: 80% of the inner field = 70% of the die incl. its 2px kind rim (Tim's dial pick)
   return `<div style="width:100%;height:100%;border-radius:5px;background:${bg};display:flex;align-items:center;justify-content:center"><img src="${uri}" alt="" draggable="false" style="width:80%;height:80%;object-fit:cover;display:block;border-radius:4px;pointer-events:none;"></div>`;}
 const COSTS={F1:1,F2:2,F3:3,F4:4,F5:5,F6:6,D1:1,D2:2,D3:3,D4:4,D5:5,D6:6,G3:3,G4:4,G5:5,G6:6}; // 5_89: tier 6 costs added (Tim's bug report)
-const CF_S=[2,2,1,1,0,0]; // v8.88 TRIAL: all combat dice unified at 2,2,1,1,0,0 (avg 1.0, no 3s) — supersedes the v8.87 3,2,1,1,0,0 trial; revert to split dice = v8.86 (Tim)
-const CF_B=[2,2,1,1,0,0]; // v8.88 TRIAL: unified (originally 3,1,1,1,0,0)
-const CF_F=[2,2,1,1,0,0]; // v8.88 TRIAL: unified — this was always the fight die's shape; now all three match it
+const CF_S=[3,2,1,0,0,0]; // v8.120 TRIAL (Tim): the 3-face is BACK on shoot — his original 'varied, swingy' die. Avg still 1.0; blanks 50%. Goal totals were right without it; this is for the live 3-chance + punching through the clock block bonus. Supersedes the v8.88 unification; revert = re-upload v8.119it dice = v8.86 (Tim)
+const CF_B=[2,2,1,1,0,0]; // defense stays the steady die (v8.88 trial shape kept by Tim's v8.120 call; originally 3,1,1,1,0,0)
+const CF_F=[3,2,1,0,0,0]; // v8.120 TRIAL (Tim): fights go swingy too — the fight die's first-ever shape change (always 2,2,1,1,0,0 before). The one to watch in play.
 const FWD=['F1','F2','F3','F4','F5','F6','F7','F8'];
 const DEF=['D1','D2','D3','D4','D5','D6','D7','D8'];
 const GOA=['G3','G4','G5','G6'];
@@ -3866,7 +3866,7 @@ function lockShot(){if(aiGuard())return;
 
 // ═══════════════════ COMBAT ═══════════════════
 // CORRECT: num dice to roll = num attacking dice + tokens
-// Result = sum of combat dice (3,2,1,1,0,0 — 3_58 trial) + tokens count as automatic 1 each
+// Result = sum of combat dice (faces per CF_S/CF_B/CF_F) + tokens count as automatic 1 each
 // Pips on player dice determine HOW MANY combat dice to roll — NOT added to total
 let _bTok=0,_sTok=0,_combatNonce=0,_lastCombatNonce=0;
 let _shotHeldOut=new Set(); // 3_32: shoot-zone dice the shooter held out on the shot card — back to Hot on confirm
@@ -5027,8 +5027,70 @@ function animNumbers(cells,finals,done,faces,durMul,uniform){ // v8.84: uniform=
   });
 }
 
+// v8.121 (Tim): when you're WATCHING a side (Chuck's turn, or your opponent's
+// in Vs Friend), a die leaving their Roll & Sort used to just vanish between
+// renders. Now it melts where it sat over 600ms. Dice leaving on the same
+// action melt together. Your own dice never melt. Ghosts are render-level:
+// capture snapshots the RS row before renderZone rebuilds it; release seats
+// clones of the departed at their old row positions and runs the melt.
+// v8.122 (Tim): the melt form is now COLLAPSE (mock pick C) — scale + opacity
+// ONLY. The v8.121 fade-to-black animated a CSS filter (brightness), which
+// Android Chrome cannot composite: it repainted the whole page every frame
+// (the full-page flash on device). NEVER animate filter in this game —
+// opacity and transform are the only free properties.
+let _rsGhosts=[]; // {id, owner, idx, el, until}
+let _rsShownAp=null; // whose board the RS DOM currently shows — a turn flip must not read the old player's dice as departures
+function rsMeltCapture(el){
+  const now=Date.now(), held=[];
+  _rsGhosts=_rsGhosts.filter(g=>{
+    if(now>=g.until||g.owner!==G.ap){ if(g.el&&g.el.parentNode)g.el.remove(); return false; }
+    held.push(g); return true;
+  });
+  held.forEach(g=>{ if(g.el&&g.el.parentNode)g.el.remove(); }); // detach — the element (and its melt clock) survives the rebuild
+  const snap=[];
+  const _watch = _rsShownAp===G.ap && (spectating() || (_aiActive && typeof _aiSlot!=='undefined' && G.ap===_aiSlot));
+  if(_watch){
+    [...el.children].forEach((kid,i)=>{
+      const w=kid.querySelector?kid.querySelector('.die-wrap'):null;
+      if(w&&w.dataset.id)snap.push({id:w.dataset.id, idx:i, node:kid.cloneNode(true)});
+    });
+  }
+  return {held, snap};
+}
+function rsMeltRelease(el, arr, cap){
+  if(!cap)return;
+  const now=Date.now();
+  const newIds=new Set((arr||[]).map(d=>String(d.id))); // dataset ids are strings — normalize or every die reads as departed
+  const ghosts=[...cap.held];
+  (cap.snap||[]).forEach(sn=>{
+    if(newIds.has(sn.id))return; // still in RS — no melt
+    if(ghosts.some(g=>g.id===sn.id))return; // already melting
+    const g={id:sn.id, owner:G.ap, idx:sn.idx, el:sn.node, until:now+640};
+    const inner=g.el.querySelector?g.el.querySelector('.die-wrap'):null;
+    if(inner)inner.removeAttribute('data-id'); // ghosts are invisible to game logic
+    g.el.style.pointerEvents='none';
+    try{
+      g.el.animate([
+        {transform:'scale(1) translateY(0)',opacity:'1',offset:0},
+        {transform:'scale(.5) translateY(8px)',opacity:'0',offset:1}
+      ],{duration:600,easing:'ease-in',fill:'forwards'}); // v8.122: collapse — transform+opacity only (see note above)
+    }catch(e){}
+    setTimeout(()=>{ if(g.el&&g.el.parentNode)g.el.remove(); _rsGhosts=_rsGhosts.filter(x=>x!==g); },680);
+    _rsGhosts.push(g); ghosts.push(g);
+  });
+  ghosts.sort((a,b)=>a.idx-b.idx);
+  ghosts.forEach(g=>{
+    if(!g.el)return;
+    const at=Math.min(g.idx, el.children.length);
+    const ref=el.children[at]||null;
+    if(ref!==g.el)el.insertBefore(g.el, ref);
+  });
+  _rsShownAp=G.ap;
+}
 function renderZone(zid,arr,opts={}){
-  const el=document.getElementById(zid);if(!el)return;el.innerHTML='';
+  const el=document.getElementById(zid);if(!el)return;
+  const _meltCap=(zid==='z-rs')?rsMeltCapture(el):null; // v8.121
+  el.innerHTML='';
   // 3_99: benched dice render exactly like iced (Tim — uniform "?"; the 3_98
   // faded tier-badge look is gone)
   const inIced=(zid==='z-iced'||zid==='z-bench');
@@ -5120,6 +5182,7 @@ function renderZone(zid,arr,opts={}){
     }else{body.style.cursor='default';}
     el.appendChild(w);
   });
+  if(_meltCap)rsMeltRelease(el,arr,_meltCap); // v8.121
 }
 
 // 3_68: human tap options for RS dice (Tim's cleanup). Single-decision faces are
@@ -6194,6 +6257,7 @@ function soDrawHand(pool){ // v8.102: the shootout bag — draw 3 of the 5 skate
 function startShootout(practice){
   // 5_41: reset UI so coin flip doesn't show stale final buttons (Tim)
   document.getElementById('so-final-area').style.display='none';
+  document.getElementById('so-title').innerHTML='🥅 Shootout <span class="fo-flip">🥅</span><br><span id="so-subtitle" style="font-size:.8em;opacity:.85"></span>'; // v8.119: restore the playing header (a finished shootout leaves 'Shootout Complete' up)
   document.querySelectorAll('.so-b-cell').forEach(c=>c.classList.remove('so-winner-pulse','so-win','so-lose')); // v8.12 + v8.82: clear stage reactions
   document.getElementById('so-shooter-area').style.display='none';
   document.getElementById('so-result-area').style.display='none';
@@ -6287,7 +6351,7 @@ function soRenderStartGate(){
   const gate=document.getElementById('so-start-gate'); if(!gate)return;
   const fc=document.getElementById('so-first-card'); if(fc)fc.style.pointerEvents='auto';
   gate.style.display='block';
-  const _btn='<button onclick="soStartGatePress()" style="background:linear-gradient(180deg,#ffd75e,#c9a227);color:#0b0e14;border:none;border-radius:12px;padding:13px 26px;font-size:1.02em;font-weight:900;letter-spacing:.5px;cursor:pointer;box-shadow:0 4px 18px rgba(248,189,85,.35)">\u{1F3D2} START SHOOTOUT</button>';
+  const _btn='<button onclick="soStartGatePress()" style="background:linear-gradient(180deg,#ffd75e,#c9a227);color:#0b0e14;border:none;border-radius:12px;padding:13px 26px;font-size:1.02em;font-weight:900;letter-spacing:.5px;cursor:pointer;box-shadow:0 4px 18px rgba(248,189,85,.35)">START SHOOTOUT</button>';
   if(!_onlineActive){ gate.innerHTML=_btn; return; }
   if(!_so.startAck)_so.startAck=[false,false];
   const op=1-_mySlot;
@@ -6388,6 +6452,7 @@ function restartShootout(){
   _so.fwdPool=_so.players.map(p=>[...p.forwards]);
   _so.usedFwds=[[],[]];
   document.getElementById('so-final-area').style.display='none';
+  document.getElementById('so-title').innerHTML='🥅 Shootout <span class="fo-flip">🥅</span><br><span id="so-subtitle" style="font-size:.8em;opacity:.85"></span>'; // v8.119
   renderSOScoreboard();
   soCoinFlip(_so.practice);
 }
@@ -6847,7 +6912,7 @@ function soShowFinal(){
   // soCheckWinner() ran (hence the awkward "Round 4 of 3").
   // 3_64: final always reads "Shootout Complete" — even after sudden death (Tim).
   // The old sudden-death phrasing showed the *next* round number ("Round 10") on a decided shootout.
-  document.getElementById('so-title').innerHTML = (_isOT ? '🏆 Game Complete' : '🥅 Shootout Complete') + '<br><span id="so-subtitle" style="font-size:.8em;opacity:.85"></span>';
+  document.getElementById('so-title').innerHTML = (_isOT ? '🏆 Game Complete' : '🥅 Shootout Complete <span class="fo-flip">🥅</span>') + '<br><span id="so-subtitle" style="font-size:.8em;opacity:.85"></span>';
   // 2_155: a decided real-game shootout ends the game — purge the autosave so the
   // menu doesn't offer to resume a finished game. Practice mini-games never wrote
   // a save; the tied→shootout path never reaches a winner here, so overtime is safe.
