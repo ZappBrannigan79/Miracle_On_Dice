@@ -1000,7 +1000,7 @@ html,body{overscroll-behavior:none;}
    other screens (setup, menus) keep normal scrolling */
 body:has(#game.screen.active){height:100%;overflow:hidden;margin:0;}
 #m-scroll{overscroll-behavior-y:contain;}
-#m-top{flex-shrink:0;background:#0a1428;border-bottom:1px solid #1c2c4e;
+#m-top{position:relative;flex-shrink:0; /* v8.135: anchor for the turn pill */background:#0a1428;border-bottom:1px solid #1c2c4e;
   padding:8px 10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:60;}
 #m-scroll{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
   padding:10px 10px 16px;display:flex;flex-direction:column;gap:10px;}
@@ -1459,7 +1459,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 
 /* v8.123: floating opponent's-turn pill (Tim) — own layer over the turn row,
    opacity-only pulse (phone-safe). Display toggled by build.py's updTurnPill. */
-#m-turnpill{position:fixed;left:50%;top:0; /* v8.132: nudged up 6px (equal 4px gaps); v8.133: fixed outer layer, JS pins it 19px above the turn row (Tim) */transform:translateX(-50%);z-index:250;display:none;background:rgba(10,14,24,.92);color:#ffd75e;font-size:10.5px;font-weight:900;letter-spacing:1.2px;padding:4.5px 12px;border:1.5px solid #c9a227;border-radius:20px;white-space:nowrap;pointer-events:none;box-shadow:0 3px 10px rgba(0,0,0,.55)}
+#m-turnpill{position:absolute;left:50%;top:calc(100% - 5px); /* v8.132 placement (equal 4px gaps) as pure CSS: #m-top's bottom edge sits 14px above the turn row, so calc(100% - 5px) lands the pill exactly where -19px put it — and it can never be covered or drift (Tim) */transform:translateX(-50%);z-index:250;display:none;background:rgba(10,14,24,.92);color:#ffd75e;font-size:10.5px;font-weight:900;letter-spacing:1.2px;padding:4.5px 12px;border:1.5px solid #c9a227;border-radius:20px;white-space:nowrap;pointer-events:none;box-shadow:0 3px 10px rgba(0,0,0,.55)}
 #m-turnpill.on{display:block;animation:mTurnPulse 2s ease-in-out infinite}
 @keyframes mTurnPulse{0%,100%{opacity:1}50%{opacity:.55}}
 </style>
@@ -1472,7 +1472,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.134</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.135</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1592,7 +1592,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.134</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.135</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -9545,7 +9545,7 @@ window.addEventListener('DOMContentLoaded', () => {
     flipHg.className = 'fo-flip';
     flipHg.textContent = '⏳';
     turnPill.appendChild(flipHg);
-    document.body.appendChild(turnPill); // v8.133: OUTER layer on <body> — paints over the whole board (Tim)
+    document.getElementById('m-top').appendChild(turnPill); // v8.135: lives in #m-top (the z-60 header layer) and hangs off its bottom edge in pure CSS — no JS pinning (Tim)
     const updTurnPill = () => {
       try {
         let on = false;
@@ -9553,17 +9553,11 @@ window.addEventListener('DOMContentLoaded', () => {
           if (typeof spectating === 'function' && spectating()) on = true;
           else if (typeof _aiActive !== 'undefined' && _aiActive && typeof _aiSlot !== 'undefined' && _aiSlot >= 0 && G.ap === _aiSlot) on = true;
         }
-        if (on) { const _tr = topRow.getBoundingClientRect(); turnPill.style.left = (_tr.left + _tr.width / 2) + 'px'; turnPill.style.top = (_tr.top - 19) + 'px'; } // v8.133: pin to the turn row (fixed layer)
         const want = on ? 'on' : '';
         if (turnPill.className !== want) turnPill.className = want;
       } catch (e) {}
     };
     setInterval(updTurnPill, 300);
-    // v8.134: re-pin INSTANTLY on scroll/resize, not just on the 300ms tick —
-    // in scrolling shells (browser chrome hiding, an overflowing board) the
-    // tick alone leaves the pill stale at its last pin (Tim's viewer shots).
-    window.addEventListener('scroll', updTurnPill, true);
-    window.addEventListener('resize', updTurnPill);
     updTurnPill();
     // Token strip stays below (it's already in th, just ensure it's full width)
     const tokStrip = th.querySelector('.tok-strip');
