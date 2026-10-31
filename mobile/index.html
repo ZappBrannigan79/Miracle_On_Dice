@@ -298,8 +298,9 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .abtn.pulsing{animation:nudgePulse 1.4s ease-in-out infinite;}
 
 /* 2_142: your-turn flash — plain text, gentle opacity pulse, never button-like */
-.so-yourturn{display:inline-block;font-size:1.12em;font-weight:900;letter-spacing:3px;color:#0a0f1e;background:linear-gradient(180deg,#ffd75e,#f8bd55);border-radius:999px;padding:5px 24px;animation:soTurnPulse 1.6s ease-in-out infinite;}
-.so-aiturn{display:inline-block;font-size:1.12em;font-weight:900;letter-spacing:3px;color:#8fa3bf;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:5px 24px;} /* 4_16: Chuck's turn — same pill, no flash (Tim) */
+.so-yourturn{display:inline-block;font-size:.8em;font-weight:900;letter-spacing:2px;color:#f8bd55;background:rgba(10,14,24,.55);border:1.5px solid #f8bd55;border-radius:999px;padding:5px 16px;} /* v8.124: small gold-outline pill, matches the main game (Tim) */
+.so-aiturn{display:inline-block;font-size:.8em;font-weight:900;letter-spacing:2px;color:#f8bd55;background:rgba(10,14,24,.55);border:1.5px solid #f8bd55;border-radius:999px;padding:5px 16px;animation:soOppPulse 2s ease-in-out infinite;} /* v8.124: the OPPONENT'S TURN pill (Tim) */
+@keyframes soOppPulse{0%,100%{opacity:1}50%{opacity:.55}} /* 4_16: Chuck's turn — same pill, no flash (Tim) */
 @keyframes soTurnPulse{0%,100%{box-shadow:0 0 0 0 rgba(248,189,85,.45);transform:scale(1);}50%{box-shadow:0 0 20px 5px rgba(248,189,85,.55);transform:scale(1.045);}}
 .abtn.pulsing-orange{animation:nudgePulse 1.4s ease-in-out infinite;}
 
@@ -692,6 +693,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .cresult.goal .jumbo-team{display:block;font-size:.4em;font-weight:900;letter-spacing:.14em;color:#fff;margin-top:6px;}
 .cresult.blocked{font-size:2em;padding:15px 10px;border-radius:12px;}
 .cresult.blocked.savthump{animation:savedGlow 2.8s ease-in-out infinite alternate,savedThumpBig 1.25s ease-out;}
+#crbanner{height:92px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;} /* v8.125: GOAL/SAVED same size as the shootout banner (Tim) */
 @keyframes savedGlow{from{box-shadow:0 0 14px rgba(204,51,51,.25),inset 0 0 20px rgba(204,51,51,.12);}to{box-shadow:0 0 28px rgba(204,51,51,.45),inset 0 0 34px rgba(204,51,51,.2);}}
 .cresult.blocked .sshd{display:inline-block;}
 .cresult.blocked.savthump .sshd{animation:shieldThump .7s ease-out .32s both;}
@@ -882,7 +884,13 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .goon-pool{text-align:center;color:#8b96b0;font-size:.78em;margin-top:6px;} /* v7.30: pool count (Tim) */
 .goon-pool strong{color:#e8ecf4;}
 .goon-fight-row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:6px 0 2px;} /* v7.30: dice left, total right (Tim) */
-.totcirc{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6em;font-weight:900;flex-shrink:0;}
+.goon-fight-row .fo-dice{flex:1;display:flex;justify-content:center;} /* v8.124: dice group centered in its lane — the target's 2 dice center under the goon's 3 (Tim) */
+.goon-rgrp{display:flex;align-items:center;gap:10px;flex:none;} /* v8.124: combatant die + total grouped at the right (Tim, mock A) */
+.goon-fight-row .tgt-ctx{width:58px;flex:none;text-align:center;}
+#so-overlay .ov-box{max-height:calc(100dvh - 14px);overflow-y:auto;} /* v8.124: the shootout card scrolls internally — its button can never be trapped off-screen (Tim) */
+@media (max-height:740px){#so-overlay .ov-box{min-height:0}}
+#so-shot-result{display:flex;align-items:center;justify-content:center;text-align:center;height:92px;box-sizing:border-box;} /* v8.124: GOAL and SAVED cards the same size (Tim) */
+.totcirc{width:56px;height:56px;border-radius:14px; /* v8.124: square badge, no circles (Tim) */display:flex;align-items:center;justify-content:center;font-size:1.6em;font-weight:900;flex-shrink:0;}
 .totcirc.grn{background:rgba(76,175,93,.22);border:2px solid #6fbf73;color:#c9f0cc;}
 .totcirc.wht{background:rgba(255,255,255,.10);border:2px solid #c9d2e8;color:#e8ecf4;}
 .sog-half.win{animation:winPulse 1.4s ease-in-out infinite;border-color:#ffd75e!important;} /* v7.30: pulse winning half (Tim) */
@@ -1450,7 +1458,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.123</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.125</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1572,7 +1580,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.123</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.125</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1779,7 +1787,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- CHUCK FIGHT REVEAL (4_94, Tim; v7.30: green card to match goon-panel) -->
 <div class="panel-overlay" id="chuck-fight-panel">
   <div class="panel-box" style="max-width:480px">
-    <div class="panel-title" style="text-align:center;font-size:1.6em">👊 GOON FIGHT!</div> <!-- v7.47: centered + enlarged (Tim) -->
+    <div class="panel-title" style="text-align:center;font-size:1.9em">👊 GOON FIGHT <span class="fo-flip">👊</span></div> <!-- v8.124: same treatment (Tim) -->
     <div style="display:flex;gap:16px;justify-content:center;align-items:center;margin:12px 0">
       <div style="text-align:center"><div id="cf-goon"></div><div style="font-size:.85em;opacity:.8;margin-top:4px">GOON</div></div>
       <div style="font-size:1.5em">⚔️</div>
@@ -1798,7 +1806,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div class="fo-winner" id="cf-win"></div>
       <div class="goon-outcome" id="cf-result" style="text-align:center;margin-top:8px"></div>
     </div>
-    <button class="abtn prim" style="width:100%;margin-top:10px" onclick="closeChuckFight()">Continue ▸</button> <!-- v7.30: match (Tim) -->
+    <button class="abtn prim" style="width:100%;margin-top:10px" onclick="closeChuckFight()">Continue</button> <!-- v7.30: match (Tim) -->
   </div>
 </div>
 
@@ -1924,7 +1932,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div style="font-size:.82em;color:var(--gold);font-weight:700;margin-bottom:8px" id="so-shooter-label">Choose a Forward to shoot with:</div>
       <div id="so-forward-choices" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:12px"></div>
       <div id="so-roll-row" style="display:flex;gap:14px;justify-content:center">
-        <button class="abtn prim" id="so-roll-btn" onclick="soRollShot()" disabled style="min-width:140px">🎲 Roll Shot</button>
+        <button class="abtn prim" id="so-roll-btn" onclick="soRollShot()" disabled style="min-width:140px">🏒 Shoot <span class="fo-flip">🏒</span></button>
       </div>
     </div>
 
@@ -1953,7 +1961,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         </div>
       </div>
       <div id="so-shot-result" style="text-align:center;font-size:1.3em;font-weight:900;padding:7px 10px;border-radius:8px;margin-bottom:6px"></div>
-      <button class="abtn prim" style="width:100%" id="so-next-btn" onclick="soAdvance()">Next →</button>
+      <button class="abtn prim" style="width:100%" id="so-next-btn" onclick="soAdvance()">Continue</button>
     </div>
 
     <!-- Final result -->
@@ -2003,29 +2011,28 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- 4_44: GOON FIGHT panel (Tim) -->
 <div class="panel-overlay" id="goon-panel">
   <div class="panel-box" style="max-width:560px;max-height:92vh;overflow-y:auto">
-    <div class="panel-title">👊 GOON FIGHT!</div> <!-- v7.30: fist + green card (Tim) -->
-    <div class="panel-sub">Pick a target.<br>Goon rolls 3 fight dice, target rolls 2.<br>Goon loses ties.</div> <!-- v7.30: Tim's wording -->
+    <div class="panel-title" style="text-align:center;font-size:1.9em">👊 GOON FIGHT <span class="fo-flip">👊</span></div> <!-- v8.124: big centered bookended title (Tim) -->
+    <div class="panel-sub" style="text-align:center;letter-spacing:2px;font-weight:800">PICK YOUR TARGET</div> <!-- v8.124 (Tim) -->
     <div id="goon-pick">
       <div id="goon-targets"></div>
       <div class="goon-hint">Win: Target iced.<br>Lose: Penalty die to your bag.</div> <!-- v7.30: Tim's wording -->
-      <div class="goon-pool" id="goon-pool-pick"></div> <!-- v7.30: pool count (Tim) -->
-      <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
-      <button class="abtn prim" id="goon-commit" onclick="goonResolveFight()" disabled>Fight! →</button>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
+      <button class="abtn prim" id="goon-commit" onclick="goonResolveFight()" disabled>Fight</button>
       <button class="abtn sec" onclick="goonCancelFight()">Cancel</button>
       </div> <!-- v7.30: centered (Tim) -->
     </div>
     <div id="goon-fight" style="display:none;margin-top:10px">
       <div class="sog-half sog-grn">
         <div class="goon-half-label nm" id="goon-f1-name">Goon</div>
-        <div class="goon-fight-row"><div class="fo-dice" id="goon-f1-dice"></div><div class="totcirc grn" id="goon-f1-total">–</div></div>
+        <div class="goon-fight-row"><div class="fo-dice" id="goon-f1-dice"></div><div class="goon-rgrp"><div class="tgt-ctx" id="goon-f1-ctx"></div><div class="totcirc grn" id="goon-f1-total">–</div></div></div>
       </div>
       <div class="sog-half sog-wht">
         <div class="goon-half-label nm" id="goon-f2-name">Target</div>
-        <div class="goon-fight-row"><div class="fo-dice" id="goon-f2-dice"></div><div class="tgt-ctx tgt-ctx-lg" id="goon-f2-ctx"></div><div class="totcirc wht" id="goon-f2-total">–</div></div>
+        <div class="goon-fight-row"><div class="fo-dice" id="goon-f2-dice"></div><div class="goon-rgrp"><div class="tgt-ctx tgt-ctx-lg" id="goon-f2-ctx"></div><div class="totcirc wht" id="goon-f2-total">–</div></div></div>
       </div>
       <div class="fo-winner" id="goon-fight-win"></div>
       <div id="goon-fight-summary" style="display:none;text-align:center;margin-top:12px"></div> <!-- 5_110: seamless (Tim) -->
-      <button class="abtn prim" id="goon-fight-continue" style="width:100%;margin-top:10px;position:sticky;bottom:0;z-index:5" onclick="goonCloseFight()" disabled>Continue ▸</button> <!-- v7.30: sticky, always reachable (Tim) -->
+      <button class="abtn prim" id="goon-fight-continue" style="width:100%;margin-top:10px;position:sticky;bottom:0;z-index:5" onclick="goonCloseFight()" disabled>Continue</button> <!-- v7.30: sticky, always reachable (Tim) -->
     </div>
     <div id="goon-result" style="display:none;margin-top:10px">
       <div class="combat-info" id="goon-result-text" style="background:rgba(255,255,255,.05);border-radius:6px;padding:10px;font-size:.85em;line-height:1.7"></div>
@@ -2601,7 +2608,7 @@ function renderFoChoiceState(){
       waitEl.style.display='block';
     }
   }else if(iAmHost){
-    btn.style.display='';btn.disabled=false;btn.textContent='Begin Period';
+    btn.style.display='';btn.disabled=false;btn.textContent='Continue';
     btn.onclick=beginPeriodAfterFo;
   }else{
     waitEl.textContent=`Waiting for host to begin…`; // v7.30: ODD→EVEN fix
@@ -2946,8 +2953,7 @@ function getOpts(die){
     // 2_36: broke shutout is NOT offered — the die just sits in R&S and falls to Iced at end of turn
     else o.push({l:`Shutout (${f.v} Block) — BLOCKED: need 1⚡ to resolve`,a:'no-energy'});
   }else if(f.t==='PEN'){
-    if(G.penaltyPool>0)o.push({l:`Give opponent a Penalty die (pool: ${G.penaltyPool} left)`,a:'pen-give'});
-    else o.push({l:'Penalty pool empty — no penalty dice available',a:'pen-pool-empty'});
+    o.push({l:'Give opponent a Penalty die',a:'pen-give'}); // v8.124: penalty pool is unlimited (Tim)
   }else if(f.t==='ADV'){
     // v8.74: ADV is live at 10:00 too (Tim trial) — the +3 clock bonus covers the early breakaway
     const hasCold=ap.z.cold.length>0;
@@ -3071,12 +3077,8 @@ function assignDie(die,action){
     addLog(`${ap.name}: Shutout → +${die.face.v} Block Tokens (${ap.tok.block} total).`,'imp');
   }else if(action==='pen-give'){
     ap.z.rs.splice(idx,1);
-    if(G.penaltyPool>0){
-      opp.bag.push(mkDie('Penalty'));G.penaltyPool--;
-      addLog(`${ap.name}: Penalty → added Penalty die to ${opp.name}'s bag! (pool: ${G.penaltyPool} remaining)`,'imp');
-    }else{
-      addLog(`${ap.name}: Penalty face — pool empty, no penalty added.`);
-    }
+    opp.bag.push(mkDie('Penalty')); // v8.124: unlimited pool (Tim)
+    addLog(`${ap.name}: Penalty → added Penalty die to ${opp.name}'s bag!`,'imp');
     // HC returns to set-aside automatically at end of turn — don't send to iced
     renderAll();return;
   }else if(action==='adv'){
@@ -3364,8 +3366,9 @@ function goonResolveFight(){
   // 4_46 (Tim): the fight rolls out like the faceoff — header names who controls which
   document.getElementById('goon-pick').style.display='none';
   document.getElementById('goon-fight').style.display='block';
-  document.getElementById('goon-f1-name').textContent=`${teamEmoji(G.ap)} ${bareName(G.players[G.ap].name)}'s Goon`; // v7.30: team emoji, not 🧑 (Tim)
-  document.getElementById('goon-f2-name').textContent=`${teamEmoji(1-G.ap)} ${bareName(G.players[1-G.ap].name)}'s ${t.die.key}`; // v7.30
+  document.getElementById('goon-f1-name').textContent='GOON'; // v8.124 (Tim)
+  document.getElementById('goon-f1-ctx').innerHTML=fightDieMini(goonDie); // v8.124: the Goon die beside its total (Tim, mock A) // v7.30: team emoji, not 🧑 (Tim)
+  document.getElementById('goon-f2-name').textContent='TARGET'; // v8.124 (Tim) // v7.30
   document.getElementById('goon-f2-ctx').innerHTML=`${fightDieMini(t.die)}<span>from ${t.label}</span>`; // v7.30: real die (Tim); v7.112: wrapped label
   const d1=document.getElementById('goon-f1-dice'),d2=document.getElementById('goon-f2-dice');
   d1.innerHTML=gr.map(()=>`<div class="goon-die">?</div>`).join('');
@@ -3376,7 +3379,7 @@ function goonResolveFight(){
   document.getElementById('goon-f2-total').closest('.sog-half').classList.remove('win');
   document.getElementById('goon-fight-win').textContent='👊 Fighting…';
   const _rsum=document.getElementById('goon-fight-summary');if(_rsum){_rsum.style.display='none';_rsum.innerHTML='';}
-  const _rcont=document.getElementById('goon-fight-continue');if(_rcont){_rcont.disabled=true;_rcont.textContent='Continue ▸';_rcont.onclick=goonCloseFight;} // v7.30: reset to initiator handler+text (Tim)
+  const _rcont=document.getElementById('goon-fight-continue');if(_rcont){_rcont.disabled=true;_rcont.textContent='Continue';_rcont.onclick=goonCloseFight;} // v7.30: reset to initiator handler+text (Tim)
   [...d1.children,...d2.children].forEach(c=>c.dataset.cart='fight'); // ART-2: combat art (Tim)
   fightFxStart(document.querySelector('#goon-panel .panel-box')); // v7.177
   animNumbers([...d1.children,...d2.children],[...gr,...tr],fightDrop(()=>{
@@ -3397,14 +3400,14 @@ function goonResolveFight(){
       opp.z.iced.push(_td);
       document.getElementById('goon-fight-win').textContent=`👊 Goon wins ${gTot}-${tTot}!`; // v7.30: banner (Tim)
       document.getElementById('goon-f1-total').closest('.sog-half').classList.add('win'); // v7.30: pulse winning half (Tim)
-      if(_sum){_sum.innerHTML=`<div class="goon-outcome">${t.die.key} \u2192 Iced.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_sum.style.display='block';} // v7.30: pool count (Tim)
+      if(_sum){_sum.innerHTML=`<div class="goon-outcome">${t.die.key} \u2192 Iced.</div>`;_sum.style.display='block';} // v7.30: pool count (Tim)
       addLog(`👊 Goon wins ${gTot}-${tTot}! ${t.die.key} iced, goon iced.`,'imp');
     }else{
-      const _gotPen=G.penaltyPool>0;
-      if(_gotPen){ap.bag.push(mkDie('Penalty'));G.penaltyPool--;}
+      const _gotPen=true; // v8.124: unlimited pool (Tim)
+      if(_gotPen){ap.bag.push(mkDie('Penalty'));}
       document.getElementById('goon-fight-win').textContent=`${t.die.key} wins ${tTot}-${gTot}!`; // v7.30: banner (Tim)
       document.getElementById('goon-f2-total').closest('.sog-half').classList.add('win'); // v7.30: pulse winning half (Tim)
-      if(_sum){_sum.innerHTML=`<div class="goon-outcome">Penalty die \u2192 ${bareName(ap.name)}'s bag.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_sum.style.display='block';} // v7.30: pool count (Tim)
+      if(_sum){_sum.innerHTML=`<div class="goon-outcome">Penalty die \u2192 ${bareName(ap.name)}'s bag.</div>`;_sum.style.display='block';} // v7.30: pool count (Tim)
       addLog(`👊 Goon loses ${gTot}-${tTot}. Goon iced`+(_gotPen?', penalty die to bag.':', pool empty, no penalty.')+'.','imp');
     }
     _goonFightUsed=true;
@@ -3447,9 +3450,9 @@ function showOnlineTurnSummary(){
   clearTimeout(el._t);
   el.classList.add('summary');
   const _poss2=/s$/i.test(oppName.trim())?"'":"'s"; // v7.66: plural names get just ' (Tim)
-  el.innerHTML=`<div class="ai-sum-head">👤 <b>${oppName.toUpperCase()}${_poss2.toUpperCase()} TURN SUMMARY</b></div>`+
+  el.innerHTML=`<div class="ai-sum-head"><b>OPPONENT TURN SUMMARY</b></div>`+
     `<div class="ai-sum-notes">${allNotes.map(n=>`<div>${capNote(n)}</div>`).join('')}</div>`+
-    `<button class="abtn prim" id="online-take-turn">Start Turn ▸</button>`;
+    `<button class="abtn prim" id="online-take-turn">Continue</button>`;
   el.classList.add('show');
   document.getElementById('online-take-turn').addEventListener('click',()=>{
     el.classList.remove('show');el.classList.remove('summary');el.innerHTML='';
@@ -3484,8 +3487,8 @@ function showFightWatch(fs){
   document.getElementById('goon-pick').style.display='none';
   document.getElementById('goon-fight').style.display='block';
   document.getElementById('goon-result').style.display='none';
-  document.getElementById('goon-f1-name').textContent=`${teamEmoji(1-_mySlot)} ${bareName(G.players[1-_mySlot].name)}'s Goon`; // v7.30: team emoji (Tim)
-  document.getElementById('goon-f2-name').textContent=`${teamEmoji(_mySlot)} ${bareName(G.players[_mySlot].name)}'s ${fs.targetKey}`; // v7.30
+  document.getElementById('goon-f1-name').textContent='GOON'; // v8.124 (Tim) // v7.30: team emoji (Tim)
+  document.getElementById('goon-f2-name').textContent='TARGET'; // v8.124 (Tim) // v7.30
   document.getElementById('goon-f2-ctx').innerHTML=`${fightDieMini({face:fs.targetFace,key:fs.targetKey,pos:fs.targetPos,id:'tgtctx'})}<span>from ${fs.targetZone||''}</span>`; // v7.30: real die (Tim); v7.112: wrapped label
   const d1=document.getElementById('goon-f1-dice'),d2=document.getElementById('goon-f2-dice');
   d1.innerHTML=fs.gr.map(()=>`<div class="goon-die">?</div>`).join('');
@@ -3510,11 +3513,11 @@ function showFightWatch(fs){
     if(fs.won){
       document.getElementById('goon-fight-win').textContent=`👊 Goon wins ${fs.gTot}-${fs.tTot}!`;
       document.getElementById('goon-f1-total').closest('.sog-half').classList.add('win'); // v7.30 (Tim)
-      if(_wsum){_wsum.innerHTML=`<div class="goon-outcome">${fs.targetKey} \u2192 Iced.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_wsum.style.display='block';} // v7.30: pool count (Tim)
+      if(_wsum){_wsum.innerHTML=`<div class="goon-outcome">${fs.targetKey} \u2192 Iced.</div>`;_wsum.style.display='block';} // v7.30: pool count (Tim)
     }else{
       document.getElementById('goon-fight-win').textContent=`${fs.targetKey} wins ${fs.tTot}-${fs.gTot}!`;
       document.getElementById('goon-f2-total').closest('.sog-half').classList.add('win'); // v7.30 (Tim)
-      if(_wsum){_wsum.innerHTML=`<div class="goon-outcome">Penalty die \u2192 ${_wgoonOwner}'s bag.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`;_wsum.style.display='block';} // v7.30: pool count (Tim)
+      if(_wsum){_wsum.innerHTML=`<div class="goon-outcome">Penalty die \u2192 ${_wgoonOwner}'s bag.</div>`;_wsum.style.display='block';} // v7.30: pool count (Tim)
     }
     const _wsub2=document.querySelector('#goon-panel .panel-sub'); if(_wsub2)_wsub2.style.display='none';
     renderAll();
@@ -3734,7 +3737,7 @@ function completeBuy(cardIdx,trashDieId){
   card.left--;
   ap.bag.push(mkDie(card.key)); // v8.48 TRIAL: purchases land in the bag, not Iced (Tim)
   addLog(`${ap.name}: Bought ${card.key} → Bag.`,'imp');
-  noteTurn(`📝 bought ${card.key}`);
+  noteTurn(`💰 bought ${card.key}`);
   awardBuyBonus(ap,card);
   renderAll();
 }
@@ -4434,8 +4437,8 @@ function showCombatResult(r){
   _shotCells.forEach(c=>c.dataset.cart='shoot');_saveCells.forEach(c=>c.dataset.cart='block'); // ART-2: combat art (Tim)
   animNumbersRS([..._shotCells,..._saveCells],[...r.sr,...r.br],()=>{ // v8.82: RS-length tumble (Tim)
     // v7.30: totals + banner paint together (Tim's son caught totals landing early)
-    if(r.isGoal){banner.className='cresult goal';banner.innerHTML='<span class="gsir">'+goalImg('1.15em')+'</span> GOAL! '+'<span class="gsir">'+goalImg('1.15em')+'</span><span class="jumbo-team">'+teamLbl(G.ap)+' SCORE!</span>';goalCelebrate(banner);scorePop(G.ap);}
-    else{banner.className='cresult blocked';banner.innerHTML='<span class="sshd">🛡</span> SAVED! <span class="sshd sshd2">🛡</span>';if(!_REDUCED_MOTION){banner.classList.remove('savthump');void banner.offsetWidth;banner.classList.add('savthump');}}
+    if(r.isGoal){banner.className='cresult goal';banner.innerHTML='<span class="gsir">'+goalImg('1.15em')+'</span> GOAL '+'<span class="gsir">'+goalImg('1.15em')+'</span>';goalCelebrate(banner);scorePop(G.ap);}
+    else{banner.className='cresult blocked';banner.innerHTML='🛡️ SAVED 🛡️';if(!_REDUCED_MOTION){banner.classList.remove('savthump');void banner.offsetWidth;banner.classList.add('savthump');}}
     requestAnimationFrame(()=>{
       document.getElementById('stotal').textContent=r.sTotal;
       document.getElementById('btotal').textContent=r.bTotal;
@@ -4586,7 +4589,7 @@ function showPeriodEnd(){
     const b=document.getElementById('pe-btn');b.textContent='Final Score';b.onclick=showGameOver;
   }else{
     document.getElementById('pe-msg').textContent=`All dice return to bags incl. purchases. Period ${next} faceoff next.`;
-    const b=document.getElementById('pe-btn');b.textContent=`Period ${next} →`;b.onclick=startNextPeriod;
+    const b=document.getElementById('pe-btn');b.textContent='Continue';b.onclick=startNextPeriod;
   }
   document.getElementById('pe-overlay').classList.add('show');
   // Online: only the host drives the transition — the other side waits.
@@ -4888,14 +4891,18 @@ function resetGoalFx(host){
 function flashGoal(el,cardEl){ // v8.40: LAMP FLASH (Tim) — banner bursts in, red flash through the card
   if(_REDUCED_MOTION||!el)return;
   // v8.45: aim the siren beams at the lamp tokens (measured, like goalCelebrate) — the shootout banner never got this and used off-center defaults (Tim)
-  try{
+  const aimBeams=()=>{try{
     const imgs=el.querySelectorAll('.gsir');
     if(imgs.length>=2){const br=el.getBoundingClientRect();
       if(br.width){const c1=imgs[0].getBoundingClientRect(),c2=imgs[imgs.length-1].getBoundingClientRect();
         const px=r=>((r.left+r.width/2-br.left)/br.width*100).toFixed(1)+'%';
         const py=r=>((r.top+r.height/2-br.top)/br.height*100).toFixed(1)+'%';
         el.style.setProperty('--beamL',px(c1));el.style.setProperty('--beamR',px(c2));el.style.setProperty('--beamT',py(c1));}}
-  }catch(e){}
+  }catch(e){}};
+  aimBeams();
+  // v8.124: re-aim once settled — the flash animation and lamp-art loading move the true centers (Tim: sirens originate from behind the center of each goal token)
+  requestAnimationFrame(()=>requestAnimationFrame(aimBeams));
+  setTimeout(aimBeams,900);
   el.classList.remove('goalflash');void el.offsetWidth;el.classList.add('goalflash');
   const offB=e=>{if(e.target===el&&e.animationName==='goalFlash'){el.classList.remove('goalflash');el.removeEventListener('animationend',offB);}};
   el.addEventListener('animationend',offB);
@@ -5580,10 +5587,10 @@ function renderBoard(){
     ?`${ap.z.shoot.length} die/dice → ${totalSCD} combat ${cDiceWord(totalSCD)}`:'';
   const ts=document.getElementById('tstrip');ts.innerHTML='';
   // 2_27: always show both token pills (even at 0) — prominent blue=shoot / red=block
-  ts.innerHTML+=`<span class="tok-pill tp-shoot${tokPopCls(G.ap,'s',ap.tok.shoot)}">${tokImg('shoot','1.2em',true)} <span class="tp-n">${ap.tok.shoot}</span> SHOOT</span>`;
+  ts.innerHTML+=`<span class="tok-pill tp-shoot${tokPopCls(G.ap,'s',ap.tok.shoot)}">${tokImg('shoot','1.2em',true)} <span class="tp-n">${ap.tok.shoot}</span> ${tokImg('shoot','1.2em',true)}</span>`;
   const ep=totalE();
   if(ep>0||G.phase>=4)ts.innerHTML+=`<span class="epips">⚡ ${ep}E available</span>`; // 3_47: energy sits center, tokens flank it (Tim)
-  ts.innerHTML+=`<span class="tok-pill tp-block${tokPopCls(G.ap,'b',ap.tok.block)}">${tokImg('block','1.2em',true)} <span class="tp-n">${ap.tok.block}</span> BLOCK</span>`;
+  ts.innerHTML+=`<span class="tok-pill tp-block${tokPopCls(G.ap,'b',ap.tok.block)}">${tokImg('block','1.2em',true)} <span class="tp-n">${ap.tok.block}</span> ${tokImg('block','1.2em',true)}</span>`;
 }
 function renderRSActions(){
   const ra=document.getElementById('rs-actions');ra.innerHTML='';
@@ -6566,7 +6573,7 @@ function soStartShooterTurn(){
   const _humanTurn=!(_isAITurn||!soIAmShooter());
   // 4_16: Chuck's turn gets a quiet pill — no flash (Tim)
   _ti.innerHTML=_humanTurn?'<span class="so-yourturn">YOUR TURN</span>'
-    :(_isAITurn?'<span class="so-aiturn">🤖 AI CHUCK&rsquo;S TURN</span>':'');
+    :'<span class="so-aiturn">⏳ OPPONENT&rsquo;S TURN <span class="fo-flip">⏳</span></span>'; // v8.124: the game's turn pill, Vs AI + Vs Friend (Tim)
   // 2_68: vs-AI practice — the player takes their turn directly (no "Take Your Shot" gate)
   _so.playerTurnGo=false;
   // 2_51: no Roll Shot button on the AI's turn — it rolls automatically
@@ -6773,26 +6780,26 @@ function soShowResult(r){
         resEl.textContent='No shot attempt';
       } else if(isGoal){
         resEl.classList.add('cresult','goal');resEl.style.fontSize='';resEl.style.padding='';resEl.style.background='';resEl.style.color=''; // v8.42: the big banner (Tim)
-        resEl.innerHTML='<span class="gsir">'+goalImg('1.15em')+'</span> GOAL! <span class="gsir">'+goalImg('1.15em')+'</span><span class="jumbo-team">'+(soTeamPlain(r.playerIdx)||'Team')+' SCORE! ('+shotTotal+' vs '+saveTotal+')</span>';
+        resEl.innerHTML='<span class="gsir">'+goalImg('1.15em')+'</span> GOAL <span class="gsir">'+goalImg('1.15em')+'</span>'; // v8.124: clean — (token) GOAL (token), no score line (Tim)
         flashGoal(resEl,document.getElementById('so-panel')); // v8.40: lamp flash
       } else {
         resEl.style.background='rgba(139,26,26,.35)';resEl.style.color='#ffaaaa';
-        resEl.textContent=`🥅 SAVED! (${saveTotal} ≥ ${shotTotal})`;
+        resEl.textContent='🛡️ SAVED 🛡️'; // v8.124: bookended shields, no score (Tim)
       }
       renderSOScoreboard();
       // 2_53: vs-AI mini-game — after the AI's shot, the result stays up with a
       // "Your Turn →" button; the player taps to continue (no auto-advance)
       // 2_66: button text reflects what actually comes next — sudden death if tied
       const _soTiedNow = _so.scores[0]===_so.scores[1];
-      const _soLastBtn = !soIsLastShot() ? null : (_soTiedNow ? (_so.suddenDeath?'Next Round →':'Sudden Death →') : 'See Final Result →');
+      const _soLastBtn = !soIsLastShot() ? null : (_soTiedNow ? (_so.suddenDeath?'Continue':'Continue') : 'Continue');
       if(_so.vsAI&&r.playerIdx===_aiSlot){
         nb.style.display='';
-        nb.textContent = _soLastBtn || 'Your Turn →';
+        nb.textContent = _soLastBtn || 'Continue';
         nb.disabled=false;
         _aiBusy=false; // 2_61: AI is done — release the guard so the player's tap works
       }else{
         nb.style.display='';
-        nb.textContent = _soLastBtn || (_onlineActive&&!_so.vsAI?'Opponent Turn →':'AI Turn →'); // 2_69: directional // 5_96: online says Opponent (Tim)
+        nb.textContent = _soLastBtn || 'Continue'; // 2_69: directional // 5_96: online says Opponent (Tim)
       }
       // Online: only the player who just shot clicks Next — the other side waits.
       if(_onlineActive && _mySlot!==r.playerIdx){
@@ -7902,9 +7909,9 @@ function aiShowTurnSummary(onTake){
   const notes=_aiTurnNotes; // 2_51: action lines only — no "takes/ends the turn" filler
   _aiTurnNotes=[];
   el.classList.add('summary');
-  el.innerHTML=`<div class="ai-sum-head">🤖 <b>AI CHUCK TURN SUMMARY</b></div>`+
+  el.innerHTML=`<div class="ai-sum-head"><b>OPPONENT TURN SUMMARY</b></div>`+
     `<div class="ai-sum-notes">${notes.map(n=>`<div>${capNote(n)}</div>`).join('')}</div>`+
-    `<button class="abtn prim" id="ai-take-turn">Take Turn ▸</button>`;
+    `<button class="abtn prim" id="ai-take-turn">Continue</button>`;
   el.classList.add('show');
   document.getElementById('ai-take-turn').addEventListener('click',()=>{
     el.classList.remove('show');el.classList.remove('summary');el.innerHTML=''; // 2_48: cleared, so nothing stale lingers
@@ -8318,11 +8325,11 @@ async function aiDoFight(){ // 4_94: fight reveal (Tim)
       if(won){
         document.getElementById('cf-win').textContent=`👊 Goon wins ${gTot}-${tTot}!`;
         document.getElementById('cf-goon-total').closest('.sog-half').classList.add('win');
-        document.getElementById('cf-result').innerHTML=`<div class="goon-outcome">${t.die.key} \u2192 Iced.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`; // v7.30: pool count (Tim)
+        document.getElementById('cf-result').innerHTML=`<div class="goon-outcome">${t.die.key} \u2192 Iced.</div>`; // v7.30: pool count (Tim)
       }else{
         document.getElementById('cf-win').textContent=`${t.die.key} wins ${tTot}-${gTot}!`;
         document.getElementById('cf-target-total').closest('.sog-half').classList.add('win');
-        document.getElementById('cf-result').innerHTML=`<div class="goon-outcome">Penalty die \u2192 Chuck's bag.</div><div class="goon-pool">🔲 Penalty pool: <strong>${G.penaltyPool}</strong> left</div>`; // v7.30: pool count (Tim)
+        document.getElementById('cf-result').innerHTML=`<div class="goon-outcome">Penalty die \u2192 Chuck's bag.</div>`; // v7.30: pool count (Tim)
       }
       aiPill(won?`👊 Goon wins! ${t.die.key} iced`:`🔲 Goon loses — penalty die added`); // 5_81: 🔲 for penalty (Tim)
       res();
@@ -8393,10 +8400,10 @@ async function aiDoAssign(P){
   const zone=G.clock>2?'Cold':'Hot';
   _aiSelf=true;
   try{
-    // PEN faces — always use while the pool has dice (individual beats — each is notable)
+    // PEN faces — always use (v8.124: pool is unlimited) (individual beats — each is notable)
     // 2_148: narrate it — the player needs to know a Penalty die hit their bag
     let nPen=0;
-    for(const d of [...ap.z.rs]){if(d.face&&d.face.t==='PEN'&&G.penaltyPool>0){assignDie(d,'pen-give');nPen++;await aiBeat(AI_BEAT);}}
+    for(const d of [...ap.z.rs]){if(d.face&&d.face.t==='PEN'){assignDie(d,'pen-give');nPen++;await aiBeat(AI_BEAT);}}
     if(nPen)aiPill(`🔲 sent ${nPen} Penalty ${nPen===1?'die':'dice'} to your bag`); // 5_94: 🔲 for penalty (Tim)
     // 2_92: Coach assignment order (Tim's spec) —
     // 1. shoot → 2. block → 3. shutout → 4. wild → 5. ADV → 6. PEN → 7. energy (next)
@@ -8670,7 +8677,7 @@ function aiBuyTier(cheapest,specific){
   }
   if(rook)ap.z.iced.splice(ap.z.iced.indexOf(rook),1);
   addLog(`${ap.name}: Bought ${t.key} for ${cost}E (trashed rookie).`,'imp');
-  aiPill(`📝 bought ${t.key} for ${cost}E`);
+  aiPill(`💰 bought ${t.key} for ${cost}E`);
   const card=ap.lineup[t.idx];card.left--;
   ap.bag.push(mkDie(t.key)); // v8.48 TRIAL: purchases land in the bag, not Iced (Tim)
   awardBuyBonus(ap,card);
@@ -8846,7 +8853,7 @@ async function aiDoBuy(P){ // v7.41: async for pacing (Tim)
   }finally{
     _aiSelf=false;
     // 2_121: single combined reserve line for the summary ("reserved x dice")
-    if(_aiReserveBanked>0){aiPill(`💲 reserved ${_aiReserveBanked} ${_aiReserveBanked===1?'die':'dice'}`);await aiBeat(AI_BEAT);} // 5_104: 💲 not 🏦 (Tim); v7.70: beat so badge registers (Tim)
+    if(_aiReserveBanked>0){aiPill(`🏦 reserved ${_aiReserveBanked} ${_aiReserveBanked===1?'die':'dice'}`);await aiBeat(AI_BEAT);} // 5_104: 💲 not 🏦 (Tim); v7.70: beat so badge registers (Tim)
   }
 }
 // 4_02: smart token need (Tim) — which token type does Chuck need more?
