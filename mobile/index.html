@@ -1472,7 +1472,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.130</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.131</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1592,7 +1592,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.130</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.131</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2447,7 +2447,7 @@ function showQS(){
 function enterMode(mode){
   document.getElementById('mode-btns').style.display='none';
   const _sb=document.querySelector('#setup .setup-box');if(_sb)_sb.style.padding='16px 32px'; // v7.152: tighter title box (Tim)
-  document.getElementById('art-choice').style.display='none'; // v7.125: art toggle main-menu only (Tim)
+  // v8.131: #art-choice is gone with the retired art toggle (v8.130) — nothing to hide
   document.getElementById('setup-title').style.display='none';document.getElementById('setup-sub').style.display='none'; // v7.144: slim setup screens (Tim)
   const mh=document.getElementById('mode-header');
   mh.style.display='block';
@@ -2465,7 +2465,7 @@ function backToModes(){
     document.getElementById(id)?.classList.remove('show'));
   document.getElementById('mode-header').style.display='none';
   document.getElementById('mode-btns').style.display='';
-  document.getElementById('art-choice').style.display='flex'; // v7.125; v7.144: restore flex explicitly
+  // v8.131: #art-choice is gone with the retired art toggle (v8.130) — nothing to restore
   document.getElementById('setup-title').style.display='';document.getElementById('setup-sub').style.display=''; // v7.144
 }
 function renderPresetCards(){
