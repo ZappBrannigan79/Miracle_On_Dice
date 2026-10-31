@@ -841,9 +841,9 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 #bench-pick-dice .die-body.bp-dim{opacity:.45;filter:grayscale(.65)} /* v8.85: pick full — unpicked dice fade so the eye moves on (Tim) */
 #so-forward-choices .die-body.so-lit{box-shadow:0 0 0 2px #ffd75e,0 0 20px rgba(255,215,94,.8)} /* v8.89: spectator pick light (Tim) */
 .so-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#ffd75e;color:#1a1405;font-size:9px;font-weight:900;letter-spacing:.8px;padding:2px 7px;border-radius:999px;z-index:3;white-space:nowrap;pointer-events:none}
-.so-panel{position:relative;overflow:hidden} /* v8.90 */
-.so-panel>*{position:relative;z-index:1}
-.so-panel>.so-crest-bg{position:absolute;left:50%;top:24px;transform:translateX(-50%);width:124px;height:124px;object-fit:contain;opacity:.25;pointer-events:none;z-index:0} /* v8.90: team patch, faded, behind the die (Tim) */
+/* v8.103: crest backdrop rules retired (Tim) */
+
+
 .so-hero-die{height:86px;display:flex;justify-content:center;margin-bottom:0} /* v8.90 hero; v8.91: slimmed so the card fits short screens (Tim) */
 /* v8.93: hero dice at PICKER size — the shootout picker sides, full size (Tim) */
 .so-hero-die .die-body{width:64px!important;height:64px!important}
@@ -1435,7 +1435,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.101</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.105</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1557,7 +1557,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.101</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span style="font-size:.5em;color:#444;font-weight:400;letter-spacing:.3px">© 2026 TW</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.105</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1918,7 +1918,6 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
         <!-- Shooter side -->
         <div class="so-panel" style="background:rgba(255,255,255,.05);border-radius:8px;padding:9px 12px;text-align:center">
-          <img class="so-crest-bg" id="so-shot-crest" alt="" onerror="this.style.display='none'">
           <div style="font-size:.72em;color:#aaa;margin-bottom:4px">🏒 SHOOTER</div>
           <div id="so-shot-hero" class="so-hero-die"></div>
           <div id="so-shot-key" style="display:none"></div> <!-- v8.90: hero die carries the key now (Tim) -->
@@ -1929,7 +1928,6 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         </div>
         <!-- Goalie side -->
         <div class="so-panel" style="background:rgba(255,255,255,.05);border-radius:8px;padding:9px 12px;text-align:center">
-          <img class="so-crest-bg" id="so-save-crest" alt="" onerror="this.style.display='none'">
           <div style="font-size:.72em;color:#aaa;margin-bottom:4px">🥅 GOALIE</div>
           <div id="so-save-hero" class="so-hero-die"></div>
           <div id="so-save-key" style="display:none"></div> <!-- v8.90: hero die carries the key now (Tim) -->
@@ -6139,6 +6137,12 @@ function launchShootoutPractice(){
   startShootout(true);
 }
 
+function soDrawHand(pool){ // v8.102: the shootout bag — draw 3 of the 5 skaters (Tim)
+  const a=[...pool];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a.slice(0,3);
+}
+
 // ── START / RESTART ──
 function startShootout(practice){
   // 5_41: reset UI so coin flip doesn't show stale final buttons (Tim)
@@ -6169,6 +6173,7 @@ function startShootout(practice){
   _so.results = [];
   _so.suddenDeath = false;
   _so.selectedFwd = null;
+  _so.sdDraw = null; // v8.105: the sudden-death draw (one die, tapped to ready up)
   _so.phase = 'shoot';
   _so.rev = 0;
 
@@ -6183,12 +6188,12 @@ function startShootout(practice){
     }));
   }
 
-  // v8.46 (Tim): no more drawn 3 — the whole lineup of 5 is available from
-  // the start; each shot picks one, used shooters lock until all 5 have
-  // gone, then the set resets (soRollShot's used-reset handles the wrap).
+  // v8.102 (Tim; supersedes v8.46): the bag decides — each side DRAWS 3 of
+  // its 5 skaters and picks from that hand in regulation. Sudden death puts
+  // everyone back and draws one at a time from the full bag of 5.
   _so.players.forEach(p=>{
     p.forwards=[...p.shooterPool];
-    p.shooterBag=[];
+    p.shooterBag=soDrawHand(p.shooterPool);
   });
 
   // Init shooter pools for this shootout (all 5)
@@ -6271,12 +6276,12 @@ function restartShootout(){
   // v7.30: fresh coin flip for the new shootout (Tim)
   _so.firstShooter=Math.random()<0.5?0:1;
   _so.shooterIdx=_so.firstShooter; _so.coinRevealed=false; // v8.28
-  _so.results=[]; _so.suddenDeath=false; _so.selectedFwd=null;
+  _so.results=[]; _so.suddenDeath=false; _so.selectedFwd=null; _so.sdDraw=null;
   _so.phase='shoot';
-  // v8.46: fresh full set of 5 (Tim)
+  // v8.102: fresh draw of 3 for the rematch (Tim)
   _so.players.forEach(p=>{
     p.forwards=[...p.shooterPool];
-    p.shooterBag=[];
+    p.shooterBag=soDrawHand(p.shooterPool);
   });
   _so.fwdPool=_so.players.map(p=>[...p.forwards]);
   _so.usedFwds=[[],[]];
@@ -6336,6 +6341,18 @@ function renderSOScoreboard(){
     else { const nc=document.getElementById('so-cell-'+_so.shooterIdx+'-'+(_so.round-1)); if(nc&&!nc.innerHTML)nc.classList.add('next'); }
   }
 
+  // v8.104 (Tim): the gold frame highlights the SHOOTING team — it used to be
+  // set once on the coin-flip winner (soFlipCelebrate) and stay there all
+  // shootout. Now it follows _so.shooterIdx every render; at the final it
+  // settles on the winner. Suppressed until the flip lands (v8.28 discipline).
+  if(_so.coinRevealed){
+    const _glowIdx = _so.phase==='final' ? (_so.scores[0]===_so.scores[1] ? -1 : (_so.scores[0]>_so.scores[1]?0:1)) : _so.shooterIdx;
+    document.querySelectorAll('#so-scoreboard .so-b-cell').forEach((c,i)=>{
+      c.classList.toggle('so-win', i===_glowIdx);
+      c.classList.toggle('so-lose', _glowIdx>=0 && i!==_glowIdx);
+    });
+  }
+
   // Title: two lines, both centered (Tim)
   document.getElementById('so-subtitle').textContent = _so.suddenDeath
     ? `Sudden Death Round ${_so.round}`
@@ -6361,6 +6378,7 @@ function soLightPick(key){ // v8.89: rail lights up — picked die goes gold wit
   if(_sl&&!soIAmShooter())_sl.textContent=soTeamPlain(_so.shooterIdx)+' shoots with the '+key; // v8.5: plain team name
 }
 function soStartShooterTurn(){
+  renderSOScoreboard(); // v8.104: repaint at every turn start so the team glow lands on the new shooter immediately (Tim)
   document.getElementById('so-result-area').style.display='none';
   document.getElementById('so-final-area').style.display='none';
   document.getElementById('so-shooter-area').style.display='block';
@@ -6386,8 +6404,17 @@ function soStartShooterTurn(){
   // Online: only the shooting player picks — the other side watches.
   const iAmShooter = soIAmShooter();
   document.getElementById('so-shooter-label').textContent = iAmShooter
-    ? (_so.suddenDeath?'Sudden death — choose a shooter (F or D):':'Choose a shooter (F or D):')
+    ? (_so.suddenDeath?'Sudden death — drawn from the bag:':'Choose a shooter (F or D):')
     : `Waiting for ${soTeamPlain(si)} to shoot…`; // v8.5
+
+  // v8.105 (Tim): the sudden-death draw happens at turn start and syncs, so
+  // every screen shows the same single drawn die. It is NOT armed yet — the
+  // shooter taps it to ready up before ROLL can fire.
+  if(_so.suddenDeath && !_so.sdDraw && (iAmShooter || _isChuckTurn)){
+    const _pool=sp.shooterPool||sp.forwards;
+    _so.sdDraw=_pool[Math.floor(Math.random()*_pool.length)];
+    if(_onlineActive && iAmShooter)soSyncPush();
+  }
 
   const choices = document.getElementById('so-forward-choices');
   choices.innerHTML = '';
@@ -6396,13 +6423,17 @@ function soStartShooterTurn(){
 
   // Show ALL forwards — grey out used ones, active ones are clickable
   const used = _so.usedFwds[si];
+  const _hand = _so.suddenDeath ? sp.forwards : (sp.shooterBag||sp.forwards); // v8.102: regulation picks come from the drawn hand
   sp.forwards.forEach(fwdKey=>{
     const isUsed = used.includes(fwdKey);
+    const notDrawn = !_so.suddenDeath && !_hand.includes(fwdKey); // v8.102: still in the bag
+    if(notDrawn)return; // v8.105 (Tim): only the drawn 3 show on the rail
+    if(_so.suddenDeath && fwdKey!==_so.sdDraw && fwdKey!==_so.selectedFwd)return; // v8.105: SD shows just the drawn die
     const _isSD=_so.suddenDeath; // 5_40: SD die is pre-drawn, renders selected (Tim)
     const notMine=!iAmShooter&&!_isSD; // 5_28: fade Chuck's dice so you don't try to tap them (Tim)
     const wrap = document.createElement('div');
     wrap.style.cssText = `display:flex;flex-direction:column;align-items:center;gap:4px;
-      cursor:${isUsed||notMine?'default':'pointer'};opacity:${isUsed?'.35':notMine?'.45':'1'};`;
+      cursor:${isUsed||notMine||notDrawn?'default':'pointer'};opacity:${isUsed?'.35':notMine?'.45':'1'};`;
     const posClass = fwdKey.startsWith('D') ? 'pos-D' : 'pos-F';
     const _isDF = fwdKey.startsWith('D');
     const _defFaces = (typeof DEFS!=='undefined' && DEFS[fwdKey]) || [];
@@ -6410,11 +6441,11 @@ function soStartShooterTurn(){
     const _artHtml = (typeof blankArtHTML==='function') ? blankArtHTML(fwdKey[0],fwdKey) : null; // v7.103: blank + large tier (Tim)
     const faceBadge = _artHtml ? 'fb-ART' : (_isDF ? 'fb-B' : 'fb-S');
     // 5_36: fade the die parts, not the wrapper — X overlays the die at full brightness (Tim)
-    const _fade=isUsed?'.35':_isSD?(iAmShooter?'1':'.7'):notMine?'.45':'1';
+    const _fade=isUsed?'.35':notDrawn?'.45':_isSD?(iAmShooter?'1':'.7'):notMine?'.45':'1';
     const _selSD=(_isSD&&sp.forwards.length===1)?' sel':''; // v8.46: halo-all was for the single drawn SD die
     wrap.style.opacity='1';
     wrap.innerHTML = `<div class="die-wrap ${posClass}">
-      <div class="die-body${_selSD}" data-fwd="${fwdKey}" style="cursor:${isUsed||notMine?'default':'pointer'};opacity:${_fade}">
+      <div class="die-body${_selSD}" data-fwd="${fwdKey}" style="cursor:${isUsed||notMine||notDrawn?'default':'pointer'};opacity:${_fade}">
         <div class="face-badge ${faceBadge}" style="font-size:.8em;padding:2px">${_artHtml||fwdKey}</div>
       </div>
       ${isUsed?(()=>{
@@ -6428,9 +6459,9 @@ function soStartShooterTurn(){
       <div class="die-tier-lbl" style="opacity:${_fade};${_artHtml?'display:none':''}">${fwdKey}</div>
     </div>
     <div style="font-size:.62em;color:${isUsed?'#666':'#aaa'};text-align:center;opacity:${_fade}">
-      ${isUsed?'Used':'Available'}
+      ${isUsed?'Used':(_so.suddenDeath&&iAmShooter&&!_so.selectedFwd?'Tap when ready':'Available')}
     </div>`;
-    if(!isUsed && iAmShooter){ // v8.46: SD is a pick too (Tim)
+    if(!isUsed && !notDrawn && iAmShooter){ // v8.102: only the drawn hand is pickable in regulation (Tim)
       wrap.querySelector('.die-body').addEventListener('click',()=>{
         if(_aiBusy&&!_aiSelf)return; // 2_45: AI picks its own shooter
         choices.querySelectorAll('.die-body').forEach(b=>b.classList.remove('sel'));
@@ -6442,15 +6473,10 @@ function soStartShooterTurn(){
     }
     choices.appendChild(wrap);
   });
-  // 2_35/2_43: sudden death — the single drawn shooter is pre-set (no choice to make).
-  // 4_09: it wears the selection halo so it reads as "chosen", not clickable (Tim).
-  if(_so.suddenDeath && sp.forwards.length===1 && iAmShooter){
-    _so.selectedFwd=sp.forwards[0];
-    document.getElementById('so-roll-btn').disabled=false;
-    const _sdb=choices.querySelector('.die-body');
-    if(_sdb)_sdb.classList.add('sel');
-  }
-  if(!iAmShooter){const _pk=_soWatchPick||(_so.suddenDeath&&sp.forwards.length===1?sp.forwards[0]:null);if(_pk)soLightPick(_pk);} // v8.89: spectator rail light (Tim)
+  // v8.105: no SD block here anymore — the draw sits in _so.sdDraw (above),
+  // the drawn die renders alone, and the shooter's tap on it (the normal
+  // pick handler) is the ready-up that arms ROLL. Nothing fires early.
+  if(!iAmShooter){const _pk=_soWatchPick||(_so.suddenDeath?_so.selectedFwd:null);if(_pk)soLightPick(_pk);} // v8.89: spectator rail light (Tim)
   aiMaybeShootout(); // 2_45: Vs AI hook
 }
 
@@ -6464,8 +6490,10 @@ function soRollShot(){if(aiGuard())return;
   const goaliePIdx = 1-si;
   const goalieKey = _so.players[goaliePIdx].goalie;
 
+  if(_so.suddenDeath)_so.sdDraw=null; // v8.105: shooter back in the bag — next SD turn draws fresh
   // Mark forward as used (not removed from pool display — greyed out instead)
-  if(!_so.usedFwds[si].includes(fwdKey)){
+  // v8.102: not in sudden death — the drawn shooter goes back in the bag (Tim)
+  if(!_so.suddenDeath && !_so.usedFwds[si].includes(fwdKey)){
     _so.usedFwds[si].push(fwdKey);
   }
   // If all forwards used, reset for next cycle (sudden death wrap)
@@ -6531,12 +6559,16 @@ function soShowResult(r){
   document.getElementById('so-shot-key').textContent = r.fwdKey;
   document.getElementById('so-shot-face-lbl').textContent = shotLabel;
   document.getElementById('so-shot-total').textContent = '–';
-  // v8.90: hero dice in front of the faded team crests (Tim)
+  // v8.90 heroes; v8.103: crest backdrops removed and panels team-anchored (Tim)
   const _mkHeroId=(key)=>{const art=(typeof blankArtHTML==='function')?blankArtHTML(key[0],key):null;const bc=art?'fb-ART':(key[0]==='F'?'fb-S':'fb-B');return `<div class="die-wrap pos-${key[0]}"><div class="die-body"><div class="face-badge ${bc}" style="font-size:.8em;padding:2px">${art||key}</div></div><div class="die-tier-lbl" style="${art?'display:none':''}">${key}</div></div>`;}; // v8.94: every hero shows its TIER blank — F/D their color blank, G the grey goalie blank (BLANK_ART.G, Tim)
   const _hh1=document.getElementById('so-shot-hero');if(_hh1)_hh1.innerHTML=_mkHeroId(r.fwdKey);
   const _hh2=document.getElementById('so-save-hero');if(_hh2)_hh2.innerHTML=_mkHeroId(r.goalieKey);
-  const _cg1=document.getElementById('so-shot-crest');if(_cg1){_cg1.style.display='';_cg1.src=`logos-${teamSlug(_so.players[r.playerIdx].teamName)}.webp${LOGO_V}`;}
-  const _cg2=document.getElementById('so-save-crest');if(_cg2){_cg2.style.display='';_cg2.src=`logos-${teamSlug(_so.players[1-r.playerIdx].teamName)}.webp${LOGO_V}`;}
+  // v8.103 (Tim): the panels anchor to the TEAM sides, not the roles — the
+  // left team's die sits under the left patch whichever role it's playing
+  // (its shooter when it shoots, its goalie when the other side shoots).
+  const _shotPanel=document.getElementById('so-shot-hero').closest('.so-panel');
+  const _savePanel=document.getElementById('so-save-hero').closest('.so-panel');
+  if(_shotPanel&&_savePanel){const _leftShoots=r.playerIdx===0;_shotPanel.style.order=_leftShoots?'1':'2';_savePanel.style.order=_leftShoots?'2':'1';}
 
   // Render shot combat dice (scrambling placeholders)
   const shotDiceRow = document.getElementById('so-shot-dice-row');
@@ -6656,7 +6688,8 @@ function soCheckWinner(){
     _so.suddenDeath=true;
     _so.maxRounds=_so.round;
     _so.phase='shoot';
-    // v8.46: no SD draw — leftover shooters stay available to pick (Tim)
+    _so.usedFwds=[[],[]]; // v8.102: the exhausted shooters go back in the bag (Tim)
+    // v8.102: SD turns draw one shooter at a time from the full bag of 5 (Tim)
     // 4_12: toast removed — the SD header/lighting already says it (Tim)
     if(_onlineActive){ soSyncPush(); }
     renderSOScoreboard();
@@ -6665,7 +6698,7 @@ function soCheckWinner(){
     // Sudden death round still tied — play another
     _so.maxRounds=_so.round;
     _so.phase='shoot';
-    // v8.46: no next-draw either — picks continue from the leftovers (Tim)
+    // v8.102: still tied — the next SD turn draws fresh from the full bag (Tim)
     if(_onlineActive){ soSyncPush(); }
     renderSOScoreboard();
     soStartShooterTurn();
@@ -8902,7 +8935,7 @@ async function aiShootoutTurn(){
     _aiSelf=true;
     if(!_so.suddenDeath){
       const used=_so.usedFwds[si];
-      const avail=_so.players[si].forwards.filter(k=>!used.includes(k));
+      const avail=_so.players[si].forwards.filter(k=>!used.includes(k)&&(_so.players[si].shooterBag||[]).includes(k)); // v8.102: Chuck picks from his drawn hand too (Tim)
       // v8.46 (Tim): 60% best available (avg face value), else random of the rest
       const _avgF=k=>{const fs=DEFS[k]||[];return fs.length?fs.reduce((a,f)=>a+(f.v||0),0)/fs.length:0;};
       _so.selectedFwd=(avail.length&&Math.random()<0.6)?avail.reduce((b,k)=>_avgF(k)>_avgF(b)?k:b,avail[0]):(avail[Math.floor(Math.random()*avail.length)]||_so.players[si].forwards[0]);
@@ -8911,11 +8944,11 @@ async function aiShootoutTurn(){
       soLightPick(_so.selectedFwd); // v8.89: C treatment — gold light + SHOOTING tag, others sink (Tim); was the white .sel + .7 lift
       await new Promise(r=>setTimeout(r,1125)); // brief beat to register the highlight, then roll
     }else{
-      // v8.46 (Tim): SD is a pick too — same 60/40 over the shooters left
-      const usedSD=_so.usedFwds[si];
-      const availSD=_so.players[si].forwards.filter(k=>!usedSD.includes(k));
-      const _avgSD=k=>{const fs=DEFS[k]||[];return fs.length?fs.reduce((a,f)=>a+(f.v||0),0)/fs.length:0;};
-      _so.selectedFwd=(availSD.length&&Math.random()<0.6)?availSD.reduce((b,k)=>_avgSD(k)>_avgSD(b)?k:b,availSD[0]):(availSD[Math.floor(Math.random()*availSD.length)]||_so.players[si].forwards[0]);
+      // v8.102/v8.105 (Tim): SD is a DRAW — soStartShooterTurn already drew
+  // it into _so.sdDraw; Chuck just confirms and rolls after his beat.
+      const _bagSD=_so.players[si].shooterPool||_so.players[si].forwards;
+      _so.selectedFwd=_so.sdDraw||_bagSD[Math.floor(Math.random()*_bagSD.length)];
+      if(!_so.sdDraw)_so.sdDraw=_so.selectedFwd;
       // 5_30: Chuck's SD pick gets the halo + 70% lift too (Tim)
       soLightPick(_so.selectedFwd); // v8.89: C treatment — gold light + SHOOTING tag, others sink (Tim); was the white .sel + .7 lift
       await new Promise(r=>setTimeout(r,1125));
