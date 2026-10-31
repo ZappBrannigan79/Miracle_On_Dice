@@ -1444,7 +1444,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.116</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.118</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1566,7 +1566,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.116</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.118</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><img class="sb-bg" id="sbg1" alt="" onerror="this.style.display='none'"><div class="score-name" id="sn1">P1</div><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2200,6 +2200,11 @@ function gradNameSVG(teamName,px,maxW,up,fixedH){
   const _txt=plainTeamName(teamName||'').toUpperCase(),_th=(fixedH||px+9);
   return `<svg class="m-teamname-svg gn-svg" width="260" height="${_th}" viewBox="0 0 260 ${_th}" data-px="${px}" data-maxw="${maxW||0}" data-up="${up||0}" data-th="${_th}"><defs><linearGradient id="${_id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${_tg[0]}"/><stop offset="1" stop-color="${_tg[1]}"/></linearGradient></defs><text y="${px+1}" fill="url(#${_id})" style="font-size:${px}px;font-weight:900;letter-spacing:1px">${_txt}</text></svg>`;
 }
+function gradLineSVG(teamName,suffix,px,maxW){ // v8.117: name + the rest of its sentence in ONE svg text, so size, baseline and word spacing are the sentence's own (Tim: the inline name sat off-size, off-line, with a fat gap)
+  const _slug=teamSlug(teamName||''),_tg=TEAM_GRAD[_slug]||['#ffe9b0','#f8bd55'],_id='mtg'+(++_mtgSeq);
+  const _txt=plainTeamName(teamName||'').toUpperCase(),_th=px+9;
+  return `<svg class="m-teamname-svg gn-svg" width="260" height="${_th}" viewBox="0 0 260 ${_th}" data-px="${px}" data-maxw="${maxW||0}" data-up="0" data-th="${_th}" style="filter:drop-shadow(0 0 8px rgba(248,189,85,.45))"><defs><linearGradient id="${_id}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="${_tg[0]}"/><stop offset="1" stop-color="${_tg[1]}"/></linearGradient></defs><text y="${px+1}" style="font-size:${px}px;font-weight:900;letter-spacing:.5px"><tspan fill="url(#${_id})">${_txt}</tspan><tspan fill="#f8bd55">${suffix}</tspan></text></svg>`;
+}
 function sizeGradNames(root){ // sizes each gradient-name svg from its text's TRUE rendered length — device fonts differ, estimates chop (v8.111 lesson)
   (root||document).querySelectorAll('.gn-svg').forEach(sv=>{
     const t=sv.querySelector('text'); if(!t)return;
@@ -2563,7 +2568,7 @@ function soFlipCelebrate(fr){ // v8.82 V2 (Tim): coin lands big — pop/ring/spa
 function foWinHTML(w){ // v8.77: team-name headline (Tim) — plural names take WIN/BEGIN
   const tn=(teamPlain(w)||'').toUpperCase();
   const pl=/S$/.test(tn);
-  return `${gradNameSVG(G.players[w].teamName,16,320)} ${pl?'WIN':'WINS'} THE FACEOFF<br>AND ${pl?'BEGIN':'BEGINS'} THE PERIOD!<div class="fo-prize">${tokImg('shoot','1.15em')} +1 Shoot token ${tokImg('shoot','1.15em')}</div>`;
+  return `${gradLineSVG(G.players[w].teamName,(pl?' WIN':' WINS')+' THE FACEOFF',16,320)}<br>AND ${pl?'BEGIN':'BEGINS'} THE PERIOD!<div class="fo-prize">${tokImg('shoot','1.15em')} +1 Shoot token ${tokImg('shoot','1.15em')}</div>`;
 }
 function renderFoChoiceState(){
   const fo=G.fo;if(!fo||fo.stage!=='rolled')return;
@@ -6110,6 +6115,8 @@ function normSo(s){
   s.players=s.players||[];
   if(!s.phase) s.phase='shoot';
   if(s.rev==null) s.rev=0;
+  s.startAck=s.startAck||[false,false]; // v8.118: start-gate acknowledgements
+  if(s.started==null) s.started=false;
   return s;
 }
 function soSyncPush(){
@@ -6127,6 +6134,8 @@ function soRenderSynced(){
   _soWatchPick=_so.selectedFwd||null; // v8.89: capture before soStartShooterTurn clears it (Tim)
   document.getElementById('so-overlay').classList.add('show');
   renderSOScoreboard();
+  if(_so.coinRevealed&&!_so.started){ soShowFlipGate(); soMaybeBegin(); return; } // v8.118: pre-start gate (Tim)
+  if(_so.started){ const _fcg=document.getElementById('so-first-card'); if(_fcg)_fcg.style.display='none'; }
   if(_so.phase==='final'){ soShowFinal(); }
   else if(_so.phase==='result'&&_so.results.length){ soShowResult(_so.results[_so.results.length-1]); }
   else { soStartShooterTurn(); }
@@ -6214,6 +6223,7 @@ function startShootout(practice){
   _so.sdDraw = null; // v8.105: the sudden-death draw (one die, tapped to ready up)
   _so.phase = 'shoot';
   _so.rev = 0;
+  _so.startAck=[false,false]; _so.started=false; // v8.118: start gate (Tim)
 
   // If from game, build players from G
   if(!practice || !_so.players){
@@ -6257,6 +6267,60 @@ function startShootout(practice){
 }
 
 // v7.30: extracted coin flip (Tim) — restartShootout now gets a fresh flip too
+// v8.118 (Tim): the shootout no longer auto-starts as the flip card fades — a
+// START SHOOTOUT button appears under the landed coin. Vs Chuck / practice:
+// one press. Vs Friend online: BOTH players must press; the first turn begins
+// only when both acknowledgements are in.
+function soShowFlipGate(){
+  const fc=document.getElementById('so-first-card'); if(!fc)return;
+  if(!document.getElementById('so-start-gate')){
+    const _cfFace=(pi,cls)=>{const p=_so.players[pi]||{};const nm=p.teamName||p.name||'';return '<div class="coin-face '+cls+'"><span class="coin-init">'+(soTeamPlain(pi).charAt(0)||'?')+'</span><img src="logos-'+teamSlug(nm)+'.webp'+LOGO_V+'" alt="" draggable="false" onerror="this.style.display=\'none\'"></div>';};
+    fc.innerHTML='<div id="so-coin-wrap"><div id="so-coin-halo"><div id="so-coin" class="'+(_so.firstShooter===1?'coin-b':'coin-a')+'">'+_cfFace(0,'cf-a')+_cfFace(1,'cf-b')+'</div></div></div>'
+      +'<div id="so-flip-result" style="margin-top:10px;height:26px"><span class="so-flip-txt" style="display:inline-block">SHOOTS FIRST!</span></div>'
+      +'<div id="so-start-gate" style="display:none;margin-top:12px"></div>';
+    fc.style.bottom='auto'; fc.style.top='64%'; fc.style.transform='translate(-50%,-50%)';
+  }
+  fc.style.display='block';
+  soRenderStartGate();
+}
+function soRenderStartGate(){
+  const gate=document.getElementById('so-start-gate'); if(!gate)return;
+  const fc=document.getElementById('so-first-card'); if(fc)fc.style.pointerEvents='auto';
+  gate.style.display='block';
+  const _btn='<button onclick="soStartGatePress()" style="background:linear-gradient(180deg,#ffd75e,#c9a227);color:#0b0e14;border:none;border-radius:12px;padding:13px 26px;font-size:1.02em;font-weight:900;letter-spacing:.5px;cursor:pointer;box-shadow:0 4px 18px rgba(248,189,85,.35)">\u{1F3D2} START SHOOTOUT</button>';
+  if(!_onlineActive){ gate.innerHTML=_btn; return; }
+  if(!_so.startAck)_so.startAck=[false,false];
+  const op=1-_mySlot;
+  const oppName=plainTeamName(((_so.players[op]||{}).teamName)||'Opponent');
+  if(_so.startAck[_mySlot]){
+    gate.innerHTML='<div style="font-size:.95em;font-weight:800;color:#7ee2a0">\u2713 You\'re ready</div><div style="font-size:.78em;color:#8fa3bf;font-weight:700;margin-top:4px">Waiting for '+oppName+' to tap start\u2026</div>';
+  } else if(_so.startAck[op]){
+    gate.innerHTML=_btn+'<div style="font-size:.78em;color:#8fa3bf;font-weight:700;margin-top:7px">'+oppName+' is ready \u2713 \u2014 waiting on you</div>';
+  } else {
+    gate.innerHTML=_btn+'<div style="font-size:.78em;color:#8fa3bf;font-weight:700;margin-top:7px">Both players tap start to begin</div>';
+  }
+}
+function soStartGatePress(){
+  if(!_onlineActive){ soBeginShootout(); return; }
+  if(!_so.startAck)_so.startAck=[false,false];
+  _so.startAck[_mySlot]=true;
+  soSyncPush();
+  soRenderStartGate();
+  soMaybeBegin();
+}
+function soMaybeBegin(){
+  if(!_so||_so.started)return;
+  if(_onlineActive&&!(_so.startAck&&_so.startAck[0]&&_so.startAck[1]))return;
+  _so.started=true;
+  if(_onlineActive)soSyncPush();
+  soBeginShootout();
+}
+function soBeginShootout(){
+  const fc=document.getElementById('so-first-card');
+  if(fc){ fc.style.display='none'; fc.style.pointerEvents='none'; }
+  if(!document.getElementById('so-overlay').classList.contains('show'))return;
+  soStartShooterTurn();
+}
 function soCoinFlip(practice){
   // 3_82: brief "who shoots first" card (Tim) — the practice order is a coin flip,
   // so announce it. 3_85: sits above the shootout panel (not overlapping it) and
@@ -6268,13 +6332,15 @@ function soCoinFlip(practice){
   // 4_36: now fires in overtime too (real flip, rule overturned).
   const _cfFace=(pi,cls)=>{const p=_so.players[pi]||{};const nm=p.teamName||p.name||'';return '<div class="coin-face '+cls+'"><span class="coin-init">'+(soTeamPlain(pi).charAt(0)||'?')+'</span><img src="logos-'+teamSlug(nm)+'.webp'+LOGO_V+'" alt="" draggable="false" onerror="this.style.display=\'none\'"></div>';};
   _fc.innerHTML='<div id="so-coin-wrap"><div id="so-coin-halo"><div id="so-coin" class="'+(_so.firstShooter===1?'coin-b':'coin-a')+'">'+_cfFace(0,'cf-a')+_cfFace(1,'cf-b')+'</div></div><div id="so-flip-cap" style="font-size:.8em;color:#8fa3bf;font-weight:700;margin-top:10px;height:26px">flipping…</div></div>'
-    +'<div id="so-flip-result" style="display:none;margin-top:10px;height:26px"><span class="so-flip-txt" style="display:inline-block">SHOOTS FIRST!</span></div>'; // v8.100: the landed coin stays — the announcement goes below it (Tim)
+      +'<div id="so-flip-result" style="display:none;margin-top:10px;height:26px"><span class="so-flip-txt" style="display:inline-block">SHOOTS FIRST!</span></div>' // v8.100: the landed coin stays — the announcement goes below it (Tim)
+  +'<div id="so-start-gate" style="display:none;margin-top:12px"></div>';
   setTimeout(()=>{
     if(_fcGen!==_soCardGen)return;
     const _cap=document.getElementById('so-flip-cap'),_fr=document.getElementById('so-flip-result');
     if(_cap)_cap.style.display='none'; // v8.100: coin stays landed (Tim)
     if(_fr){_fr.style.display='block';_fr.classList.add('so-txtpop');soFlipCelebrate(document.getElementById('so-coin-wrap'));} // v8.82 V2 celebration, retargeted to the coin in v8.100
     _so.coinRevealed=true; renderSOScoreboard(); // v8.28: the marker may appear now — the result is public
+    soRenderStartGate(); // v8.118: START gate appears under the landed coin (Tim)
     if(_onlineActive)soSyncPush();
   },1750);
   const _fbox=document.querySelector('#so-overlay .ov-box');
@@ -6282,12 +6348,8 @@ function soCoinFlip(practice){
   // v8.11: coin card sits center-screen — it just pops up and disappears (Tim; supersedes the 3_87 dock)
   _fc.style.bottom='auto';_fc.style.top='64%';_fc.style.transform='translate(-50%,-50%)'; // v8.83: sits in the blank space below the team boxes, not over them (Tim)
   _fc.style.display='block';
-  setTimeout(()=>{
-    if(_fcGen!==_soCardGen)return; // a newer shootout started
-    _fc.style.display='none';
-    if(!document.getElementById('so-overlay').classList.contains('show'))return; // user bailed
-    soStartShooterTurn();
-  },4000);
+  // v8.118: no auto-dismiss/auto-start anymore — the START SHOOTOUT gate under
+  // the coin begins the first turn (one press solo; both players online).
   // Online real-game shootout: publish the drawn shooters so both sides
   // share the same pools, dice, and turn order. (Practice stays local —
   // unless it's an online shootout-only session, which always publishes.)
@@ -6303,6 +6365,7 @@ function soNewGame(){
   resetAIFlags();
   backToModes();
   document.getElementById('so-overlay').classList.remove('show');
+  const _fc9=document.getElementById('so-first-card'); if(_fc9)_fc9.style.display='none'; // v8.118: the gate card no longer self-dismisses
   // v7.30: re-randomize teams on next entry (Tim) — unless manually picked
   if(typeof _soManualPick!=='undefined'&&!_soManualPick)_so.sel1=null;
   if(typeof _soAiManualPick!=='undefined'&&!_soAiManualPick)_so.aiIdx=null;
@@ -6316,6 +6379,7 @@ function restartShootout(){
   _so.shooterIdx=_so.firstShooter; _so.coinRevealed=false; // v8.28
   _so.results=[]; _so.suddenDeath=false; _so.selectedFwd=null; _so.sdDraw=null;
   _so.phase='shoot';
+  _so.startAck=[false,false]; _so.started=false; // v8.118: start gate (Tim)
   // v8.102: fresh draw of 3 for the rematch (Tim)
   _so.players.forEach(p=>{
     p.forwards=[...p.shooterPool];
