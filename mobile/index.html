@@ -1510,7 +1510,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.154</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.155</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1630,7 +1630,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.154</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.155</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2942,6 +2942,15 @@ function confirmRRSel(){if(aiGuard())return;
 function cancelRRSel(){if(aiGuard())return;
   const ap=AP();
   if(_rrPendingHC){ap.z.rs.push(_rrPendingHC);_rrPendingHC=null;} // v7.30: restore HC on cancel (Tim)
+  ap.z.rs.forEach(d=>{d.sel=false;});
+  _rrMode=false;_rrDieId=null;
+  renderAll();
+}
+// v8.155: ICE HC DIE in HC face-spend mode (Tim) — one tap sets the pending HC
+// aside for good (never restored, never iced) and exits without rerolling.
+function iceHcPendingRR(){if(aiGuard())return;
+  const ap=AP();
+  if(_rrPendingHC){addLog(`${ap.name}: ${dLbl(_rrPendingHC)} → set aside.`);_rrPendingHC=null;}
   ap.z.rs.forEach(d=>{d.sel=false;});
   _rrMode=false;_rrDieId=null;
   renderAll();
@@ -5611,7 +5620,11 @@ function updateRRNudge(){
     _none.style.flex='1';_none.style.whiteSpace='nowrap';_none.style.fontSize='.85em'; // v7.78: single line, thinner (Tim)
     // v8.153: HC RR die selected → this button becomes ICE HC DIE (plain, one tap — Tim)
     const _hcSel=AP().z.rs.find(d=>d.sel&&d.key==='HC'&&d.face&&d.face.t==='RR');
-    if(_hcSel){
+    const _hcFace=_rrDieId&&_rrPendingHC; // v8.155: HC face-spend mode (Tim)
+    if(_hcFace){
+      _none.textContent='ICE HC DIE';
+      _none.addEventListener('click',()=>iceHcPendingRR());
+    }else if(_hcSel){
       _none.textContent='ICE HC DIE';
       _none.addEventListener('click',()=>iceHcFromRR(_hcSel.id));
     }else{
