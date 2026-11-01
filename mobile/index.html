@@ -163,8 +163,12 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .so-b-tot b{color:#f8bd55;font-size:20px;}
 .so-vs{top:44px;}
 /* v8.8: one fixed card size for every shootout phase; the phase area centers in the leftover space (Tim) */
-#so-overlay .ov-box{display:flex;flex-direction:column;min-height:652px;border-radius:22px;} /* v8.11: four rounded corners (Tim) */
-#so-shooter-area,#so-result-area,#so-final-area{margin-top:auto!important;margin-bottom:auto;width:100%;}
+#so-overlay .ov-box{display:flex;flex-direction:column;height:652px;border-radius:22px;} /* v8.137: FIXED at the shootout card's own tallest size (Tim) — same size in every phase */ /* v8.11: four rounded corners (Tim) */
+#so-shooter-area,#so-result-area,#so-final-area{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column;} /* v8.137: fill the fixed card, buttons pinned low (Tim) */
+#so-shooter-label{margin-top:auto;}
+#so-roll-row{margin-top:auto;}
+#so-next-btn{margin-top:auto;}
+#so-winner-row{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;align-items:center;}
 .vs-medallion{position:absolute;left:50%;top:114px;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f3d27a,#c8a84b 70%);color:#12233c;font-weight:900;font-size:15px;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;border:3px solid #101c2e;box-shadow:0 2px 10px rgba(0,0,0,.5);z-index:3;pointer-events:none;}
 /* 2_121: subtle pulse on AI speed buttons to draw the eye — stops once one is picked */
 /* 2_128: brightened per Tim — stronger glow + background swell */
@@ -899,7 +903,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .goon-rgrp{display:flex;align-items:center;gap:10px;flex:none;} /* v8.124: combatant die + total grouped at the right (Tim, mock A) */
 .goon-fight-row .tgt-ctx{width:58px;flex:none;text-align:center;}
 #so-overlay .ov-box{max-height:calc(100dvh - 14px);overflow-y:auto;} /* v8.124: the shootout card scrolls internally — its button can never be trapped off-screen (Tim) */
-@media (max-height:740px){#so-overlay .ov-box{min-height:0}}
+/* v8.137: the old max-height:740px min-height:0 exemption is retired — the fixed card now holds at every screen height (max-height still caps it on short screens) */
 #so-shot-result{display:flex;align-items:center;justify-content:center;text-align:center;height:92px;box-sizing:border-box;} /* v8.124: GOAL and SAVED cards the same size (Tim) */
 .totcirc{width:56px;height:56px;border-radius:14px; /* v8.124: square badge, no circles (Tim) */display:flex;align-items:center;justify-content:center;font-size:1.6em;font-weight:900;flex-shrink:0;}
 .totcirc.grn{background:rgba(76,175,93,.22);border:2px solid #6fbf73;color:#c9f0cc;}
@@ -1472,7 +1476,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.136</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.137</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1592,7 +1596,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.136</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.137</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -6643,7 +6647,7 @@ function soStartShooterTurn(){
   renderSOScoreboard(); // v8.104: repaint at every turn start so the team glow lands on the new shooter immediately (Tim)
   document.getElementById('so-result-area').style.display='none';
   document.getElementById('so-final-area').style.display='none';
-  document.getElementById('so-shooter-area').style.display='block';
+  document.getElementById('so-shooter-area').style.display='flex';
 
   const si = _so.shooterIdx;
   const sp = _so.players[si];
@@ -6812,7 +6816,7 @@ function soShowResult(r){
   const shotTotal = r.shotTotal, saveTotal = r.saveTotal;
   const shotRolls = r.shotRolls||[], saveRolls = r.saveRolls||[];
   document.getElementById('so-shooter-area').style.display='none';
-  document.getElementById('so-result-area').style.display='block';
+  document.getElementById('so-result-area').style.display='flex';
   resetGoalFx(document.querySelector('#so-overlay .ov-box')); // v8.50: fresh result, no phantom sweep (Tim)
 
   // 2_40: combat dice scramble first — totals and the GOAL!/SAVED! banner land on the settle.
@@ -6970,7 +6974,7 @@ function soCheckWinner(){
 function soShowFinal(){
   document.getElementById('so-shooter-area').style.display='none';
   document.getElementById('so-result-area').style.display='none';
-  document.getElementById('so-final-area').style.display='block';
+  document.getElementById('so-final-area').style.display='flex';
   document.getElementById('so-turn-info').innerHTML=''; // 2_142: no flash on the final screen
   const [s0,s1]=_so.scores;
   const winner=s0>s1?soTeamPlain(0):soTeamPlain(1); // v8.5
