@@ -1509,9 +1509,20 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
    silver border on top/sides only, grows with its state; the bar hosts the
    card's primary button (#m-cardbar, build.py) so the in-card ones hide here. */
 #combat-panel{bottom:calc(74px + env(safe-area-inset-bottom));align-items:flex-end;padding:0 10px}
-#combat-panel.show .combat-box{height:auto;max-height:100%;border:2px solid #b9c2cc;border-bottom:none;border-radius:20px 20px 0 0}
+#combat-panel.show .combat-box{height:auto;max-height:100%;border:2px solid #2f3339;border-bottom:none;border-radius:20px 20px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -10px 26px rgba(0,0,0,.55)} /* E: charcoal steel (Tim's pick over silver) */
 #combat-panel #combat-continue-btn{display:none!important}
 #combat-panel .block-sel-area>button.abtn.prim{display:none!important}
+
+/* v8.160: fight cards + AI turn summary join combat as docked sheets (Tim).
+   Faceoff deliberately left as-is (his call). */
+#goon-panel,#chuck-fight-panel,#fight-panel{bottom:calc(74px + env(safe-area-inset-bottom));align-items:flex-end;padding:0 10px}
+#goon-panel.show .panel-box,#chuck-fight-panel.show .panel-box,#fight-panel.show .panel-box{height:auto;border:2px solid #2f3339;border-bottom:none;border-radius:20px 20px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -10px 26px rgba(0,0,0,.55)}
+#goon-panel.show .panel-box{max-height:100%!important}
+#chuck-fight-panel.show .panel-box,#fight-panel.show .panel-box{max-height:100%}
+#goon-panel #goon-commit,#goon-panel #goon-fight-continue,#goon-panel #goon-result .abtn.prim,#goon-pick .abtn.sec,#chuck-fight-panel .abtn.prim,#fight-panel #fight-commit-atk,#fight-panel #fight-commit-def,#fight-panel #fight-step-1 .abtn.sec,#fight-panel #fight-result .abtn.prim{display:none!important}
+body #ai-pill.summary{left:10px;right:10px;width:auto;top:auto;bottom:calc(74px + env(safe-area-inset-bottom))!important;min-height:0;max-height:75vh;border:2px solid #2f3339;border-bottom:none;border-radius:20px 20px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -10px 26px rgba(0,0,0,.55)}
+body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
+#ai-pill.summary #ai-take-turn{display:none!important}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1522,7 +1533,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.158</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.160</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1642,7 +1653,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.158</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.160</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -10232,24 +10243,56 @@ window.addEventListener('DOMContentLoaded', () => {
   setInterval(orderBar, 1000);
   orderBar();
 
-  // v8.158: combat sheet — while the combat panel is open, the bar hosts its
-  // primary button via a proxy that mirrors label/disabled and forwards the
-  // tap to the real (CSS-hidden) in-card button. (Tim)
+  // v8.160: sheets — while a sheet card is open (combat, fights, AI turn
+  // summary), the bar hosts its primary button(s) via proxies that mirror
+  // label/disabled and forward taps to the real (CSS-hidden) in-card
+  // buttons. Faceoff is NOT a sheet (Tim's call). (Tim)
   const cardBar = document.createElement('div');
   cardBar.id = 'm-cardbar';
-  cardBar.style.cssText = 'display:none;flex:1;align-items:center;';
-  cardBar.innerHTML = '<button class="abtn prim" id="m-cardbtn" style="flex:1;height:54px;font-size:1.05em"></button>';
+  cardBar.style.cssText = 'display:none;flex:1;gap:8px;align-items:center;';
+  cardBar.innerHTML = '<button class="abtn sec" id="m-cardbtn2" style="display:none;flex:.6;height:54px;font-size:1.05em"></button><button class="abtn prim" id="m-cardbtn" style="flex:1.4;height:54px;font-size:1.05em"></button>';
   bar.appendChild(cardBar);
   const cardBtn = cardBar.querySelector('#m-cardbtn');
-  let _cardTarget = null;
+  const cardBtn2 = cardBar.querySelector('#m-cardbtn2');
+  let _cardTarget = null, _cardTarget2 = null;
   cardBtn.addEventListener('click', () => { if (_cardTarget && !_cardTarget.disabled) _cardTarget.click(); });
-  const syncCardBar = () => {
+  cardBtn2.addEventListener('click', () => { if (_cardTarget2 && !_cardTarget2.disabled) _cardTarget2.click(); });
+  const _secVis = el => !!el && el.style.display !== 'none';
+  const sheetState = () => {
     const panel = $('combat-panel');
-    const on = !!(panel && panel.classList.contains('show'));
+    if (panel && panel.classList.contains('show')) {
+      const rb = document.querySelector('#block-sel-area .abtn.prim');
+      let target = null;
+      if (_secVis($('combat-result'))) target = $('combat-continue-btn');
+      else if (rb && rb.style.display !== 'none') target = rb;
+      if (target) return { main: target };
+      const pill = $('combat-ai-pill');
+      return { main: null, label: (pill && pill.style.display !== 'none' && pill.textContent.trim()) ? pill.textContent.trim() : 'Waiting...', disabled: true };
+    }
+    const gp = $('goon-panel');
+    if (gp && gp.classList.contains('show')) {
+      if (_secVis($('goon-fight'))) return { main: $('goon-fight-continue') };
+      if (_secVis($('goon-result'))) return { main: document.querySelector('#goon-result .abtn.prim') };
+      return { main: $('goon-commit'), sec: document.querySelector('#goon-pick .abtn.sec') };
+    }
+    const cf = $('chuck-fight-panel');
+    if (cf && cf.classList.contains('show')) return { main: document.querySelector('#chuck-fight-panel .abtn.prim') };
+    const fp = $('fight-panel');
+    if (fp && fp.classList.contains('show')) {
+      if (_secVis($('fight-result'))) return { main: document.querySelector('#fight-result .abtn.prim') };
+      if (_secVis($('fight-step-2'))) return { main: $('fight-commit-def') };
+      return { main: $('fight-commit-atk'), sec: document.querySelector('#fight-step-1 .abtn.sec') };
+    }
+    const pill = $('ai-pill');
+    if (pill && pill.classList.contains('summary') && pill.classList.contains('show')) return { main: $('ai-take-turn') };
+    return null;
+  };
+  const syncCardBar = () => {
+    const st = sheetState();
     const arow = $('arow');
-    if (!on) {
+    if (!st) {
       if (cardBar.style.display !== 'none') {
-        cardBar.style.display = 'none'; _cardTarget = null;
+        cardBar.style.display = 'none'; _cardTarget = null; _cardTarget2 = null;
         if (arow) arow.style.display = '';
         oppBtn.style.display = '';
         orderBar();
@@ -10259,19 +10302,10 @@ window.addEventListener('DOMContentLoaded', () => {
     if (arow) arow.style.display = 'none';
     if (oppBtn.parentNode === bar) oppBtn.style.display = 'none';
     cardBar.style.display = 'flex';
-    const res = $('combat-result');
-    const rb = document.querySelector('#block-sel-area .abtn.prim');
-    let target = null;
-    if (res && res.style.display !== 'none') target = $('combat-continue-btn');
-    else if (rb && rb.style.display !== 'none') target = rb;
-    let label, disabled;
-    if (target) { label = target.textContent.trim(); disabled = !!target.disabled; }
-    else {
-      const pill = $('combat-ai-pill');
-      label = (pill && pill.style.display !== 'none' && pill.textContent.trim()) ? pill.textContent.trim() : 'Waiting...';
-      disabled = true;
-    }
-    _cardTarget = target;
+    _cardTarget = st.main || null;
+    _cardTarget2 = st.sec || null;
+    const label = st.main ? st.main.textContent.trim() : (st.label || 'Waiting...');
+    const disabled = st.main ? !!st.main.disabled : true;
     const sig = label + '|' + disabled;
     if (cardBtn._sig !== sig) {
       cardBtn._sig = sig;
@@ -10280,9 +10314,17 @@ window.addEventListener('DOMContentLoaded', () => {
       cardBtn.classList.toggle('sec', disabled);
       cardBtn.classList.toggle('prim', !disabled);
     }
+    if (st.sec) {
+      cardBtn2.style.display = '';
+      const s2 = st.sec.textContent.trim();
+      if (cardBtn2._sig !== s2) { cardBtn2._sig = s2; cardBtn2.textContent = s2; }
+      cardBtn2.disabled = !!st.sec.disabled;
+    } else if (cardBtn2.style.display !== 'none') { cardBtn2.style.display = 'none'; cardBtn2._sig = ''; }
   };
-  const cpEl = $('combat-panel');
-  if (cpEl) new MutationObserver(syncCardBar).observe(cpEl, { childList: true, subtree: true, attributes: true, characterData: true });
+  ['combat-panel', 'goon-panel', 'chuck-fight-panel', 'fight-panel', 'ai-pill'].forEach(id => {
+    const el = $(id);
+    if (el) new MutationObserver(syncCardBar).observe(el, { childList: true, subtree: true, attributes: true, characterData: true });
+  });
   setInterval(syncCardBar, 400);
   syncCardBar();
 
