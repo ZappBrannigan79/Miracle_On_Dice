@@ -714,6 +714,14 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .cresult.blocked{font-size:2.45em;padding:17px 10px 14px;border-radius:12px;} /* v8.145: GOAL's size (Tim) */
 .cresult.blocked.savthump{animation:savedGlow 2.8s ease-in-out infinite alternate,savedThumpBig 1.25s ease-out;}
 #crbanner{height:92px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;} /* v8.125: GOAL/SAVED same size as the shootout banner (Tim) */
+/* v8.147: combat card FIXED at 744px (Tim) — one size in every state; banner directly above the bottom button; the button never moves */
+#combat-panel .combat-box{height:744px;max-height:calc(100dvh - 14px);display:flex;flex-direction:column;}
+#block-sel-area{flex:1 1 auto;}
+#block-sel-area .block-sel-area{flex:1 1 auto;display:flex;flex-direction:column;}
+#block-sel-area .sog-def{margin-top:auto;} /* defender half rides low — slack opens between the halves */
+#combat-result{flex:1 1 auto;flex-direction:column;}
+#combat-result #crbanner{margin-top:auto;margin-bottom:0;}
+#combat-result.pill-above #crbanner{margin-top:10px;} /* benching pill takes the auto slot, banner follows it */
 @keyframes savedGlow{from{box-shadow:0 0 14px rgba(204,51,51,.25),inset 0 0 20px rgba(204,51,51,.12);}to{box-shadow:0 0 28px rgba(204,51,51,.45),inset 0 0 34px rgba(204,51,51,.2);}}
 .cresult.blocked .sshd{display:inline-block;}
 .cresult.blocked.savthump .sshd{animation:shieldThump .7s ease-out .32s both;}
@@ -1484,7 +1492,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.146</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.147</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1604,7 +1612,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.146</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.147</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4114,7 +4122,7 @@ function openCombat(){
   if(!OPP().z.defend.length)bsel.innerHTML='<div style="color:#888;font-size:.85em">No dice in Defensive Zone</div>';
   refreshBlockerNudge();renderBselInfo();
   document.getElementById('combat-result').style.display='none';
-  document.getElementById('block-sel-area').style.display='block';
+  document.getElementById('block-sel-area').style.display='flex'; // v8.147: flex (fixed-card layout)
   document.getElementById('combat-panel').classList.add('show');
   resetGoalFx(document.getElementById('combat-panel')); // v8.50: fresh card, no phantom sweep (Tim)
   // Reset the resolve button on EVERY open: a previous open on this client as the
@@ -4430,6 +4438,9 @@ function refreshBenchPhase(){
     if(aiLoser){
       waitLine.style.display='none';
       if(_bl)_bl.style.display='none'; // v7.30: no "choosing…" — just the benched result (Tim)
+    }else if(_onlineActive){
+      waitLine.style.display='none'; // v8.147: the Opponent-benches pill above the banner carries it in Vs Friend (Tim)
+      if(_bl)_bl.style.display='none';
     }else{
       waitLine.style.display='block';
       document.getElementById('bench-wait-name').textContent=loserName;
@@ -4521,7 +4532,7 @@ function showCombatResult(r){
   const banner=document.getElementById('crbanner');
   banner.className='cresult';banner.textContent='🎲 Rolling…';
   document.getElementById('block-sel-area').style.display='none';
-  document.getElementById('combat-result').style.display='block';
+  document.getElementById('combat-result').style.display='flex'; // v8.147: flex (fixed-card layout)
   const _cbtnPre=document.getElementById('combat-continue-btn');
   if(_cbtnPre)_cbtnPre.style.display='none'; // restored on the settle
   // Only the rolled dice animate — the dashed +1 token dice are not rolled.
@@ -7975,17 +7986,33 @@ function renderCombatPill(){
   const el=document.getElementById('combat-ai-pill');
   if(!el)return;
   const resEl=document.getElementById('combat-result');
-  const resolved=resEl&&resEl.style.display==='block';
+  const resolved=resEl&&resEl.style.display&&resEl.style.display!=='none'; // v8.147: result shows as flex now
   const bp=G.benchPick;
   // 3_35: Chuck benching after YOUR goal — G.ap is still the shooter, so
   // G.ap!==_aiSlot means your shot. (His own blocked shot stays as-is: no bar.)
   const aiBenching=_aiActive&&resolved&&bp&&!bp.done&&bp.loser===_aiSlot&&G.ap!==_aiSlot;
-  const show=_aiActive&&((!resolved&&_aiDefPhase==='aiDef'&&!!_aiStepMsg)||aiBenching);
-  if(!show){el.style.display='none';return;}
-  const P=aiP();
-  // v7.86: bench line is icon-free plain text (Tim) — was "🪑 benched X dice"
-  if(aiBenching){el.textContent=`${P.name} benched ${bp.need} ${bp.need===1?'die':'dice'}`;}
-  else{el.innerHTML=`${P.icon} <b>${P.name}</b> — ${_aiStepMsg}`;}
+  // v8.147: the same benching beat in Vs Friend — generic words, no names, so one pill serves both (Tim)
+  const oppBenching=_onlineActive&&resolved&&bp&&!bp.done&&bp.loser!==_mySlot;
+  const benching=aiBenching||oppBenching;
+  const show=(_aiActive&&!resolved&&_aiDefPhase==='aiDef'&&!!_aiStepMsg)||benching;
+  const box=document.querySelector('#combat-panel .combat-box');
+  if(!show){el.style.display='none';if(resEl)resEl.classList.remove('pill-above');return;}
+  if(benching){
+    // v8.147: pill rides ABOVE the banner so Continue stays bottom-most (Tim); words are his: Opponent benches…
+    if(resEl&&el.parentNode!==resEl)resEl.insertBefore(el,document.getElementById('crbanner'));
+    if(resEl)resEl.classList.add('pill-above');
+    el.style.marginTop='auto';
+    el.textContent=`Opponent benches ${bp.need} ${bp.need===1?'die':'dice'}`;
+  }else{
+    // pre-shot defend beats: pill's home is ABOVE the commit area (under the clock), so the
+    // pinned bottom button never shifts when the pill appears (v8.147)
+    const _bsa=document.getElementById('block-sel-area');
+    if(box&&_bsa&&(el.parentNode!==box||el.nextSibling!==_bsa))box.insertBefore(el,_bsa);
+    if(resEl)resEl.classList.remove('pill-above');
+    el.style.marginTop='10px';
+    const P=aiP();
+    el.innerHTML=`${P.icon} <b>${P.name}</b> — ${_aiStepMsg}`;
+  }
   el.style.display='block';
 }
 // 2_48: mid-turn recap — auto-dismissing pill at every speed
