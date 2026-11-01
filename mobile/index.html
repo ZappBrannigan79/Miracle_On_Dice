@@ -1520,7 +1520,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 #goon-panel.show .panel-box{max-height:100%!important}
 #chuck-fight-panel.show .panel-box,#fight-panel.show .panel-box{max-height:100%}
 #goon-panel #goon-commit,#goon-panel #goon-fight-continue,#goon-panel #goon-result .abtn.prim,#goon-pick .abtn.sec,#chuck-fight-panel .abtn.prim,#fight-panel #fight-commit-atk,#fight-panel #fight-commit-def,#fight-panel #fight-step-1 .abtn.sec,#fight-panel #fight-result .abtn.prim{display:none!important}
-body #ai-pill.summary{left:10px;right:10px;width:auto;top:auto;bottom:calc(74px + env(safe-area-inset-bottom))!important;min-height:0;max-height:75vh;border:2px solid #2f3339;border-bottom:none;border-radius:20px 20px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -10px 26px rgba(0,0,0,.55)}
+body #ai-pill.summary{left:10px;right:10px;width:auto;max-width:none;top:auto;bottom:calc(74px + env(safe-area-inset-bottom))!important;min-height:0;max-height:75vh;border:2px solid #2f3339;border-bottom:none;border-radius:20px 20px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -10px 26px rgba(0,0,0,.55)}
 body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 #ai-pill.summary #ai-take-turn{display:none!important}
 </style>
@@ -1533,7 +1533,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.160</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.163</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1653,7 +1653,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.160</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.163</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1748,7 +1748,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <div class="epicker-overlay" id="minipay">
   <div class="epicker-box mp-box">
     <button class="mp-x" onclick="closeMiniPay()">✕</button>
-    <div class="mp-title"><span class="mp-bolt">⚡</span> PAY TO ADVANCE <span class="mp-bolt mp-flip">⚡</span></div>
+    <div class="mp-title" id="mp-title"><span class="mp-bolt">⚡</span> PAY COST <span class="mp-bolt mp-flip">⚡</span></div>
     <div class="mp-hero" id="mp-hero"></div>
     <div class="mp-label" id="mp-label"></div>
     <div class="mp-sources" id="mp-sources"></div>
@@ -3243,20 +3243,7 @@ function assignDie(die,action){
     enterRRFaceMode(die.id);return;
   }else if(action==='shutout-cost'){
     closeMenus();
-    const soV=die.face.v;
-    const dieId=die.id;
-    // v8.53: show the die being paid for in the pay card's strip, like the advance card (Tim)
-    _epickQueueNext={items:[{id:die.id,key:die.key,pos:die.pos,t:die.face.t,v:soV}],idx:0};
-    openEPicker(1, `activate Shutout for ${soV} Block Tokens`, ()=>{
-      // Re-resolve by id (see shoot-cost).
-      const ap2=AP();
-      const d2=ap2.z.rs.find(x=>x.id===dieId);
-      if(!d2){toast('That die is no longer available.');renderAll();return;}
-      ap2.z.rs.splice(ap2.z.rs.indexOf(d2),1);
-      ap2.tok.block+=soV;ap2.z.iced.push(d2);
-      addLog(`${ap2.name}: Shutout → +${soV} Block Tokens (1⚡ paid, ${ap2.tok.block} total).`,'imp');
-      renderAll();
-    });
+    openMiniPay(die.id,'shutout'); // v8.162: same mini pay card as costed advances (Tim)
     return;
   }else if(action==='shutout'){
     ap.z.rs.splice(idx,1);ap.tok.block+=die.face.v;
@@ -6172,12 +6159,12 @@ function _advDone(){
    ✕ backs out untouched. Replaces the v8.36 session card for assigning;
    the classic epicker still serves buys/tokens/shutout. ═══ */
 let _miniPay=null;
-function openMiniPay(dieId){
+function openMiniPay(dieId,mode){
   const ap=AP();
   const die=ap.z.rs.find(x=>x.id===dieId);
   if(!die||!die.face||!die.face.c)return;
-  _miniPay={dieId:die.id};
-  _epick={needed:1,paid:0,sources:getEnergySources(),onConfirm:()=>miniPayPaid(),label:`advance ${die.key} (${die.face.t==='S'?'Shoot':'Block'} ${die.face.v})`,session:false};
+  _miniPay={dieId:die.id,mode:mode||'advance'};
+  _epick={needed:1,paid:0,sources:getEnergySources(),onConfirm:()=>miniPayPaid(),label:_miniPay.mode==='shutout'?`activate Shutout for ${die.face.v} Block Tokens`:`advance ${die.key} (${die.face.t==='S'?'Shoot':'Block'} ${die.face.v})`,session:false};
   renderMiniPay();
   document.getElementById('minipay').classList.add('show');
 }
@@ -6186,6 +6173,7 @@ function renderMiniPay(){
   const ap=AP();
   const die=ap.z.rs.find(x=>x.id===_miniPay.dieId);
   if(!die){closeMiniPay();return;}
+  document.getElementById('mp-title').innerHTML='<span class="mp-bolt">⚡</span> PAY COST <span class="mp-bolt mp-flip">⚡</span>'; // v8.163: one title for both modes (Tim)
   document.getElementById('mp-hero').innerHTML=dieWrapHTML(die,false,false);
   const canPay=_epick.sources.reduce((s,x)=>s+x.currentV,0)>=1;
   document.getElementById('mp-label').textContent=canPay?'SELECT PAYMENT':'NO PAYMENT AVAILABLE';
@@ -6201,7 +6189,7 @@ function renderMiniPay(){
     });
   }
   const ice=document.getElementById('mp-ice');
-  ice.textContent=canPay?'ICE IT INSTEAD':'ICE IT';
+  ice.textContent=canPay?'ICE IT INSTEAD':'ICE IT'; // v8.163: same button text both modes (Tim)
   ice.classList.toggle('lit',!canPay);
 }
 function miniPayTap(i){
@@ -6210,19 +6198,26 @@ function miniPayTap(i){
 }
 function miniPayPaid(){
   if(!_miniPay)return;
+  const _mode=_miniPay.mode||'advance';
   const ap=AP();
   const d=ap.z.rs.find(x=>x.id===_miniPay.dieId);
   _miniPay=null;
   document.getElementById('minipay').classList.remove('show');
   if(d){
     ap.z.rs.splice(ap.z.rs.indexOf(d),1);
-    if(d.face.t==='S'){if(G.clock>2)ap.z.cold.push(d);else ap.z.hot.push(d);}
-    else ap.z.defend.push(d);
-    addLog(`${ap.name}: Costed ${d.key} advanced (1⚡ paid).`);
+    if(_mode==='shutout'){
+      ap.tok.block+=d.face.v;ap.z.iced.push(d);
+      addLog(`${ap.name}: Shutout → +${d.face.v} Block Tokens (1⚡ paid, ${ap.tok.block} total).`,'imp');
+    }else{
+      if(d.face.t==='S'){if(G.clock>2)ap.z.cold.push(d);else ap.z.hot.push(d);}
+      else ap.z.defend.push(d);
+      addLog(`${ap.name}: Costed ${d.key} advanced (1⚡ paid).`);
+    }
   }
 }
 function miniPayIce(){
   if(!_miniPay)return;
+  const _mode=_miniPay.mode||'advance';
   const ap=AP();
   const d=ap.z.rs.find(x=>x.id===_miniPay.dieId);
   _miniPay=null;
@@ -6230,7 +6225,7 @@ function miniPayIce(){
   _epick={needed:0,paid:0,sources:[],onConfirm:null,label:''};
   if(d){
     ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);
-    addLog(`${ap.name}: Iced ${dLbl(d)} instead of paying to advance.`);
+    addLog(_mode==='shutout'?`${ap.name}: Iced ${dLbl(d)} — Shutout not activated.`:`${ap.name}: Iced ${dLbl(d)} instead of paying to advance.`);
   }
   renderAll();
 }
@@ -10222,9 +10217,10 @@ window.addEventListener('DOMContentLoaded', () => {
     if (endBtn && oppBtn.parentNode !== arow) {
       arow.insertBefore(oppBtn, endBtn);
     }
-    // If no END TURN (e.g., during AI turn), keep OPP visible in bar
-    if (!endBtn && oppBtn.parentNode !== bar) {
-      bar.appendChild(oppBtn);
+    // If no END TURN (e.g., during AI turn), keep OPP visible in bar —
+    // v8.161: OPP sits LEFT of the action row, so ROLL DICE lands on the right (Tim)
+    if (!endBtn && (oppBtn.parentNode !== bar || oppBtn.nextSibling !== arow)) {
+      bar.insertBefore(oppBtn, arow);
     }
     // v5.157: count visible buttons for responsive text sizing (Tim)
     const n = arow.querySelectorAll('.abtn:not([style*="display: none"]):not([style*="display:none"]),.m-oppbtn:not([style*="display: none"]):not([style*="display:none"])').length;
