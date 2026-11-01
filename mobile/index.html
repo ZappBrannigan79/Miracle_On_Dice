@@ -108,6 +108,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .team-sel-line{text-align:center;color:#ddd;font-size:.92em;margin:2px 0 8px;} /* v8.2c */
 #so-overlay>div{border-radius:22px!important;} /* v8.11: shootout card — four rounded corners, beats the generic sheet rule (Tim) */
 #so-first-card{border-radius:18px!important;} /* v8.11: coin card — four rounded corners (Tim) */
+#so-first-card{height:258px;display:flex;flex-direction:column;align-items:center;justify-content:center;} /* v8.138: ONE size, flipping or landed — its own largest (Tim) */
 #tc-overlay>div{border-radius:18px!important;padding:20px;} /* v8.2c: card popup is a rounded rect, not a capsule */
 #tc-img{max-height:62vh;object-fit:contain;filter:drop-shadow(0 0 10px rgba(245,240,225,.28)) drop-shadow(0 8px 22px rgba(0,0,0,.5));} /* v8.10: halo for the transparent team cards (Tim) */
 /* v8.3: two-step QS picker (Tim) */
@@ -163,12 +164,15 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .so-b-tot b{color:#f8bd55;font-size:20px;}
 .so-vs{top:44px;}
 /* v8.8: one fixed card size for every shootout phase; the phase area centers in the leftover space (Tim) */
-#so-overlay .ov-box{display:flex;flex-direction:column;height:652px;border-radius:22px;} /* v8.137: FIXED at the shootout card's own tallest size (Tim) — same size in every phase */ /* v8.11: four rounded corners (Tim) */
+#so-overlay .ov-box{display:flex;flex-direction:column;height:708px;border-radius:22px;} /* v8.138: stretched +56 — at 652 the GOAL/SAVED banner squeezed to ~45px on Tim's phone; it keeps its full 92px here */ /* v8.11: four rounded corners (Tim) */
 #so-shooter-area,#so-result-area,#so-final-area{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column;} /* v8.137: fill the fixed card, buttons pinned low (Tim) */
 #so-shooter-label{margin-top:auto;}
 #so-roll-row{margin-top:auto;}
-#so-next-btn{margin-top:auto;}
+#so-next-btn{margin-top:auto;width:224px;height:47px;align-self:center;font-size:18px;} /* v8.138: the gate button's size (Tim) */
 #so-winner-row{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+#so-shooter-area>*,#so-result-area>*,#so-final-area>*{flex-shrink:0;} /* v8.138: area content never compresses (Tim) */
+#so-final-area{align-items:center;}
+#so-final-area .btn-ov{width:224px;height:47px;font-size:15px;padding:0 12px;letter-spacing:.5px;white-space:nowrap;} /* v8.138: final buttons match the gate size too (Tim); 15px so SHOOTOUT AGAIN / VIEW FINAL BAGS stay on one line at 224 wide */
 .vs-medallion{position:absolute;left:50%;top:114px;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f3d27a,#c8a84b 70%);color:#12233c;font-weight:900;font-size:15px;letter-spacing:.5px;display:flex;align-items:center;justify-content:center;border:3px solid #101c2e;box-shadow:0 2px 10px rgba(0,0,0,.5);z-index:3;pointer-events:none;}
 /* 2_121: subtle pulse on AI speed buttons to draw the eye — stops once one is picked */
 /* 2_128: brightened per Tim — stronger glow + background swell */
@@ -729,7 +733,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
    top, over a flat dim layer; card height changes reveal/conceal nothing.
    v7.166: beam base scooted up (Tim) — the wide end and the ice-pool oval now
    land on the shooter dice row instead of down by the Roll Shot button. */
-#so-overlay .ov-box{position:relative;overflow:hidden;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='652' viewBox='0 0 720 652' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffecaa' stop-opacity='.21'/%3E%3Cstop offset='.55' stop-color='%23ffecaa' stop-opacity='.09'/%3E%3Cstop offset='1' stop-color='%23ffecaa' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='314,0 406,0 664,448 56,448' fill='url(%23b)'/%3E%3Cellipse cx='360' cy='448' rx='292' ry='34' fill='%23fff0be' opacity='.12'/%3E%3C/svg%3E"),linear-gradient(rgba(2,5,10,.38),rgba(2,5,10,.38));background-size:100% 652px,100% 100%;background-position:top center,0 0;background-repeat:no-repeat,no-repeat;}
+#so-overlay .ov-box{position:relative;overflow:hidden;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='720' height='652' viewBox='0 0 720 652' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffecaa' stop-opacity='.21'/%3E%3Cstop offset='.55' stop-color='%23ffecaa' stop-opacity='.09'/%3E%3Cstop offset='1' stop-color='%23ffecaa' stop-opacity='0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon points='314,0 406,0 664,448 56,448' fill='url(%23b)'/%3E%3Cellipse cx='360' cy='448' rx='292' ry='34' fill='%23fff0be' opacity='.12'/%3E%3C/svg%3E"),linear-gradient(rgba(2,5,10,.38),rgba(2,5,10,.38));background-size:100% 708px,100% 100%;background-position:top center,0 0;background-repeat:no-repeat,no-repeat;}
 .block-sel-area h3{font-size:.8em;color:#ccc;margin-bottom:7px;}
 .block-sel-dice{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 22px;min-height:30px;} /* v7.30: breathing room (Tim) */
 /* 2_21 — opponent's (defender's) dice on the shooter's screen: visible but dimmed, not clickable */
@@ -1125,7 +1129,7 @@ body{min-height:100vh;min-height:100dvh;}
 #so-forward-choices{gap:16px!important;}
 #so-forward-choices .die-body{width:78px!important;height:78px!important;}
 #so-forward-choices .art-tier-blank{top:19%!important;} /* v8.98: the 78px picker dice made the tier text center higher (35%) than on the result-card heroes (40%) — same % top, bigger badge. 19% centers it at 40%, matching the heroes (Tim) */
-#so-overlay #so-roll-btn{width:100%;padding:16px;font-size:1.45em;} /* v8.130: SHOOT fills its button (Tim) */
+#so-overlay #so-roll-btn{width:224px;height:47px;padding:0 26px;font-size:18px;} /* v8.138: SHOOT matches the gate button's size like every shootout button (Tim) — supersedes v8.130's full-width 1.45em */
 
 /* ---- misc touch polish ---- */
 button{min-height:44px;}
@@ -1476,7 +1480,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.137</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.138</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1564,7 +1568,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         </div>
       </div>
       <div style="margin-top:10px">
-        <button class="btn-start" id="so-start-btn" style="width:100%;padding:14px;font-size:1.05em" onclick="launchShootoutPractice()">Start Shootout →</button>
+        <button class="btn-start" id="so-start-btn" style="width:224px;height:47px;padding:0 26px;font-size:18px;margin:10px auto 0" onclick="launchShootoutPractice()">Start Shootout →</button>
       </div>
     </div>
 
@@ -1596,7 +1600,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.137</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.138</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2036,7 +2040,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         </div>
       </div>
       <div id="so-shot-result" style="text-align:center;font-size:1.3em;font-weight:900;padding:7px 10px;border-radius:8px;margin-bottom:6px"></div>
-      <button class="abtn prim" style="width:100%" id="so-next-btn" onclick="soAdvance()">Continue</button>
+      <button class="abtn prim" id="so-next-btn" onclick="soAdvance()">Continue</button>
     </div>
 
     <!-- Final result -->
@@ -2047,7 +2051,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
         <div id="so-winner-team" style="font-size:1.9em;font-weight:900;line-height:1.1;"></div>
       </div>
       <div id="so-final-msg" style="display:none;"></div> <!-- v7.109: hidden (Tim) — winner row says it all -->
-      <button class="btn-ov" id="so-again-btn" onclick="restartShootout()">🔄 Shootout Again</button>
+      <button class="btn-ov" id="so-again-btn" onclick="restartShootout()">Shootout Again</button>
       <button class="btn-ov" id="so-bags-btn" onclick="showBagViewer()" style="display:none">🎒 View Final Bags</button>
       <button class="btn-ov" onclick="soNewGame()">New Game</button>
     </div>
@@ -6442,24 +6446,24 @@ function soShowFlipGate(){
       +'<div id="so-start-gate" style="display:none;margin-top:12px"></div>';
     fc.style.bottom='auto'; fc.style.top='64%'; fc.style.transform='translate(-50%,-50%)';
   }
-  fc.style.display='block';
+  fc.style.display='flex';
   soRenderStartGate();
 }
 function soRenderStartGate(){
   const gate=document.getElementById('so-start-gate'); if(!gate)return;
   const fc=document.getElementById('so-first-card'); if(fc)fc.style.pointerEvents='auto';
   gate.style.display='block';
-  const _btn='<button onclick="soStartGatePress()" style="background:linear-gradient(180deg,#ffd75e,#c9a227);color:#0b0e14;border:none;border-radius:12px;padding:13px 26px;font-size:1.02em;font-weight:900;letter-spacing:.5px;cursor:pointer;box-shadow:0 4px 18px rgba(248,189,85,.35)">START SHOOTOUT</button>';
+  const _btn='<button onclick="soStartGatePress()" style="background:linear-gradient(180deg,#ffd75e,#c9a227);color:#0b0e14;border:none;border-radius:12px;width:224px;height:47px;padding:0 26px;font-size:1.02em;font-weight:900;letter-spacing:.5px;cursor:pointer;box-shadow:0 4px 18px rgba(248,189,85,.35)">CONTINUE</button>';
   if(!_onlineActive){ gate.innerHTML=_btn; return; }
   if(!_so.startAck)_so.startAck=[false,false];
   const op=1-_mySlot;
   const oppName=plainTeamName(((_so.players[op]||{}).teamName)||'Opponent');
   if(_so.startAck[_mySlot]){
-    gate.innerHTML='<div style="font-size:.95em;font-weight:800;color:#7ee2a0">\u2713 You\'re ready</div><div style="font-size:.78em;color:#8fa3bf;font-weight:700;margin-top:4px">Waiting for '+oppName+' to tap start\u2026</div>';
+    gate.innerHTML='<div style="font-size:.95em;font-weight:800;color:#7ee2a0">\u2713 You\'re ready</div><div style="font-size:.78em;color:#8fa3bf;font-weight:700;margin-top:4px">Waiting for '+oppName+' to tap Continue\u2026</div>';
   } else if(_so.startAck[op]){
     gate.innerHTML=_btn+'<div style="font-size:.78em;color:#8fa3bf;font-weight:700;margin-top:7px">'+oppName+' is ready \u2713 \u2014 waiting on you</div>';
   } else {
-    gate.innerHTML=_btn+'<div style="font-size:.78em;color:#8fa3bf;font-weight:700;margin-top:7px">Both players tap start to begin</div>';
+    gate.innerHTML=_btn+'<div style="font-size:.78em;color:#8fa3bf;font-weight:700;margin-top:7px">Both players tap Continue to begin</div>';
   }
 }
 function soStartGatePress(){
@@ -6509,7 +6513,7 @@ function soCoinFlip(practice){
   const _ftop=_fbox?_fbox.getBoundingClientRect().top:0;
   // v8.11: coin card sits center-screen — it just pops up and disappears (Tim; supersedes the 3_87 dock)
   _fc.style.bottom='auto';_fc.style.top='64%';_fc.style.transform='translate(-50%,-50%)'; // v8.83: sits in the blank space below the team boxes, not over them (Tim)
-  _fc.style.display='block';
+  _fc.style.display='flex';
   // v8.118: no auto-dismiss/auto-start anymore — the START SHOOTOUT gate under
   // the coin begins the first turn (one press solo; both players online).
   // Online real-game shootout: publish the drawn shooters so both sides
@@ -7010,7 +7014,7 @@ function soShowFinal(){
   // soCheckWinner() ran (hence the awkward "Round 4 of 3").
   // 3_64: final always reads "Shootout Complete" — even after sudden death (Tim).
   // The old sudden-death phrasing showed the *next* round number ("Round 10") on a decided shootout.
-  document.getElementById('so-title').innerHTML = (_isOT ? '🏆 Game Complete' : '🥅 Shootout Complete <span class="fo-flip">🥅</span>') + '<br><span id="so-subtitle" style="font-size:.8em;opacity:.85"></span>';
+  document.getElementById('so-title').innerHTML = (_isOT ? '🏆 Game Complete' : '<span style="white-space:nowrap;font-size:.82em">🥅 Shootout Complete <span class="fo-flip">🥅</span></span>') + '<br><span id="so-subtitle" style="font-size:.8em;opacity:.85"></span>';
   // 2_155: a decided real-game shootout ends the game — purge the autosave so the
   // menu doesn't offer to resume a finished game. Practice mini-games never wrote
   // a save; the tied→shootout path never reaches a winner here, so overtime is safe.
