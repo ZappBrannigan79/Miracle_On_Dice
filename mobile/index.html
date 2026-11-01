@@ -195,10 +195,11 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .mp-hero .die-wrap{transform:scale(1.65);}
 .mp-label{font-weight:800;letter-spacing:1.5px;color:#c7d5e8;font-size:.95em;margin:6px 0 10px;}
 .mp-sources{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:12px;}
+.bp2-dice{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:16px 0 14px;}
 .mp-src{cursor:pointer;text-align:center;}
 .mp-src-cap{font-size:.62em;color:#9fb4cc;margin-top:2px;}
 .mp-ice{width:100%;}
-#minipay .mp-ice.lit{background:linear-gradient(180deg,#ffd94d,#f0ad1f)!important;color:#191104!important;border:none!important;box-shadow:0 0 18px rgba(255,217,77,.55);font-weight:900;}
+#minipay .mp-ice.lit,#benchpick .mp-ice.lit{background:linear-gradient(180deg,#ffd94d,#f0ad1f)!important;color:#191104!important;border:none!important;box-shadow:0 0 18px rgba(255,217,77,.55);font-weight:900;}
 .epicker-sub{font-size:.8em;color:#aaa;margin-bottom:14px;}
 .epicker-needed{font-size:1.1em;font-weight:900;color:white;margin-bottom:12px;}
 .epicker-needed span{color:var(--gold);}
@@ -1509,7 +1510,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.152</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.154</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1629,7 +1630,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.152</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.154</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1729,6 +1730,16 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
     <div class="mp-label" id="mp-label"></div>
     <div class="mp-sources" id="mp-sources"></div>
     <button class="abtn sec mp-ice" id="mp-ice" onclick="miniPayIce()">ICE IT INSTEAD</button>
+  </div>
+</div>
+
+<!-- v8.154: bench picker card (Tim) -->
+<div class="epicker-overlay" id="benchpick">
+  <div class="epicker-box mp-box">
+    <button class="mp-x" onclick="closeBenchCard()">✕</button>
+    <div class="mp-title" id="bp2-title">CHOOSE ONE TO BENCH</div>
+    <div class="bp2-dice" id="bp2-dice"></div>
+    <button class="abtn sec mp-ice" id="bp2-iceall" onclick="benchCardIceAll()">BENCH NONE — ICE ALL</button>
   </div>
 </div>
 
@@ -2944,11 +2955,13 @@ function autoAssignSB(){if(aiGuard())return;
   const ap=AP();
   // Separate free faces (advance immediately) from costed faces (need picker)
   const toProcess=[...ap.z.rs];
-  const freeDice=[], costedDice=[];
+  const freeDice=[], costedDice=[], blankDice=[];
+  const _hcRRlive=toProcess.some(d=>d.key==='HC'&&d.face&&d.face.t==='RR'); // 3_73: blanks wait while HC RR sits live
   toProcess.forEach(d=>{
     if(!d.face)return;
     const f=d.face;
-    if(f.t==='E'||d.energyPending||f.t==='RR'||f.t==='PEN'||f.t==='ADV'||f.t==='BLANK'||f.t==='W')return;
+    if(f.t==='BLANK'){if(!_hcRRlive)blankDice.push(d);return;} // v8.153: Quick Assign ices blanks too (Tim)
+    if(f.t==='E'||d.energyPending||f.t==='RR'||f.t==='PEN'||f.t==='ADV'||f.t==='W')return;
     if(f.t==='S'||f.t==='B'){
       if(f.c) costedDice.push(d);
       else freeDice.push(d);
@@ -2963,10 +2976,19 @@ function autoAssignSB(){if(aiGuard())return;
     else{ap.z.defend.push(d);G.turnCounts.def++;}
     moved++;
   }); // v7.30: auto-assign counts for summary (Tim)
-  if(moved)addLog(`${ap.name}: Auto-assigned ${moved} free Shoot/Block dice.`);
+  if(moved)addLog(`${ap.name}: Quick-assigned ${moved} free Shoot/Block dice.`);
+  // v8.153: blanks go to Iced (an HC blank is set aside instead, like every other ice path)
+  let _icedN=0;
+  blankDice.forEach(d=>{
+    const i=ap.z.rs.indexOf(d);if(i===-1)return;
+    ap.z.rs.splice(i,1);
+    if(d.key==='HC'){addLog(`${ap.name}: ${dLbl(d)} → set aside.`);}
+    else{ap.z.iced.push(d);_icedN++;}
+  });
+  if(_icedN)addLog(`${ap.name}: Quick Assign iced ${_icedN} blank(s).`);
   // v8.152: costed faces STAY in RS (Tim) — tap one to pay on its own mini card.
   if(costedDice.length)addLog(`${ap.name}: ${costedDice.length} costed face(s) left in RS — tap one to pay 1⚡.`);
-  if(!moved&&!costedDice.length)toast('No free Shoot or Block faces to auto-assign.');
+  if(!moved&&!costedDice.length&&!blankDice.length)toast('Nothing for Quick Assign to do.');
   renderAll();
 }
 function autoAdvanceCostQueue(queue,idx){
@@ -4408,11 +4430,6 @@ function setupBenchPick(loserSlot,zone,ids){
   if(!ids.length)return;
   const p=G.players[loserSlot];
   const need=Math.min(Math.max(0,1-p.z.bench.length),ids.length);
-  if(need<=0){ // bench full — no choice to make, everything ices
-    ids.forEach(id=>{const z=p.z[zone],i=z.findIndex(d=>d.id===id);if(i!==-1)p.z.iced.push(z.splice(i,1)[0]);});
-    addLog(`${p.name}: bench full — ${ids.length} die/dice to the Iced Zone.`);
-    return;
-  }
   // 3_01: skip the bench choice when the loser has no turns left this period —
   // benched dice only return at the start of your next turn, and the period
   // reset would sweep them first. 01:00: nobody has turns left. 02:00: only the
@@ -4425,6 +4442,11 @@ function setupBenchPick(loserSlot,zone,ids){
     // v7.30: toast for the local loser (Tim) — reminds them why no bench choice on the last turn
     const _isLocalLoser=(_aiActive&&loserSlot!==_aiSlot)||(_onlineActive&&loserSlot===_mySlot)||(!_aiActive&&!_onlineActive);
     if(_isLocalLoser)toast('\u{1FA91} No bench on your last turn \u2014 everything ices at period end.');
+    return;
+  }
+  if(need<=0){ // v8.154: bench full — the pick still gets its card (BENCH FULL, ICE ALL lit) instead of icing silently (Tim)
+    G.benchPick={loser:loserSlot,zone,ids:ids.slice(),picked:[],need:0,done:false};
+    _benchSel=[];
     return;
   }
   G.benchPick={loser:loserSlot,zone,ids:ids.slice(),picked:[],need,done:false};
@@ -4445,6 +4467,7 @@ function refreshBenchPhase(){
   const aiLoser=_aiActive&&bp&&bp.loser===_aiSlot; // 2_45: AI picks its own bench
   const iAmLoser=aiLoser?false:(!_onlineActive||(bp&&bp.loser===_mySlot));
   if(!pending){
+    closeBenchCard(); // v8.154: pick resolved (or none) — the card never lingers
     area.style.display='none';waitLine.style.display='none';
     const _bl0=document.getElementById('bench-status-line');if(_bl0)_bl0.style.display='none'; // v7.30: clear (Tim)
     // restore the Continue button to its normal post-result state
@@ -4458,10 +4481,10 @@ function refreshBenchPhase(){
   }
   const loserName=G.players[bp.loser].name;
   if(iAmLoser){
-    waitLine.style.display='none';area.style.display='block';
+    waitLine.style.display='none';area.style.display='none'; // v8.154: the pick moved to its own card (Tim)
     const _blH=document.getElementById('bench-status-line');if(_blH)_blH.style.display='none'; // v7.68: hide stale opponent status when I'm benching (Tim)
-    renderBenchPickDice();
-    if(cbtn){cbtn.style.display='none';} // v7.30: removed — SEND TO BENCH covers it (Tim)
+    if(cbtn){cbtn.style.display='block';cbtn.disabled=false;cbtn.textContent='BENCH AND CONTINUE';} // v8.154: opens the bench picker card (Tim)
+    if(document.getElementById('benchpick').classList.contains('show'))renderBenchCard();
   }else{
     area.style.display='none';
     // v7.30: Continue button stays (Tim) — bench status goes to text line below, not the button
@@ -4514,13 +4537,13 @@ function updateBenchConfirm(){
   const _bpr=document.getElementById('bench-pick-dice'); // v8.85: pick full → fade the unpicked dice (Tim)
   if(_bpr){const _full=!!(bp&&_benchSel.length>=bp.need);_bpr.querySelectorAll('.die-body').forEach(db=>db.classList.toggle('bp-dim',_full&&!db.classList.contains('sel')));}
 }
-async function confirmBenchPick(){
+async function confirmBenchPick(skipDlg){
   const bp=G.benchPick;
   if(!bp||bp.done)return;
   if(_aiActive&&bp.loser===_aiSlot&&!_aiSelf)return; // 2_50: AI picks its own bench — human taps must not interfere. (Blanket aiGuard() here swallowed the HUMAN's pick after any AI combat, sticking the game.)
   if(_onlineActive&&bp.loser!==_mySlot){toast('Waiting for the bench choice…');return;}
-  // v7.30: "are you sure?" if benching fewer than max (Tim)
-  if(_benchSel.length<bp.need){
+  // v7.30: "are you sure?" if benching fewer than max (Tim) — v8.154: the card's BENCH NONE — ICE ALL skips it
+  if(!skipDlg&&_benchSel.length<bp.need){
     const ok=await appConfirm({title:'Bench fewer dice?',
       msg:`Benching ${_benchSel.length} of ${bp.need} — the rest go to the Iced Zone. Continue?`,
       yes:'Bench & Continue',no:'Go back'}); // v8.148 (Tim)
@@ -4546,6 +4569,49 @@ async function confirmBenchPick(){
   // Continue afterwards. Chuck's own pick arrives via combatContinue→aiMaybeBench under _aiSelf
   // and must NOT re-enter combatContinue (it closes the panel itself right after).
   if(!_aiSelf)combatContinue();
+}
+/* ═══ v8.154: bench picker card (Tim) — the loser's pick lives on its own
+   card so the fixed 744 result card never scrolls. One tap benches the die
+   (confirmBenchPick chains the Continue); BENCH NONE — ICE ALL is explicit,
+   no dialog; a full bench shows BENCH FULL with ICE ALL lit. ═══ */
+function benchPickIsMine(bp){
+  return !!bp&&!(_aiActive&&bp.loser===_aiSlot)&&(!_onlineActive||bp.loser===_mySlot);
+}
+function openBenchCard(){
+  const bp=G.benchPick;if(!bp||bp.done)return;
+  renderBenchCard();
+  document.getElementById('benchpick').classList.add('show');
+}
+function renderBenchCard(){
+  const bp=G.benchPick;if(!bp)return;
+  const full=bp.need<=0;
+  document.getElementById('bp2-title').textContent=full?'BENCH FULL':'CHOOSE ONE TO BENCH';
+  const row=document.getElementById('bp2-dice');row.innerHTML='';row.style.display=full?'none':'flex';
+  if(!full){
+    const p=G.players[bp.loser];
+    p.z[bp.zone].filter(d=>bp.ids.includes(d.id)).forEach(d=>{
+      const w=document.createElement('div');w.className='mp-src';
+      w.innerHTML=dieWrapHTML(d,false,false);
+      w.addEventListener('click',()=>benchCardPick(d.id));
+      row.appendChild(w);
+    });
+  }
+  const b=document.getElementById('bp2-iceall');
+  b.textContent=full?'ICE ALL':'BENCH NONE — ICE ALL';
+  b.classList.toggle('lit',full);
+}
+function benchCardPick(id){
+  _benchSel=[id];
+  closeBenchCard();
+  confirmBenchPick();
+}
+function benchCardIceAll(){
+  _benchSel=[];
+  closeBenchCard();
+  confirmBenchPick(true); // explicit choice — no "bench fewer?" dialog
+}
+function closeBenchCard(){
+  const el=document.getElementById('benchpick');if(el)el.classList.remove('show');
 }
 // Display-only combat reveal — used locally by the resolver AND remotely by
 // the other client from the synced result (never re-rolls, never mutates G).
@@ -4612,6 +4678,8 @@ function showCombatResult(r){
 // Only the shooter advances past the combat result — this also closes the
 // defender's panel via the synced combatDone flag.
 function combatContinue(){
+  // v8.154: my bench pick is pending → this button opens the bench picker card (Tim)
+  if(G.benchPick&&!G.benchPick.done&&benchPickIsMine(G.benchPick)){openBenchCard();return;}
   // v7.30: defender's Continue dismisses locally (Tim) — only the shooter advances the game
   if(_onlineActive&&!isMyTurn()){closeCombat();return;}
   const _ccb=document.getElementById('combat-continue-btn');if(_ccb)_ccb.disabled=true; // 2_48: no double-advance
@@ -5263,7 +5331,7 @@ function renderZone(zid,arr,opts={}){
           body.addEventListener('click',()=>toast('Spun down for energy — that die can\'t be rerolled.'));
         }else{
           body.style.cursor='pointer';
-          body.addEventListener('click',()=>{die.sel=!die.sel;body.classList.toggle('sel-rr',die.sel);});
+          body.addEventListener('click',()=>{die.sel=!die.sel;body.classList.toggle('sel-rr',die.sel);if(die.key==='HC')updateRRNudge();}); // v8.153: HC (de)select swaps the Reroll None button
         }
       }else{body.style.cursor='not-allowed';body.style.opacity='.4';}
     }else if(!locked&&opts.inRS&&G.phase===3){
@@ -5509,6 +5577,17 @@ function collapseRSZone(zoneEl){
     setTimeout(()=>{dys.forEach(({el})=>{el.style.transition='';el.style.transform='';});},1600);
   });
 }
+// v8.153: one tap in reroll mode sets the selected HC RR die aside (Tim) —
+// it leaves RS like every other HC "ice"; the reroll selection continues.
+function iceHcFromRR(dieId){if(aiGuard())return;
+  const ap=AP();
+  const i=ap.z.rs.findIndex(d=>d.id===dieId&&d.key==='HC');
+  if(i===-1)return;
+  const die=ap.z.rs.splice(i,1)[0];
+  die.sel=false;
+  addLog(`${ap.name}: ${dLbl(die)} → set aside.`);
+  renderAll();
+}
 // 4_19: reroll nudge pill — visible while dice can be picked for reroll (Tim).
 // Covers the free reroll AND the HC RR face mode; hides the moment the reroll
 // is confirmed, skipped, or cancelled (all of those clear _rrMode + renderAll).
@@ -5530,11 +5609,18 @@ function updateRRNudge(){
     const _none=document.createElement('button');
     _none.className='abtn sec';
     _none.style.flex='1';_none.style.whiteSpace='nowrap';_none.style.fontSize='.85em'; // v7.78: single line, thinner (Tim)
-    _none.textContent='Reroll None'; // v7.77: no icons — clean text (Tim)
-    _none.addEventListener('click',()=>{
-      appConfirm({title:'Reroll none?',msg:'No dice will be rerolled.',yes:'Reroll None',no:'Cancel'})
-        .then(ok=>{if(ok)skipRR();});
-    }); // v7.95: confirm echoes the tapped action (Tim)
+    // v8.153: HC RR die selected → this button becomes ICE HC DIE (plain, one tap — Tim)
+    const _hcSel=AP().z.rs.find(d=>d.sel&&d.key==='HC'&&d.face&&d.face.t==='RR');
+    if(_hcSel){
+      _none.textContent='ICE HC DIE';
+      _none.addEventListener('click',()=>iceHcFromRR(_hcSel.id));
+    }else{
+      _none.textContent='Reroll None'; // v7.77: no icons — clean text (Tim)
+      _none.addEventListener('click',()=>{
+        appConfirm({title:'Reroll none?',msg:'No dice will be rerolled.',yes:'Reroll None',no:'Cancel'})
+          .then(ok=>{if(ok)skipRR();});
+      }); // v7.95: confirm echoes the tapped action (Tim)
+    }
     _row.appendChild(_none);
     const b=document.createElement('button');
     // 5_57: bonus reroll back to original gold pulse (Tim)
@@ -5735,12 +5821,13 @@ function renderRSActions(){
   const ra=document.getElementById('rs-actions');ra.innerHTML='';
   if(spectating())return; // spectators get no auto-assign buttons
   if(_aiActive&&G.ap===_aiSlot)return; // 3_49: AI Chuck assigns behind the scenes — no button
-  if(G.phase===4&&!_rrMode&&G.aaDone){const _aaAp=AP();if(_aaAp.z.rs.some(d=>d.face&&(d.face.t==='S'||d.face.t==='B')&&!d.face.c))G.aaDone=false;} // 4_52: stale guard (Tim) — v8.152: free faces only
+  const _aaAct=p=>{const rs=p.z.rs;if(rs.some(d=>d.face&&(d.face.t==='S'||d.face.t==='B')&&!d.face.c))return true;if(rs.some(d=>d.key==='HC'&&d.face&&d.face.t==='RR'))return false;return rs.some(d=>d.face&&d.face.t==='BLANK');}; // v8.153: free S/B, or blanks (held by a live HC RR — 3_73)
+  if(G.phase===4&&!_rrMode&&G.aaDone){const _aaAp=AP();if(_aaAct(_aaAp))G.aaDone=false;} // 4_52: stale guard (Tim)
   if(G.phase===4&&!_rrMode&&!G.aaDone){
     const ap=AP();
-    if(!ap.z.rs.some(d=>d.face&&(d.face.t==='S'||d.face.t==='B')&&!d.face.c))return; // 3_49: nothing to assign — no button (v8.152: free faces only)
+    if(!_aaAct(ap))return; // 3_49: nothing for Quick Assign to do — no button
     const b1=document.createElement('button');
-    b1.className='rs-act-btn auto-sb pulsing';b1.textContent='⚡ Auto-Assign Shoot & Block';
+    b1.className='rs-act-btn auto-sb pulsing';b1.textContent='Quick Assign + Ice Blanks'; // v8.153: renamed (Tim) — no bolt, just the text
     b1.addEventListener('click',autoAssignSB);ra.appendChild(b1);
     // 2_24: Auto-send Blanks→Iced button removed (unused); blanks are individually clickable instead
   }
@@ -9332,11 +9419,13 @@ function aiMaybeBench(){
   try{
     _benchSel=ranked.slice(0,bp.need).map(d=>d.id);
     confirmBenchPick();
-    const msg=`🪑 benched ${Math.min(bp.need,ranked.length)} ${bp.need===1?'die':'dice'}`;
-    aiPill(msg); // stashes the note for the turn-end summary
-    // v7.30: update shot-card status line (Tim)
-    const _bl=document.getElementById('bench-status-line');
-    if(_bl){_bl.style.display='block';_bl.textContent=`Chuck benched ${Math.min(bp.need,ranked.length)} ${bp.need===1?'die':'dice'}.`;}
+    if(bp.need>0){ // v8.154: full bench (need 0) ices silently — no "benched 0" noise
+      const msg=`🪑 benched ${Math.min(bp.need,ranked.length)} ${bp.need===1?'die':'dice'}`;
+      aiPill(msg); // stashes the note for the turn-end summary
+      // v7.30: update shot-card status line (Tim)
+      const _bl=document.getElementById('bench-status-line');
+      if(_bl){_bl.style.display='block';_bl.textContent=`Chuck benched ${Math.min(bp.need,ranked.length)} ${bp.need===1?'die':'dice'}.`;}
+    }
     // Note joins _aiTurnNotes; turn-end summary carries it. No separate aiShowSummary() here.
   }finally{_aiSelf=false;}
 }
