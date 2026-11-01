@@ -674,7 +674,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .cbreak{font-size:.73em;color:#888;margin-top:3px;}
 .cresult{text-align:center;font-size:1.4em;font-weight:900;padding:11px;border-radius:8px;margin:9px 0;}
 .cresult.goal{background:rgba(26,58,139,.3);color:#88aaff;border:1px solid #4466cc;}
-.cresult.blocked{background:rgba(139,26,26,.3);color:#ffaaaa;border:1px solid #cc3333;}
+.cresult.blocked{background:#2f3339;color:#ffaaaa;border:2px solid #9aa5b1;} /* v8.145: the shootout SAVED banner, everywhere (Tim) */
 /* v7.162: GOAL jumbotron banner (mockup B) + scoreboard pop (mockup C) + SAVED thud + game-over moment (Tim) */
 .cresult.goal{position:relative;overflow:hidden;isolation:isolate;background:radial-gradient(120px 120px at var(--beamL,20%) var(--beamT,36%), rgba(255,90,50,.42), rgba(255,90,50,0) 70%),radial-gradient(120px 120px at var(--beamR,80%) var(--beamT,36%), rgba(255,90,50,.42), rgba(255,90,50,0) 70%),radial-gradient(62% 125% at 50% 50%, rgba(255,90,50,.4), rgba(255,90,50,0) 72%),linear-gradient(165deg,#4a0d0d,#20060a);border:2px solid #ff6a55;color:#ffd75e;font-size:2.45em;padding:17px 10px 14px;border-radius:12px;text-shadow:0 0 18px rgba(255,80,50,.55),0 3px 0 rgba(90,0,0,.8);box-shadow:0 0 26px rgba(255,60,40,.35),inset 0 0 34px rgba(255,60,40,.18);}
 .cresult.goal:not(.goalpop){animation:goalGlow 2.8s ease-in-out infinite alternate;}
@@ -685,7 +685,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 @keyframes beamSpinR{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(-360deg);}}
 @keyframes jumboRays{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
 /* v7.175 (Tim): in-place thumps — the box stays put, beats a few times, settles */
-.cresult.goal .gsir{display:inline-block;}
+.cresult.goal .gsir{display:inline-block;margin:0 18px;} /* v8.144: (token)  GOAL  (token) — double-space gap (Tim) */
 .cresult.goal.thumping{animation:goalGlow 2.8s ease-in-out infinite alternate,goalThump 1.15s ease-out;}
 /* v8.40: LAMP FLASH (Tim's pick from the mockups) — the banner bursts in and a red flash washes the card */
 @keyframes goalFlash{0%{transform:scale(.3);opacity:0;filter:brightness(2.4)}28%{opacity:1}55%{transform:scale(1.13);filter:brightness(1.55)}76%{transform:scale(.965);filter:brightness(1.1)}100%{transform:scale(1);filter:brightness(1)}}
@@ -710,7 +710,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 @keyframes gfxVig{from{opacity:.3}to{opacity:.95}} /* outranks the modCardIn entry rule (0,4,0) — otherwise the card flash never plays */
 @keyframes goalThump{0%{transform:scale(1);}12%{transform:scale(1.06) rotate(.6deg);}24%{transform:scale(.98) rotate(0deg);}36%{transform:scale(1.05) rotate(-.5deg);}48%{transform:scale(.99);}60%{transform:scale(1.03);}74%{transform:scale(1);}100%{transform:scale(1);}}
 .cresult.goal .jumbo-team{display:block;font-size:.4em;font-weight:900;letter-spacing:.14em;color:#fff;margin-top:6px;}
-.cresult.blocked{font-size:2em;padding:15px 10px;border-radius:12px;}
+.cresult.blocked{font-size:2.45em;padding:17px 10px 14px;border-radius:12px;} /* v8.145: GOAL's size (Tim) */
 .cresult.blocked.savthump{animation:savedGlow 2.8s ease-in-out infinite alternate,savedThumpBig 1.25s ease-out;}
 #crbanner{height:92px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;} /* v8.125: GOAL/SAVED same size as the shootout banner (Tim) */
 @keyframes savedGlow{from{box-shadow:0 0 14px rgba(204,51,51,.25),inset 0 0 20px rgba(204,51,51,.12);}to{box-shadow:0 0 28px rgba(204,51,51,.45),inset 0 0 34px rgba(204,51,51,.2);}}
@@ -911,6 +911,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 #so-shot-result{display:flex;align-items:center;justify-content:center;text-align:center;height:92px;box-sizing:border-box;} /* v8.124: GOAL and SAVED cards the same size (Tim) */
 @keyframes soSavedLand{0%{transform:translateY(-6px) scale(1.02);opacity:.35}100%{transform:translateY(0) scale(1);opacity:1}} /* v8.140: the saved banner's basic landing (Tim) */
 #so-shot-result.savedland{animation:soSavedLand .35s ease-out}
+#crbanner.savedland{animation:soSavedLand .35s ease-out} /* v8.145: same basic landing in the full game (Tim) */
 .totcirc{width:56px;height:56px;border-radius:14px; /* v8.124: square badge, no circles (Tim) */display:flex;align-items:center;justify-content:center;font-size:1.6em;font-weight:900;flex-shrink:0;}
 .totcirc.grn{background:rgba(76,175,93,.22);border:2px solid #6fbf73;color:#c9f0cc;}
 .totcirc.wht{background:rgba(255,255,255,.10);border:2px solid #c9d2e8;color:#e8ecf4;}
@@ -1482,7 +1483,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.143</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.145</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1602,7 +1603,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.143</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.145</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4529,7 +4530,7 @@ function showCombatResult(r){
   animNumbersRS([..._shotCells,..._saveCells],[...r.sr,...r.br],()=>{ // v8.82: RS-length tumble (Tim)
     // v7.30: totals + banner paint together (Tim's son caught totals landing early)
     if(r.isGoal){banner.className='cresult goal';banner.innerHTML='<span class="gsir">'+goalImg('1.15em')+'</span> GOAL '+'<span class="gsir">'+goalImg('1.15em')+'</span>';goalCelebrate(banner);scorePop(G.ap);}
-    else{banner.className='cresult blocked';banner.innerHTML='🛡️ SAVED 🛡️';if(!_REDUCED_MOTION){banner.classList.remove('savthump');void banner.offsetWidth;banner.classList.add('savthump');}}
+    else{banner.className='cresult blocked';banner.innerHTML='<span style="font-size:1.15em;margin:0 18px">🛡️</span> SAVED <span style="font-size:1.15em;margin:0 18px">🛡️</span>';if(!_REDUCED_MOTION){banner.classList.remove('savedland');void banner.offsetWidth;banner.classList.add('savedland');}}
     requestAnimationFrame(()=>{
       document.getElementById('stotal').textContent=r.sTotal;
       document.getElementById('btotal').textContent=r.bTotal;
@@ -6875,7 +6876,7 @@ function soShowResult(r){
         flashGoal(resEl,document.getElementById('so-panel')); // v8.40: lamp flash
       } else {
         resEl.style.margin='9px 0';resEl.style.fontSize='2.45em';resEl.style.background='#2f3339';resEl.style.color='#ffaaaa';resEl.style.border='2px solid #9aa5b1';resEl.style.borderRadius='12px'; // v8.143: charcoal + GOAL-style silver border (Tim, mock B); size/margins as GOAL (v8.140/141)
-        resEl.innerHTML='<span style="font-size:1.15em">🛡️</span> SAVED <span style="font-size:1.15em">🛡️</span>'; // v8.124: bookended shields, no score (Tim)
+        resEl.innerHTML='<span style="font-size:1.15em;margin:0 18px">🛡️</span> SAVED <span style="font-size:1.15em;margin:0 18px">🛡️</span>'; // v8.124: bookended shields, no score (Tim) // v8.144: same double-space gap (Tim)
         if(!_REDUCED_MOTION)resEl.classList.add('savedland'); // v8.140: just a basic landing (Tim)
       }
       renderSOScoreboard();
