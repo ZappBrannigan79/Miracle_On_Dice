@@ -1482,7 +1482,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.142</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.143</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1602,7 +1602,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.142</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.143</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -6874,7 +6874,7 @@ function soShowResult(r){
         resEl.innerHTML='<span class="gsir">'+goalImg('1.15em')+'</span> GOAL <span class="gsir">'+goalImg('1.15em')+'</span>'; // v8.124: clean — (token) GOAL (token), no score line (Tim)
         flashGoal(resEl,document.getElementById('so-panel')); // v8.40: lamp flash
       } else {
-        resEl.style.margin='9px 0';resEl.style.fontSize='2.45em';resEl.style.background='#6d1414';resEl.style.color='#ffaaaa'; // v8.141: GOAL's margins too — same spot (Tim)resEl.style.border='1px solid #cc3333';resEl.style.borderRadius='12px'; // v8.140: GOAL's size, solid dark red, no flash (Tim)
+        resEl.style.margin='9px 0';resEl.style.fontSize='2.45em';resEl.style.background='#2f3339';resEl.style.color='#ffaaaa';resEl.style.border='2px solid #9aa5b1';resEl.style.borderRadius='12px'; // v8.143: charcoal + GOAL-style silver border (Tim, mock B); size/margins as GOAL (v8.140/141)
         resEl.innerHTML='<span style="font-size:1.15em">🛡️</span> SAVED <span style="font-size:1.15em">🛡️</span>'; // v8.124: bookended shields, no score (Tim)
         if(!_REDUCED_MOTION)resEl.classList.add('savedland'); // v8.140: just a basic landing (Tim)
       }
