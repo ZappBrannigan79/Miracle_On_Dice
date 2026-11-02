@@ -196,6 +196,12 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .mp-label{font-weight:800;letter-spacing:1.5px;color:#c7d5e8;font-size:.95em;margin:6px 0 10px;}
 .mp-sources{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:12px;}
 .bp2-dice{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:16px 0 14px;}
+/* v8.170: bench card breathing room (Tim — was cramped) */
+#benchpick .mp-box{max-width:364px;width:calc(100vw - 24px);padding:26px 22px 22px;border-radius:18px;}
+#benchpick .mp-title{font-size:1.32em;}
+#benchpick .bp2-dice{margin:22px 0 20px;gap:16px;}
+#benchpick .mp-ice{margin-top:16px;min-height:56px;font-size:1.08em;}
+#benchpick .mp-x{top:10px;right:10px;}
 .bc-line{margin-top:12px;text-align:center;font-size:.88em;color:#ffd94d;animation:bcPulse 1.7s ease-in-out infinite;}
 .bc-line.warn{color:#ff5147;font-weight:800;}
 @keyframes bcPulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -730,6 +736,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 @keyframes gfxFade{0%{opacity:0}10%{opacity:.85}78%{opacity:.7}100%{opacity:0}}
 .goal-fx .gfx-vig{position:absolute;inset:0;box-shadow:inset 0 0 110px 34px rgba(255,35,20,.5);opacity:0}
 .goal-fx.play .gfx-vig{animation:gfxVig .5s ease-in-out 8 alternate forwards}
+#combat-panel>.goal-fx{z-index:6} /* v8.170: goal sirens sweep OVER the Shot on Goal card, not behind it (Tim) */
 @keyframes gfxVig{from{opacity:.3}to{opacity:.95}} /* outranks the modCardIn entry rule (0,4,0) — otherwise the card flash never plays */
 @keyframes goalThump{0%{transform:scale(1);}12%{transform:scale(1.06) rotate(.6deg);}24%{transform:scale(.98) rotate(0deg);}36%{transform:scale(1.05) rotate(-.5deg);}48%{transform:scale(.99);}60%{transform:scale(1.03);}74%{transform:scale(1);}100%{transform:scale(1);}}
 .cresult.goal .jumbo-team{display:block;font-size:.4em;font-weight:900;letter-spacing:.14em;color:#fff;margin-top:6px;}
@@ -801,6 +808,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 /* v7.30: Shot on Goal mirror halves (Tim) — uniform attacker/defender zones */
 .cbreak{display:none} /* v7.30: breakdown removed (Tim) */
 .sog-half{border-radius:14px;padding:12px 14px;margin-top:14px;} /* v7.30: tighter box, spacing kept (Tim) */
+#block-sel-area .sog-def{margin-top:30px;} /* v8.171: selection halves breathe like the roll (Tim) */
 .sog-off{background:rgba(59,110,246,.10);border:1.5px solid rgba(59,110,246,.55);}
 .sog-def{background:rgba(246,59,59,.08);border:1.5px solid rgba(246,59,59,.5);}
 .sog-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;}
@@ -1538,7 +1546,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.168</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.171</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1658,7 +1666,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.168</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.171</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3577,14 +3585,14 @@ function goonResolveFight(){
       const _td=opp.z[t.zone].find(d=>d.id===t.die.id)||t.die; // v7.30: re-resolve by id (Tim's bug — stale ref)
       const ti=opp.z[t.zone].indexOf(_td);if(ti!==-1)opp.z[t.zone].splice(ti,1);
       opp.z.iced.push(_td);
-      document.getElementById('goon-fight-win').textContent=`👊 Goon wins ${gTot}-${tTot}!`; // v7.30: banner (Tim)
+      document.getElementById('goon-fight-win').textContent=`GOON WINS ${gTot}-${tTot}`; // v8.171: goon-framed always (Tim)
       document.getElementById('goon-f1-total').closest('.sog-half').classList.add('win'); // v7.30: pulse winning half (Tim)
       if(_sum){_sum.innerHTML=`<div class="goon-outcome">${t.die.key} \u2192 Iced.</div>`;_sum.style.display='block';} // v7.30: pool count (Tim)
       addLog(`👊 Goon wins ${gTot}-${tTot}! ${t.die.key} iced, goon iced.`,'imp');
     }else{
       const _gotPen=true; // v8.124: unlimited pool (Tim)
       if(_gotPen){ap.bag.push(mkDie('Penalty'));}
-      document.getElementById('goon-fight-win').textContent=`${t.die.key} wins ${tTot}-${gTot}!`; // v7.30: banner (Tim)
+      document.getElementById('goon-fight-win').textContent=`GOON LOSES ${gTot}-${tTot}`; // v8.171: goon-framed always (Tim)
       document.getElementById('goon-f2-total').closest('.sog-half').classList.add('win'); // v7.30: pulse winning half (Tim)
       if(_sum){_sum.innerHTML=`<div class="goon-outcome">Penalty die \u2192 ${bareName(ap.name)}'s bag.</div>`;_sum.style.display='block';} // v7.30: pool count (Tim)
       addLog(`👊 Goon loses ${gTot}-${tTot}. Goon iced`+(_gotPen?', penalty die to bag.':', pool empty, no penalty.')+'.','imp');
@@ -3697,11 +3705,11 @@ function showFightWatch(fs){
     const _wsum=document.getElementById('goon-fight-summary');
     const _wgoonOwner=bareName(G.players[1-_mySlot].name); // v7.30: dynamic bag owner (Tim)
     if(fs.won){
-      document.getElementById('goon-fight-win').textContent=`👊 Goon wins ${fs.gTot}-${fs.tTot}!`;
+      document.getElementById('goon-fight-win').textContent=`GOON WINS ${fs.gTot}-${fs.tTot}`; // v8.171 (Tim)
       document.getElementById('goon-f1-total').closest('.sog-half').classList.add('win'); // v7.30 (Tim)
       if(_wsum){_wsum.innerHTML=`<div class="goon-outcome">${fs.targetKey} \u2192 Iced.</div>`;_wsum.style.display='block';} // v7.30: pool count (Tim)
     }else{
-      document.getElementById('goon-fight-win').textContent=`${fs.targetKey} wins ${fs.tTot}-${fs.gTot}!`;
+      document.getElementById('goon-fight-win').textContent=`GOON LOSES ${fs.gTot}-${fs.tTot}`; // v8.171 (Tim)
       document.getElementById('goon-f2-total').closest('.sog-half').classList.add('win'); // v7.30 (Tim)
       if(_wsum){_wsum.innerHTML=`<div class="goon-outcome">Penalty die \u2192 ${_wgoonOwner}'s bag.</div>`;_wsum.style.display='block';} // v7.30: pool count (Tim)
     }
@@ -5638,7 +5646,7 @@ function updateRRNudge(){
   // 4_22 (Tim): reroll confirm moved into the RS zone — the thumb's already there.
   // Human gets static text + a pulsing Reroll Selected button; Chuck keeps his pill.
   if(_aiRrNudge){
-    el.innerHTML='<span class="rr-pill">🤖 AI choosing reroll…</span>';
+    el.innerHTML='<span class="rr-pill">Opponent Choosing Reroll…</span>'; // v8.169: no emoji, 'Opponent' (Tim)
     el.classList.add('show');
   }else if(_rrMode){
     const _isBonus=G.clock===10&&G.ap===G.foWinner&&G.bonusRRUsed&&!G.rrUsed; // 5_53: fix scope (Tim)
@@ -8765,11 +8773,11 @@ async function aiDoFight(){ // 4_94: fight reveal (Tim)
       document.getElementById('cf-target-total').textContent=tTot;
       // v7.30: banner + half pulse + conditional outcome (Tim)
       if(won){
-        document.getElementById('cf-win').textContent=`👊 Goon wins ${gTot}-${tTot}!`;
+        document.getElementById('cf-win').textContent=`GOON WINS ${gTot}-${tTot}`; // v8.171 (Tim)
         document.getElementById('cf-goon-total').closest('.sog-half').classList.add('win');
         document.getElementById('cf-result').innerHTML=`<div class="goon-outcome">${t.die.key} \u2192 Iced.</div>`; // v7.30: pool count (Tim)
       }else{
-        document.getElementById('cf-win').textContent=`${t.die.key} wins ${tTot}-${gTot}!`;
+        document.getElementById('cf-win').textContent=`GOON LOSES ${gTot}-${tTot}`; // v8.171 (Tim)
         document.getElementById('cf-target-total').closest('.sog-half').classList.add('win');
         document.getElementById('cf-result').innerHTML=`<div class="goon-outcome">Penalty die \u2192 Chuck's bag.</div>`; // v7.30: pool count (Tim)
       }
@@ -9421,7 +9429,7 @@ async function aiDefendTurn(){
   _aiTurnNotes=[]; // 2_47
   _aiStripIcons=[]; // 3_09: defend response is its own sequence
   try{
-    aiPill(`👀 studies your shot…`, 30000); // 3_30: no auto-expiry — the commits pill below replaces it directly, no flicker (Tim)
+    aiPill(`Opponent Studying Shot…`, 30000); // v8.169: no emoji, 'Opponent' (Tim) // 3_30: no auto-expiry — the commits pill below replaces it directly, no flicker (Tim)
     // 3_75: one beat only (Tim) — the studies pill used to cover two beats (~5s on Normal),
     // twice the commits pill's pause. Dice highlights land with the pill now.
     _aiSelf=true;
