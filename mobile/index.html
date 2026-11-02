@@ -484,8 +484,8 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 /* 3_68: die-anchored option popover (Tim) — small uniform card directly over the die,
    replaces the old side-popup .die-menu on all platforms. Sized for the 3-button
    Energy case; 2-button cases (Wild, HC Energy) use the same box. */
-.die-pop{position:fixed;z-index:10000;width:172px;background:#1a2d45;border:1px solid var(--gold);border-radius:10px;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.85);display:flex;flex-direction:column;gap:4px;} /* 4_25: compact (Tim) */
-.die-pop button{min-height:38px;border-radius:6px;border:1px solid rgba(200,168,75,.45);background:rgba(200,168,75,.13);color:#fff;font-weight:700;font-size:.78em;cursor:pointer;padding:4px 6px;} /* 4_25: compact (Tim) */
+.die-pop{position:fixed;z-index:10000;width:132px;background:#1a2d45;border:1px solid var(--gold);border-radius:10px;padding:6px;box-shadow:0 6px 24px rgba(0,0,0,.85);display:flex;flex-direction:column;gap:4px;} /* 4_25: compact (Tim) */
+.die-pop button{height:44px;min-height:44px;border-radius:6px;border:1px solid rgba(200,168,75,.45);background:rgba(200,168,75,.13);color:#fff;font-weight:700;font-size:.95em;cursor:pointer;padding:4px 4px;white-space:nowrap;} /* v8.168: uniform 44px, .95em, one line (Tim) */ /* 4_25: compact (Tim) */
 .die-pop button:active{background:rgba(200,168,75,.32);}
 .die-pop button:disabled{opacity:.38;cursor:default;}
 /* 3_68: blanks flash-fade to the Iced Zone once assignment starts (Tim) */
@@ -1512,18 +1512,20 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
    silver border on top/sides only, grows with its state; the bar hosts the
    card's primary button (#m-cardbar, build.py) so the in-card ones hide here. */
 #combat-panel{bottom:calc(74px + env(safe-area-inset-bottom));align-items:flex-end;padding:0 10px}
-#combat-panel.show .combat-box{height:auto;max-height:100%;border:2px solid #2f3339;border-bottom:none;border-radius:20px 20px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -10px 26px rgba(0,0,0,.55)} /* E: charcoal steel (Tim's pick over silver) */
+#combat-panel.show .combat-box{height:auto;max-height:100%;border:9px solid transparent;border-bottom:none;border-radius:20px 20px 0 0;background:linear-gradient(#0a1820,#0a1820) padding-box,linear-gradient(180deg,#c3ccd6,#8f99a5 45%,#59626d) border-box;box-shadow:inset 0 0 0 4px rgba(5,6,10,.75),inset 0 0 0 7px rgba(255,255,255,.15),inset 0 12px 22px rgba(0,0,0,.4),0 -18px 42px rgba(0,0,0,.7)} /* v8.167: K tombstone frame (Tim) */
 #combat-panel #combat-continue-btn{display:none!important}
 #combat-panel .block-sel-area>button.abtn.prim{display:none!important}
 
 /* v8.160: fight cards + AI turn summary join combat as docked sheets (Tim).
    Faceoff deliberately left as-is (his call). */
 #goon-panel,#chuck-fight-panel,#fight-panel{bottom:calc(74px + env(safe-area-inset-bottom));align-items:flex-end;padding:0 10px}
-#goon-panel.show .panel-box,#chuck-fight-panel.show .panel-box,#fight-panel.show .panel-box{height:auto;border:2px solid #2f3339;border-bottom:none;border-radius:20px 20px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -10px 26px rgba(0,0,0,.55)}
+#goon-panel.show .panel-box,#chuck-fight-panel.show .panel-box,#fight-panel.show .panel-box{height:auto;border:9px solid transparent;border-bottom:none;border-radius:20px 20px 0 0;box-shadow:inset 0 0 0 4px rgba(5,6,10,.75),inset 0 0 0 7px rgba(255,255,255,.15),inset 0 12px 22px rgba(0,0,0,.4),0 -18px 42px rgba(0,0,0,.7)}
+#goon-panel.show .panel-box,#chuck-fight-panel.show .panel-box{background:linear-gradient(160deg,#0e2317,#0a1a10) padding-box,linear-gradient(180deg,#c3ccd6,#8f99a5 45%,#59626d) border-box}
+#fight-panel.show .panel-box{background:linear-gradient(#0f2035,#0f2035) padding-box,linear-gradient(180deg,#c3ccd6,#8f99a5 45%,#59626d) border-box}
 #goon-panel.show .panel-box{max-height:100%!important}
 #chuck-fight-panel.show .panel-box,#fight-panel.show .panel-box{max-height:100%}
 #goon-panel #goon-commit,#goon-panel #goon-fight-continue,#goon-panel #goon-result .abtn.prim,#goon-pick .abtn.sec,#chuck-fight-panel .abtn.prim,#fight-panel #fight-commit-atk,#fight-panel #fight-commit-def,#fight-panel #fight-step-1 .abtn.sec,#fight-panel #fight-result .abtn.prim{display:none!important}
-body #ai-pill.summary{left:10px;right:10px;width:auto;max-width:none;top:auto;bottom:calc(74px + env(safe-area-inset-bottom))!important;min-height:0;max-height:75vh;border:2px solid #2f3339;border-bottom:none;border-radius:20px 20px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 -10px 26px rgba(0,0,0,.55)}
+body #ai-pill.summary{left:10px;right:10px;width:auto;max-width:none;top:auto;bottom:calc(74px + env(safe-area-inset-bottom))!important;min-height:0;max-height:75vh;border:9px solid transparent;border-bottom:none;border-radius:20px 20px 0 0;background:linear-gradient(rgba(20,16,8,.95),rgba(20,16,8,.95)) padding-box,linear-gradient(180deg,#c3ccd6,#8f99a5 45%,#59626d) border-box;box-shadow:inset 0 0 0 4px rgba(5,6,10,.75),inset 0 0 0 7px rgba(255,255,255,.15),inset 0 12px 22px rgba(0,0,0,.4),0 -18px 42px rgba(0,0,0,.7)}
 body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 #ai-pill.summary #ai-take-turn{display:none!important}
 </style>
@@ -1536,7 +1538,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.165</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.168</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1656,7 +1658,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.165</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.168</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -3219,7 +3221,7 @@ function assignDie(die,action){
   }else if(action==='hc-set-aside'){
     // 3_68: HC Energy die set aside early (Tim) — same as end-of-turn, just now
     ap.z.rs.splice(idx,1); // HC die leaves RS — re-dealt next turn via player.hcDie
-    addLog(`${ap.name}: HC Energy die set aside.`);
+    addLog(`${ap.name}: ${dLbl(die)} → set aside.`); // v8.168: face-aware (RR uses this path too)
     renderAll();return;
   }else if(action==='pen-pool-empty'){
     toast('Penalty pool is empty — all 3 penalty dice are in play.');
@@ -5448,30 +5450,33 @@ function getHumanOpts(die){
   const f=die.face,ap=AP();
   if(!f||aiGuard())return null;
   if(f.t==='E'){
-    if(die.key==='HC')return[{l:'Open Shop',a:'open-shop'},{l:'Set Aside',a:'hc-set-aside'}];
+    if(die.key==='HC')return[{l:'Shop',a:'open-shop'},{l:'Set Aside',a:'hc-set-aside'}];
     const full=ap.z.reserve.length>=1;
-    return[{l:'Open Shop',a:'open-shop'},{l:full?'Reserve (full)':'Reserve',a:'reserve',dis:full},{l:'Ice',a:'iced'}];
+    return[{l:'Shop',a:'open-shop'},{l:'Reserve',a:'reserve',dis:full},{l:'Ice It',a:'iced'}]; // v8.168: 1-2 word labels (Tim)
   }
   if(f.t==='W'){
     const z=G.clock>2?'Cold':'Hot';
-    return[{l:`As Shoot → ${z}`,a:'shoot'},{l:'As Block → Def',a:'block'}];
+    return[{l:`${z}`,a:'shoot'},{l:'Defense',a:'block'}]; // v8.168: destination only (Tim)
   }
   if(f.t==='FT'){ // 4_44: goon fight (Tim)
-    if(_goonFightUsed)return[{l:'👊 Fight used this turn',a:'goon-used',dis:true},{l:'Ice it',a:'iced'}];
+    if(_goonFightUsed)return[{l:'Fight',a:'goon-used',dis:true},{l:'Ice It',a:'iced'}];
     // v8.49: no legal targets — grey the fight row with the reason, same family as the dead ADV rows (Tim)
-    if(!hasFightTarget())return[{l:'👊 Start Fight — no targets',a:'goon-fight',dis:true},{l:'Ice it',a:'iced'}];
-    return[{l:'👊 Start Fight',a:'goon-fight'},{l:'Ice it',a:'iced'}];
+    if(!hasFightTarget())return[{l:'Fight',a:'goon-fight',dis:true},{l:'Ice It',a:'iced'}];
+    return[{l:'Fight',a:'goon-fight'},{l:'Ice It',a:'iced'}]; // v8.168: no emoji, 1 word (Tim)
   }
   if(f.t==='ADV'&&ap.z.cold.length===0){ // v8.74: 10:00 no longer dead (Tim trial)
     // v8.51: dead ADV — the die itself renders faded in Roll & Sort (same treatment as a
     // targetless fight die), so the popover drops its disabled reason rows: just the exit.
     // Live ADV still one-clicks via getOpts below. (Tim)
-    return[{l:die.key==='HC'?'Set Aside':'Ice it',a:'iced'}];
+    return[{l:'Advance',a:'adv',dis:true},{l:die.key==='HC'?'Set Aside':'Ice It',a:'iced'}]; // v8.168: greyed Advance row (Tim)
   }
   // v8.36: unpayable costed S/B taps fall through to getOpts → the PAY TO ADVANCE session (its own Ice It inside) — the 3_84 dead-end is retired.
-  if(f.t==='SO'&&f.c&&!hasEnergy1()){ // 4_101: free SO skips energy check (Tim)
-    return[{l:'Shutout — need 1\u26a1 (none available)',a:'no-energy',dis:true},
-           {l:'Ice it',a:'iced'}];
+  if(f.t==='SO'&&f.c){ // v8.168: costed shutout always opens the PAY COST card (Tim) — its ICE IT INSTEAD is the ice path
+    return[{l:'Pay Cost',a:'shutout-cost'}];
+  }
+  if(f.t==='RR'){ // v8.168: nothing to reroll — one tap sets the HC aside (RR is HC-only) (Tim)
+    const _others=ap.z.rs.filter(d=>d.id!==die.id&&!d.spun&&d.face);
+    if(!_others.length)return[{l:'Set Aside',a:'hc-set-aside'}];
   }
   // Single-option faces: reuse getOpts (handles costed/blocked/empty states) — one click.
   // v7.30: preserve the full option incl. label (Tim) — the HC die must never
@@ -5505,7 +5510,7 @@ function showDiePopover(die,anchorEl,opts){
   });
   document.body.appendChild(p);
   // Uniform box, centered over the die, clamped to the viewport.
-  const pw=210,ph=p.offsetHeight||170;
+  const pw=132,ph=p.offsetHeight||170; // v8.168: matches .die-pop width
   let x=r.left+r.width/2-pw/2,y=r.top+r.height/2-ph/2;
   x=Math.max(8,Math.min(window.innerWidth-pw-8,x));
   y=Math.max(8,Math.min(window.innerHeight-ph-8,y));
@@ -5649,10 +5654,10 @@ function updateRRNudge(){
     const _hcSel=AP().z.rs.find(d=>d.sel&&d.key==='HC'&&d.face&&d.face.t==='RR');
     const _hcFace=!!_rrPendingHC; // v8.156: the pending HC is the face-mode signal on its own — _rrDieId can be 0 (Player 1's HC is the first die created) and 0 is falsy (Tim)
     if(_hcFace){
-      _none.textContent='ICE HC DIE';
+      _none.textContent='SET HC ASIDE'; // v8.166: HC is set aside, never iced (Tim)
       _none.addEventListener('click',()=>iceHcPendingRR());
     }else if(_hcSel){
-      _none.textContent='ICE HC DIE';
+      _none.textContent='SET HC ASIDE'; // v8.166: HC is set aside, never iced (Tim)
       _none.addEventListener('click',()=>iceHcFromRR(_hcSel.id));
     }else{
       _none.textContent='Reroll None'; // v7.77: no icons — clean text (Tim)
