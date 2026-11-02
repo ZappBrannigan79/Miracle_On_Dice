@@ -1536,6 +1536,14 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 body #ai-pill.summary{left:10px;right:10px;width:auto;max-width:none;top:auto;bottom:calc(74px + env(safe-area-inset-bottom))!important;min-height:0;max-height:75vh;border:9px solid transparent;border-bottom:none;border-radius:20px 20px 0 0;background:linear-gradient(rgba(20,16,8,.95),rgba(20,16,8,.95)) padding-box,linear-gradient(180deg,#c3ccd6,#8f99a5 45%,#59626d) border-box;box-shadow:inset 0 0 0 4px rgba(5,6,10,.75),inset 0 0 0 7px rgba(255,255,255,.15),inset 0 12px 22px rgba(0,0,0,.4),0 -18px 42px rgba(0,0,0,.7)}
 body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 #ai-pill.summary #ai-take-turn{display:none!important}
+
+/* v8.172: bench picker is a true sheet — tombstone frame docked on the bar, its button lives in the bar (Tim) */
+#benchpick{bottom:calc(74px + env(safe-area-inset-bottom));align-items:flex-end;justify-content:center;padding:0 10px;background:rgba(0,0,0,.45)}
+#benchpick .mp-box{max-width:none;width:100%;border:9px solid transparent;border-bottom:none;border-radius:20px 20px 0 0;background:linear-gradient(#0a1820,#0a1820) padding-box,linear-gradient(180deg,#c3ccd6,#8f99a5 45%,#59626d) border-box;box-shadow:inset 0 0 0 4px rgba(5,6,10,.75),inset 0 0 0 7px rgba(255,255,255,.15),inset 0 12px 22px rgba(0,0,0,.4),0 -18px 42px rgba(0,0,0,.7);padding:16px 16px 14px}
+#benchpick .mp-title{font-size:1.12em}
+#benchpick .bp2-dice{margin:12px 0 4px}
+#benchpick .mp-ice{display:none!important}
+#benchpick .mp-x{display:none!important}
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1546,7 +1554,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.171</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.172</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1666,7 +1674,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.171</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.172</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -10277,6 +10285,11 @@ window.addEventListener('DOMContentLoaded', () => {
   cardBtn2.addEventListener('click', () => { if (_cardTarget2 && !_cardTarget2.disabled) _cardTarget2.click(); });
   const _secVis = el => !!el && el.style.display !== 'none';
   const sheetState = () => {
+    // v8.172: the bench sheet stacks over combat — it wins the bar while open (Tim)
+    const bpk = $('benchpick');
+    if (bpk && bpk.classList.contains('show')) {
+      return { main: $('bp2-iceall'), sec: bpk.querySelector('.mp-x'), secLabel: 'BACK' };
+    }
     const panel = $('combat-panel');
     if (panel && panel.classList.contains('show')) {
       const rb = document.querySelector('#block-sel-area .abtn.prim');
@@ -10334,12 +10347,12 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     if (st.sec) {
       cardBtn2.style.display = '';
-      const s2 = st.sec.textContent.trim();
+      const s2 = st.secLabel || st.sec.textContent.trim(); // v8.172: bench sheet BACK
       if (cardBtn2._sig !== s2) { cardBtn2._sig = s2; cardBtn2.textContent = s2; }
       cardBtn2.disabled = !!st.sec.disabled;
     } else if (cardBtn2.style.display !== 'none') { cardBtn2.style.display = 'none'; cardBtn2._sig = ''; }
   };
-  ['combat-panel', 'goon-panel', 'chuck-fight-panel', 'fight-panel', 'ai-pill'].forEach(id => {
+  ['combat-panel', 'goon-panel', 'chuck-fight-panel', 'fight-panel', 'ai-pill', 'benchpick'].forEach(id => { // v8.172: + benchpick
     const el = $(id);
     if (el) new MutationObserver(syncCardBar).observe(el, { childList: true, subtree: true, attributes: true, characterData: true });
   });
