@@ -373,15 +373,17 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .die-wrap{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;display:flex;flex-direction:column;align-items:center;gap:9px;position:relative;flex-shrink:0;cursor:default;} /* 4_41: tier label is an absolute corner badge now — no layout shift, halo-safe (Tim) */
 .die-body{width:54px;height:54px;border-radius:12px; /* 2_42: rounded squares, like the faceoff dice */display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,.4);transition:all .15s;position:relative;flex-shrink:0;user-select:none;}
 /* v8.80: enlargement follows SELECTION, not hover (Tim) — the scale lives in the .sel/.sel-rr rules below, unified at 1.08 by his mock pick */
-.die-body.sel{box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;transform:scale(1.08);border-color:#ffffff!important;} /* 3_38 halo; v8.80: scale unified at 1.08 (Tim) */
-.die-body.sel-rr{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;transform:scale(1.08);} /* 3_38: thinner, softer halo */
+.die-body.sel{transform:scale(1.08);border-color:#ffffff!important;}
+.die-body.sel,.die-body.sel-rr{animation:selHaloPulse 1.25s ease-in-out infinite} /* v8.182: the white halo PULSES on every selected die (Tim) */
+@keyframes selHaloPulse{0%,100%{box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 10px rgba(255,255,255,.5)}50%{box-shadow:0 0 0 3px rgba(255,255,255,1),0 0 26px rgba(255,255,255,.95)}} /* 3_38 halo; v8.80: scale unified at 1.08 (Tim) */
+.die-body.sel-rr{border-color:#ffffff!important;transform:scale(1.08);} /* 3_38: thinner, softer halo */
 /* 4_55 (Tim): neon selection halos by die color */
-.pos-F .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;} /* 4_56: faded+thinner (Tim) */
-.pos-D .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;}
-.pos-R .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 1.85px rgba(255,255,255,.95),0 0 14px rgba(255,255,255,.8)!important;}
-.pos-HC .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;}
-.pos-GN .die-body.sel{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;}
-.pos-X .die-body.sel-rr{border-color:#ffffff!important;box-shadow:0 0 0 2px rgba(255,255,255,.95),0 0 16px rgba(255,255,255,.85)!important;} /* 4_57 */
+.pos-F .die-body.sel{border-color:#ffffff!important;} /* 4_56: faded+thinner (Tim) */
+.pos-D .die-body.sel{border-color:#ffffff!important;}
+.pos-R .die-body.sel{border-color:#ffffff!important;}
+.pos-HC .die-body.sel{border-color:#ffffff!important;}
+.pos-GN .die-body.sel{border-color:#ffffff!important;}
+.pos-X .die-body.sel-rr{border-color:#ffffff!important;} /* 4_57 */
 .pos-F .die-body{background:radial-gradient(circle at 35% 35%,#2a4aaa,#0d1f55);border-color:#4466cc;}
 .pos-D .die-body{background:radial-gradient(circle at 35% 35%,#aa2a2a,#550d0d);border-color:#cc4444;}
 .pos-G .die-body{background:radial-gradient(circle at 35% 35%,#666,#333);border-color:#888;}
@@ -1572,6 +1574,11 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 .tgt-die-mini{transform:scale(.5)}
 .tgt-die-mini.m3{transform:scale(.4)}
 .tgt-die-mini.m-rsv{transform:scale(.45)}
+.cdie{width:60px;height:60px} /* v8.182: rolled combat dice unify at 60 (Tim) */
+#combat-result .cdie{width:60px;height:60px} /* v8.182: result dice too (were 54) */
+#combat-result .cdie>img{width:50px!important;height:50px!important} /* v8.182: token chips scale with the 60s */
+.fo-die{width:60px;height:60px} /* v8.182: faceoff dice unify at 60 (were 56) */
+.goon-die{width:60px;height:60px} /* v8.182: fight dice unify at 60 (were 42!) */
 </style>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -1582,7 +1589,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.181</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.182</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1702,7 +1709,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.181</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.182</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
