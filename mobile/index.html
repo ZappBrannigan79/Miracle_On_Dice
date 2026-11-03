@@ -997,6 +997,9 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .btn-ov:hover{background:#e8c86b;}
 .btn-ov:disabled{opacity:.45;cursor:default;}
 .atk-dice-row{display:flex;gap:14px; /* 4_103 */flex-wrap:wrap;margin:16px 0 22px;} /* v7.30: breathing room (Tim) */
+#atk-dice.atk-minis{margin:10px 0 8px;gap:10px;justify-content:center} /* v8.186: source-dice minis above the banner (Tim) */
+.atk-mini{width:38px;height:38px;flex:none}
+.atk-mini-in{transform:scale(.64);transform-origin:top left}
 .atk-dice-row .die-body{cursor:default;}
 .combat-pulse{display:inline-block;animation:combatPulse 1.4s ease-in-out infinite;}@keyframes combatPulse{0%,100%{opacity:1}50%{opacity:.65}}
 #atk-dice-sum{font-size:1.15em;font-weight:900;color:#bcd0ff;margin:14px 0 14px;padding:10px 12px;background:rgba(59,110,246,.22);border:1.5px solid rgba(122,165,255,.5);border-radius:12px;text-align:center;} /* v7.30: live tracker hero (Tim) */
@@ -1597,7 +1600,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.185</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.186</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1717,7 +1720,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.185</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.186</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4148,7 +4151,11 @@ function renderAtkDice(){
   const canTune=G.shotDeclared&&!G.shotLocked&&_iAmAttacker2&&!_attackerIsAI2;
   // v8.149: banner-only opponent info (Tim) — when the shot isn't yours to tune, its dice row
   // folds away and the tracker line carries it. Your own dice while declaring stay.
-  row.style.display=canTune?'':'none';
+  // v8.186: when the row isn't the shooter's to tune (defender / watcher / locked), it shows the shot's source dice as minis above the banner (Tim)
+  const inShot=ap.z.shoot.filter(d=>!_shotHeldOut.has(d.id));
+  if(canTune){ row.style.display=''; row.classList.remove('atk-minis'); }
+  else if(inShot.length){ row.style.display=''; row.classList.add('atk-minis'); inShot.forEach(d=>{ const w=document.createElement('div'); w.className='atk-mini'; w.innerHTML='<div class="atk-mini-in">'+dieWrapHTML(d,false,false)+'</div>'; row.appendChild(w); }); }
+  else { row.style.display='none'; row.classList.remove('atk-minis'); }
   if(canTune)ap.z.shoot.forEach(d=>{
     const w=document.createElement('div');w.innerHTML=dieWrapHTML(d,false,false);
     const db=w.querySelector('.die-body');
@@ -4168,7 +4175,6 @@ function renderAtkDice(){
     }
     row.appendChild(w);
   });
-  const inShot=ap.z.shoot.filter(d=>!_shotHeldOut.has(d.id));
   const pips=inShot.reduce((s,d)=>s+(d.face?d.face.v:1),0);
   const n=inShot.length;
   // v7.30: bigger numbers, tokens only when >0, no hold-out hint (Tim)
