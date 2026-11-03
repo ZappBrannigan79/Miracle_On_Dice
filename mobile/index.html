@@ -1106,7 +1106,7 @@ body:has(#game.screen.active){height:100%;overflow:hidden;margin:0;}
 #m-scroll .die-body:active{transform:scale(1.12);}
 
 /* ---- dice in stage: larger touch targets ---- */
-#m-stage .die-body{width:60px;height:60px;} /* v8.179: stage dice unify at 60 (Tim) */
+#m-stage .die-body{width:64px;height:64px;} /* v8.181: staged zones back to 64 — RS fits exactly 4 per row, 8 max = 2 rows (Tim) */
 
 /* ---- opponent / quick actions / log ---- */
 #m-scroll .opp-area{width:100%!important;}
@@ -1233,7 +1233,7 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 #m-stage .zone-lbl{font-size:.75em!important;color:#d4a94e!important;margin-bottom:10px;
   font-weight:800;letter-spacing:1px;text-align:center;}
 #m-stage .zone-dice{display:flex;flex-wrap:wrap;gap:10px;min-height:70px;justify-content:center;}
-#m-stage .die-body{width:60px;height:60px;} /* v8.179: stage dice unify at 60 (Tim) */
+#m-stage .die-body{width:64px;height:64px;} /* v8.181: staged zones back to 64 — RS fits exactly 4 per row, 8 max = 2 rows (Tim) */
 
 /* v2: mini zone grid — 3 columns, each a vertical stack (v5.114) */
 #m-zonegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
@@ -1582,7 +1582,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.180</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.181</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1702,7 +1702,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.180</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.181</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
