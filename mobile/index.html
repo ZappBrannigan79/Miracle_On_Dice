@@ -1621,7 +1621,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.201</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.203</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1741,7 +1741,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.201</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.203</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4603,9 +4603,7 @@ function setupBenchPick(loserSlot,zone,ids){
   if(noTurnsLeft){
     ids.forEach(id=>{const z=p.z[zone],i=z.findIndex(d=>d.id===id);if(i!==-1)p.z.iced.push(z.splice(i,1)[0]);});
     addLog(`\u{1FA91} ${p.name}: no dice sent to the bench \u2014 no turns left this period.`);
-    // v7.30: toast for the local loser (Tim) — reminds them why no bench choice on the last turn
-    const _isLocalLoser=(_aiActive&&loserSlot!==_aiSlot)||(_onlineActive&&loserSlot===_mySlot)||(!_aiActive&&!_onlineActive);
-    if(_isLocalLoser)toast('\u{1FA91} No bench on your last turn \u2014 everything ices at period end.');
+    // v8.203: the pop-up toast for this is REMOVED (Tim — it was just annoying); the log line carries it
     return;
   }
   if(need<=0){ // v8.154: bench full — the pick still gets its card (BENCH FULL, ICE ALL lit) instead of icing silently (Tim)
@@ -9046,7 +9044,7 @@ async function aiDoAssign(P){
         ap.z.rs.splice(ap.z.rs.indexOf(d),1);ap.z.iced.push(d);
         addLog(`${ap.name}: Shutout → +${f.v} Block Tokens (1⚡ paid, ${ap.tok.block} total).`,'imp');
         nSO++;
-      }else{assignDie(d,'iced');nSO++;}
+      }else{assignDie(d,'iced');} // v8.202: an unaffordable shutout just ices — no summary line (Tim: the line is for a resolved shutout only)
     }
     if(nSO)aiPill(`🥅 shutout: +${soTok} block token${soTok===1?'':'s'}`); // v7.61 (Tim)
     if(nSO)await aiBeat(AI_BEAT);
