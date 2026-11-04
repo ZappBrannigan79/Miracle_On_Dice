@@ -1536,6 +1536,12 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
    card's primary button (#m-cardbar, build.py) so the in-card ones hide here. */
 #combat-panel{bottom:calc(74px + env(safe-area-inset-bottom));align-items:flex-end;padding:0 10px}
 #combat-panel.show .combat-box{height:auto;max-height:100%;border:9px solid transparent;border-bottom:none;border-radius:20px 20px 0 0;background:linear-gradient(#0a1820,#0a1820) padding-box,linear-gradient(180deg,#c3ccd6,#8f99a5 45%,#59626d) border-box;box-shadow:inset 0 0 0 4px rgba(5,6,10,.75),inset 0 0 0 7px rgba(255,255,255,.15),inset 0 12px 22px rgba(0,0,0,.4),0 -18px 42px rgba(0,0,0,.7)} /* v8.167: K tombstone frame (Tim) */
+/* v8.200: LAST SHOT (clock 02:00/01:00) — the pill is gone; the sheet's frame turns red and pulses with the clock (Tim). The frame's inset shadows ride inside the keyframes so the rim detail survives the pulse. */
+@keyframes framePulse{0%,100%{box-shadow:inset 0 0 0 4px rgba(5,6,10,.75),inset 0 0 0 7px rgba(255,255,255,.15),inset 0 12px 22px rgba(0,0,0,.4),0 -18px 42px rgba(0,0,0,.7),0 0 3px rgba(255,60,60,.35)}50%{box-shadow:inset 0 0 0 4px rgba(5,6,10,.75),inset 0 0 0 7px rgba(255,255,255,.15),inset 0 12px 22px rgba(0,0,0,.4),0 -18px 42px rgba(0,0,0,.7),0 0 16px rgba(255,60,60,.9)}}
+@keyframes framePulseLoud{0%,100%{box-shadow:inset 0 0 0 4px rgba(5,6,10,.75),inset 0 0 0 7px rgba(255,255,255,.15),inset 0 12px 22px rgba(0,0,0,.4),0 -18px 42px rgba(0,0,0,.7),0 0 5px rgba(255,40,40,.5)}50%{box-shadow:inset 0 0 0 4px rgba(5,6,10,.75),inset 0 0 0 7px rgba(255,255,255,.15),inset 0 12px 22px rgba(0,0,0,.4),0 -18px 42px rgba(0,0,0,.7),0 0 24px rgba(255,40,40,1)}}
+#combat-panel.lastshot .combat-box{background:linear-gradient(#0a1820,#0a1820) padding-box,linear-gradient(180deg,#ff7a6e,#d42a22 45%,#7a130d) border-box;animation:framePulse 1.4s ease-in-out infinite}
+#combat-panel.lastshot-loud .combat-box{animation-name:framePulseLoud;animation-duration:1.2s}
+@media (prefers-reduced-motion: reduce){#combat-panel.lastshot .combat-box{animation:none}}
 #combat-panel #combat-continue-btn{display:none!important}
 #combat-panel .block-sel-area>button.abtn.prim{display:none!important}
 
@@ -1614,7 +1620,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.198</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.200</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1734,7 +1740,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.198</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.200</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -1887,7 +1893,6 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
   <div class="combat-box">
     <div id="combat-teamname" style="text-align:center;line-height:1.05;margin:0 0 2px;"></div>
     <div class="combat-title">Shot on Goal<span id="shot-cancel-x" style="display:none;position:absolute;right:2px;top:50%;transform:translateY(-50%);cursor:pointer;padding:0 8px;font-size:1.2em" onclick="cancelShot()">✕</span></div><div class="combat-clockrow"><span class="combat-clock" id="combat-clock"></span></div> <!-- v7.30: X to back out pre-lock (Tim) -->
-    <div id="last-shot-banner" style="display:none;background:linear-gradient(135deg,#8a1a1a,#5a0a0a);border:2px solid #ff6666;border-radius:10px;padding:8px 12px;margin:8px 0;text-align:center;font-weight:800;font-size:.85em;color:#ffcccc;animation:nudgePulse 1.4s ease-in-out infinite;">⏰ LAST SHOT OF THE PERIOD — make it count!</div>
     <!-- 2_147: combat-info summary removed (all info duplicated elsewhere) -->
     <div id="block-sel-area">
       <div class="block-sel-area">
@@ -4071,13 +4076,23 @@ function buyTok(type){if(aiGuard())return;
   const ap0=AP(); // 5_44: token cap removed — unlimited (Tim)
   if(totalE()<3){toast('Need 3E.');return;}
   closeShop();
-  openEPicker(3, `buy 1 ${type} Token`, ()=>{
-    const ap2=AP();ap2.tokBought=ap2.tokBought||{shoot:0,block:0};
-    ap2.tok[type]++;ap2.tokBought[type]++;
-    addLog(`${ap2.name}: Bought 1 ${type} Token (3E).`);
-    if(_onlineActive){ if(type==='shoot')G.turnCounts.tokS++; else G.turnCounts.tokB++; } // v7.30: wired (Tim)
-    renderAll();
-  });
+  openTokenCard(type); // v8.199: token buys ride the buy card now, not the old picker (Tim)
+}
+function openTokenCard(type){ // v8.199: the buy-card sheet, token edition — chip hero, no trash line (Tim)
+  _buyCard={token:type};
+  _epick={needed:3,paid:0,sources:getEnergySources(),onConfirm:()=>completeTokenBuy(type),label:`buy 1 ${type} Token`,session:false};
+  renderBuyCard();
+  document.getElementById('buycard').classList.add('show');
+}
+function completeTokenBuy(type){
+  _buyCard=null;
+  document.getElementById('buycard').classList.remove('show');
+  _epickSpent=[]; // purchase completed — no refund pending (mirrors completeBuyAuto)
+  const ap2=AP();ap2.tokBought=ap2.tokBought||{shoot:0,block:0};
+  ap2.tok[type]++;ap2.tokBought[type]++;
+  addLog(`${ap2.name}: Bought 1 ${type} Token (3E).`);
+  if(_onlineActive){ if(type==='shoot')G.turnCounts.tokS++; else G.turnCounts.tokB++; } // v7.30: wired (Tim)
+  renderAll();
 }
 
 // ═══════════════════ SHOOTING ═══════════════════
@@ -4226,10 +4241,11 @@ function openCombat(){
   const _sx=document.getElementById('shot-cancel-x');
   if(_sx){const _iAmShooter2=!_onlineActive||isMyTurn();_sx.style.display=(_iAmShooter2&&G.shotDeclared&&!G.shotLocked)?'':'none';}
   renderCombatClock(); // 2_151: mini clock next to the title (white 10:00–05:00, red 04:00–01:00)
-  // v7.30: last-shot reminder + auto-select all block dice on 2:00/1:00 (Tim)
+  // v7.30: auto-select all block dice on 2:00/1:00 (Tim)
   const _isLastShot = G.clock <= 2;
-  const _lsb = document.getElementById('last-shot-banner');
-  if (_lsb) _lsb.style.display = _isLastShot ? '' : 'none';
+  // v8.200: the LAST SHOT pill is gone — the sheet's frame turns red and pulses with the clock instead (Tim)
+  const _cp200=document.getElementById('combat-panel');
+  if(_cp200){_cp200.classList.toggle('lastshot',_isLastShot);_cp200.classList.toggle('lastshot-loud',G.clock<=1);}
   _bTok=0; // _sTok is reset per-shot in declareShot; the defender keeps the attacker's synced value
   document.getElementById('btok-count').textContent='0';
   document.getElementById('stok-count').textContent=_sTok;
@@ -6392,10 +6408,15 @@ function openBuyCard(cardIdx,cost){
 }
 function renderBuyCard(){
   if(!_buyCard)return;
-  const ap=AP();const card=ap.lineup[_buyCard.cardIdx];
-  if(!card){closeBuyCard();return;}
-  document.getElementById('bc-title').textContent='BUY '+card.key;
-  document.getElementById('bc-hero').innerHTML=idDieHTML({id:'bc',key:card.key,pos:posOf(card.key)}); // v8.177: identity die, not a rolled face (Tim)
+  const ap=AP();const card=_buyCard.token?null:ap.lineup[_buyCard.cardIdx];
+  if(!_buyCard.token&&!card){closeBuyCard();return;}
+  if(_buyCard.token){ // v8.199: token edition — title + chip hero (Tim)
+    document.getElementById('bc-title').textContent='BUY '+_buyCard.token.toUpperCase()+' TOKEN';
+    document.getElementById('bc-hero').innerHTML=tokImg(_buyCard.token,'68px');
+  }else{
+    document.getElementById('bc-title').textContent='BUY '+card.key;
+    document.getElementById('bc-hero').innerHTML=idDieHTML({id:'bc',key:card.key,pos:posOf(card.key)}); // v8.177: identity die, not a rolled face (Tim)
+  }
   document.getElementById('bc-label').textContent=_epick.paid>0?`SELECT PAYMENT (${_epick.paid}/${_epick.needed}⚡)`:'SELECT PAYMENT';
   const noIcedRook=!ap.z.iced.some(d=>d.key==='Rookie'); // 5_22 nudge lives on this card now
   const box=document.getElementById('bc-sources');box.innerHTML='';
@@ -6410,13 +6431,15 @@ function renderBuyCard(){
     if(src.currentV<=0){w.style.opacity='.45';}
     else{
       w.addEventListener('click',()=>spendEPickPip(i));
-      if(noIcedRook&&sd.key==='Rookie'){const db=w.querySelector('.die-body');if(db)db.style.boxShadow='0 0 0 2px var(--gold),0 0 12px var(--gold)';}
+      if(!_buyCard.token&&noIcedRook&&sd.key==='Rookie'){const db=w.querySelector('.die-body');if(db)db.style.boxShadow='0 0 0 2px var(--gold),0 0 12px var(--gold)';}
     }
     box.appendChild(w);
   });
   const line=document.getElementById('bc-line');
-  if(!noIcedRook){line.textContent='A ROOKIE WILL BE TRASHED FROM YOUR ICED ZONE';line.classList.remove('warn');}
-  else{line.textContent="IF PAYMENT DOESN'T SEND A ROOKIE TO ICED ZONE, A ROOKIE WILL BE TRASHED FROM ROLL & SORT ZONE";line.classList.add('warn');}
+  if(_buyCard.token){line.style.display='none';} // v8.199: tokens trash nothing — no footnote (Tim)
+  else{line.style.display='';
+    if(!noIcedRook){line.textContent='A ROOKIE WILL BE TRASHED FROM YOUR ICED ZONE';line.classList.remove('warn');}
+    else{line.textContent="IF PAYMENT DOESN'T SEND A ROOKIE TO ICED ZONE, A ROOKIE WILL BE TRASHED FROM ROLL & SORT ZONE";line.classList.add('warn');}}
 }
 function completeBuyAuto(){
   const bc=_buyCard;_buyCard=null;
@@ -8441,20 +8464,10 @@ function renderCombatPill(){
   const bp=G.benchPick;
   // 3_35: Chuck benching after YOUR goal — G.ap is still the shooter, so
   // G.ap!==_aiSlot means your shot. (His own blocked shot stays as-is: no bar.)
-  const aiBenching=_aiActive&&resolved&&bp&&!bp.done&&bp.loser===_aiSlot&&G.ap!==_aiSlot;
-  // v8.147: the same benching beat in Vs Friend — generic words, no names, so one pill serves both (Tim)
-  const oppBenching=_onlineActive&&resolved&&bp&&!bp.done&&bp.loser!==_mySlot;
-  const benching=aiBenching||oppBenching;
-  const show=(_aiActive&&!resolved&&_aiDefPhase==='aiDef'&&!!_aiStepMsg)||benching;
+  const show=(_aiActive&&!resolved&&_aiDefPhase==='aiDef'&&!!_aiStepMsg); // v8.200: the Opponent-benches pill state is removed (Tim)
   const box=document.querySelector('#combat-panel .combat-box');
   if(!show){el.style.display='none';if(resEl)resEl.classList.remove('pill-above');return;}
-  if(benching){
-    // v8.147: pill rides ABOVE the banner so Continue stays bottom-most (Tim); words are his: Opponent benches…
-    if(resEl&&el.parentNode!==resEl)resEl.insertBefore(el,document.getElementById('crbanner'));
-    if(resEl)resEl.classList.add('pill-above');
-    el.style.marginTop='auto';
-    el.textContent=`Opponent benches ${bp.need} ${bp.need===1?'die':'dice'}`;
-  }else{
+  {
     // pre-shot defend beats: pill's home is ABOVE the commit area (under the clock), so the
     // pinned bottom button never shifts when the pill appears (v8.147)
     const _bsa=document.getElementById('block-sel-area');
