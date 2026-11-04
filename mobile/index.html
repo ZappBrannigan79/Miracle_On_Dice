@@ -685,6 +685,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .combat-side h3{font-size:.78em;color:#aaa;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
 .cdice-row{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;margin-bottom:7px;max-width:100%;overflow:visible;}
 .cdie{width:32px;height:32px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:.95em;font-weight:900;flex-shrink:0;}
+.cdie-line{display:flex;justify-content:center;gap:5px;} /* v8.201: balanced result lines (Tim) */
 #combat-result .cdie{width:54px;height:54px;} /* v8.151: big result dice, combat card only (Tim's pick B) */
 #combat-result .cdie>img{width:44px!important;height:44px!important;} /* v8.151: token chips scale with the dice */
 #scdice,#bcdice{gap:5px;} /* v8.151: the mock's row gap — at the shipped 8px the defender's 10 dice wrap to 3 rows and the heavy shot grows ~70px */
@@ -1620,7 +1621,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.200</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.201</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1740,7 +1741,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.200</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.201</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4778,16 +4779,31 @@ function closeBenchCard(){
 }
 // Display-only combat reveal — used locally by the resolver AND remotely by
 // the other client from the synced result (never re-rolls, never mutates G).
-// v8.189: result total shows its parts (Tim) — '16 +1 [chip] = 17': parts gold and small, total big white; plain when no tokens spent
-function rollTotalHTML(tok,kind){ // v8.198: the (+N token) is visible DURING the roll (Tim) — same line, number lands on settle
-  if(!(tok>0))return '–';
-  return '<span class="ctot-line"><span class="ctot-left"><span class="ctot-parts">(+' + tok + ' <span class="ctot-chip">' + tokImg(kind, '0.85em') + '</span>)</span></span><span>–</span><span></span></span>';
+// v8.201: the math line is GONE (Tim) \u2014 tokens live in the grid as token-dice and totals are always plain.
+// A token-die is the side's blank combat die with a BLACK field and the token chip centered on it (Tim's pick).
+function tokDieHTML(kind){
+  let n=0;
+  const blank=combatBlankHTML(kind).replace(/background:#[0-9a-fA-F]{6}/g,m=>(++n===2?'background:#05070a':m));
+  return blank+'<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">'+tokImg(kind,'29px')+'</span>';
 }
-function totalHTML(total,tok,kind){
-  if(!(tok>0))return ''+total; // v8.194: tokens live only in this math line, shown whenever any were used (Tim) — otherwise the plain total (centered as always)
-  // v8.197: simplified to (+N token) at LARGE size (Tim's pick) — the dice above carry their own pips; the
-  // paren only explains the token bump. Layout unchanged: total in the middle grid column, dead center (Tim)
-  return '<span class="ctot-line"><span class="ctot-left"><span class="ctot-parts">(+' + tok + ' <span class="ctot-chip">' + tokImg(kind, '0.85em') + '</span>)</span></span><span>' + total + '</span><span></span></span>';
+// v8.201: balanced result rows (Tim) \u2014 token-dice FIRST, then the rolled dice. Up to 4 items sit on one
+// centered line; a 5th item splits the set ceil/floor over two lines (5=3/2, 6=3/3, 7=4/3 \u2026 12=6/6).
+// Past 12 items the first 11 show and the 12th slot is a '+N' tile; in that case the dice sort
+// largest-first so the tile folds the smallest. Returns the row HTML + the dice values actually shown.
+function resultRowHTML(vals,tok,kind){
+  const diceCls=kind==='shoot'?'sd':'bd';
+  const totalItems=vals.length+tok;
+  const shownTok=Math.min(tok,11);
+  let dice=[...vals],tile=0;
+  if(totalItems>12){dice=[...vals].sort((a,b)=>b-a);tile=totalItems-11;dice=dice.slice(0,11-shownTok);}
+  const cells=[];
+  for(let i=0;i<shownTok;i++)cells.push(`<div class="cdie tokdie ${kind}" style="position:relative;padding:0;overflow:hidden">${tokDieHTML(kind)}</div>`);
+  dice.forEach(()=>cells.push(`<div class="cdie ${diceCls}">?</div>`));
+  if(tile)cells.push(`<div class="cdie more">+${tile}</div>`);
+  const n=cells.length,split=n<=4?[n]:[Math.ceil(n/2),n-Math.ceil(n/2)];
+  let idx=0,html='';
+  split.forEach(cnt=>{html+='<div class="cdie-line">'+cells.slice(idx,idx+cnt).join('')+'</div>';idx+=cnt;});
+  return{html,vals:dice};
 }
 function showCombatResult(r){
   renderCombatTeam(); // v8.136: name atop the result state too
@@ -4795,17 +4811,13 @@ function showCombatResult(r){
   const _cb0=document.querySelector('#combat-panel .combat-box');if(_cb0)_cb0.classList.remove('lampflash'); // v8.51: fresh result (Tim)
   // 2_40: combat dice scramble first — totals, banner, and Continue land on the settle.
   const _sc=document.getElementById('scdice'),_bc=document.getElementById('bcdice');
-  // v8.194: result rows hold DICE ONLY — tokens moved to the totals' math line (Tim). The 12-cell cap
-  // (2 rows of 6) counts dice alone: past 12, the 11 largest show and the 12th slot is a '+N' tile.
-  const _capRow=(vals)=>{ if(vals.length<=12)return{vals,extra:0};
-    const sv=[...vals].sort((a,b)=>b-a); return{vals:sv.slice(0,11),extra:vals.length-11}; };
-  const _cs=_capRow(r.sr),_cb=_capRow(r.br);
-  _sc.innerHTML=
-    _cs.vals.map(()=>`<div class="cdie sd">?</div>`).join('')+(_cs.extra?`<div class="cdie more">+${_cs.extra}</div>`:'');
-  _bc.innerHTML=
-    _cb.vals.map(()=>`<div class="cdie bd">?</div>`).join('')+(_cb.extra?`<div class="cdie more">+${_cb.extra}</div>`:'');
-  document.getElementById('stotal').innerHTML=rollTotalHTML(r.sTok,'shoot'); // v8.198: token count rides the roll (Tim)
-  document.getElementById('btotal').innerHTML=rollTotalHTML(r.bTok,'block');
+  // v8.201: balanced token-first rows (Tim) — see resultRowHTML. The containers stack the lines.
+  const _cs=resultRowHTML(r.sr,r.sTok,'shoot'),_cb=resultRowHTML(r.br,r.bTok,'block');
+  [_sc,_bc].forEach(el=>{el.style.flexDirection='column';el.style.alignItems='center';el.style.flexWrap='nowrap';});
+  _sc.innerHTML=_cs.html;
+  _bc.innerHTML=_cb.html;
+  document.getElementById('stotal').textContent='–'; // v8.201: totals are plain now — the dash rides the roll, the number lands on settle
+  document.getElementById('btotal').textContent='–';
   // v7.30: breakdown text removed (Tim) — dice and totals tell the story
   const banner=document.getElementById('crbanner');
   banner.className='cresult';banner.textContent='🎲 Rolling…';
@@ -4822,8 +4834,8 @@ function showCombatResult(r){
     if(r.isGoal){banner.className='cresult goal';banner.innerHTML='<span class="gsir">'+goalImg('1.15em')+'</span> GOAL '+'<span class="gsir">'+goalImg('1.15em')+'</span>';goalCelebrate(banner);scorePop(G.ap);}
     else{banner.className='cresult blocked';banner.innerHTML='<span style="font-size:1.15em;margin:0 18px">🛡️</span> SAVED <span style="font-size:1.15em;margin:0 18px">🛡️</span>';if(!_REDUCED_MOTION){banner.classList.remove('savedland');void banner.offsetWidth;banner.classList.add('savedland');}}
     requestAnimationFrame(()=>{
-      document.getElementById('stotal').innerHTML=totalHTML(r.sTotal,r.sTok,'shoot'); // v8.194: math-line total (Tim)
-      document.getElementById('btotal').innerHTML=totalHTML(r.bTotal,r.bTok,'block');
+      document.getElementById('stotal').textContent=r.sTotal; // v8.201: plain totals (Tim)
+      document.getElementById('btotal').textContent=r.bTotal;
     });
     // Continue duty: only the shooter advances past the result. The defender's
     // button is greyed out; the shooter's appears after a short beat so the
