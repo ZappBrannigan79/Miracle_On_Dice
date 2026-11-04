@@ -705,6 +705,8 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .ctotal{font-size:3.2em;font-weight:900;color:white;} /* v8.151: was 2em (Tim's pick B) */
 .cdie.more{display:flex;align-items:center;justify-content:center;background:rgba(148,178,225,.1);border:2px dashed rgba(148,178,225,.55);border-radius:7px;color:#bcd0ff;font-weight:900;font-size:15px} /* v8.189: '+N' tile caps a result row (Tim) */
 .ctot-parts{font-size:.52em;color:#ffd94d;font-weight:800;vertical-align:.42em} /* v8.189: total breakdown — parts gold + small (Tim) */
+.ctot-chip{display:inline-block;vertical-align:middle;line-height:0} /* v8.194: the math-line token chip sits centered on the text line (Tim) */
+.ctot-chip>span{vertical-align:middle!important}
 .ctot-eq{font-size:.62em;opacity:.7;vertical-align:.28em} /* v8.189 */
 .cbreak{font-size:.73em;color:#888;margin-top:3px;}
 .cresult{text-align:center;font-size:1.4em;font-weight:900;padding:11px;border-radius:8px;margin:9px 0;}
@@ -1610,7 +1612,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.193</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.194</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1730,7 +1732,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.193</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.194</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4758,9 +4760,9 @@ function closeBenchCard(){
 // Display-only combat reveal — used locally by the resolver AND remotely by
 // the other client from the synced result (never re-rolls, never mutates G).
 // v8.189: result total shows its parts (Tim) — '16 +1 [chip] = 17': parts gold and small, total big white; plain when no tokens spent
-function totalHTML(total,tok,kind,capped){
-  if(!tok||!capped)return ''+total; // v8.191: breakdown only when the row overflowed the 12-cap (Tim) — otherwise the plain total
-  return '<span class="ctot-parts">'+(total-tok)+' +'+tok+' '+tokImg(kind,'1.45em')+'</span> <span class="ctot-eq">=</span> '+total;
+function totalHTML(total,tok,kind){
+  if(!(tok>0))return ''+total; // v8.194: tokens live only in this math line, shown whenever any were used (Tim) — otherwise the plain total
+  return '<span class="ctot-parts">'+(total-tok)+' +'+tok+' <span class="ctot-chip">'+tokImg(kind,'1.1em')+'</span></span> <span class="ctot-eq">=</span> '+total;
 }
 function showCombatResult(r){
   renderCombatTeam(); // v8.136: name atop the result state too
@@ -4768,18 +4770,15 @@ function showCombatResult(r){
   const _cb0=document.querySelector('#combat-panel .combat-box');if(_cb0)_cb0.classList.remove('lampflash'); // v8.51: fresh result (Tim)
   // 2_40: combat dice scramble first — totals, banner, and Continue land on the settle.
   const _sc=document.getElementById('scdice'),_bc=document.getElementById('bcdice');
-  // v8.189: result rows cap at 12 cells (2 rows of 6) (Tim) — past that, the 11 largest dice show and the
-  // 12th slot is a '+N' tile; token chips count as slots; totals always carry the true full sums.
-  const _capRow=(vals,tok)=>{ const total=vals.length+(tok||0); if(total<=12)return{vals,tok:tok||0,extra:0};
-    const sv=[...vals].sort((a,b)=>b-a); const sd=Math.min(sv.length,11); const st=Math.max(0,Math.min(tok||0,11-sd));
-    return{vals:sv.slice(0,sd),tok:st,extra:total-11}; };
-  const _cs=_capRow(r.sr,r.sTok),_cb=_capRow(r.br,r.bTok);
+  // v8.194: result rows hold DICE ONLY — tokens moved to the totals' math line (Tim). The 12-cell cap
+  // (2 rows of 6) counts dice alone: past 12, the 11 largest show and the 12th slot is a '+N' tile.
+  const _capRow=(vals)=>{ if(vals.length<=12)return{vals,extra:0};
+    const sv=[...vals].sort((a,b)=>b-a); return{vals:sv.slice(0,11),extra:vals.length-11}; };
+  const _cs=_capRow(r.sr),_cb=_capRow(r.br);
   _sc.innerHTML=
-    _cs.vals.map(()=>`<div class="cdie sd">?</div>`).join('')+
-    Array.from({length:_cs.tok},()=>{const _ti=tokImg('shoot','32px');return useTabletopArt()?`<div class="cdie sd" style="border:none;background:none;">${_ti}</div>`:`<div class="cdie sd" style="border-style:dashed;opacity:.8">+1</div>`;}).join('')+(_cs.extra?`<div class="cdie more">+${_cs.extra}</div>`:''); // v7.113: +1 token art (Tim)
+    _cs.vals.map(()=>`<div class="cdie sd">?</div>`).join('')+(_cs.extra?`<div class="cdie more">+${_cs.extra}</div>`:'');
   _bc.innerHTML=
-    _cb.vals.map(()=>`<div class="cdie bd">?</div>`).join('')+
-    Array.from({length:_cb.tok},()=>{const _ti=tokImg('block','32px');return useTabletopArt()?`<div class="cdie bd" style="border:none;background:none;">${_ti}</div>`:`<div class="cdie bd" style="border-style:dashed;opacity:.8">+1</div>`;}).join('')+(_cb.extra?`<div class="cdie more">+${_cb.extra}</div>`:''); // v7.113: +1 token art (Tim)
+    _cb.vals.map(()=>`<div class="cdie bd">?</div>`).join('')+(_cb.extra?`<div class="cdie more">+${_cb.extra}</div>`:'');
   document.getElementById('stotal').textContent='–';
   document.getElementById('btotal').textContent='–';
   // v7.30: breakdown text removed (Tim) — dice and totals tell the story
@@ -4798,8 +4797,8 @@ function showCombatResult(r){
     if(r.isGoal){banner.className='cresult goal';banner.innerHTML='<span class="gsir">'+goalImg('1.15em')+'</span> GOAL '+'<span class="gsir">'+goalImg('1.15em')+'</span>';goalCelebrate(banner);scorePop(G.ap);}
     else{banner.className='cresult blocked';banner.innerHTML='<span style="font-size:1.15em;margin:0 18px">🛡️</span> SAVED <span style="font-size:1.15em;margin:0 18px">🛡️</span>';if(!_REDUCED_MOTION){banner.classList.remove('savedland');void banner.offsetWidth;banner.classList.add('savedland');}}
     requestAnimationFrame(()=>{
-      document.getElementById('stotal').innerHTML=totalHTML(r.sTotal,r.sTok,'shoot',_cs.extra>0); // v8.189: breakdown total (Tim)
-      document.getElementById('btotal').innerHTML=totalHTML(r.bTotal,r.bTok,'block',_cb.extra>0);
+      document.getElementById('stotal').innerHTML=totalHTML(r.sTotal,r.sTok,'shoot'); // v8.194: math-line total (Tim)
+      document.getElementById('btotal').innerHTML=totalHTML(r.bTotal,r.bTok,'block');
     });
     // Continue duty: only the shooter advances past the result. The defender's
     // button is greyed out; the shooter's appears after a short beat so the
