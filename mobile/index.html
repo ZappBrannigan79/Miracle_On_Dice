@@ -1543,6 +1543,26 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 #combat-panel.lastshot .combat-box{background:linear-gradient(#0a1820,#0a1820) padding-box,linear-gradient(180deg,#ff7a6e,#d42a22 45%,#7a130d) border-box;animation:framePulse 1.4s ease-in-out infinite}
 #combat-panel.lastshot-loud .combat-box{animation-name:framePulseLoud;animation-duration:1.2s}
 @media (prefers-reduced-motion: reduce){#combat-panel.lastshot .combat-box{animation:none}}
+/* v8.204: sheets RISE out of the bar (Tim's pick: Rise, 700ms). Pure transform — compositor-only, no
+   layout work — keyed to .show, so it runs ONCE per open; fill backwards leaves zero residue, so once
+   a sheet is up it sits at its natural styles, steady, until it closes. The sheet overlays clip at the
+   bar line, so the sheet emerges FROM the bar instead of sliding over it. Exclusions keep the other
+   animation owners intact: combat's last-shot frame pulse + goal lamp flash, fights' punch shake. */
+@keyframes sheetRise{from{transform:translateY(108%)}to{transform:translateY(0)}}
+#combat-panel,#shop-panel,#goon-panel,#chuck-fight-panel,#fight-panel,#benchpick,#buycard,#minipay{overflow:hidden}
+#combat-panel.show:not(.lastshot) .combat-box:not(.lampflash),
+#shop-panel.show .panel-box,
+#goon-panel.show .panel-box:not(.fx-beat),#chuck-fight-panel.show .panel-box:not(.fx-beat),#fight-panel.show .panel-box:not(.fx-beat),
+#benchpick.show .mp-box,#buycard.show .mp-box,#minipay.show .mp-box,
+#so-overlay.show .ov-box,
+body #ai-pill.summary.show{animation-name:sheetRise;animation-duration:.7s;animation-timing-function:cubic-bezier(.25,.9,.3,1);animation-fill-mode:backwards}
+@media (prefers-reduced-motion: reduce){
+#combat-panel.show:not(.lastshot) .combat-box:not(.lampflash),
+#shop-panel.show .panel-box,
+#goon-panel.show .panel-box:not(.fx-beat),#chuck-fight-panel.show .panel-box:not(.fx-beat),#fight-panel.show .panel-box:not(.fx-beat),
+#benchpick.show .mp-box,#buycard.show .mp-box,#minipay.show .mp-box,
+#so-overlay.show .ov-box,
+body #ai-pill.summary.show{animation:none}}
 #combat-panel #combat-continue-btn{display:none!important}
 #combat-panel .block-sel-area>button.abtn.prim{display:none!important}
 
@@ -1621,7 +1641,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.203</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.204</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1741,7 +1761,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.203</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.204</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
