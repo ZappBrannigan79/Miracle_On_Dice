@@ -704,7 +704,7 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .fo-die[data-cart="fight"] img{border:2px solid #4ae08a;border-radius:4px;}
 .ctotal{font-size:3.2em;font-weight:900;color:white;} /* v8.151: was 2em (Tim's pick B) */
 .cdie.more{display:flex;align-items:center;justify-content:center;background:rgba(148,178,225,.1);border:2px dashed rgba(148,178,225,.55);border-radius:7px;color:#bcd0ff;font-weight:900;font-size:15px} /* v8.189: '+N' tile caps a result row (Tim) */
-.ctot-parts{font-size:.42em;color:#ffd94d;font-weight:800;vertical-align:.42em} /* v8.189: total breakdown — parts gold + small (Tim); v8.196: smaller math (Tim) */
+.ctot-parts{font-size:.55em;color:#ffd94d;font-weight:800;vertical-align:.42em} /* v8.189: total breakdown — parts gold + small (Tim); v8.197: LARGE (+N token) form (Tim's pick) */
 .ctot-line{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;width:100%} /* v8.196: the total is the middle column — dead center whether or not the math shows (Tim) */
 .ctot-left{justify-self:end;margin-right:34px;white-space:nowrap} /* v8.196: math parked left of the total (Tim) */
 .ctot-chip{display:inline-block;vertical-align:middle;line-height:0} /* v8.194: the math-line token chip sits centered on the text line (Tim) */
@@ -1614,7 +1614,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.196</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.197</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1734,7 +1734,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.196</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.197</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4765,9 +4765,9 @@ function closeBenchCard(){
 // v8.189: result total shows its parts (Tim) — '16 +1 [chip] = 17': parts gold and small, total big white; plain when no tokens spent
 function totalHTML(total,tok,kind){
   if(!(tok>0))return ''+total; // v8.194: tokens live only in this math line, shown whenever any were used (Tim) — otherwise the plain total (centered as always)
-  // v8.196: parens, no equals, math parked left, chip 0.85em — the total sits in the middle grid column, so it
-  // lands dead center at the exact same spot a plain total does (Tim)
-  return '<span class="ctot-line"><span class="ctot-left"><span class="ctot-parts">('+(total-tok)+' +'+tok+' <span class="ctot-chip">'+tokImg(kind,'0.85em')+'</span>)</span></span><span>'+total+'</span><span></span></span>';
+  // v8.197: simplified to (+N token) at LARGE size (Tim's pick) — the dice above carry their own pips; the
+  // paren only explains the token bump. Layout unchanged: total in the middle grid column, dead center (Tim)
+  return '<span class="ctot-line"><span class="ctot-left"><span class="ctot-parts">(+' + tok + ' <span class="ctot-chip">' + tokImg(kind, '0.85em') + '</span>)</span></span><span>' + total + '</span><span></span></span>';
 }
 function showCombatResult(r){
   renderCombatTeam(); // v8.136: name atop the result state too
