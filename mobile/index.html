@@ -1610,7 +1610,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.189</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.191</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1730,7 +1730,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.189</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.191</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -4749,8 +4749,8 @@ function closeBenchCard(){
 // Display-only combat reveal — used locally by the resolver AND remotely by
 // the other client from the synced result (never re-rolls, never mutates G).
 // v8.189: result total shows its parts (Tim) — '16 +1 [chip] = 17': parts gold and small, total big white; plain when no tokens spent
-function totalHTML(total,tok,kind){
-  if(!tok)return ''+total;
+function totalHTML(total,tok,kind,capped){
+  if(!tok||!capped)return ''+total; // v8.191: breakdown only when the row overflowed the 12-cap (Tim) — otherwise the plain total
   return '<span class="ctot-parts">'+(total-tok)+' +'+tok+' '+tokImg(kind,'1.45em')+'</span> <span class="ctot-eq">=</span> '+total;
 }
 function showCombatResult(r){
@@ -4789,8 +4789,8 @@ function showCombatResult(r){
     if(r.isGoal){banner.className='cresult goal';banner.innerHTML='<span class="gsir">'+goalImg('1.15em')+'</span> GOAL '+'<span class="gsir">'+goalImg('1.15em')+'</span>';goalCelebrate(banner);scorePop(G.ap);}
     else{banner.className='cresult blocked';banner.innerHTML='<span style="font-size:1.15em;margin:0 18px">🛡️</span> SAVED <span style="font-size:1.15em;margin:0 18px">🛡️</span>';if(!_REDUCED_MOTION){banner.classList.remove('savedland');void banner.offsetWidth;banner.classList.add('savedland');}}
     requestAnimationFrame(()=>{
-      document.getElementById('stotal').innerHTML=totalHTML(r.sTotal,r.sTok,'shoot'); // v8.189: breakdown total (Tim)
-      document.getElementById('btotal').innerHTML=totalHTML(r.bTotal,r.bTok,'block');
+      document.getElementById('stotal').innerHTML=totalHTML(r.sTotal,r.sTok,'shoot',_cs.extra>0); // v8.189: breakdown total (Tim)
+      document.getElementById('btotal').innerHTML=totalHTML(r.bTotal,r.bTok,'block',_cb.extra>0);
     });
     // Continue duty: only the shooter advances past the result. The defender's
     // button is greyed out; the shooter's appears after a short beat so the
@@ -7301,7 +7301,7 @@ function soShowResult(r){
 
   const resEl = document.getElementById('so-shot-result');
   resEl.classList.remove('goalpop');
-  resEl.classList.remove('cresult','goal','savedland');resEl.style.fontSize='1.3em';resEl.style.padding='8px';resEl.style.margin='';resEl.style.border='';resEl.style.borderRadius=''; // v8.42: reset to the plain strip // v8.91: padding slimmed (Tim) // v8.140: border reset for the saved banner
+  resEl.classList.remove('cresult','goal','savedland');resEl.style.fontSize='1.3em';resEl.style.padding='8px';resEl.style.margin='9px 0';resEl.style.border=''; // v8.190: rolling placeholder keeps the landed banner's margins — no height jump on settle (Tim)resEl.style.borderRadius=''; // v8.42: reset to the plain strip // v8.91: padding slimmed (Tim) // v8.140: border reset for the saved banner
   resEl.style.background='rgba(80,80,80,.3)';resEl.style.color='#aaa';
   resEl.textContent='🎲 Rolling…';
 
