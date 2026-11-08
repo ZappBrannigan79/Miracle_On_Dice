@@ -591,6 +591,21 @@ body{background-color:#0d1f33;background-attachment:fixed;background-image:
 .qr-tbl th{background:rgba(248,189,85,.16);color:var(--gold);padding:4px 7px;text-align:left;font-size:.95em}
 .qr-tbl td{padding:4px 7px;border-top:1px solid rgba(255,255,255,.09)}
 .qr-faces p{margin:4px 0}
+.qr-grid{display:grid;grid-template-columns:40px repeat(6,1fr);gap:4px;align-items:center;margin:2px 0 9px}
+.qr-grid .qgh{font-size:.62em;color:#8fa5c0;text-align:center;letter-spacing:.3px}
+.qr-grid .qgn{font-weight:800;font-size:.85em}
+.qfc{border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8em;height:32px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -2px 0 rgba(0,0,0,.35)}
+.qfc.s{background:linear-gradient(180deg,#3f74ff,#1740b8)}
+.qfc.b{background:linear-gradient(180deg,#e0574a,#a32418)}
+.qfc.e{background:linear-gradient(180deg,#f5bd33,#c07f08);color:#2a1d00}
+.qfc.w{background:linear-gradient(180deg,#9a6bff,#6d28d9)}
+.qfc.blank{background:rgba(255,255,255,.04);border:1.5px dashed #43597a;color:#5f7595;box-shadow:none}
+.qfc.so{background:#0d2233;border:1.5px solid var(--gold);color:var(--gold);font-size:.72em}
+.qfc.txt{background:linear-gradient(180deg,#3d5878,#22364f);font-size:.6em}
+.qfc.ft{background:linear-gradient(180deg,#2fbf71,#14743f);font-size:.7em}
+.qfc.pen{background:linear-gradient(180deg,#5a2b33,#3a1a20);color:#ff9d94;font-size:.68em}
+.qfc.zero{background:rgba(255,255,255,.04);color:#7d93b2;box-shadow:none;border:1px solid rgba(255,255,255,.12)}
+.qfc .bolt{color:#ffd83d;margin-left:1px}
 .qr-note{text-align:center;color:#8fa3c0;font-size:.85em;margin-top:16px}
 .panel-close{float:right;background:none;border:none;color:#aaa;font-size:1.4em;cursor:pointer;}
 .panel-close:hover{color:white;}
@@ -1668,7 +1683,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.212</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.213</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1788,7 +1803,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.212</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.213</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2115,30 +2130,46 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
       </ul>
       <div class="qr-sec">DICE FACES</div>
       <div class="qr-faces">
-        <p><strong>Forwards &amp; Defensemen</strong> (mirror dice) — every skater also has <strong>E1 E2 E2</strong>:</p>
-        <table class="qr-tbl">
-          <tr><th>Tier</th><th>Free S/B</th><th>Costed S/B ⚡</th><th>Wild</th></tr>
-          <tr><td><strong>1</strong></td><td>1</td><td>1</td><td>W1</td></tr>
-          <tr><td><strong>2</strong></td><td>1</td><td>2</td><td>W1</td></tr>
-          <tr><td><strong>3</strong></td><td>1</td><td>2</td><td>W2</td></tr>
-          <tr><td><strong>4</strong></td><td>2</td><td>2</td><td>W2</td></tr>
-          <tr><td><strong>5</strong></td><td>2</td><td>3</td><td>W2</td></tr>
-          <tr><td><strong>6</strong></td><td>2</td><td>3</td><td>W3</td></tr>
-        </table>
+        <p><strong>Forwards</strong>:</p>
+        <div class="qr-grid">
+          <div></div><div class="qgh">ENERGY</div><div class="qgh">ENERGY</div><div class="qgh">ENERGY</div><div class="qgh">FREE</div><div class="qgh">COSTED</div><div class="qgh">WILD</div>
+          <div class="qgn">F1</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc s">S1</div><div class="qfc s">S1<span class="bolt">⚡</span></div><div class="qfc w">W1</div>
+          <div class="qgn">F2</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc s">S1</div><div class="qfc s">S2<span class="bolt">⚡</span></div><div class="qfc w">W1</div>
+          <div class="qgn">F3</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc s">S1</div><div class="qfc s">S2<span class="bolt">⚡</span></div><div class="qfc w">W2</div>
+          <div class="qgn">F4</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc s">S2</div><div class="qfc s">S2<span class="bolt">⚡</span></div><div class="qfc w">W2</div>
+          <div class="qgn">F5</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc s">S2</div><div class="qfc s">S3<span class="bolt">⚡</span></div><div class="qfc w">W2</div>
+          <div class="qgn">F6</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc s">S2</div><div class="qfc s">S3<span class="bolt">⚡</span></div><div class="qfc w">W3</div>
+        </div>
+        <p><strong>Defensemen</strong>:</p>
+        <div class="qr-grid">
+          <div></div><div class="qgh">ENERGY</div><div class="qgh">ENERGY</div><div class="qgh">ENERGY</div><div class="qgh">FREE</div><div class="qgh">COSTED</div><div class="qgh">WILD</div>
+          <div class="qgn">D1</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc b">B1</div><div class="qfc b">B1<span class="bolt">⚡</span></div><div class="qfc w">W1</div>
+          <div class="qgn">D2</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc b">B1</div><div class="qfc b">B2<span class="bolt">⚡</span></div><div class="qfc w">W1</div>
+          <div class="qgn">D3</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc b">B1</div><div class="qfc b">B2<span class="bolt">⚡</span></div><div class="qfc w">W2</div>
+          <div class="qgn">D4</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc b">B2</div><div class="qfc b">B2<span class="bolt">⚡</span></div><div class="qfc w">W2</div>
+          <div class="qgn">D5</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc b">B2</div><div class="qfc b">B3<span class="bolt">⚡</span></div><div class="qfc w">W2</div>
+          <div class="qgn">D6</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc e">E2</div><div class="qfc b">B2</div><div class="qfc b">B3<span class="bolt">⚡</span></div><div class="qfc w">W3</div>
+        </div>
         <p><strong>Goalies</strong> (SO⚡ = +2 Block tokens):</p>
-        <table class="qr-tbl">
-          <tr><th>Die</th><th>Faces</th></tr>
-          <tr><td><strong>G3</strong></td><td>B2 B2 B2 B2 B3⚡ SO⚡</td></tr>
-          <tr><td><strong>G4</strong></td><td>B2 B2 B2 B3 B3⚡ SO⚡</td></tr>
-          <tr><td><strong>G5</strong></td><td>B2 B2 B3 B3 B3⚡ SO⚡</td></tr>
-        </table>
-        <table class="qr-tbl">
-          <tr><th>Die</th><th>Faces</th></tr>
-          <tr><td><strong>Rookie</strong></td><td>E1 E2 S1 B1 – –</td></tr>
-          <tr><td><strong>Head Coach</strong></td><td>E1 E1 E2 RR RR ADV</td></tr>
-          <tr><td><strong>Goon</strong></td><td>E1 E1 E2 FT FT FT</td></tr>
-          <tr><td><strong>Penalty</strong></td><td>PEN on every face</td></tr>
-        </table>
+        <div class="qr-grid">
+          <div></div><div class="qgh">BLOCK</div><div class="qgh">BLOCK</div><div class="qgh">BLOCK</div><div class="qgh">BLOCK</div><div class="qgh">BLOCK</div><div class="qgh">SHUTOUT</div>
+          <div class="qgn">G3</div><div class="qfc b">B2</div><div class="qfc b">B2</div><div class="qfc b">B2</div><div class="qfc b">B2</div><div class="qfc b">B3<span class="bolt">⚡</span></div><div class="qfc so">SO<span class="bolt">⚡</span></div>
+          <div class="qgn">G4</div><div class="qfc b">B2</div><div class="qfc b">B2</div><div class="qfc b">B2</div><div class="qfc b">B3</div><div class="qfc b">B3<span class="bolt">⚡</span></div><div class="qfc so">SO<span class="bolt">⚡</span></div>
+          <div class="qgn">G5</div><div class="qfc b">B2</div><div class="qfc b">B2</div><div class="qfc b">B3</div><div class="qfc b">B3</div><div class="qfc b">B3<span class="bolt">⚡</span></div><div class="qfc so">SO<span class="bolt">⚡</span></div>
+        </div>
+        <p><strong>Special dice</strong>:</p>
+        <div class="qr-grid">
+          <div class="qgn">Rook</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc s">S1</div><div class="qfc b">B1</div><div class="qfc blank">–</div><div class="qfc blank">–</div>
+          <div class="qgn">HC</div><div class="qfc e">E1</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc txt">RR</div><div class="qfc txt">RR</div><div class="qfc txt">ADV</div>
+          <div class="qgn">Goon</div><div class="qfc e">E1</div><div class="qfc e">E1</div><div class="qfc e">E2</div><div class="qfc ft">FT</div><div class="qfc ft">FT</div><div class="qfc ft">FT</div>
+          <div class="qgn">Pen</div><div class="qfc pen">PEN</div><div class="qfc pen">PEN</div><div class="qfc pen">PEN</div><div class="qfc pen">PEN</div><div class="qfc pen">PEN</div><div class="qfc pen">PEN</div>
+        </div>
+        <p><strong>Combat dice</strong> (rolled in Shots on Goal &amp; fights):</p>
+        <div class="qr-grid">
+          <div class="qgn">Shoot</div><div class="qfc s">3</div><div class="qfc s">2</div><div class="qfc s">1</div><div class="qfc zero">0</div><div class="qfc zero">0</div><div class="qfc zero">0</div>
+          <div class="qgn">Block</div><div class="qfc b">2</div><div class="qfc b">2</div><div class="qfc b">1</div><div class="qfc b">1</div><div class="qfc zero">0</div><div class="qfc zero">0</div>
+          <div class="qgn">Fight</div><div class="qfc ft">3</div><div class="qfc ft">2</div><div class="qfc ft">1</div><div class="qfc zero">0</div><div class="qfc zero">0</div><div class="qfc zero">0</div>
+        </div>
       </div>
       <div class="qr-sec">SHOOTOUT — IF TIED AFTER 3 PERIODS</div>
       <ul>
