@@ -1686,7 +1686,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.215</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.216</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1807,7 +1807,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.215</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.216</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -5160,6 +5160,12 @@ function showGameOver(){
   const[p0,p1]=G.players;
   if(p0.goals===p1.goals){
     // Tied — go straight to shootout
+    // v8.216: online, ONLY the host builds it. When both clients ran
+    // startShootout, each rolled its own coin flip and drew its own hands,
+    // the two rev lineages collided, and the start gate deadlocked with each
+    // phone showing a different first shooter (Tim, Nov 10). The joiner
+    // parks on a waiting card and mirrors the host's via soRenderSynced.
+    if(_onlineActive&&_mySlot!==0){ soJoinerWaitShootout(); return; }
     startShootout(false);
     return;
   }
@@ -6916,6 +6922,7 @@ function soRenderSynced(){
   _soWatchPick=_so.selectedFwd||null; // v8.89: capture before soStartShooterTurn clears it (Tim)
   document.getElementById('so-overlay').classList.add('show');
   renderSOScoreboard();
+  if(!_so.started&&!_so.coinRevealed){ soShowFlipWait(); return; } // v8.216: pre-reveal mirror parks on the wait card — the old fall-through ran soStartShooterTurn before the gate, which lit the shooter area, and the mobile bar (which checks the shooter area first) then never offered START SHOOTOUT: the both-ack gate deadlocked (Tim, Nov 10)
   if(_so.coinRevealed&&!_so.started){ soShowFlipGate(); soMaybeBegin(); return; } // v8.118: pre-start gate (Tim)
   if(_so.started){ const _fcg=document.getElementById('so-first-card'); if(_fcg)_fcg.style.display='none'; }
   if(_so.phase==='final'){ soShowFinal(); }
@@ -7055,9 +7062,27 @@ function startShootout(practice){
 // START SHOOTOUT button appears under the landed coin. Vs Chuck / practice:
 // one press. Vs Friend online: BOTH players must press; the first turn begins
 // only when both acknowledgements are in.
+function soJoinerWaitShootout(){ // v8.216: online joiner at a tied game over — the host builds the shootout; park until it syncs
+  document.getElementById('so-overlay').classList.add('show');
+  soShowFlipWait();
+}
+function soShowFlipWait(){ // v8.216: neutral pre-reveal card — no result spoiler, no shooter turn, empty gate (bar reads SHOOTOUT)
+  const fc=document.getElementById('so-first-card'); if(!fc)return;
+  const _sa=document.getElementById('so-shooter-area'); if(_sa)_sa.style.display='none';
+  const _ra=document.getElementById('so-result-area'); if(_ra)_ra.style.display='none';
+  if(!fc.classList.contains('so-waiting')){
+    fc.classList.add('so-waiting');
+    fc.innerHTML='<div style="font-size:1.05em;font-weight:900;color:#e8eef7;letter-spacing:.5px">\u{1F945} SHOOTOUT</div><div style="font-size:.82em;color:#8fa3bf;font-weight:700;margin-top:8px">Flipping the coin\u2026</div><div id="so-start-gate" style="display:none"></div>';
+    fc.style.bottom='auto'; fc.style.top='64%'; fc.style.transform='translate(-50%,-50%)';
+  }
+  fc.style.display='flex';
+}
 function soShowFlipGate(){
   const fc=document.getElementById('so-first-card'); if(!fc)return;
-  if(!document.getElementById('so-start-gate')){
+  const _sa2=document.getElementById('so-shooter-area'); if(_sa2)_sa2.style.display='none'; // v8.216: the gate owns the screen pre-start
+  const _ra2=document.getElementById('so-result-area'); if(_ra2)_ra2.style.display='none';
+  if(!document.getElementById('so-start-gate')||fc.classList.contains('so-waiting')){
+    fc.classList.remove('so-waiting');
     const _cfFace=(pi,cls)=>{const p=_so.players[pi]||{};const nm=p.teamName||p.name||'';return '<div class="coin-face '+cls+'"><span class="coin-init">'+(soTeamPlain(pi).charAt(0)||'?')+'</span><img src="logos-'+teamSlug(nm)+'.webp'+LOGO_V+'" alt="" draggable="false" onerror="this.style.display=\'none\'"></div>';};
     fc.innerHTML='<div id="so-coin-wrap"><div id="so-coin-halo"><div id="so-coin" class="'+(_so.firstShooter===1?'coin-b':'coin-a')+'">'+_cfFace(0,'cf-a')+_cfFace(1,'cf-b')+'</div></div></div>'
       +'<div id="so-flip-result" style="margin-top:10px;height:26px"><span class="so-flip-txt" style="display:inline-block">'+(/S$/.test((soTeamPlain(_so.firstShooter)||'').toUpperCase())?'SHOOT FIRST!':'SHOOTS FIRST!')+'</span></div>'
@@ -8425,7 +8450,7 @@ function pullState(remote){
     const opp=G.players[G.ap];
     const aplblEl=document.getElementById('aplbl');
     if(aplblEl) aplblEl.innerHTML=
-      `<span style="font-size:.9em;white-space:nowrap;">⏳ WATCHING OPPONENT ⏳</span>`; // v7.30: no wrap (Tim)
+      `<span style="font-size:.6em;letter-spacing:0;white-space:nowrap;">⏳ WATCHING OPPONENT ⏳</span>`; // v7.30: no wrap (Tim) — v8.216: .6em, was .9em of the 25px mobile turn label (~23px) and the nowrap line pushed a horizontal scroll (Tim, Nov 10)
   }
 }
 
