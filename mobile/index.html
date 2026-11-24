@@ -1527,6 +1527,14 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 #m-sbrow .scoreboard{gap:8px;padding:6px 10px;justify-content:center;}
 #m-sbrow .score-player{flex:1 1 0;min-width:0;}
 #m-sbrow .score-name{max-width:118px;}
+/* v8.224: Tim's layout shift — the period block drops a bit and the centre stack
+   narrows, so both team blocks move inward and the names gain room */
+#m-sbrow .scoreboard{gap:6px;}
+#m-sbrow .score-sep{font-size:.9em;}
+#m-sbrow .period-info{transform:translateY(6px);}
+#m-sbrow .score-name{max-width:132px;}
+/* v8.224: the scoreboard name svg is JS-sized to a 148px budget but its mobile cell is 118px — the longest names (WEREWOLVES) ran into the right border on Tim's phone. Hard-cap the svg to its cell like the v8.221 turn-header cap: it scales down, never out. */
+#m-sbrow .score-name .gn-svg{max-width:100%;height:auto;}
 
 /* v7.162: turn banner slide/fade when the turn changes (Tim) */
 @keyframes mTurnIn{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:none;}}
@@ -1692,7 +1700,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.222</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.224</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1813,7 +1821,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.222</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.224</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2768,6 +2776,7 @@ function showQS(){
 // 2_121: the banner itself is the back button (tap it to return to the mode list)
 function enterMode(mode){
   document.getElementById('mode-btns').style.display='none';
+  const _rw=document.getElementById('resume-wrap');if(_rw)_rw.style.display='none'; // v8.224: Resume belongs to the mode list only — it rode into every mode view, Quick Rules included (Tim)
   const _sb=document.querySelector('#setup .setup-box');if(_sb)_sb.style.padding='16px 32px'; // v7.152: tighter title box (Tim)
   // v8.131: #art-choice is gone with the retired art toggle (v8.130) — nothing to hide
   document.getElementById('setup-title').style.display='none';document.getElementById('setup-sub').style.display='none'; // v7.144: slim setup screens (Tim)
@@ -2788,6 +2797,7 @@ function backToModes(){
     document.getElementById(id)?.classList.remove('show'));
   document.getElementById('mode-header').style.display='none';
   document.getElementById('mode-btns').style.display='';
+  try{updateResumeBtn();}catch(e){} // v8.224: restore Resume per the actual save (pairs with the enterMode hide)
   // v8.131: #art-choice is gone with the retired art toggle (v8.130) — nothing to restore
   document.getElementById('setup-title').style.display='';document.getElementById('setup-sub').style.display=''; // v7.144
 }
