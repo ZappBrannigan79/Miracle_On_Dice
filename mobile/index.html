@@ -1533,6 +1533,11 @@ input,select{font-size:16px!important;} /* stops iOS zoom-on-focus */
 #m-sbrow .score-sep{font-size:.9em;}
 #m-sbrow .period-info{transform:translateY(6px);}
 #m-sbrow .score-name{max-width:132px;}
+/* v8.225: period scoots down a touch more and the name room widens toward the
+   centre — paired with the sim's shared sizing, both names render at one size,
+   the old 15px wherever the longest name (Werewolves) allows it (Tim) */
+#m-sbrow .period-info{transform:translateY(10px);}
+#m-sbrow .score-name{max-width:150px;}
 /* v8.224: the scoreboard name svg is JS-sized to a 148px budget but its mobile cell is 118px — the longest names (WEREWOLVES) ran into the right border on Tim's phone. Hard-cap the svg to its cell like the v8.221 turn-header cap: it scales down, never out. */
 #m-sbrow .score-name .gn-svg{max-width:100%;height:auto;}
 
@@ -1700,7 +1705,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- SETUP -->
 <div id="setup" class="screen active">
   <div class="setup-box">
-    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.224</span></div>
+    <div class="setup-title" id="setup-title">Miracle on Dice <span class="ver-badge" style="font-size:.42em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.225</span></div>
     <div class="setup-sub" id="setup-sub">Hockey Bag Building Game</div>
     <!-- 2_121: Resume button — only shown when a saved game exists -->
     <div id="resume-wrap" style="display:none;max-width:320px;margin:0 auto 16px;text-align:center;">
@@ -1821,7 +1826,7 @@ body #ai-pill.summary,body #ai-pill.summary.show{transform:none}
 <!-- GAME -->
 <div id="game" class="screen">
   <div class="top-bar">
-    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.224</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
+    <div class="game-title">🏒 Miracle on Dice <span class="fo-flip">🏒</span> <span class="ver-badge" style="font-size:.55em;color:#0a0f1e;font-weight:900;letter-spacing:1px;background:#f8bd55;border-radius:5px;padding:2px 8px;vertical-align:middle;">v8.225</span> <span id="room-code-chip" style="display:none;font-size:.52em;font-weight:700;letter-spacing:2px;color:#9fb4cc;background:rgba(255,255,255,.05);border:1px solid #2a3f5c;border-radius:6px;padding:2px 9px;vertical-align:middle;"></span></div>
     <div class="scoreboard">
       <div class="score-player"><div class="score-name" id="sn1">P1</div> <!-- v8.126: crest removed from the main scoreboard (Tim) --><div class="score-who" id="sw1"></div><div class="score-goals" id="sg1">0</div></div>
       <div class="score-sep">–</div>
@@ -2626,6 +2631,23 @@ function sizeGradNames(root){ // sizes each gradient-name svg from its text's TR
     }catch(e){}
   });
 }
+function sizeScoreNames(){ // v8.225: the two scoreboard names share ONE font size (Tim) — measure both at 15px, scale BOTH by what the longer name needs to fit the budget, then let sizeGradNames set widths (maxw=0 = no per-name rescale)
+  const items=[];
+  ['sn1','sn2'].forEach(id=>{ const host=document.getElementById(id); if(!host)return;
+    const sv=host.querySelector('.gn-svg'); if(!sv)return;
+    const t=sv.querySelector('text'); if(!t)return;
+    let L=0; try{ L=t.getComputedTextLength(); }catch(e){}
+    items.push({sv,t,L});
+  });
+  if(!items.length)return;
+  const B=(window.innerWidth||390)>=400?150:134; // name width budget — matches the mobile cell room (period dropped, blocks shifted inward)
+  const Lmax=Math.max.apply(null,items.map(i=>i.L));
+  if(Lmax>0){
+    const sc=(B-8)/Lmax;
+    if(sc<1){ const npx=Math.max(11,Math.floor(15*sc)); items.forEach(i=>{ i.t.style.fontSize=npx+'px'; }); }
+  }
+  items.forEach(i=>sizeGradNames(i.sv.parentElement));
+}
 function patchHTML(name,cls){return name?`<img class="${cls||''}" src="logos-${teamSlug(name)}.webp${LOGO_V}" alt="" onerror="this.remove()">`:'';}
 const TEAM_GRAD={anchors:["#f4aca4","#ea331f"],bandits:["#f2c79b","#bf5831"],bison:["#eec4aa","#dc702e"],blizzard:["#aec3ea","#366dd4"],comets:["#efc5a9","#e07329"],crabs:["#f1bba7","#e45825"],crocs:["#e9d0af","#d19038"],demons:["#ff8a5c","#ad1f26"],frost:["#eef8ff","#79a8cc"],glaciers:["#acdcec","#33add6"],griffins:["#efc7a9","#de782b"],hornets:["#efc8a9","#de7a2c"],inferno:["#f5b8a3","#ed531c"],invaders:["#daecac","#a8d832"],lizards:["#ecdeac","#d8b331"],mountains:["#e7c6b1","#cc753d"],orcas:["#a6c5f2","#2474e5"],owls:["#edc8ab","#da7a2f"],phantoms:["#dcfcfb","#43a0a4"],rhinos:["#f7c169","#c85a1e"],rockets:["#f3c4a5","#e97020"],scorpions:["#ecc1ac","#d66933"],spiders:["#f5a3a7","#ed1c26"],squids:["#f3a5ab","#e72230"],trolls:["#ebc8ad","#d47a35"],twisters:["#e7c8b1","#cc7a3d"],vampires:["#f3a9a5","#e92b20"],vipers:["#b9e68f","#3f9e4d"],volcanoes:["#f1bba7","#e45a25"],werewolves:["#eee6fa","#8a6fae"]}; // v8.110: per-team gradient pairs sampled from the patches (Tim)
 function teamCardHTML(p){return p?`<img class="team-card-img" src="logos-${teamSlug(p.name)}-card.webp${LOGO_V}" alt="${p.name} team card" loading="lazy" onerror="this.remove()">`:'';}
@@ -2776,7 +2798,7 @@ function showQS(){
 // 2_121: the banner itself is the back button (tap it to return to the mode list)
 function enterMode(mode){
   document.getElementById('mode-btns').style.display='none';
-  const _rw=document.getElementById('resume-wrap');if(_rw)_rw.style.display='none'; // v8.224: Resume belongs to the mode list only — it rode into every mode view, Quick Rules included (Tim)
+  const _rw=document.getElementById('resume-wrap');if(_rw)_rw.style.display='none'; // v8.225: Resume belongs to the mode list only — it rode into every mode view, Quick Rules included (Tim)
   const _sb=document.querySelector('#setup .setup-box');if(_sb)_sb.style.padding='16px 32px'; // v7.152: tighter title box (Tim)
   // v8.131: #art-choice is gone with the retired art toggle (v8.130) — nothing to hide
   document.getElementById('setup-title').style.display='none';document.getElementById('setup-sub').style.display='none'; // v7.144: slim setup screens (Tim)
@@ -2797,7 +2819,7 @@ function backToModes(){
     document.getElementById(id)?.classList.remove('show'));
   document.getElementById('mode-header').style.display='none';
   document.getElementById('mode-btns').style.display='';
-  try{updateResumeBtn();}catch(e){} // v8.224: restore Resume per the actual save (pairs with the enterMode hide)
+  try{updateResumeBtn();}catch(e){} // v8.225: restore Resume per the actual save (pairs with the enterMode hide)
   // v8.131: #art-choice is gone with the retired art toggle (v8.130) — nothing to restore
   document.getElementById('setup-title').style.display='';document.getElementById('setup-sub').style.display=''; // v7.144
 }
@@ -6090,8 +6112,9 @@ function renderBoard(){
   const sn1=document.getElementById('sn1');
   const sn2=document.getElementById('sn2');
   // 3_23: team name + who-emoji — no more (P1)/(P2) in the scoreboard header
-  if(sn1){ sn1.innerHTML=gradNameSVG(G.players[0].teamName,15,148); sizeGradNames(sn1); } // v8.112: gradient + caps (Tim)
-  if(sn2){ sn2.innerHTML=gradNameSVG(G.players[1].teamName,15,148); sizeGradNames(sn2); }
+  if(sn1){ sn1.innerHTML=gradNameSVG(G.players[0].teamName,15,0); } // v8.225: sized together below
+  if(sn2){ sn2.innerHTML=gradNameSVG(G.players[1].teamName,15,0); }
+  if(sn1&&sn2)sizeScoreNames(); // v8.225: ONE shared font size for both names, fitted to the longer one (Tim)
   const sbg1=document.getElementById('sbg1'),sbg2=document.getElementById('sbg2');
   if(sbg1){sbg1.style.display='';sbg1.src=`logos-${teamSlug(G.players[0].teamName)}.webp${LOGO_V}`;}
   if(sbg2){sbg2.style.display='';sbg2.src=`logos-${teamSlug(G.players[1].teamName)}.webp${LOGO_V}`;}
